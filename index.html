@@ -18,29 +18,94 @@
   }
   body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; overflow-x: hidden; }
 
-  /* HEADER */
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--border); background: rgba(10,10,15,0.97); position: sticky; top: 0; z-index: 100; gap: 12px; flex-wrap: wrap; }
-  .logo { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 3px; color: var(--gold); flex-shrink: 0; }
+  /* ── LOGIN SCREEN ─────────────────────────────────────────────────────── */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 0%, #1a1020 0%, #0a0a0f 60%);
+    padding: 20px;
+  }
+  .login-box {
+    width: 100%; max-width: 380px;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 36px 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+  }
+  .login-logo { font-family: 'Bebas Neue', cursive; font-size: 48px; letter-spacing: 4px; color: var(--gold); margin-bottom: 4px; }
+  .login-logo span { color: #fff; }
+  .login-tagline { font-size: 12px; color: var(--muted); margin-bottom: 28px; letter-spacing: 1px; text-transform: uppercase; }
+  .login-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; align-self: flex-start; margin-bottom: 6px; width: 100%; }
+  .login-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: 15px; outline: none;
+    transition: border 0.2s; margin-bottom: 16px; text-align: center; letter-spacing: 2px;
+  }
+  .login-input::placeholder { color: var(--muted); letter-spacing: 0; }
+  .login-input:focus { border-color: var(--gold); }
+  .login-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 10px;
+    background: var(--gold); color: #000; font-family: 'Outfit', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .login-btn:hover { background: var(--gold2); }
+  .login-error { font-size: 13px; color: var(--red); text-align: center; min-height: 20px; }
+  .login-users { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .user-chip:hover { border-color: var(--border2); background: var(--card); }
+  .user-chip-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+  .user-chip-info { flex: 1; text-align: left; }
+  .user-chip-name { font-size: 13px; font-weight: 600; }
+  .user-chip-role { font-size: 11px; color: var(--muted); }
+  .user-chip-arrow { color: var(--muted); font-size: 16px; }
+  .login-divider { width: 100%; display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; }
+  .login-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .login-divider-text { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── CHANGE PASSWORD PROMPT ───────────────────────────────────────────── */
+  .first-run-notice {
+    background: rgba(232,184,75,0.08); border: 1px solid rgba(232,184,75,0.2);
+    border-radius: 10px; padding: 12px 14px; font-size: 12px; color: var(--gold);
+    margin-bottom: 16px; width: 100%; text-align: center; line-height: 1.5;
+  }
+
+  /* ── MAIN APP ─────────────────────────────────────────────────────────── */
+  #app-screen { display: none; }
+
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.97); position: sticky; top: 0; z-index: 100; gap: 12px; flex-wrap: wrap;
+  }
+  .logo { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 3px; color: var(--gold); flex-shrink: 0; }
   .logo span { color: #fff; }
   .nav { display: flex; gap: 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
-  .nav-btn { padding: 7px 14px; border: none; border-radius: 7px; background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .nav-btn { padding: 7px 13px; border: none; border-radius: 7px; background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
   .nav-btn.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
   .nav-btn:hover:not(.active) { color: var(--light); }
   .badge { background: var(--gold); color: #000; font-size: 10px; font-weight: 600; border-radius: 20px; padding: 1px 6px; min-width: 18px; text-align: center; }
   .badge.red { background: var(--red); color: #fff; }
-  .badge.plex { background: var(--plex); color: #000; }
 
-  .plex-status { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-  .plex-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
-  .plex-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .plex-dot.connecting { background: var(--plex); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .plex-label { color: var(--muted); }
-  .plex-btn { padding: 6px 12px; border: 1px solid var(--border2); border-radius: 7px; background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
-  .plex-btn:hover { color: var(--plex); border-color: var(--plex); }
-  .plex-btn.syncing { color: var(--plex); border-color: var(--plex); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .plex-status { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+  .plex-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+  .plex-dot.connected { background: var(--green); }
+  .plex-label { color: var(--muted); font-size: 12px; }
 
-  /* MAIN */
+  .user-menu { display: flex; align-items: center; gap: 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all 0.2s; }
+  .user-menu:hover { border-color: var(--border2); }
+  .user-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; }
+  .user-name { font-size: 12px; font-weight: 600; }
+  .user-role-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+  .role-admin { background: rgba(232,184,75,0.15); color: var(--gold); }
+  .role-guest { background: rgba(138,90,240,0.15); color: var(--purple); }
+
+  /* ── MAIN CONTENT ─────────────────────────────────────────────────────── */
   .main { padding: 24px; max-width: 1300px; margin: 0 auto; }
   .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
   .search-wrap { flex: 1; min-width: 180px; position: relative; }
@@ -57,13 +122,11 @@
   .sync-btn:hover { background: rgba(229,160,13,0.2); }
   .sync-btn:disabled { opacity: 0.5; cursor: default; }
 
-  /* STATS */
   .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
   .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: center; }
   .stat-num { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 1px; color: var(--gold); }
   .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* GRID */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
   .movie-card { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; background: var(--card); border: 1px solid var(--border); transition: transform 0.2s, border-color 0.2s; aspect-ratio: 2/3; }
   .movie-card:hover { transform: scale(1.03); border-color: var(--border2); }
@@ -79,9 +142,9 @@
   .type-badge { position: absolute; top: 8px; left: 8px; padding: 2px 7px; border-radius: 4px; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
   .type-movie { background: rgba(232,53,75,0.85); color: #fff; }
   .type-tv { background: rgba(138,90,240,0.85); color: #fff; }
-  .plex-badge { position: absolute; bottom: 38px; right: 6px; background: rgba(229,160,13,0.9); border-radius: 4px; padding: 1px 5px; font-size: 9px; font-weight: 700; color: #000; letter-spacing: 0.3px; }
+  .plex-badge { position: absolute; bottom: 38px; right: 6px; background: rgba(229,160,13,0.9); border-radius: 4px; padding: 1px 5px; font-size: 9px; font-weight: 700; color: #000; }
 
-  /* MODALS */
+  /* ── MODALS ───────────────────────────────────────────────────────────── */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto; position: relative; }
@@ -116,38 +179,39 @@
   .detail-label { color: var(--muted); flex-shrink: 0; }
   .detail-value { color: var(--text); font-weight: 500; text-align: right; }
   .progress-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 4px; min-width: 60px; }
-  .progress-bar-fill { height: 4px; border-radius: 4px; background: var(--plex); transition: width 0.3s; }
+  .progress-bar-fill { height: 4px; border-radius: 4px; background: var(--plex); }
 
-  /* PLEX SETUP MODAL */
-  .setup-modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 500px; padding: 28px; position: relative; }
-  .setup-title { font-family: 'Bebas Neue', cursive; font-size: 24px; letter-spacing: 1px; color: var(--plex); margin-bottom: 6px; }
-  .setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
-  .setup-steps { background: var(--bg3); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
-  .setup-step { font-size: 12px; color: var(--light); padding: 4px 0; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
-  .setup-step-num { color: var(--plex); font-weight: 700; flex-shrink: 0; }
-  .setup-step a { color: var(--plex); text-decoration: none; }
-  .setup-step a:hover { text-decoration: underline; }
-  .form-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  /* ── SETTINGS / PLEX MODAL ────────────────────────────────────────────── */
+  .settings-modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 480px; padding: 28px; position: relative; max-height: 90vh; overflow-y: auto; }
+  .settings-title { font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 1px; color: var(--gold); margin-bottom: 20px; }
+  .settings-section { margin-bottom: 24px; }
+  .settings-section-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .settings-section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .form-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
   .form-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
-  .form-input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; width: 100%; }
+  .form-input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; width: 100%; }
   .form-input::placeholder { color: var(--muted); }
-  .form-input:focus { border-color: var(--plex); }
-  .form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-  .connect-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--plex); color: #000; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; margin-top: 4px; }
-  .connect-btn:hover { background: #f0b020; }
-  .connect-btn:disabled { opacity: 0.5; cursor: default; }
-  .connect-error { background: rgba(232,53,75,0.1); border: 1px solid rgba(232,53,75,0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #f07080; margin-top: 12px; display: none; }
-  .connect-error.show { display: block; }
-  .server-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .server-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+  .form-input:focus { border-color: var(--gold); }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .save-btn { padding: 9px 18px; border: none; border-radius: 8px; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+  .save-btn:hover { background: var(--gold2); }
+  .plex-connect-btn { padding: 9px 18px; border: none; border-radius: 8px; background: rgba(229,160,13,0.15); color: var(--plex); border: 1px solid rgba(229,160,13,0.3); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; width: 100%; justify-content: center; }
+  .plex-connect-btn:hover { background: rgba(229,160,13,0.25); }
+  .plex-connect-btn:disabled { opacity: 0.5; cursor: default; }
+  .server-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .server-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
   .server-item:hover { border-color: var(--plex); }
   .server-item.selected { border-color: var(--plex); background: rgba(229,160,13,0.08); }
-  .server-name { font-weight: 600; font-size: 14px; }
+  .server-name { font-weight: 600; font-size: 13px; }
   .server-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .server-check { color: var(--plex); font-size: 18px; display: none; }
   .server-item.selected .server-check { display: block; }
+  .connect-error { background: rgba(232,53,75,0.1); border: 1px solid rgba(232,53,75,0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #f07080; margin-top: 10px; display: none; }
+  .connect-error.show { display: block; }
+  .connected-info { background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.2); border-radius: 10px; padding: 12px 14px; font-size: 13px; margin-bottom: 12px; }
+  .connected-info strong { color: var(--green); }
 
-  /* ADD MODAL */
+  /* ── ADD MODAL ────────────────────────────────────────────────────────── */
   .add-modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 520px; padding: 24px; position: relative; max-height: 90vh; overflow-y: auto; }
   .add-modal::-webkit-scrollbar { width: 4px; }
   .add-modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
@@ -168,17 +232,13 @@
   .lookup-preview { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
   .lookup-thumb { width: 60px; height: 90px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
   .lookup-thumb-fallback { width: 60px; height: 90px; border-radius: 6px; background: var(--card); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .lookup-info { flex: 1; }
-  .lookup-title-text { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .lookup-meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .lookup-plot { font-size: 12px; color: var(--light); line-height: 1.5; }
   .lookup-status { font-size: 12px; color: var(--muted); padding: 6px 0; }
   .lookup-status.error { color: var(--red); }
   .lookup-status.loading { color: var(--gold); }
   .submit-btn { padding: 10px 20px; border: none; border-radius: 8px; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
   .submit-btn:hover { background: var(--gold2); }
 
-  /* REQUESTS */
+  /* ── REQUESTS ─────────────────────────────────────────────────────────── */
   .req-form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
   .form-title { font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 1px; margin-bottom: 16px; color: var(--gold); }
   .req-list { display: flex; flex-direction: column; gap: 10px; }
@@ -193,131 +253,128 @@
   .req-approve { padding: 6px 12px; border: 1px solid rgba(46,204,113,0.3); border-radius: 7px; background: rgba(46,204,113,0.1); color: var(--green); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .req-approve:hover { background: rgba(46,204,113,0.2); }
 
-  /* MISC */
+  /* ── MISC ─────────────────────────────────────────────────────────────── */
   .section-label { font-family: 'Bebas Neue', cursive; font-size: 18px; letter-spacing: 1px; margin-bottom: 14px; color: var(--light); display: flex; align-items: center; gap: 10px; }
   .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); }
   .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
-  .empty-state p { font-size: 15px; margin-bottom: 12px; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
   .toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; display: flex; align-items: center; gap: 8px; pointer-events: none; max-width: 300px; }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.error { background: var(--red); }
-  .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 300; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
   .loading-overlay.show { display: flex; }
   .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border2); border-top-color: var(--plex); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { color: var(--light); font-size: 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 </style>
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loading-text">Syncing with Plex...</div>
+  <div class="loading-text" id="loading-text">Loading...</div>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo">Mc<span>Flix</span></div>
-  <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('library',this)">
-      <i class="ti ti-stack-2"></i> Library <span class="badge" id="lib-count">0</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('wishlist',this)">
-      <i class="ti ti-bookmark"></i> Wishlist <span class="badge" id="wish-count">0</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('requests',this)">
-      <i class="ti ti-message-circle"></i> Requests <span class="badge red" id="req-count" style="display:none">0</span>
-    </button>
-  </div>
-  <div class="plex-status">
-    <div class="plex-dot" id="plex-dot"></div>
-    <span class="plex-label" id="plex-label">Plex not connected</span>
-    <button class="plex-btn" id="plex-connect-btn" onclick="openPlexSetup()">
-      <i class="ti ti-plug"></i> Connect
-    </button>
+<!-- ── LOGIN SCREEN ──────────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Mc<span>Flix</span></div>
+    <div class="login-tagline">Your Digital Library</div>
+    <div id="login-first-run" class="first-run-notice" style="display:none">
+      First time setup — default passwords are shown below. Change them in Settings after logging in.
+    </div>
+    <div class="login-label">Who's watching?</div>
+    <div class="login-users" id="login-users"></div>
+    <div class="login-divider"><div class="login-divider-line"></div><div class="login-divider-text">enter password</div><div class="login-divider-line"></div></div>
+    <input type="password" class="login-input" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-arrow-right"></i> Sign In</button>
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<div class="main">
-
-  <!-- LIBRARY TAB -->
-  <div class="tab-panel active" id="tab-library">
-    <div class="stats-row" id="stats-row"></div>
-    <div class="toolbar">
-      <div class="search-wrap">
-        <i class="ti ti-search"></i>
-        <input type="text" id="search-lib" placeholder="Search library..." oninput="renderLibrary()">
-      </div>
-      <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
-      <button class="filter-btn" onclick="setFilter(this,'movie')">Movies</button>
-      <button class="filter-btn" onclick="setFilter(this,'tv')">TV Shows</button>
-      <button class="filter-btn" onclick="setFilter(this,'watched')">Watched</button>
-      <button class="filter-btn" onclick="setFilter(this,'unwatched')">Unwatched</button>
-      <button class="filter-btn" onclick="setFilter(this,'plex')"><i class="ti ti-brand-plex" style="font-size:13px"></i> Plex</button>
-      <button class="sync-btn" id="sync-btn" onclick="syncPlex()" style="display:none">
-        <i class="ti ti-refresh"></i> Sync Plex
-      </button>
-      <button class="add-btn" onclick="openAddModal('library')"><i class="ti ti-plus"></i> Add</button>
+<!-- ── APP ──────────────────────────────────────────────────────────────────── -->
+<div id="app-screen">
+  <div class="header">
+    <div class="logo">Mc<span>Flix</span></div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="badge" id="lib-count">0</span></button>
+      <button class="nav-btn" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="badge" id="wish-count">0</span></button>
+      <button class="nav-btn" onclick="switchTab('requests',this)"><i class="ti ti-message-circle"></i> Requests <span class="badge red" id="req-count" style="display:none">0</span></button>
     </div>
-    <div class="grid" id="library-grid"></div>
-    <div class="empty-state" id="lib-empty" style="display:none">
-      <i class="ti ti-video-off"></i>
-      <p>No titles yet.</p>
-      <button class="add-btn" style="margin:0 auto" onclick="openAddModal('library')"><i class="ti ti-plus"></i> Add manually</button>
+    <div class="header-right">
+      <div class="plex-status" id="plex-status-bar" style="display:none">
+        <div class="plex-dot" id="plex-dot"></div>
+        <span class="plex-label" id="plex-label">Plex</span>
+      </div>
+      <div class="user-menu" onclick="openSettings()" title="Settings / Sign out">
+        <div class="user-avatar" id="header-avatar"></div>
+        <span class="user-name" id="header-name"></span>
+        <span class="user-role-tag" id="header-role"></span>
+        <i class="ti ti-settings" style="font-size:14px;color:var(--muted)"></i>
+      </div>
     </div>
   </div>
 
-  <!-- WISHLIST TAB -->
-  <div class="tab-panel" id="tab-wishlist">
-    <div class="toolbar" style="margin-bottom:20px">
-      <div class="search-wrap">
-        <i class="ti ti-search"></i>
-        <input type="text" id="search-wish" placeholder="Search wishlist..." oninput="renderWishlist()">
+  <div class="main">
+    <div class="tab-panel active" id="tab-library">
+      <div class="stats-row" id="stats-row"></div>
+      <div class="toolbar">
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="search-lib" placeholder="Search library..." oninput="renderLibrary()"></div>
+        <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
+        <button class="filter-btn" onclick="setFilter(this,'movie')">Movies</button>
+        <button class="filter-btn" onclick="setFilter(this,'tv')">TV Shows</button>
+        <button class="filter-btn" onclick="setFilter(this,'watched')">Watched</button>
+        <button class="filter-btn" onclick="setFilter(this,'unwatched')">Unwatched</button>
+        <button class="filter-btn" onclick="setFilter(this,'plex')" id="filter-plex" style="display:none"><i class="ti ti-brand-plex" style="font-size:13px"></i> Plex</button>
+        <button class="sync-btn" id="sync-btn" onclick="syncPlex()" style="display:none"><i class="ti ti-refresh"></i> Sync Plex</button>
+        <button class="add-btn" id="add-lib-btn" onclick="openAddModal('library')" style="display:none"><i class="ti ti-plus"></i> Add</button>
       </div>
-      <button class="add-btn" onclick="openAddModal('wishlist')"><i class="ti ti-plus"></i> Add to Wishlist</button>
+      <div class="grid" id="library-grid"></div>
+      <div class="empty-state" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p>No titles yet.</p></div>
     </div>
-    <div class="section-label">Movies I Want</div>
-    <div class="grid" id="wishlist-grid"></div>
-    <div class="empty-state" id="wish-empty" style="display:none">
-      <i class="ti ti-bookmark"></i><p>No wishlist items yet.</p>
-    </div>
-  </div>
 
-  <!-- REQUESTS TAB -->
-  <div class="tab-panel" id="tab-requests">
-    <div class="req-form">
-      <div class="form-title">Request a Movie or Show</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="form-field"><label class="form-label">Your Name</label><input type="text" class="form-input" id="req-name" placeholder="Alysa, Ryan..."></div>
-        <div class="form-field"><label class="form-label">Type</label><select class="form-input" id="req-type"><option value="movie">Movie</option><option value="tv">TV Show</option></select></div>
-        <div class="form-field" style="grid-column:1/-1"><label class="form-label">Title</label><input type="text" class="form-input" id="req-title" placeholder="Movie or show title..."></div>
-        <div class="form-field" style="grid-column:1/-1"><label class="form-label">Note (optional)</label><input type="text" class="form-input" id="req-note" placeholder="Why you want it, where to find it..."></div>
+    <div class="tab-panel" id="tab-wishlist">
+      <div class="toolbar" style="margin-bottom:20px">
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="search-wish" placeholder="Search wishlist..." oninput="renderWishlist()"></div>
+        <button class="add-btn" id="add-wish-btn" onclick="openAddModal('wishlist')" style="display:none"><i class="ti ti-plus"></i> Add to Wishlist</button>
       </div>
-      <button class="submit-btn" onclick="submitRequest()"><i class="ti ti-send"></i> Send Request</button>
+      <div class="section-label">Movies I Want</div>
+      <div class="grid" id="wishlist-grid"></div>
+      <div class="empty-state" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p>No wishlist items yet.</p></div>
     </div>
-    <div class="section-label">Pending Requests</div>
-    <div class="req-list" id="req-list"></div>
-    <div class="empty-state" id="req-empty" style="display:none"><i class="ti ti-inbox"></i><p>No requests yet.</p></div>
+
+    <div class="tab-panel" id="tab-requests">
+      <div class="req-form">
+        <div class="form-title">Request a Movie or Show</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-field"><label class="form-label">Your Name</label><input type="text" class="form-input" id="req-name" placeholder="Your name..."></div>
+          <div class="form-field"><label class="form-label">Type</label><select class="form-input" id="req-type"><option value="movie">Movie</option><option value="tv">TV Show</option></select></div>
+          <div class="form-field" style="grid-column:1/-1"><label class="form-label">Title</label><input type="text" class="form-input" id="req-title" placeholder="Movie or show title..."></div>
+          <div class="form-field" style="grid-column:1/-1"><label class="form-label">Note (optional)</label><input type="text" class="form-input" id="req-note" placeholder="Why you want it..."></div>
+        </div>
+        <button class="submit-btn" onclick="submitRequest()"><i class="ti ti-send"></i> Send Request</button>
+      </div>
+      <div class="section-label">Pending Requests</div>
+      <div class="req-list" id="req-list"></div>
+      <div class="empty-state" id="req-empty" style="display:none"><i class="ti ti-inbox"></i><p>No requests yet.</p></div>
+    </div>
   </div>
 </div>
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detail-modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
-    <div id="modal-content"></div>
-  </div>
+  <div class="modal"><button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button><div id="modal-content"></div></div>
 </div>
 
-<!-- PLEX SETUP MODAL -->
-<div class="modal-overlay" id="plex-modal" onclick="if(event.target===this)closePlexSetup()">
-  <div class="setup-modal" id="plex-modal-inner">
-    <button class="modal-close" onclick="closePlexSetup()"><i class="ti ti-x"></i></button>
-    <div id="plex-setup-content"></div>
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-modal">
+    <button class="modal-close" onclick="closeSettings()"><i class="ti ti-x"></i></button>
+    <div id="settings-content"></div>
   </div>
 </div>
 
@@ -354,12 +411,134 @@
 <div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
-const OMDB_KEY = 'trilogy'; // Replace with your own from omdbapi.com
-const STORAGE_KEY = 'mcflix_v4';
-const COLORS = ['#e8354b','#8a5af0','#2ecc71','#e8b84b','#3498db','#e67e22'];
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════════════════
+const OMDB_KEY = 'trilogy'; // Get your own free key at omdbapi.com
+const STORAGE_KEY = 'mcflix_v5';
+const PLEX_KEY = 'mcflix_plex';
+const AUTH_KEY = 'mcflix_auth';
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+// Default passwords — users can change in Settings
+// Passwords stored as simple hashes (not plain text)
+const DEFAULT_ADMIN_PASS = 'mcflix2024';
+const DEFAULT_GUEST_PASS = 'popcorn';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════════════════════
+const USERS = [
+  { id: 'james', name: 'James', role: 'admin', color: '#e8b84b' },
+  { id: 'alysa', name: 'Alysa', role: 'guest', color: '#8a5af0' },
+  { id: 'friends', name: 'Friends', role: 'guest', color: '#3498db' },
+];
+
+let currentUser = null; // set on login
+let selectedLoginUser = null;
+
+function hash(str) {
+  // Simple non-cryptographic hash for passwords — good enough for local use
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+  return (h >>> 0).toString(36);
+}
+
+function loadAuth() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveAuth(data) { localStorage.setItem(AUTH_KEY, JSON.stringify(data)); }
+
+function getPasswords() {
+  const auth = loadAuth();
+  return {
+    admin: auth.adminHash || hash(DEFAULT_ADMIN_PASS),
+    guest: auth.guestHash || hash(DEFAULT_GUEST_PASS),
+    firstRun: !auth.adminHash,
+  };
+}
+
+function buildLoginScreen() {
+  const pw = getPasswords();
+  if (pw.firstRun) document.getElementById('login-first-run').style.display = '';
+  const container = document.getElementById('login-users');
+  container.innerHTML = USERS.map(u => `
+    <div class="user-chip" onclick="selectLoginUser('${u.id}')" id="chip-${u.id}">
+      <div class="user-chip-avatar" style="background:${u.color}22;color:${u.color}">${u.name.slice(0,2).toUpperCase()}</div>
+      <div class="user-chip-info">
+        <div class="user-chip-name">${u.name}</div>
+        <div class="user-chip-role">${u.role === 'admin' ? 'Admin' : 'Guest'}</div>
+      </div>
+      <i class="ti ti-chevron-right user-chip-arrow"></i>
+    </div>`).join('');
+  // Auto-select James
+  selectLoginUser('james');
+}
+
+function selectLoginUser(id) {
+  selectedLoginUser = USERS.find(u => u.id === id);
+  document.querySelectorAll('.user-chip').forEach(c => c.style.borderColor = '');
+  const chip = document.getElementById('chip-' + id);
+  if (chip) chip.style.borderColor = selectedLoginUser.color;
+  document.getElementById('login-pass').focus();
+}
+
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  if (!selectedLoginUser) { errEl.textContent = 'Please select a user.'; return; }
+  const pw = getPasswords();
+  const inputHash = hash(pass);
+  const isAdmin = selectedLoginUser.role === 'admin';
+  const correct = isAdmin ? inputHash === pw.admin : inputHash === pw.guest;
+  if (!correct) {
+    errEl.textContent = 'Incorrect password. Try again.';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    return;
+  }
+  errEl.textContent = '';
+  currentUser = { ...selectedLoginUser };
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = '';
+  setupAppForUser();
+}
+
+function setupAppForUser() {
+  const isAdmin = currentUser.role === 'admin';
+  // Header
+  document.getElementById('header-avatar').textContent = currentUser.name.slice(0,2).toUpperCase();
+  document.getElementById('header-avatar').style.background = currentUser.color + '22';
+  document.getElementById('header-avatar').style.color = currentUser.color;
+  document.getElementById('header-name').textContent = currentUser.name;
+  const roleTag = document.getElementById('header-role');
+  roleTag.textContent = isAdmin ? 'Admin' : 'Guest';
+  roleTag.className = 'user-role-tag ' + (isAdmin ? 'role-admin' : 'role-guest');
+  // Show/hide admin controls
+  document.getElementById('add-lib-btn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('add-wish-btn').style.display = isAdmin ? '' : 'none';
+  if (isAdmin && plexConfig.token && plexConfig.serverUrl) {
+    document.getElementById('sync-btn').style.display = '';
+    document.getElementById('filter-plex').style.display = '';
+    document.getElementById('plex-status-bar').style.display = '';
+    updatePlexStatusBar(true);
+  }
+  renderLibrary();
+  updateCounts();
+}
+
+function signOut() {
+  currentUser = null;
+  selectedLoginUser = null;
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = '';
+  buildLoginScreen();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════════════════════════════════════
 let state = { library: [], wishlist: [], requests: [] };
 let plexConfig = { token: '', serverUrl: '', serverName: '', clientId: '' };
 let libFilter = 'all';
@@ -369,427 +548,342 @@ let pendingImdb = '';
 let selectedServer = null;
 let availableServers = [];
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function loadState() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); } catch(e) {}
+  try { const p = localStorage.getItem(PLEX_KEY); if (p) plexConfig = JSON.parse(p); } catch(e) {}
+}
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+function savePlex() { try { localStorage.setItem(PLEX_KEY, JSON.stringify(plexConfig)); } catch(e) {} }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+const COLORS = ['#e8354b','#8a5af0','#2ecc71','#e8b84b','#3498db','#e67e22'];
 function colorFor(n) { let h=0; for(let c of n) h=(h<<5)-h+c.charCodeAt(0); return COLORS[Math.abs(h)%COLORS.length]; }
 function initials(n) { return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
-function uid() { return Date.now() + Math.random(); }
+function uid() { return Date.now() + '_' + Math.random().toString(36).slice(2); }
 
 function showToast(msg, isError=false) {
   const t = document.getElementById('toast');
-  t.className = 'toast' + (isError ? ' error' : '');
+  t.className = 'toast' + (isError?' error':'');
   t.innerHTML = `<i class="ti ti-${isError?'alert-circle':'check'}"></i> <span>${msg}</span>`;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
-
-function showLoading(msg='Loading...') {
-  document.getElementById('loading-text').textContent = msg;
-  document.getElementById('loading-overlay').classList.add('show');
-}
+function showLoading(msg='Loading...') { document.getElementById('loading-text').textContent=msg; document.getElementById('loading-overlay').classList.add('show'); }
 function hideLoading() { document.getElementById('loading-overlay').classList.remove('show'); }
 
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
-function load() {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s) state = JSON.parse(s);
-  } catch(e) {}
-  try {
-    const p = localStorage.getItem('mcflix_plex');
-    if (p) plexConfig = JSON.parse(p);
-  } catch(e) {}
-}
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
-function savePlex() { try { localStorage.setItem('mcflix_plex', JSON.stringify(plexConfig)); } catch(e) {} }
-
-// ─── PLEX API ─────────────────────────────────────────────────────────────────
-// NOTE: Plex requires requests go through their API. Because browsers block
-// cross-origin requests to local Plex servers, we use the Plex.tv relay API
-// (api.thetvdb.com route via Plex). For local servers you may need to open
-// the file via a local web server (e.g. VS Code Live Server) and ensure
-// CORS is enabled in Plex Settings > Network > "Enable server access on local network".
-
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLEX API
+// ═══════════════════════════════════════════════════════════════════════════════
 function plexHeaders(token) {
   return {
-    'X-Plex-Token': token,
+    'X-Plex-Token': token || plexConfig.token,
     'X-Plex-Client-Identifier': plexConfig.clientId || 'mcflix-app',
-    'X-Plex-Product': 'McFlix',
-    'X-Plex-Version': '1.0',
-    'Accept': 'application/json',
+    'X-Plex-Product': 'McFlix', 'X-Plex-Version': '1.0', 'Accept': 'application/json',
   };
 }
-
 async function plexFetch(path, token, baseUrl) {
   const url = (baseUrl || plexConfig.serverUrl).replace(/\/$/, '') + path;
-  const res = await fetch(url, { headers: plexHeaders(token || plexConfig.token) });
-  if (!res.ok) throw new Error(`Plex API error: ${res.status} ${res.statusText}`);
+  const res = await fetch(url, { headers: plexHeaders(token) });
+  if (!res.ok) throw new Error(`Plex error ${res.status}`);
   return res.json();
 }
-
 async function fetchPlexServers(token) {
-  // Get list of servers from Plex.tv
+  const clientId = 'mcflix-' + Math.random().toString(36).slice(2);
   const res = await fetch('https://plex.tv/api/v2/resources?includeHttps=1&includeRelay=1', {
-    headers: {
-      ...plexHeaders(token),
-      'X-Plex-Client-Identifier': 'mcflix-' + Math.random().toString(36).slice(2),
-    }
+    headers: { ...plexHeaders(token), 'X-Plex-Client-Identifier': clientId }
   });
-  if (!res.ok) throw new Error('Could not reach Plex.tv. Check your token.');
+  if (!res.ok) throw new Error('Cannot reach Plex.tv — check your token.');
   const data = await res.json();
-  // Filter to Media Servers only
-  return data.filter(d => d.provides && d.provides.includes('server'));
+  return { servers: data.filter(d => d.provides?.includes('server')), clientId };
 }
-
-async function fetchPlexLibraries(serverUrl, token) {
-  const data = await plexFetch('/library/sections', token, serverUrl);
-  return data.MediaContainer.Directory || [];
-}
-
-async function fetchPlexSection(serverUrl, token, sectionKey, type) {
-  const data = await plexFetch(`/library/sections/${sectionKey}/all?type=${type}`, token, serverUrl);
-  return data.MediaContainer.Metadata || [];
-}
-
 function plexPosterUrl(thumb) {
   if (!thumb || !plexConfig.serverUrl || !plexConfig.token) return '';
   return `${plexConfig.serverUrl.replace(/\/$/,'')}${thumb}?X-Plex-Token=${plexConfig.token}`;
 }
-
 function plexItemToLocal(item, type) {
   return {
-    id: 'plex_' + item.ratingKey,
-    title: item.title,
-    type: type,
+    id: 'plex_' + item.ratingKey, title: item.title, type,
     year: item.year ? String(item.year) : '',
     genre: item.Genre ? item.Genre.map(g=>g.tag).join(', ') : '',
-    rating: item.contentRating || '',
-    plot: item.summary || '',
-    imdb: (item.Guid || []).find(g=>g.id&&g.id.startsWith('imdb://'))?.id?.replace('imdb://','') || '',
-    poster: plexPosterUrl(item.thumb),
-    format: 'Plex',
-    watched: type === 'movie' ? (item.viewCount > 0) : (item.leafCount === item.viewedLeafCount),
-    plexKey: item.ratingKey,
-    plexThumb: item.thumb,
-    viewOffset: item.viewOffset || 0,
-    duration: item.duration || 0,
-    plexSource: true,
-    lastSync: Date.now(),
+    rating: item.contentRating || '', plot: item.summary || '',
+    imdb: (item.Guid||[]).find(g=>g.id?.startsWith('imdb://'))?.id?.replace('imdb://','') || '',
+    poster: plexPosterUrl(item.thumb), format: 'Plex',
+    watched: type==='movie' ? (item.viewCount>0) : (item.leafCount===item.viewedLeafCount),
+    plexKey: item.ratingKey, plexThumb: item.thumb,
+    viewOffset: item.viewOffset||0, duration: item.duration||0,
+    plexSource: true, lastSync: Date.now(),
   };
 }
 
 async function syncPlex() {
-  if (!plexConfig.token || !plexConfig.serverUrl) {
-    openPlexSetup(); return;
-  }
+  if (!plexConfig.token || !plexConfig.serverUrl) return;
   const btn = document.getElementById('sync-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-refresh" style="animation:spin 0.8s linear infinite"></i> Syncing...';
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-refresh" style="animation:spin 0.8s linear infinite"></i> Syncing...';
   showLoading('Syncing your Plex library...');
   try {
-    const libs = await fetchPlexLibraries(plexConfig.serverUrl, plexConfig.token);
+    const libs = await plexFetch('/library/sections');
+    const sections = libs.MediaContainer.Directory || [];
     const newItems = [];
-    for (const lib of libs) {
+    for (const lib of sections) {
       if (lib.type === 'movie') {
-        const items = await fetchPlexSection(plexConfig.serverUrl, plexConfig.token, lib.key, 1);
-        items.forEach(item => newItems.push(plexItemToLocal(item, 'movie')));
+        const d = await plexFetch(`/library/sections/${lib.key}/all?type=1`);
+        (d.MediaContainer.Metadata||[]).forEach(item => newItems.push(plexItemToLocal(item,'movie')));
       } else if (lib.type === 'show') {
-        const items = await fetchPlexSection(plexConfig.serverUrl, plexConfig.token, lib.key, 2);
-        items.forEach(item => newItems.push(plexItemToLocal(item, 'tv')));
+        const d = await plexFetch(`/library/sections/${lib.key}/all?type=2`);
+        (d.MediaContainer.Metadata||[]).forEach(item => newItems.push(plexItemToLocal(item,'tv')));
       }
     }
-    // Merge: keep manual items, replace/add plex items
-    const manualItems = state.library.filter(m => !m.plexSource);
-    const plexIds = new Set(newItems.map(m => m.id));
-    state.library = [...manualItems, ...newItems];
-    save();
-    renderLibrary(); updateCounts();
+    state.library = [...state.library.filter(m=>!m.plexSource), ...newItems];
+    save(); renderLibrary(); updateCounts();
     showToast(`Synced ${newItems.length} titles from Plex!`);
-    updatePlexStatus(true);
+    updatePlexStatusBar(true);
   } catch(e) {
-    console.error(e);
-    showToast('Sync failed: ' + (e.message || 'Unknown error'), true);
+    showToast('Sync failed: ' + (e.message||'Unknown error'), true);
   }
   hideLoading();
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-refresh"></i> Sync Plex';
+  btn.disabled=false; btn.innerHTML='<i class="ti ti-refresh"></i> Sync Plex';
 }
 
-// ─── PLEX SETUP MODAL ─────────────────────────────────────────────────────────
-function openPlexSetup() {
-  if (plexConfig.token && plexConfig.serverUrl) {
-    renderPlexManage();
-  } else {
-    renderPlexStep1();
+function updatePlexStatusBar(connected) {
+  document.getElementById('plex-status-bar').style.display = connected ? '' : 'none';
+  if (connected) {
+    document.getElementById('plex-dot').className = 'plex-dot connected';
+    document.getElementById('plex-label').textContent = plexConfig.serverName || 'Plex';
   }
-  document.getElementById('plex-modal').classList.add('open');
-}
-function closePlexSetup() { document.getElementById('plex-modal').classList.remove('open'); }
-
-function renderPlexStep1() {
-  document.getElementById('plex-setup-content').innerHTML = `
-    <div class="setup-title">Connect to Plex</div>
-    <div class="setup-sub">Enter your Plex token to sync your library automatically.</div>
-    <div class="setup-steps">
-      <div class="setup-step"><span class="setup-step-num">1</span><span>Sign in at <a href="https://app.plex.tv" target="_blank">app.plex.tv</a> in your browser</span></div>
-      <div class="setup-step"><span class="setup-step-num">2</span><span>Open <a href="https://plex.tv/claim" target="_blank">plex.tv/claim</a> — your token shows at the top, or see the URL bar after signing in to plex.tv (copy the <strong>?X-Plex-Token=</strong> value)</span></div>
-      <div class="setup-step"><span class="setup-step-num">3</span><span>Alternatively: in Plex Web, open any media → ••• → Get Info → View XML → copy the <strong>X-Plex-Token</strong> from the URL</span></div>
-    </div>
-    <div class="form-field">
-      <label class="form-label">Plex Token</label>
-      <input type="password" class="form-input" id="plex-token-input" placeholder="xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-      <div class="form-hint">Your token is stored locally in your browser only and never sent anywhere except to Plex.</div>
-    </div>
-    <div class="connect-error" id="plex-error"></div>
-    <button class="connect-btn" id="plex-connect-go" onclick="connectPlexStep1()">
-      <i class="ti ti-plug"></i> Connect & Find Servers
-    </button>`;
 }
 
-async function connectPlexStep1() {
-  const token = document.getElementById('plex-token-input').value.trim();
-  const errEl = document.getElementById('plex-error');
-  const btn = document.getElementById('plex-connect-go');
-  if (!token) { errEl.textContent = 'Please enter your Plex token.'; errEl.classList.add('show'); return; }
+// ═══════════════════════════════════════════════════════════════════════════════
+// SETTINGS MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
+function openSettings() {
+  const isAdmin = currentUser?.role === 'admin';
+  let html = `<div class="settings-title">Settings</div>`;
+
+  if (isAdmin) {
+    // Plex section
+    html += `<div class="settings-section">
+      <div class="settings-section-label">Plex</div>`;
+    if (plexConfig.token && plexConfig.serverUrl) {
+      html += `<div class="connected-info">Connected to <strong>${plexConfig.serverName||plexConfig.serverUrl}</strong><br>
+        <span style="font-size:12px;color:var(--muted)">${state.library.filter(m=>m.plexSource).length} titles synced</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="save-btn" onclick="closeSettings();syncPlex()"><i class="ti ti-refresh"></i> Sync Now</button>
+          <button class="save-btn" style="background:transparent;border:1px solid rgba(232,53,75,0.3);color:var(--red)" onclick="disconnectPlex()"><i class="ti ti-unlink"></i> Disconnect</button>
+        </div>`;
+    } else {
+      html += `<div class="form-field">
+          <label class="form-label">Plex Token</label>
+          <input type="password" class="form-input" id="s-plex-token" placeholder="Your Plex token" value="${plexConfig.token||''}">
+          <div class="form-hint">Found in any Plex network request URL as X-Plex-Token=...</div>
+        </div>
+        <div id="s-server-area"></div>
+        <div class="connect-error" id="s-plex-error"></div>
+        <button class="plex-connect-btn" id="s-plex-btn" onclick="settingsFindServers()">
+          <i class="ti ti-plug"></i> Find My Plex Servers
+        </button>`;
+    }
+    html += `</div>`;
+
+    // Passwords section
+    html += `<div class="settings-section">
+      <div class="settings-section-label">Passwords</div>
+      <div class="form-field">
+        <label class="form-label">Admin Password (your password)</label>
+        <input type="password" class="form-input" id="s-admin-pass" placeholder="New admin password" autocomplete="new-password">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Guest Password (Alysa & friends)</label>
+        <input type="password" class="form-input" id="s-guest-pass" placeholder="New guest password" autocomplete="new-password">
+        <div class="form-hint">Leave blank to keep current password.</div>
+      </div>
+      <button class="save-btn" onclick="savePasswords()"><i class="ti ti-device-floppy"></i> Save Passwords</button>
+    </div>`;
+  }
+
+  // Sign out
+  html += `<div class="settings-section">
+    <div class="settings-section-label">Account</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Signed in as <strong style="color:var(--text)">${currentUser?.name}</strong> (${currentUser?.role})</div>
+    <button class="save-btn" style="background:transparent;border:1px solid var(--border2);color:var(--muted)" onclick="signOut();closeSettings()"><i class="ti ti-logout"></i> Sign Out</button>
+  </div>`;
+
+  document.getElementById('settings-content').innerHTML = html;
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+
+async function settingsFindServers() {
+  const token = document.getElementById('s-plex-token').value.trim();
+  const errEl = document.getElementById('s-plex-error');
+  const btn = document.getElementById('s-plex-btn');
+  if (!token) { errEl.textContent='Enter your token first.'; errEl.classList.add('show'); return; }
   errEl.classList.remove('show');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 0.8s linear infinite"></i> Finding servers...';
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 0.8s linear infinite"></i> Finding servers...';
   try {
-    const servers = await fetchPlexServers(token);
-    if (!servers.length) throw new Error('No Plex Media Servers found for this account.');
+    const { servers, clientId } = await fetchPlexServers(token);
+    if (!servers.length) throw new Error('No Plex Media Servers found.');
     availableServers = servers;
     plexConfig.token = token;
-    plexConfig.clientId = 'mcflix-' + Math.random().toString(36).slice(2);
-    renderPlexStep2(servers);
-  } catch(e) {
-    errEl.textContent = e.message || 'Could not connect. Check your token.';
-    errEl.classList.add('show');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-plug"></i> Connect & Find Servers';
-  }
-}
-
-function renderPlexStep2(servers) {
-  document.getElementById('plex-setup-content').innerHTML = `
-    <div class="setup-title">Choose Your Server</div>
-    <div class="setup-sub">Found ${servers.length} server${servers.length!==1?'s':''} on your account. Pick one to sync from.</div>
-    <div class="server-list" id="server-list">
-      ${servers.map((s,i) => {
-        const conn = s.connections && s.connections[0];
-        return `<div class="server-item" onclick="selectServer(${i})" id="srv-${i}">
-          <div>
-            <div class="server-name"><i class="ti ti-server" style="font-size:14px;margin-right:6px;color:var(--plex)"></i>${s.name}</div>
-            <div class="server-meta">${conn ? conn.address : 'No address'} · ${s.productVersion||''}</div>
-          </div>
+    plexConfig.clientId = clientId;
+    document.getElementById('s-server-area').innerHTML = `
+      <div class="form-label" style="margin-bottom:8px">Choose server</div>
+      <div class="server-list">${servers.map((s,i)=>`
+        <div class="server-item ${i===0?'selected':''}" onclick="selectServer(${i})" id="srv-${i}">
+          <div><div class="server-name">${s.name}</div><div class="server-meta">${s.connections?.[0]?.address||''}</div></div>
           <i class="ti ti-check server-check"></i>
-        </div>`;
-      }).join('')}
-    </div>
-    <div class="connect-error" id="plex-error2"></div>
-    <button class="connect-btn" id="plex-connect-go2" onclick="connectPlexStep2()">
-      <i class="ti ti-download"></i> Sync This Server
-    </button>`;
-  // Auto-select first
-  selectServer(0);
+        </div>`).join('')}
+      </div>
+      <button class="plex-connect-btn" onclick="settingsConnectServer()"><i class="ti ti-download"></i> Connect & Sync</button>`;
+    selectedServer = servers[0];
+  } catch(e) {
+    errEl.textContent = e.message; errEl.classList.add('show');
+  }
+  btn.disabled=false; btn.innerHTML='<i class="ti ti-plug"></i> Find My Plex Servers';
 }
 
 function selectServer(i) {
   selectedServer = availableServers[i];
   document.querySelectorAll('.server-item').forEach(el => el.classList.remove('selected'));
-  document.getElementById('srv-' + i).classList.add('selected');
+  document.getElementById('srv-'+i).classList.add('selected');
 }
 
-async function connectPlexStep2() {
+async function settingsConnectServer() {
   if (!selectedServer) return;
-  const errEl = document.getElementById('plex-error2');
-  const btn = document.getElementById('plex-connect-go2');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 0.8s linear infinite"></i> Connecting...';
-  errEl.classList.remove('show');
-
-  // Try each connection until one works
-  const connections = selectedServer.connections || [];
-  // Prefer https, then http, then relay
-  const sorted = [...connections].sort((a,b) => {
-    if (a.relay && !b.relay) return 1;
-    if (!a.relay && b.relay) return -1;
-    if (a.protocol === 'https' && b.protocol !== 'https') return -1;
-    return 0;
+  showLoading('Connecting to Plex...');
+  const conns = [...(selectedServer.connections||[])].sort((a,b)=>{
+    if (a.relay&&!b.relay) return 1; if (!a.relay&&b.relay) return -1;
+    return a.protocol==='https'?-1:1;
   });
-
   let connected = false;
-  for (const conn of sorted) {
+  for (const conn of conns) {
     try {
-      const testUrl = conn.uri || `${conn.protocol}://${conn.address}:${conn.port}`;
-      await plexFetch('/library/sections', plexConfig.token, testUrl);
-      plexConfig.serverUrl = testUrl;
-      plexConfig.serverName = selectedServer.name;
-      connected = true;
-      break;
+      const url = conn.uri || `${conn.protocol}://${conn.address}:${conn.port}`;
+      await plexFetch('/library/sections', plexConfig.token, url);
+      plexConfig.serverUrl = url; plexConfig.serverName = selectedServer.name;
+      connected = true; break;
     } catch(e) { continue; }
   }
-
-  if (!connected) {
-    errEl.textContent = 'Could not reach this server. Make sure Plex is running and accessible, then try again.';
-    errEl.classList.add('show');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-download"></i> Sync This Server';
-    return;
-  }
-
-  savePlex();
-  closePlexSetup();
-  updatePlexStatus(true);
-  document.getElementById('sync-btn').style.display = '';
-  showLoading('Importing your Plex library...');
-  await syncPlex();
-  hideLoading();
-}
-
-function renderPlexManage() {
-  document.getElementById('plex-setup-content').innerHTML = `
-    <div class="setup-title">Plex Connected</div>
-    <div class="setup-sub">Connected to <strong style="color:var(--plex)">${plexConfig.serverName || plexConfig.serverUrl}</strong></div>
-    <div class="setup-steps">
-      <div class="setup-step"><span class="setup-step-num" style="color:var(--green)"><i class="ti ti-check"></i></span><span>Server: ${plexConfig.serverName || 'Unknown'}</span></div>
-      <div class="setup-step"><span class="setup-step-num" style="color:var(--green)"><i class="ti ti-check"></i></span><span>URL: ${plexConfig.serverUrl}</span></div>
-      <div class="setup-step"><span class="setup-step-num" style="color:var(--green)"><i class="ti ti-check"></i></span><span>${state.library.filter(m=>m.plexSource).length} titles synced from Plex</span></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
-      <button class="connect-btn" style="flex:1;min-width:120px" onclick="closePlexSetup();syncPlex()">
-        <i class="ti ti-refresh"></i> Sync Now
-      </button>
-      <button class="connect-btn" style="flex:1;min-width:120px;background:var(--red);color:#fff" onclick="disconnectPlex()">
-        <i class="ti ti-unlink"></i> Disconnect
-      </button>
-    </div>`;
+  if (!connected) { hideLoading(); showToast('Could not reach server', true); return; }
+  savePlex(); closeSettings();
+  document.getElementById('sync-btn').style.display='';
+  document.getElementById('filter-plex').style.display='';
+  document.getElementById('plex-status-bar').style.display='';
+  await syncPlex(); hideLoading();
 }
 
 function disconnectPlex() {
-  if (!confirm('Disconnect Plex? This will remove all Plex-synced titles from your library.')) return;
-  plexConfig = { token: '', serverUrl: '', serverName: '', clientId: '' };
+  if (!confirm('Disconnect Plex? Removes all synced Plex titles.')) return;
+  plexConfig = { token:'', serverUrl:'', serverName:'', clientId:'' };
   state.library = state.library.filter(m => !m.plexSource);
-  savePlex(); save(); closePlexSetup();
-  updatePlexStatus(false);
-  document.getElementById('sync-btn').style.display = 'none';
-  renderLibrary(); updateCounts();
-  showToast('Plex disconnected');
+  savePlex(); save(); closeSettings();
+  document.getElementById('sync-btn').style.display='none';
+  document.getElementById('filter-plex').style.display='none';
+  document.getElementById('plex-status-bar').style.display='none';
+  renderLibrary(); updateCounts(); showToast('Plex disconnected');
 }
 
-function updatePlexStatus(connected) {
-  const dot = document.getElementById('plex-dot');
-  const label = document.getElementById('plex-label');
-  const btn = document.getElementById('plex-connect-btn');
-  if (connected && plexConfig.serverName) {
-    dot.className = 'plex-dot connected';
-    label.textContent = plexConfig.serverName;
-    btn.innerHTML = '<i class="ti ti-settings"></i> Manage';
-  } else {
-    dot.className = 'plex-dot';
-    label.textContent = 'Plex not connected';
-    btn.innerHTML = '<i class="ti ti-plug"></i> Connect';
-  }
+function savePasswords() {
+  const adminPass = document.getElementById('s-admin-pass').value;
+  const guestPass = document.getElementById('s-guest-pass').value;
+  const auth = loadAuth();
+  if (adminPass) auth.adminHash = hash(adminPass);
+  if (guestPass) auth.guestHash = hash(guestPass);
+  saveAuth(auth);
+  closeSettings();
+  showToast('Passwords saved!');
 }
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// TABS & FILTERS
+// ═══════════════════════════════════════════════════════════════════════════════
 function switchTab(t, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  if (t === 'library') renderLibrary();
-  if (t === 'wishlist') renderWishlist();
-  if (t === 'requests') renderRequests();
+  if (t==='library') renderLibrary();
+  if (t==='wishlist') renderWishlist();
+  if (t==='requests') renderRequests();
 }
-
 function setFilter(el, f) {
-  libFilter = f;
+  libFilter=f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderLibrary();
+  el.classList.add('active'); renderLibrary();
 }
-
 function updateCounts() {
   document.getElementById('lib-count').textContent = state.library.length;
   document.getElementById('wish-count').textContent = state.wishlist.length;
-  const p = state.requests.filter(r => r.status === 'pending').length;
+  const p = state.requests.filter(r=>r.status==='pending').length;
   const rc = document.getElementById('req-count');
-  rc.textContent = p; rc.style.display = p ? '' : 'none';
+  rc.textContent=p; rc.style.display=p?'':'none';
 }
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════════════
 function renderStats() {
-  const total = state.library.length;
-  const watched = state.library.filter(m => m.watched).length;
-  const movies = state.library.filter(m => m.type === 'movie').length;
-  const tv = state.library.filter(m => m.type === 'tv').length;
-  const fromPlex = state.library.filter(m => m.plexSource).length;
-  document.getElementById('stats-row').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Titles</div></div>
+  const total=state.library.length, watched=state.library.filter(m=>m.watched).length;
+  const movies=state.library.filter(m=>m.type==='movie').length, tv=state.library.filter(m=>m.type==='tv').length;
+  const fromPlex=state.library.filter(m=>m.plexSource).length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total</div></div>
     <div class="stat-card"><div class="stat-num">${watched}</div><div class="stat-label">Watched</div></div>
     <div class="stat-card"><div class="stat-num">${total-watched}</div><div class="stat-label">Unwatched</div></div>
     <div class="stat-card"><div class="stat-num">${movies}</div><div class="stat-label">Movies</div></div>
     <div class="stat-card"><div class="stat-num">${tv}</div><div class="stat-label">TV Shows</div></div>
-    ${fromPlex ? `<div class="stat-card"><div class="stat-num" style="color:var(--plex)">${fromPlex}</div><div class="stat-label">From Plex</div></div>` : ''}`;
+    ${fromPlex?`<div class="stat-card"><div class="stat-num" style="color:var(--plex)">${fromPlex}</div><div class="stat-label">From Plex</div></div>`:''}`;
 }
 
-// ─── CARD HTML ────────────────────────────────────────────────────────────────
 function cardHTML(m, src) {
   const hasPoster = m.poster && m.poster !== 'N/A';
+  const isAdmin = currentUser?.role === 'admin';
   return `<div class="movie-card" onclick="openDetail('${m.id}','${src}')">
-    ${hasPoster ? `<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
-    <div class="poster-fallback" style="display:${hasPoster?'none':'flex'}">
-      <i class="ti ti-movie"></i><span>${m.title}</span>
-    </div>
-    <div class="overlay">
-      <div class="overlay-title">${m.title}</div>
-      <div class="overlay-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div>
-    </div>
-    ${m.watched ? `<div class="watched-badge"><i class="ti ti-check"></i></div>` : ''}
+    ${hasPoster?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+    <div class="poster-fallback" style="display:${hasPoster?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+    <div class="overlay"><div class="overlay-title">${m.title}</div><div class="overlay-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div></div>
+    ${m.watched?`<div class="watched-badge"><i class="ti ti-check"></i></div>`:''}
     <div class="type-badge ${m.type==='movie'?'type-movie':'type-tv'}">${m.type==='movie'?'Film':'TV'}</div>
-    ${m.plexSource ? `<div class="plex-badge">PLEX</div>` : ''}
+    ${m.plexSource?`<div class="plex-badge">PLEX</div>`:''}
   </div>`;
 }
 
-// ─── RENDER LIBRARY ───────────────────────────────────────────────────────────
 function renderLibrary() {
   renderStats();
-  const q = (document.getElementById('search-lib').value || '').toLowerCase();
-  let items = state.library.filter(m => {
-    if (q && !m.title.toLowerCase().includes(q)) return false;
-    if (libFilter === 'movie') return m.type === 'movie';
-    if (libFilter === 'tv') return m.type === 'tv';
-    if (libFilter === 'watched') return m.watched;
-    if (libFilter === 'unwatched') return !m.watched;
-    if (libFilter === 'plex') return m.plexSource;
+  const q=(document.getElementById('search-lib').value||'').toLowerCase();
+  let items=state.library.filter(m=>{
+    if(q&&!m.title.toLowerCase().includes(q))return false;
+    if(libFilter==='movie')return m.type==='movie';
+    if(libFilter==='tv')return m.type==='tv';
+    if(libFilter==='watched')return m.watched;
+    if(libFilter==='unwatched')return !m.watched;
+    if(libFilter==='plex')return m.plexSource;
     return true;
   });
-  const grid = document.getElementById('library-grid');
-  const empty = document.getElementById('lib-empty');
-  if (!items.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = items.map(m => cardHTML(m, 'library')).join('');
+  const grid=document.getElementById('library-grid'), empty=document.getElementById('lib-empty');
+  if(!items.length){grid.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  grid.innerHTML=items.map(m=>cardHTML(m,'library')).join('');
   updateCounts();
 }
 
-// ─── RENDER WISHLIST ──────────────────────────────────────────────────────────
 function renderWishlist() {
-  const q = (document.getElementById('search-wish').value || '').toLowerCase();
-  let items = state.wishlist.filter(m => !q || m.title.toLowerCase().includes(q));
-  const grid = document.getElementById('wishlist-grid');
-  const empty = document.getElementById('wish-empty');
-  if (!items.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = items.map(m => cardHTML(m, 'wishlist')).join('');
+  const q=(document.getElementById('search-wish').value||'').toLowerCase();
+  let items=state.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
+  const grid=document.getElementById('wishlist-grid'), empty=document.getElementById('wish-empty');
+  if(!items.length){grid.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  grid.innerHTML=items.map(m=>cardHTML(m,'wishlist')).join('');
   updateCounts();
 }
 
-// ─── RENDER REQUESTS ──────────────────────────────────────────────────────────
 function renderRequests() {
-  const list = document.getElementById('req-list');
-  const empty = document.getElementById('req-empty');
-  if (!state.requests.length) { list.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  list.innerHTML = state.requests.slice().reverse().map(r => `
+  const list=document.getElementById('req-list'), empty=document.getElementById('req-empty');
+  const isAdmin=currentUser?.role==='admin';
+  if(!state.requests.length){list.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  list.innerHTML=state.requests.slice().reverse().map(r=>`
     <div class="req-card">
       <div class="req-avatar" style="background:${colorFor(r.from)}22;color:${colorFor(r.from)}">${initials(r.from)}</div>
       <div class="req-info">
@@ -797,183 +891,155 @@ function renderRequests() {
         <div class="req-sub">Requested by <strong>${r.from}</strong>${r.note?' · '+r.note:''}</div>
       </div>
       <div class="req-status status-${r.status}">${r.status==='pending'?'Pending':'Added ✓'}</div>
-      ${r.status==='pending' ? `<button class="req-approve" onclick="approveRequest(${r.id})">Add to Wishlist</button>` : ''}
+      ${isAdmin&&r.status==='pending'?`<button class="req-approve" onclick="approveRequest('${r.id}')">Add to Wishlist</button>`:''}
     </div>`).join('');
   updateCounts();
 }
 
-function approveRequest(id) {
-  const req = state.requests.find(r => r.id === id);
-  if (!req) return;
-  req.status = 'added';
-  state.wishlist.push({ id: uid(), title: req.title, type: req.type, year:'', genre:'', rating:'', plot:'', imdb:'', poster:'', format:'', watched:false });
-  save(); renderRequests(); updateCounts();
-  showToast(req.title + ' added to wishlist');
-}
-
-function submitRequest() {
-  const name = document.getElementById('req-name').value.trim();
-  const title = document.getElementById('req-title').value.trim();
-  if (!name || !title) { alert('Please enter your name and a title.'); return; }
-  state.requests.push({ id: uid(), from: name, title, type: document.getElementById('req-type').value, note: document.getElementById('req-note').value.trim(), status: 'pending', ts: Date.now() });
-  save();
-  ['req-name','req-title','req-note'].forEach(id => document.getElementById(id).value = '');
-  renderRequests(); updateCounts(); showToast('Request sent!');
-}
-
-// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// DETAIL MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
 function openDetail(id, src) {
-  const list = src === 'library' ? state.library : state.wishlist;
-  const m = list.find(x => String(x.id) === String(id));
-  if (!m) return;
-  const hasPoster = m.poster && m.poster !== 'N/A';
-  const inLib = !!state.library.find(x => String(x.id) === String(id));
-  const progress = m.duration > 0 ? Math.round((m.viewOffset / m.duration) * 100) : 0;
-  document.getElementById('modal-content').innerHTML = `
+  const list=src==='library'?state.library:state.wishlist;
+  const m=list.find(x=>String(x.id)===String(id));
+  if(!m)return;
+  const isAdmin=currentUser?.role==='admin';
+  const hasPoster=m.poster&&m.poster!=='N/A';
+  const inLib=!!state.library.find(x=>String(x.id)===String(id));
+  const progress=m.duration>0?Math.round((m.viewOffset/m.duration)*100):0;
+  document.getElementById('modal-content').innerHTML=`
     <div class="modal-hero">
-      ${hasPoster ? `<img src="${m.poster}" class="modal-poster" onerror="this.style.display='none'">` : `<div class="modal-poster-fallback"><i class="ti ti-movie" style="font-size:36px;color:var(--muted)"></i></div>`}
+      ${hasPoster?`<img src="${m.poster}" class="modal-poster" onerror="this.style.display='none'">`:`<div class="modal-poster-fallback"><i class="ti ti-movie" style="font-size:36px;color:var(--muted)"></i></div>`}
       <div class="modal-info">
         <div class="modal-title">${m.title}</div>
         <div class="modal-tags">
-          ${m.year ? `<span class="tag tag-year">${m.year}</span>` : ''}
-          ${m.genre ? m.genre.split(',').slice(0,2).map(g=>`<span class="tag tag-genre">${g.trim()}</span>`).join('') : ''}
-          ${m.rating ? `<span class="tag tag-rating">${m.rating}</span>` : ''}
+          ${m.year?`<span class="tag tag-year">${m.year}</span>`:''}
+          ${m.genre?m.genre.split(',').slice(0,2).map(g=>`<span class="tag tag-genre">${g.trim()}</span>`).join(''):''}
+          ${m.rating?`<span class="tag tag-rating">${m.rating}</span>`:''}
           <span class="tag ${m.type==='movie'?'tag-movie':'tag-tv'}">${m.type==='movie'?'Movie':'TV Show'}</span>
-          ${m.plexSource ? `<span class="tag tag-plex"><i class="ti ti-brand-plex" style="font-size:10px"></i> Plex</span>` : ''}
+          ${m.plexSource?`<span class="tag tag-plex"><i class="ti ti-brand-plex" style="font-size:10px"></i> Plex</span>`:''}
         </div>
-        ${m.plot && m.plot !== 'N/A' ? `<div class="modal-plot">${m.plot}</div>` : ''}
+        ${m.plot&&m.plot!=='N/A'?`<div class="modal-plot">${m.plot}</div>`:''}
         <div class="modal-actions">
-          ${inLib ? `<button class="action-btn btn-watched ${m.watched?'is-watched':''}" onclick="toggleWatched('${m.id}')">
+          ${isAdmin&&inLib?`<button class="action-btn btn-watched ${m.watched?'is-watched':''}" onclick="toggleWatched('${m.id}')">
             <i class="ti ti-${m.watched?'eye-off':'eye'}"></i> ${m.watched?'Watched':'Mark Watched'}
-          </button>` : ''}
-          ${m.imdb && m.imdb !== 'N/A' ? `<a href="https://www.imdb.com/title/${m.imdb}/" class="action-btn btn-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>` : ''}
-          ${m.plexSource && plexConfig.serverUrl ? `<a href="${plexConfig.serverUrl.replace(/\/$/,'')}/web/index.html#!/server/${m.plexKey}/details" class="action-btn btn-plex" target="_blank"><i class="ti ti-player-play"></i> Open in Plex</a>` : ''}
-          ${!inLib ? `<button class="action-btn btn-watched" onclick="moveToLibrary('${m.id}')"><i class="ti ti-plus"></i> Add to Library</button>` : ''}
-          <button class="action-btn btn-delete" onclick="deleteItem('${m.id}','${src}')"><i class="ti ti-trash"></i> Remove</button>
+          </button>`:''}
+          ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="action-btn btn-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
+          ${m.plexSource&&plexConfig.serverUrl?`<a href="${plexConfig.serverUrl.replace(/\/$/,'')}/web/index.html#!/server/${m.plexKey}/details" class="action-btn btn-plex" target="_blank"><i class="ti ti-player-play"></i> Open in Plex</a>`:''}
+          ${isAdmin&&!inLib?`<button class="action-btn btn-watched" onclick="moveToLibrary('${m.id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
+          ${isAdmin?`<button class="action-btn btn-delete" onclick="deleteItem('${m.id}','${src}')"><i class="ti ti-trash"></i> Remove</button>`:''}
         </div>
       </div>
     </div>
     <div class="modal-body">
-      ${m.format ? `<div class="detail-row"><span class="detail-label">Format / Location</span><span class="detail-value">${m.format}</span></div>` : ''}
-      ${m.imdb && m.imdb !== 'N/A' ? `<div class="detail-row"><span class="detail-label">IMDb</span><span class="detail-value" style="color:var(--gold)">imdb.com/title/${m.imdb}</span></div>` : ''}
-      ${progress > 0 && progress < 100 ? `<div class="detail-row">
-        <span class="detail-label">Progress</span>
-        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%"></div></div>
-        <span class="detail-value" style="min-width:36px">${progress}%</span>
-      </div>` : ''}
+      ${m.format?`<div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${m.format}</span></div>`:''}
+      ${m.imdb&&m.imdb!=='N/A'?`<div class="detail-row"><span class="detail-label">IMDb</span><span class="detail-value" style="color:var(--gold)">imdb.com/title/${m.imdb}</span></div>`:''}
+      ${progress>0&&progress<100?`<div class="detail-row"><span class="detail-label">Progress</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%"></div></div><span class="detail-value">${progress}%</span></div>`:''}
     </div>`;
   document.getElementById('detail-modal').classList.add('open');
 }
-
 function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
 
 function toggleWatched(id) {
-  const m = state.library.find(x => String(x.id) === String(id));
-  if (!m) return;
-  m.watched = !m.watched;
-  save(); openDetail(id, 'library'); renderLibrary();
-  showToast(m.watched ? 'Marked as watched!' : 'Marked as unwatched');
+  const m=state.library.find(x=>String(x.id)===String(id)); if(!m)return;
+  m.watched=!m.watched; save(); openDetail(id,'library'); renderLibrary();
+  showToast(m.watched?'Marked as watched!':'Marked as unwatched');
 }
-
 function moveToLibrary(id) {
-  const m = state.wishlist.find(x => String(x.id) === String(id));
-  if (m) {
-    state.library.push({ ...m, id: uid(), watched: false });
-    state.wishlist = state.wishlist.filter(x => String(x.id) !== String(id));
-    save(); closeModal(); renderLibrary(); renderWishlist(); updateCounts();
-    showToast(m.title + ' added to library!');
-  }
+  const m=state.wishlist.find(x=>String(x.id)===String(id)); if(!m)return;
+  state.library.push({...m,id:uid(),watched:false});
+  state.wishlist=state.wishlist.filter(x=>String(x.id)!==String(id));
+  save(); closeModal(); renderLibrary(); renderWishlist(); updateCounts();
+  showToast(m.title+' added to library!');
 }
-
 function deleteItem(id, src) {
-  if (!confirm('Remove this title?')) return;
-  if (src === 'library') state.library = state.library.filter(x => String(x.id) !== String(id));
-  else state.wishlist = state.wishlist.filter(x => String(x.id) !== String(id));
+  if(!confirm('Remove this title?'))return;
+  if(src==='library') state.library=state.library.filter(x=>String(x.id)!==String(id));
+  else state.wishlist=state.wishlist.filter(x=>String(x.id)!==String(id));
   save(); closeModal();
-  if (src === 'library') renderLibrary(); else renderWishlist();
-  updateCounts();
+  if(src==='library')renderLibrary(); else renderWishlist(); updateCounts();
 }
 
-// ─── ADD MODAL ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// REQUESTS
+// ═══════════════════════════════════════════════════════════════════════════════
+function approveRequest(id) {
+  const req=state.requests.find(r=>String(r.id)===String(id)); if(!req)return;
+  req.status='added';
+  state.wishlist.push({id:uid(),title:req.title,type:req.type,year:'',genre:'',rating:'',plot:'',imdb:'',poster:'',format:'',watched:false});
+  save(); renderRequests(); updateCounts(); showToast(req.title+' added to wishlist');
+}
+function submitRequest() {
+  const name=document.getElementById('req-name').value.trim();
+  const title=document.getElementById('req-title').value.trim();
+  if(!name||!title){alert('Please enter your name and a title.');return;}
+  // pre-fill name for logged-in guest
+  state.requests.push({id:uid(),from:name,title,type:document.getElementById('req-type').value,note:document.getElementById('req-note').value.trim(),status:'pending',ts:Date.now()});
+  save(); ['req-name','req-title','req-note'].forEach(id=>document.getElementById(id).value='');
+  renderRequests(); updateCounts(); showToast('Request sent!');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADD MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
 function openAddModal(target) {
-  addMode = target;
-  pendingPoster = ''; pendingImdb = '';
-  document.getElementById('add-modal-title').textContent = target === 'library' ? 'Add to Library' : 'Add to Wishlist';
-  document.getElementById('add-watched-field').style.display = target === 'library' ? 'flex' : 'none';
-  ['add-title','add-year','add-genre','add-rating','add-format','add-plot','add-search-input'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('add-type').value = 'movie';
-  document.getElementById('add-watched').checked = false;
-  document.getElementById('lookup-result').innerHTML = '';
+  addMode=target; pendingPoster=''; pendingImdb='';
+  document.getElementById('add-modal-title').textContent=target==='library'?'Add to Library':'Add to Wishlist';
+  document.getElementById('add-watched-field').style.display=target==='library'?'flex':'none';
+  ['add-title','add-year','add-genre','add-rating','add-format','add-plot','add-search-input'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-type').value='movie';
+  document.getElementById('add-watched').checked=false;
+  document.getElementById('lookup-result').innerHTML='';
   document.getElementById('add-modal').classList.add('open');
 }
 function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
 
 async function lookupTitle() {
-  const q = document.getElementById('add-search-input').value.trim();
-  if (!q) return;
-  const btn = document.getElementById('lookup-btn');
-  const res = document.getElementById('lookup-result');
-  btn.disabled = true;
-  res.innerHTML = `<div class="lookup-status loading"><i class="ti ti-loader"></i> Searching...</div>`;
+  const q=document.getElementById('add-search-input').value.trim(); if(!q)return;
+  const btn=document.getElementById('lookup-btn'), res=document.getElementById('lookup-result');
+  btn.disabled=true; res.innerHTML=`<div class="lookup-status loading"><i class="ti ti-loader"></i> Searching...</div>`;
   try {
-    const type = document.getElementById('add-type').value === 'tv' ? 'series' : 'movie';
-    const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(q)}&type=${type}`);
-    const d = await r.json();
-    if (d.Response === 'True') {
-      pendingPoster = d.Poster && d.Poster !== 'N/A' ? d.Poster : '';
-      pendingImdb = d.imdbID || '';
-      document.getElementById('add-title').value = d.Title || '';
-      document.getElementById('add-year').value = d.Year || '';
-      document.getElementById('add-genre').value = d.Genre || '';
-      document.getElementById('add-rating').value = d.Rated || '';
-      document.getElementById('add-plot').value = d.Plot && d.Plot !== 'N/A' ? d.Plot : '';
-      const hasPoster = d.Poster && d.Poster !== 'N/A';
-      res.innerHTML = `<div class="lookup-preview">
-        ${hasPoster ? `<img src="${d.Poster}" class="lookup-thumb" onerror="this.style.display='none'">` : `<div class="lookup-thumb-fallback"><i class="ti ti-movie" style="font-size:24px;color:var(--muted)"></i></div>`}
-        <div class="lookup-info">
-          <div class="lookup-title-text">${d.Title} (${d.Year})</div>
-          <div class="lookup-meta">${d.Genre||''} · ${d.Rated||''} · IMDb: ${d.imdbRating||'N/A'}</div>
-          <div class="lookup-plot">${d.Plot && d.Plot !== 'N/A' ? d.Plot.slice(0,140)+'...' : ''}</div>
-        </div></div>`;
+    const type=document.getElementById('add-type').value==='tv'?'series':'movie';
+    const r=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(q)}&type=${type}`);
+    const d=await r.json();
+    if(d.Response==='True'){
+      pendingPoster=d.Poster&&d.Poster!=='N/A'?d.Poster:''; pendingImdb=d.imdbID||'';
+      document.getElementById('add-title').value=d.Title||'';
+      document.getElementById('add-year').value=d.Year||'';
+      document.getElementById('add-genre').value=d.Genre||'';
+      document.getElementById('add-rating').value=d.Rated||'';
+      document.getElementById('add-plot').value=d.Plot&&d.Plot!=='N/A'?d.Plot:'';
+      const hasPoster=d.Poster&&d.Poster!=='N/A';
+      res.innerHTML=`<div class="lookup-preview">
+        ${hasPoster?`<img src="${d.Poster}" class="lookup-thumb" onerror="this.style.display='none'">`:`<div class="lookup-thumb-fallback"><i class="ti ti-movie" style="font-size:24px;color:var(--muted)"></i></div>`}
+        <div style="flex:1"><div style="font-weight:600;font-size:14px;margin-bottom:4px">${d.Title} (${d.Year})</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${d.Genre||''} · ${d.Rated||''} · IMDb: ${d.imdbRating||'N/A'}</div>
+        <div style="font-size:12px;color:var(--light);line-height:1.5">${d.Plot&&d.Plot!=='N/A'?d.Plot.slice(0,140)+'...':''}</div></div></div>`;
     } else {
-      res.innerHTML = `<div class="lookup-status error"><i class="ti ti-alert-circle"></i> Not found. Fill in manually below.</div>`;
+      res.innerHTML=`<div class="lookup-status error"><i class="ti ti-alert-circle"></i> Not found. Fill in manually below.</div>`;
     }
-  } catch(e) {
-    res.innerHTML = `<div class="lookup-status error">Search failed. Fill in manually below.</div>`;
-  }
-  btn.disabled = false;
+  } catch(e) { res.innerHTML=`<div class="lookup-status error">Search failed.</div>`; }
+  btn.disabled=false;
 }
-
 function submitAdd() {
-  const title = document.getElementById('add-title').value.trim();
-  if (!title) { alert('Please enter a title.'); return; }
-  const item = {
-    id: uid(), title,
-    type: document.getElementById('add-type').value,
-    year: document.getElementById('add-year').value.trim(),
-    genre: document.getElementById('add-genre').value.trim(),
-    rating: document.getElementById('add-rating').value.trim(),
-    imdb: pendingImdb, poster: pendingPoster,
-    plot: document.getElementById('add-plot').value.trim(),
-    format: document.getElementById('add-format').value.trim(),
-    watched: addMode === 'library' ? document.getElementById('add-watched').checked : false,
-    plexSource: false,
-  };
-  if (addMode === 'library') state.library.push(item);
-  else state.wishlist.push(item);
+  const title=document.getElementById('add-title').value.trim(); if(!title){alert('Enter a title.');return;}
+  const item={id:uid(),title,type:document.getElementById('add-type').value,year:document.getElementById('add-year').value.trim(),genre:document.getElementById('add-genre').value.trim(),rating:document.getElementById('add-rating').value.trim(),imdb:pendingImdb,poster:pendingPoster,plot:document.getElementById('add-plot').value.trim(),format:document.getElementById('add-format').value.trim(),watched:addMode==='library'?document.getElementById('add-watched').checked:false,plexSource:false};
+  if(addMode==='library')state.library.push(item); else state.wishlist.push(item);
   save(); closeAddModal();
-  if (addMode === 'library') renderLibrary(); else renderWishlist();
-  updateCounts(); showToast(title + ' added!');
+  if(addMode==='library')renderLibrary(); else renderWishlist();
+  updateCounts(); showToast(title+' added!');
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-load();
-renderLibrary();
-updateCounts();
-if (plexConfig.token && plexConfig.serverUrl) {
-  updatePlexStatus(true);
-  document.getElementById('sync-btn').style.display = '';
-}
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+loadState();
+buildLoginScreen();
+
+// Pre-fill request name for guests
+document.getElementById('req-name').addEventListener('focus', function() {
+  if (!this.value && currentUser && currentUser.role !== 'admin') this.value = currentUser.name;
+});
 </script>
 </body>
 </html>
