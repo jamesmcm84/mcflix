@@ -1031,9 +1031,38 @@ function submitAdd() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+function seedData() {
+  state = {
+    library: [
+      { id:'s1', title:'Interstellar', type:'movie', year:'2014', genre:'Sci-Fi, Adventure', rating:'PG-13', plot:'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.', imdb:'tt0816692', poster:'https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg', format:'Plex', watched:true, plexSource:false },
+      { id:'s2', title:'Oppenheimer', type:'movie', year:'2023', genre:'Biography, Drama', rating:'R', plot:'The story of J. Robert Oppenheimer and his role in the development of the atomic bomb.', imdb:'tt15398776', poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg', format:'Blu-ray', watched:false, plexSource:false },
+      { id:'s3', title:'The Dark Knight', type:'movie', year:'2008', genre:'Action, Crime', rating:'PG-13', plot:'Batman raises the stakes in his war on crime as the Joker wreaks havoc on Gotham City.', imdb:'tt0468569', poster:'https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg', format:'USB Drive', watched:true, plexSource:false },
+      { id:'s4', title:'Breaking Bad', type:'tv', year:'2008', genre:'Crime, Drama', rating:'TV-MA', plot:'A chemistry teacher diagnosed with cancer turns to manufacturing methamphetamine.', imdb:'tt0903747', poster:'https://m.media-amazon.com/images/M/MV5BYmQ4YWMxYjUtNjZmYi00MDdmLWJjOTUtYjc3NzgwYTZiMWMxXkEyXkFqcGdeQXVyMTMzNDExODE5._V1_SX300.jpg', format:'Plex', watched:true, plexSource:false },
+      { id:'s5', title:'Dune: Part Two', type:'movie', year:'2024', genre:'Sci-Fi, Adventure', rating:'PG-13', plot:'Paul Atreides unites with Chani and the Fremen on a warpath of revenge against the conspirators.', imdb:'tt15239678', poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg', format:'Plex', watched:true, plexSource:false },
+      { id:'s6', title:'Stranger Things', type:'tv', year:'2016', genre:'Drama, Horror', rating:'TV-14', plot:'When a boy disappears, his friends uncover a secret experiment and terrifying supernatural forces.', imdb:'tt4574334', poster:'https://m.media-amazon.com/images/M/MV5BN2ZmYjg1YmItNWQ4OC00YWM0LWE0ZDktYTdiOTE5ZjRjYWUxXkEyXkFqcGdeQXVyNjgxNTQ3Mjk@._V1_SX300.jpg', format:'Plex', watched:false, plexSource:false },
+    ],
+    wishlist: [
+      { id:'w1', title:'Killers of the Flower Moon', type:'movie', year:'2023', genre:'Crime, Drama', rating:'R', plot:'Members of the Osage Nation are murdered under mysterious circumstances in the 1920s.', imdb:'tt5537002', poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg', format:'', watched:false, plexSource:false },
+      { id:'w2', title:'Shogun', type:'tv', year:'2024', genre:'Drama, History', rating:'TV-MA', plot:'A 17th century English sailor becomes embroiled in the world of feudal Japan.', imdb:'tt2788316', poster:'https://m.media-amazon.com/images/M/MV5BOGI2NDljMDItNjM0OS00ZTk2LTg2YzEtOGI5NjA1NTMwMzM4XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg', format:'', watched:false, plexSource:false },
+    ],
+    requests: [
+      { id:'r1', from:'Alysa', title:'The Bear', type:'tv', note:'Everyone says it\'s amazing!', status:'pending', ts: Date.now()-3600000 },
+      { id:'r2', from:'Ryan Law', title:'Gladiator II', type:'movie', note:'Just came out', status:'pending', ts: Date.now()-7200000 },
+    ]
+  };
+  save();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════════
 loadState();
+// If library is empty and no plex config, seed with sample data
+if (state.library.length === 0 && !plexConfig.token) {
+  seedData();
+}
 buildLoginScreen();
 
 // Pre-fill request name for guests
