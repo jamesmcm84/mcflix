@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>McFlix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24; --card: #16161f;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --gold: #e8b84b; --gold2: #f5d07a; --red: #e8354b; --green: #2ecc71;
+    --text: #f0f0f5; --muted: #888899; --light: #ccccdd;
+  }
+  body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; overflow-x: hidden; }
+
+  /* HEADER */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--border); background: rgba(10,10,15,0.97); position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 3px; color: var(--gold); }
+  .logo span { color: #fff; }
+  .nav { display: flex; gap: 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+  .nav-btn { padding: 7px 16px; border: none; border-radius: 7px; background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .nav-btn.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+  .nav-btn:hover:not(.active) { color: var(--light); }
+  .badge { background: var(--gold); color: #000; font-size: 10px; font-weight: 600; border-radius: 20px; padding: 1px 6px; min-width: 18px; text-align: center; }
+  .badge.red { background: var(--red); color: #fff; }
+
+  /* MAIN */
+  .main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 200px; position: relative; }
+  .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; }
+  .search-wrap input { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px 9px 36px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--border2); }
+  .filter-btn { padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg2); color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .filter-btn.active { background: var(--bg3); border-color: var(--gold); color: var(--gold); }
+  .filter-btn:hover:not(.active) { color: var(--light); border-color: var(--border2); }
+  .add-btn { padding: 9px 16px; border: none; border-radius: 8px; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; }
+  .add-btn:hover { background: var(--gold2); }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: center; }
+  .stat-num { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 1px; color: var(--gold); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .movie-card { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; background: var(--card); border: 1px solid var(--border); transition: transform 0.2s, border-color 0.2s; aspect-ratio: 2/3; }
+  .movie-card:hover { transform: scale(1.03); border-color: var(--border2); }
+  .movie-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .poster-fallback { width: 100%; height: 100%; background: linear-gradient(145deg, #1a1a2e, #16213e); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 12px; text-align: center; position: absolute; inset: 0; border-radius: 10px; }
+  .poster-fallback i { font-size: 32px; color: var(--muted); }
+  .poster-fallback span { font-size: 11px; color: var(--light); font-weight: 500; line-height: 1.3; }
+  .overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.92)); padding: 28px 10px 10px; }
+  .overlay-title { font-size: 12px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 4px; }
+  .overlay-meta { font-size: 10px; color: var(--muted); }
+  .watched-badge { position: absolute; top: 8px; right: 8px; background: rgba(46,204,113,0.9); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+  .watched-badge i { font-size: 12px; color: #fff; }
+  .type-badge { position: absolute; top: 8px; left: 8px; padding: 2px 7px; border-radius: 4px; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .type-movie { background: rgba(232,53,75,0.85); color: #fff; }
+  .type-tv { background: rgba(138,90,240,0.85); color: #fff; }
+
+  /* MODALS */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; position: relative; }
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  .modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 18px; z-index: 10; transition: color 0.2s; }
+  .modal-close:hover { color: var(--text); }
+  .modal-hero { display: flex; gap: 20px; padding: 20px; border-bottom: 1px solid var(--border); }
+  .modal-poster { width: 120px; height: 180px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+  .modal-poster-fallback { width: 120px; height: 180px; border-radius: 10px; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .modal-info { flex: 1; }
+  .modal-title { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 1px; line-height: 1.1; margin-bottom: 6px; }
+  .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); }
+  .tag-year { color: var(--muted); }
+  .tag-genre { background: var(--bg3); color: var(--light); }
+  .tag-rating { background: rgba(232,184,75,0.1); color: var(--gold); border-color: rgba(232,184,75,0.3); }
+  .tag-movie { background: rgba(232,53,75,0.1); color: #f07080; border-color: rgba(232,53,75,0.3); }
+  .tag-tv { background: rgba(138,90,240,0.1); color: #b080f0; border-color: rgba(138,90,240,0.3); }
+  .modal-plot { font-size: 13px; color: var(--light); line-height: 1.6; margin-bottom: 14px; }
+  .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .action-btn { padding: 8px 14px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); display: flex; align-items: center; gap: 6px; transition: all 0.2s; text-decoration: none; }
+  .btn-watched { background: rgba(46,204,113,0.15); color: var(--green); border-color: rgba(46,204,113,0.3); }
+  .btn-watched.is-watched { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-imdb { background: rgba(245,197,48,0.1); color: #f5c530; border-color: rgba(245,197,48,0.3); }
+  .btn-delete { background: rgba(232,53,75,0.1); color: var(--red); border-color: rgba(232,53,75,0.3); }
+  .modal-body { padding: 16px 20px 20px; }
+  .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: var(--muted); }
+  .detail-value { color: var(--text); font-weight: 500; }
+
+  /* ADD MODAL */
+  .add-modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; width: 100%; max-width: 520px; padding: 24px; position: relative; max-height: 90vh; overflow-y: auto; }
+  .add-modal::-webkit-scrollbar { width: 4px; }
+  .add-modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  .add-modal-title { font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 1px; color: var(--gold); margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field.full { grid-column: 1/-1; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+  .form-input { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
+  .form-input::placeholder { color: var(--muted); }
+  .form-input:focus { border-color: var(--gold); }
+  select.form-input option { background: var(--bg2); }
+  textarea.form-input { resize: vertical; }
+  .search-title-row { display: flex; gap: 8px; align-items: flex-end; }
+  .search-title-row .form-input { flex: 1; }
+  .lookup-btn { padding: 9px 14px; border: none; border-radius: 8px; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; transition: background 0.2s; flex-shrink: 0; }
+  .lookup-btn:hover { background: var(--gold2); }
+  .lookup-btn:disabled { opacity: 0.5; cursor: default; }
+  .lookup-preview { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .lookup-thumb { width: 60px; height: 90px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+  .lookup-thumb-fallback { width: 60px; height: 90px; border-radius: 6px; background: var(--card); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .lookup-info { flex: 1; }
+  .lookup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .lookup-meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .lookup-plot { font-size: 12px; color: var(--light); line-height: 1.5; }
+  .lookup-status { font-size: 12px; color: var(--muted); padding: 6px 0; }
+  .lookup-status.error { color: var(--red); }
+  .lookup-status.loading { color: var(--gold); }
+
+  /* REQUESTS */
+  .req-form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+  .form-title { font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 1px; margin-bottom: 16px; color: var(--gold); }
+  .submit-btn { padding: 10px 20px; border: none; border-radius: 8px; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+  .submit-btn:hover { background: var(--gold2); }
+  .req-list { display: flex; flex-direction: column; gap: 10px; }
+  .req-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .req-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .req-info { flex: 1; min-width: 120px; }
+  .req-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .req-sub { font-size: 12px; color: var(--muted); }
+  .req-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-pending { background: rgba(232,184,75,0.15); color: var(--gold); }
+  .status-added { background: rgba(46,204,113,0.15); color: var(--green); }
+  .req-approve { padding: 6px 12px; border: 1px solid rgba(46,204,113,0.3); border-radius: 7px; background: rgba(46,204,113,0.1); color: var(--green); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .req-approve:hover { background: rgba(46,204,113,0.2); }
+
+  /* MISC */
+  .section-label { font-family: 'Bebas Neue', cursive; font-size: 18px; letter-spacing: 1px; margin-bottom: 14px; color: var(--light); display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); }
+  .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
+  .empty-state p { font-size: 15px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; display: flex; align-items: center; gap: 8px; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">Mc<span>Flix</span></div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('library',this)">
+      <i class="ti ti-stack-2"></i> Library <span class="badge" id="lib-count">0</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('wishlist',this)">
+      <i class="ti ti-bookmark"></i> Wishlist <span class="badge" id="wish-count">0</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('requests',this)">
+      <i class="ti ti-message-circle"></i> Requests <span class="badge red" id="req-count">0</span>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- LIBRARY TAB -->
+  <div class="tab-panel active" id="tab-library">
+    <div class="stats-row" id="stats-row"></div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input type="text" id="search-lib" placeholder="Search library..." oninput="renderLibrary()">
+      </div>
+      <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
+      <button class="filter-btn" onclick="setFilter(this,'movie')">Movies</button>
+      <button class="filter-btn" onclick="setFilter(this,'tv')">TV Shows</button>
+      <button class="filter-btn" onclick="setFilter(this,'watched')">Watched</button>
+      <button class="filter-btn" onclick="setFilter(this,'unwatched')">Unwatched</button>
+      <button class="add-btn" onclick="openAddModal('library')"><i class="ti ti-plus"></i> Add</button>
+    </div>
+    <div class="grid" id="library-grid"></div>
+    <div class="empty-state" id="lib-empty" style="display:none">
+      <i class="ti ti-video-off"></i><p>No titles yet. Hit Add!</p>
+    </div>
+  </div>
+
+  <!-- WISHLIST TAB -->
+  <div class="tab-panel" id="tab-wishlist">
+    <div class="toolbar" style="margin-bottom:20px">
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input type="text" id="search-wish" placeholder="Search wishlist..." oninput="renderWishlist()">
+      </div>
+      <button class="add-btn" onclick="openAddModal('wishlist')"><i class="ti ti-plus"></i> Add to Wishlist</button>
+    </div>
+    <div class="section-label">Movies I Want</div>
+    <div class="grid" id="wishlist-grid"></div>
+    <div class="empty-state" id="wish-empty" style="display:none">
+      <i class="ti ti-bookmark"></i><p>No wishlist items yet.</p>
+    </div>
+  </div>
+
+  <!-- REQUESTS TAB -->
+  <div class="tab-panel" id="tab-requests">
+    <div class="req-form">
+      <div class="form-title">Request a Movie or Show</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Your Name</label>
+          <input type="text" class="form-input" id="req-name" placeholder="Alysa, Ryan...">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Type</label>
+          <select class="form-input" id="req-type">
+            <option value="movie">Movie</option>
+            <option value="tv">TV Show</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-input" id="req-title" placeholder="Movie or show title...">
+        </div>
+        <div class="form-field full">
+          <label class="form-label">Note (optional)</label>
+          <input type="text" class="form-input" id="req-note" placeholder="Why you want it, where to find it...">
+        </div>
+      </div>
+      <button class="submit-btn" onclick="submitRequest()"><i class="ti ti-send"></i> Send Request</button>
+    </div>
+    <div class="section-label">Pending Requests</div>
+    <div class="req-list" id="req-list"></div>
+    <div class="empty-state" id="req-empty" style="display:none">
+      <i class="ti ti-inbox"></i><p>No requests yet.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal" onclick="if(event.target===this)closeAddModal()">
+  <div class="add-modal">
+    <button class="modal-close" onclick="closeAddModal()"><i class="ti ti-x"></i></button>
+    <div class="add-modal-title" id="add-modal-title">Add to Library</div>
+
+    <div class="form-field full" style="margin-bottom:10px">
+      <label class="form-label">Search by Title</label>
+      <div class="search-title-row">
+        <input type="text" class="form-input" id="add-search-input"
+          placeholder="Type title and press Search..."
+          onkeydown="if(event.key==='Enter')lookupTitle()">
+        <button class="lookup-btn" id="lookup-btn" onclick="lookupTitle()">
+          <i class="ti ti-search"></i> Search
+        </button>
+      </div>
+    </div>
+    <div id="lookup-result"></div>
+
+    <div class="form-grid" id="manual-fields">
+      <div class="form-field full">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-input" id="add-title" placeholder="Title...">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="add-type">
+          <option value="movie">Movie</option>
+          <option value="tv">TV Show</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Year</label>
+        <input type="text" class="form-input" id="add-year" placeholder="2024">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Genre</label>
+        <input type="text" class="form-input" id="add-genre" placeholder="Action, Drama...">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Rating</label>
+        <input type="text" class="form-input" id="add-rating" placeholder="PG-13, R...">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Format / Location</label>
+        <input type="text" class="form-input" id="add-format" placeholder="Plex, Blu-ray...">
+      </div>
+      <div class="form-field full">
+        <label class="form-label">Plot</label>
+        <textarea class="form-input" id="add-plot" rows="2" placeholder="Description..."></textarea>
+      </div>
+      <div class="form-field full" id="add-watched-field"
+        style="display:flex;flex-direction:row;align-items:center;gap:10px;padding-top:4px">
+        <input type="checkbox" id="add-watched" style="width:16px;height:16px;accent-color:var(--gold)">
+        <label for="add-watched" style="font-size:13px;color:var(--light);cursor:pointer">Mark as watched</label>
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="submit-btn" onclick="submitAdd()"><i class="ti ti-plus"></i> Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────────────────────
+  // Get a free key at https://www.omdbapi.com/apikey.aspx and replace below
+  const OMDB_KEY = 'trilogy';
+
+  const STORAGE_KEY = 'mcflix_v3';
+  const COLORS = ['#e8354b','#8a5af0','#2ecc71','#e8b84b','#3498db','#e67e22'];
+
+  // ─── HELPERS ──────────────────────────────────────────────────────────────
+  function colorFor(n) { let h=0; for(let c of n) h=(h<<5)-h+c.charCodeAt(0); return COLORS[Math.abs(h)%COLORS.length]; }
+  function initials(n) { return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ─── STATE ────────────────────────────────────────────────────────────────
+  let state = { library: [], wishlist: [], requests: [] };
+  let libFilter = 'all';
+  let addMode = 'library';
+  let pendingPoster = '';
+  let pendingImdb = '';
+
+  function load() {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) state = JSON.parse(s);
+      else seedData();
+    } catch(e) { seedData(); }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function seedData() {
+    state = {
+      library: [
+        { id:1, title:'Interstellar', type:'movie', year:'2014', genre:'Sci-Fi, Adventure', rating:'PG-13', plot:'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.', imdb:'tt0816692', poster:'https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg', format:'Plex', watched:true },
+        { id:2, title:'Oppenheimer', type:'movie', year:'2023', genre:'Biography, Drama', rating:'R', plot:'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.', imdb:'tt15398776', poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg', format:'Blu-ray', watched:false },
+        { id:3, title:'The Dark Knight', type:'movie', year:'2008', genre:'Action, Crime', rating:'PG-13', plot:'Batman raises the stakes in his war on crime as the Joker wreaks havoc on Gotham City.', imdb:'tt0468569', poster:'https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg', format:'USB Drive', watched:true },
+        { id:4, title:'Breaking Bad', type:'tv', year:'2008', genre:'Crime, Drama', rating:'TV-MA', plot:'A chemistry teacher diagnosed with cancer turns to manufacturing methamphetamine with a former student.', imdb:'tt0903747', poster:'https://m.media-amazon.com/images/M/MV5BYmQ4YWMxYjUtNjZmYi00MDdmLWJjOTUtYjc3NzgwYTZiMWMxXkEyXkFqcGdeQXVyMTMzNDExODE5._V1_SX300.jpg', format:'Plex', watched:true },
+        { id:5, title:'Dune: Part Two', type:'movie', year:'2024', genre:'Sci-Fi, Adventure', rating:'PG-13', plot:'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators.', imdb:'tt15239678', poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg', format:'Plex', watched:true },
+        { id:6, title:'Stranger Things', type:'tv', year:'2016', genre:'Drama, Horror', rating:'TV-14', plot:'When a boy disappears, his friends uncover a secret experiment, terrifying supernatural forces and one strange little girl.', imdb:'tt4574334', poster:'https://m.media-amazon.com/images/M/MV5BN2ZmYjg1YmItNWQ4OC00YWM0LWE0ZDktYTdiOTE5ZjRjYWUxXkEyXkFqcGdeQXVyNjgxNTQ3Mjk@._V1_SX300.jpg', format:'Plex', watched:false },
+      ],
+      wishlist: [
+        { id:101, title:'Killers of the Flower Moon', type:'movie', year:'2023', genre:'Crime, Drama', rating:'R', plot:'Members of the Osage Nation are murdered under mysterious circumstances in the 1920s.', imdb:'tt5537002', poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg', format:'', watched:false },
+        { id:102, title:'Shogun', type:'tv', year:'2024', genre:'Drama, History', rating:'TV-MA', plot:'A 17th century English sailor becomes embroiled in the complex political and cultural world of feudal Japan.', imdb:'tt2788316', poster:'https://m.media-amazon.com/images/M/MV5BOGI2NDljMDItNjM0OS00ZTk2LTg2YzEtOGI5NjA1NTMwMzM4XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg', format:'', watched:false },
+      ],
+      requests: [
+        { id:201, from:'Alysa', title:'The Bear', type:'tv', note:'Everyone says it\'s amazing!', status:'pending', ts:Date.now()-3600000 },
+        { id:202, from:'Ryan Law', title:'Gladiator II', type:'movie', note:'Just came out', status:'pending', ts:Date.now()-7200000 },
+      ]
+    };
+    save();
+  }
+
+  // ─── TABS ─────────────────────────────────────────────────────────────────
+  function switchTab(t, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + t).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    if (t === 'library') renderLibrary();
+    if (t === 'wishlist') renderWishlist();
+    if (t === 'requests') renderRequests();
+  }
+
+  function setFilter(el, f) {
+    libFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderLibrary();
+  }
+
+  function updateCounts() {
+    document.getElementById('lib-count').textContent = state.library.length;
+    document.getElementById('wish-count').textContent = state.wishlist.length;
+    const p = state.requests.filter(r => r.status === 'pending').length;
+    const rc = document.getElementById('req-count');
+    rc.textContent = p;
+    rc.style.display = p ? '' : 'none';
+  }
+
+  // ─── STATS ────────────────────────────────────────────────────────────────
+  function renderStats() {
+    const total = state.library.length;
+    const watched = state.library.filter(m => m.watched).length;
+    const movies = state.library.filter(m => m.type === 'movie').length;
+    const tv = state.library.filter(m => m.type === 'tv').length;
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Titles</div></div>
+      <div class="stat-card"><div class="stat-num">${watched}</div><div class="stat-label">Watched</div></div>
+      <div class="stat-card"><div class="stat-num">${total - watched}</div><div class="stat-label">Unwatched</div></div>
+      <div class="stat-card"><div class="stat-num">${movies}</div><div class="stat-label">Movies</div></div>
+      <div class="stat-card"><div class="stat-num">${tv}</div><div class="stat-label">TV Shows</div></div>`;
+  }
+
+  // ─── CARD HTML ────────────────────────────────────────────────────────────
+  function cardHTML(m, src) {
+    const hasPoster = m.poster && m.poster !== 'N/A';
+    return `<div class="movie-card" onclick="openDetail(${m.id},'${src}')">
+      ${hasPoster ? `<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+      <div class="poster-fallback" style="display:${hasPoster ? 'none' : 'flex'}">
+        <i class="ti ti-movie"></i><span>${m.title}</span>
+      </div>
+      <div class="overlay">
+        <div class="overlay-title">${m.title}</div>
+        <div class="overlay-meta">${m.year || ''}${m.genre ? ' · ' + m.genre.split(',')[0] : ''}</div>
+      </div>
+      ${m.watched ? `<div class="watched-badge"><i class="ti ti-check"></i></div>` : ''}
+      <div class="type-badge ${m.type === 'movie' ? 'type-movie' : 'type-tv'}">${m.type === 'movie' ? 'Film' : 'TV'}</div>
+    </div>`;
+  }
+
+  // ─── RENDER LIBRARY ───────────────────────────────────────────────────────
+  function renderLibrary() {
+    renderStats();
+    const q = (document.getElementById('search-lib').value || '').toLowerCase();
+    let items = state.library.filter(m => {
+      if (q && !m.title.toLowerCase().includes(q)) return false;
+      if (libFilter === 'movie') return m.type === 'movie';
+      if (libFilter === 'tv') return m.type === 'tv';
+      if (libFilter === 'watched') return m.watched;
+      if (libFilter === 'unwatched') return !m.watched;
+      return true;
+    });
+    const grid = document.getElementById('library-grid');
+    const empty = document.getElementById('lib-empty');
+    if (!items.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    grid.innerHTML = items.map(m => cardHTML(m, 'library')).join('');
+    updateCounts();
+  }
+
+  // ─── RENDER WISHLIST ──────────────────────────────────────────────────────
+  function renderWishlist() {
+    const q = (document.getElementById('search-wish').value || '').toLowerCase();
+    let items = state.wishlist.filter(m => !q || m.title.toLowerCase().includes(q));
+    const grid = document.getElementById('wishlist-grid');
+    const empty = document.getElementById('wish-empty');
+    if (!items.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    grid.innerHTML = items.map(m => cardHTML(m, 'wishlist')).join('');
+    updateCounts();
+  }
+
+  // ─── RENDER REQUESTS ──────────────────────────────────────────────────────
+  function renderRequests() {
+    const list = document.getElementById('req-list');
+    const empty = document.getElementById('req-empty');
+    if (!state.requests.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    list.innerHTML = state.requests.slice().reverse().map(r => `
+      <div class="req-card">
+        <div class="req-avatar" style="background:${colorFor(r.from)}22;color:${colorFor(r.from)}">${initials(r.from)}</div>
+        <div class="req-info">
+          <div class="req-name">${r.title} <span style="font-size:11px;color:var(--muted)">(${r.type === 'movie' ? 'Movie' : 'TV'})</span></div>
+          <div class="req-sub">Requested by <strong>${r.from}</strong>${r.note ? ' · ' + r.note : ''}</div>
+        </div>
+        <div class="req-status status-${r.status}">${r.status === 'pending' ? 'Pending' : 'Added ✓'}</div>
+        ${r.status === 'pending' ? `<button class="req-approve" onclick="approveRequest(${r.id})">Add to Wishlist</button>` : ''}
+      </div>`).join('');
+    updateCounts();
+  }
+
+  // ─── REQUESTS ACTIONS ─────────────────────────────────────────────────────
+  function approveRequest(id) {
+    const req = state.requests.find(r => r.id === id);
+    if (!req) return;
+    req.status = 'added';
+    state.wishlist.push({ id: Date.now(), title: req.title, type: req.type, year: '', genre: '', rating: '', plot: '', imdb: '', poster: '', format: '', watched: false });
+    save(); renderRequests(); updateCounts();
+    showToast(req.title + ' added to wishlist');
+  }
+
+  function submitRequest() {
+    const name = document.getElementById('req-name').value.trim();
+    const title = document.getElementById('req-title').value.trim();
+    if (!name || !title) { alert('Please enter your name and a title.'); return; }
+    state.requests.push({ id: Date.now(), from: name, title, type: document.getElementById('req-type').value, note: document.getElementById('req-note').value.trim(), status: 'pending', ts: Date.now() });
+    save();
+    ['req-name','req-title','req-note'].forEach(id => document.getElementById(id).value = '');
+    renderRequests(); updateCounts();
+    showToast('Request sent!');
+  }
+
+  // ─── DETAIL MODAL ─────────────────────────────────────────────────────────
+  function openDetail(id, src) {
+    const list = src === 'library' ? state.library : state.wishlist;
+    const m = list.find(x => x.id === id);
+    if (!m) return;
+    const hasPoster = m.poster && m.poster !== 'N/A';
+    const inLib = !!state.library.find(x => x.id === id);
+    document.getElementById('modal-content').innerHTML = `
+      <div class="modal-hero">
+        ${hasPoster
+          ? `<img src="${m.poster}" class="modal-poster" onerror="this.style.display='none'">`
+          : `<div class="modal-poster-fallback"><i class="ti ti-movie" style="font-size:36px;color:var(--muted)"></i></div>`}
+        <div class="modal-info">
+          <div class="modal-title">${m.title}</div>
+          <div class="modal-tags">
+            ${m.year ? `<span class="tag tag-year">${m.year}</span>` : ''}
+            ${m.genre ? m.genre.split(',').slice(0,2).map(g => `<span class="tag tag-genre">${g.trim()}</span>`).join('') : ''}
+            ${m.rating ? `<span class="tag tag-rating">${m.rating}</span>` : ''}
+            <span class="tag ${m.type === 'movie' ? 'tag-movie' : 'tag-tv'}">${m.type === 'movie' ? 'Movie' : 'TV Show'}</span>
+          </div>
+          ${m.plot && m.plot !== 'N/A' ? `<div class="modal-plot">${m.plot}</div>` : ''}
+          <div class="modal-actions">
+            ${inLib ? `<button class="action-btn btn-watched ${m.watched ? 'is-watched' : ''}" onclick="toggleWatched(${id})">
+              <i class="ti ti-${m.watched ? 'eye-off' : 'eye'}"></i> ${m.watched ? 'Watched' : 'Mark Watched'}
+            </button>` : ''}
+            ${m.imdb && m.imdb !== 'N/A' ? `<a href="https://www.imdb.com/title/${m.imdb}/" class="action-btn btn-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>` : ''}
+            ${!inLib ? `<button class="action-btn btn-watched" onclick="moveToLibrary(${id})"><i class="ti ti-plus"></i> Add to Library</button>` : ''}
+            <button class="action-btn btn-delete" onclick="deleteItem(${id},'${src}')"><i class="ti ti-trash"></i> Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        ${m.format ? `<div class="detail-row"><span class="detail-label">Format / Location</span><span class="detail-value">${m.format}</span></div>` : ''}
+        ${m.imdb && m.imdb !== 'N/A' ? `<div class="detail-row"><span class="detail-label">IMDb</span><span class="detail-value" style="color:var(--gold)">imdb.com/title/${m.imdb}</span></div>` : ''}
+      </div>`;
+    document.getElementById('detail-modal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+  function toggleWatched(id) {
+    const m = state.library.find(x => x.id === id);
+    if (!m) return;
+    m.watched = !m.watched;
+    save(); openDetail(id, 'library'); renderLibrary();
+    showToast(m.watched ? 'Marked as watched!' : 'Marked as unwatched');
+  }
+
+  function moveToLibrary(id) {
+    const m = state.wishlist.find(x => x.id === id);
+    if (m) {
+      state.library.push({ ...m, id: Date.now(), watched: false });
+      state.wishlist = state.wishlist.filter(x => x.id !== id);
+      save(); closeModal(); renderLibrary(); renderWishlist(); updateCounts();
+      showToast(m.title + ' added to library!');
+    }
+  }
+
+  function deleteItem(id, src) {
+    if (!confirm('Remove this title?')) return;
+    if (src === 'library') state.library = state.library.filter(x => x.id !== id);
+    else state.wishlist = state.wishlist.filter(x => x.id !== id);
+    save(); closeModal();
+    if (src === 'library') renderLibrary(); else renderWishlist();
+    updateCounts();
+  }
+
+  // ─── ADD MODAL ────────────────────────────────────────────────────────────
+  function openAddModal(target) {
+    addMode = target;
+    pendingPoster = ''; pendingImdb = '';
+    document.getElementById('add-modal-title').textContent = target === 'library' ? 'Add to Library' : 'Add to Wishlist';
+    document.getElementById('add-watched-field').style.display = target === 'library' ? 'flex' : 'none';
+    ['add-title','add-year','add-genre','add-rating','add-format','add-plot','add-search-input'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('add-type').value = 'movie';
+    document.getElementById('add-watched').checked = false;
+    document.getElementById('lookup-result').innerHTML = '';
+    document.getElementById('add-modal').classList.add('open');
+  }
+
+  function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+  // ─── OMDB LOOKUP ──────────────────────────────────────────────────────────
+  async function lookupTitle() {
+    const q = document.getElementById('add-search-input').value.trim();
+    if (!q) return;
+    const btn = document.getElementById('lookup-btn');
+    const res = document.getElementById('lookup-result');
+    btn.disabled = true;
+    res.innerHTML = `<div class="lookup-status loading"><i class="ti ti-loader"></i> Searching...</div>`;
+    try {
+      const type = document.getElementById('add-type').value === 'tv' ? 'series' : 'movie';
+      const url = `https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(q)}&type=${type}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.Response === 'True') {
+        pendingPoster = d.Poster && d.Poster !== 'N/A' ? d.Poster : '';
+        pendingImdb = d.imdbID || '';
+        document.getElementById('add-title').value = d.Title || '';
+        document.getElementById('add-year').value = d.Year || '';
+        document.getElementById('add-genre').value = d.Genre || '';
+        document.getElementById('add-rating').value = d.Rated || '';
+        document.getElementById('add-plot').value = d.Plot && d.Plot !== 'N/A' ? d.Plot : '';
+        const hasPoster = d.Poster && d.Poster !== 'N/A';
+        res.innerHTML = `<div class="lookup-preview">
+          ${hasPoster ? `<img src="${d.Poster}" class="lookup-thumb" onerror="this.style.display='none'">` : `<div class="lookup-thumb-fallback"><i class="ti ti-movie" style="font-size:24px;color:var(--muted)"></i></div>`}
+          <div class="lookup-info">
+            <div class="lookup-title">${d.Title} (${d.Year})</div>
+            <div class="lookup-meta">${d.Genre || ''} · ${d.Rated || ''} · IMDb: ${d.imdbRating || 'N/A'}</div>
+            <div class="lookup-plot">${d.Plot && d.Plot !== 'N/A' ? d.Plot.slice(0, 140) + '...' : ''}</div>
+          </div>
+        </div>`;
+      } else {
+        res.innerHTML = `<div class="lookup-status error"><i class="ti ti-alert-circle"></i> Not found. Try a different title or fill in manually below.</div>`;
+      }
+    } catch(e) {
+      res.innerHTML = `<div class="lookup-status error">Search failed. Fill in manually below.</div>`;
+    }
+    btn.disabled = false;
+  }
+
+  function submitAdd() {
+    const title = document.getElementById('add-title').value.trim();
+    if (!title) { alert('Please enter a title.'); return; }
+    const item = {
+      id: Date.now(), title,
+      type: document.getElementById('add-type').value,
+      year: document.getElementById('add-year').value.trim(),
+      genre: document.getElementById('add-genre').value.trim(),
+      rating: document.getElementById('add-rating').value.trim(),
+      imdb: pendingImdb,
+      poster: pendingPoster,
+      plot: document.getElementById('add-plot').value.trim(),
+      format: document.getElementById('add-format').value.trim(),
+      watched: addMode === 'library' ? document.getElementById('add-watched').checked : false,
+    };
+    if (addMode === 'library') state.library.push(item);
+    else state.wishlist.push(item);
+    save(); closeAddModal();
+    if (addMode === 'library') renderLibrary(); else renderWishlist();
+    updateCounts(); showToast(title + ' added!');
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────────────────────
+  load();
+  renderLibrary();
+  updateCounts();
+</script>
+</body>
+</html>
