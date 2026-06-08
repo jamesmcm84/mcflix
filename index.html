@@ -413,9 +413,18 @@ function closeMo(id){document.getElementById('mo-'+id).classList.remove('open')}
 // ─── STORAGE ───────────────────────────────────────────────────────────────────
 // Gist config (admin only, stored locally)
 const GK = 'mcflix_gist';
-let gistCfg = { id:'', token:'' };
+// ── PASTE YOUR GIST ID HERE so all devices can read it without setup ──────────
+const GIST_ID_DEFAULT = 'afc720caf59d9f47050b5abf0a8ab965';
+// ─────────────────────────────────────────────────────────────────────────────
+let gistCfg = { id: GIST_ID_DEFAULT, token:'' };
 
-function loadGistCfg(){ try{const g=localStorage.getItem(GK);if(g)gistCfg=JSON.parse(g);}catch(e){} }
+function loadGistCfg(){
+  try{
+    const g=localStorage.getItem(GK);
+    if(g){ const parsed=JSON.parse(g); gistCfg={id:parsed.id||GIST_ID_DEFAULT, token:parsed.token||''}; }
+    else { gistCfg.id = GIST_ID_DEFAULT; }
+  }catch(e){ gistCfg.id = GIST_ID_DEFAULT; }
+}
 function saveGistCfg(){ try{localStorage.setItem(GK,JSON.stringify(gistCfg));}catch(e){} }
 
 function loadAll(){
@@ -871,8 +880,29 @@ async function syncPlex(){
       }
     }
     state.library=[...state.library.filter(m=>!m.plexSource),...items];
-    saveState(); renderLib(); updateCounts();
-    toast(`Synced ${items.length} titles from Plex!`);
+    // Save locally first
+    try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
+    renderLib(); updateCounts();
+    toast(`Synced ${items.length} titles from Plex! Saving to shared library...`);
+    // Push directly to Gist (no debounce — this is a big sync)
+    const gistId = gistCfg.id || localStorage.getItem('mcflix_gist_public') || '';
+    const gistTok = gistCfg.token || '';
+    if(gistId && gistTok){
+      try{
+        const r = await fetch('https://api.github.com/gists/'+gistId, {
+          method:'PATCH',
+          headers:{ Authorization:'token '+gistTok, 'Content-Type':'application/json' },
+          body: JSON.stringify({ files:{ 'mcflix-data.json':{ content: JSON.stringify({
+            library:state.library, wishlist:state.wishlist, requests:state.requests,
+            updatedAt:Date.now()
+          })}}})
+        });
+        if(r.ok) toast(`Synced ${items.length} titles — library shared!`);
+        else toast('Synced but Gist push failed: '+r.status, true);
+      }catch(e){ toast('Synced but could not push to Gist: '+e.message, true); }
+    } else {
+      toast(`Synced ${items.length} titles from Plex!`);
+    }
   } catch(e){
     toast('Sync failed: '+e.message, true);
     console.error('Plex sync error:', e);
