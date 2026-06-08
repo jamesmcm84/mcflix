@@ -385,7 +385,7 @@ const USERS = [
 let CU = null; // current user
 let selUser = null;
 let state = { library:[], wishlist:[], requests:[] };
-let plex = { token:'', serverUrl:'', serverName:'', clientId:'' };
+let plex = { token:'', serverUrl:'', serverName:'', clientId:'', machineId:'' };
 let libF = 'all';
 let addMode = 'library';
 let pposter = '', pimdb = '';
@@ -752,40 +752,97 @@ function submitAdd(){
 }
 
 // ─── PLEX ─────────────────────────────────────────────────────────────────────
-function plexH(token){return{'X-Plex-Token':token||plex.token,'X-Plex-Client-Identifier':plex.clientId||'mcflix','X-Plex-Product':'McFlix','X-Plex-Version':'1.0','Accept':'application/json'}}
-async function plexGet(path,token,base){
-  const url=(base||plex.serverUrl).replace(/\/$/,'')+path;
-  const r=await fetch(url,{headers:plexH(token)});
-  if(!r.ok)throw new Error('Plex '+r.status);
+// All Plex API calls go through plex.tv proxy to avoid CORS issues when
+// hosted on GitHub Pages. The proxy URL format is:
+// https://plex.tv/api/v2/proxy/{machineIdentifier}{path}?X-Plex-Token=...
+// For direct server calls (local), we fall back to the server URL.
+
+function plexH(token){
+  return{
+    'X-Plex-Token':token||plex.token,
+    'X-Plex-Client-Identifier':plex.clientId||'mcflix',
+    'X-Plex-Product':'McFlix',
+    'X-Plex-Version':'1.0',
+    'Accept':'application/json',
+  };
+}
+
+// Build a URL that works from any origin (GitHub Pages, local, etc.)
+// Uses plex.tv relay if machineId is known, else falls back to direct
+function plexUrl(path, token, base){
+  const t = token || plex.token;
+  const sep = path.includes('?') ? '&' : '?';
+  // If we have a machineId, use the plex.tv proxy (CORS-safe from anywhere)
+  if(plex.machineId && !base){
+    return `https://plex.tv/api/v2/proxy/${plex.machineId}${path}${sep}X-Plex-Token=${t}`;
+  }
+  // Fall back to direct server URL (works locally, may fail from GitHub Pages)
+  const b = (base || plex.serverUrl).replace(/\/$/,'');
+  return `${b}${path}${sep}X-Plex-Token=${t}`;
+}
+
+async function plexGet(path, token, base){
+  const url = plexUrl(path, token, base);
+  const r = await fetch(url, { headers: plexH(token) });
+  if(!r.ok) throw new Error(`Plex ${r.status} on ${url}`);
   return r.json();
 }
+
+// Poster URLs: use plex.tv photo proxy which serves with correct CORS headers
 function posterUrl(thumb){
-  if(!thumb||!plex.serverUrl||!plex.token)return'';
-  return`${plex.serverUrl.replace(/\/$/,'')}${thumb}?X-Plex-Token=${plex.token}`;
+  if(!thumb || !plex.token) return '';
+  if(plex.machineId){
+    // plex.tv proxy for images — CORS-safe
+    return `https://plex.tv/api/v2/proxy/${plex.machineId}${thumb}?X-Plex-Token=${plex.token}`;
+  }
+  if(plex.serverUrl){
+    return `${plex.serverUrl.replace(/\/$/,'')}${thumb}?X-Plex-Token=${plex.token}`;
+  }
+  return '';
 }
-function plexToLocal(item,type){
-  return{id:'plex_'+item.ratingKey,title:item.title,type,year:item.year?String(item.year):'',genre:item.Genre?item.Genre.map(g=>g.tag).join(', '):'',rating:item.contentRating||'',plot:item.summary||'',imdb:(item.Guid||[]).find(g=>g.id?.startsWith('imdb://'))?.id?.replace('imdb://','') || '',poster:posterUrl(item.thumb),format:'Plex',watched:type==='movie'?(item.viewCount>0):(item.leafCount===item.viewedLeafCount),plexKey:item.ratingKey,plexThumb:item.thumb,viewOffset:item.viewOffset||0,duration:item.duration||0,plexSource:true};
+
+function plexToLocal(item, type){
+  return{
+    id:'plex_'+item.ratingKey, title:item.title, type,
+    year:item.year?String(item.year):'',
+    genre:item.Genre?item.Genre.map(g=>g.tag).join(', '):'',
+    rating:item.contentRating||'', plot:item.summary||'',
+    imdb:(item.Guid||[]).find(g=>g.id?.startsWith('imdb://'))?.id?.replace('imdb://','') || '',
+    poster:posterUrl(item.thumb), format:'Plex',
+    watched:type==='movie'?(item.viewCount>0):(item.leafCount===item.viewedLeafCount),
+    plexKey:item.ratingKey, plexThumb:item.thumb,
+    viewOffset:item.viewOffset||0, duration:item.duration||0, plexSource:true,
+  };
 }
 
 async function syncPlex(){
-  if(!plex.token||!plex.serverUrl)return;
-  const btn=document.getElementById('sync-btn');
-  btn.disabled=true;btn.innerHTML='<i class="ti ti-refresh" style="animation:spin .8s linear infinite"></i> Syncing...';
+  if(!plex.token) return;
+  if(!plex.serverUrl && !plex.machineId){ toast('No Plex server configured.',true); return; }
+  const btn = document.getElementById('sync-btn');
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-refresh" style="animation:spin .8s linear infinite"></i> Syncing...';
   loading(true,'Syncing Plex library...');
   try{
-    const libs=await plexGet('/library/sections');
-    const secs=libs.MediaContainer.Directory||[];
-    const items=[];
+    const libs = await plexGet('/library/sections');
+    const secs = libs.MediaContainer.Directory||[];
+    const items = [];
     for(const s of secs){
-      if(s.type==='movie'){const d=await plexGet(`/library/sections/${s.key}/all?type=1`);(d.MediaContainer.Metadata||[]).forEach(i=>items.push(plexToLocal(i,'movie')));}
-      else if(s.type==='show'){const d=await plexGet(`/library/sections/${s.key}/all?type=2`);(d.MediaContainer.Metadata||[]).forEach(i=>items.push(plexToLocal(i,'tv')));}
+      if(s.type==='movie'){
+        const d = await plexGet(`/library/sections/${s.key}/all?type=1`);
+        (d.MediaContainer.Metadata||[]).forEach(i=>items.push(plexToLocal(i,'movie')));
+      } else if(s.type==='show'){
+        const d = await plexGet(`/library/sections/${s.key}/all?type=2`);
+        (d.MediaContainer.Metadata||[]).forEach(i=>items.push(plexToLocal(i,'tv')));
+      }
     }
     state.library=[...state.library.filter(m=>!m.plexSource),...items];
-    saveState();renderLib();updateCounts();
+    saveState(); renderLib(); updateCounts();
     toast(`Synced ${items.length} titles from Plex!`);
-  }catch(e){toast('Sync failed: '+e.message,true);}
+  } catch(e){
+    toast('Sync failed: '+e.message, true);
+    console.error('Plex sync error:', e);
+  }
   loading(false);
-  btn.disabled=false;btn.innerHTML='<i class="ti ti-refresh"></i> Sync Plex';
+  btn.disabled=false; btn.innerHTML='<i class="ti ti-refresh"></i> Sync Plex';
 }
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
@@ -865,16 +922,35 @@ function pickSrv(i){
 async function settingsConnect(){
   if(!selSrv)return;
   loading(true,'Connecting to Plex...');
-  const conns=[...(selSrv.connections||[])].sort((a,b)=>(a.relay?1:0)-(b.relay?1:0));
-  let ok=false;
-  for(const c of conns){
+  plex.machineId = selSrv.clientIdentifier || '';
+  plex.serverName = selSrv.name;
+  plex.serverUrl = '';
+  let ok = false;
+
+  // 1) Try plex.tv proxy first — works from GitHub Pages, no CORS issues
+  if(plex.machineId){
     try{
-      const url=c.uri||`${c.protocol}://${c.address}:${c.port}`;
-      await plexGet('/library/sections',plex.token,url);
-      plex.serverUrl=url; plex.serverName=selSrv.name; ok=true; break;
-    }catch(e){continue}
+      const proxyUrl=`https://plex.tv/api/v2/proxy/${plex.machineId}/library/sections?X-Plex-Token=${plex.token}`;
+      const r=await fetch(proxyUrl,{headers:plexH(plex.token)});
+      if(r.ok){ ok=true; console.log('McFlix: using plex.tv proxy'); }
+    }catch(e){ console.log('McFlix: proxy failed, trying direct',e); }
   }
-  if(!ok){loading(false);toast('Could not reach server',true);return}
+
+  // 2) Fall back to direct server connections (works locally)
+  if(!ok){
+    const conns=[...(selSrv.connections||[])].sort((a,b)=>(a.relay?1:0)-(b.relay?1:0));
+    for(const c of conns){
+      try{
+        const url=c.uri||`${c.protocol}://${c.address}:${c.port}`;
+        await plexGet('/library/sections',plex.token,url);
+        plex.serverUrl=url; ok=true;
+        console.log('McFlix: using direct URL',url); break;
+      }catch(e){ continue; }
+    }
+  }
+
+  if(!ok){ loading(false); toast('Could not reach Plex server. Make sure remote access is enabled in Plex Settings → Remote Access.',true); return; }
+
   savePlex(); closeMo('settings');
   document.getElementById('sync-btn').style.display='';
   document.getElementById('f-plex').style.display='';
@@ -885,7 +961,7 @@ async function settingsConnect(){
 
 function disconnPlex(){
   if(!confirm('Disconnect Plex? Removes all synced titles.'))return;
-  plex={token:'',serverUrl:'',serverName:'',clientId:''};
+  plex={token:'',serverUrl:'',serverName:'',clientId:'',machineId:''};
   state.library=state.library.filter(m=>!m.plexSource);
   savePlex();saveState();closeMo('settings');
   document.getElementById('sync-btn').style.display='none';
