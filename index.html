@@ -847,13 +847,19 @@ function posterUrl(thumb){
 }
 
 function plexToLocal(item, type){
+  const imdbId = (item.Guid||[]).find(g=>g.id?.startsWith('imdb://'))?.id?.replace('imdb://','') || '';
+  // Use OMDB poster URL (works from anywhere) if we have an IMDb ID
+  // Otherwise fall back to Plex server URL (works on local network only)
+  const poster = imdbId
+    ? `https://img.omdbapi.com/?i=${imdbId}&h=300&apikey=${OMDB_KEY}`
+    : posterUrl(item.thumb);
   return{
     id:'plex_'+item.ratingKey, title:item.title, type,
     year:item.year?String(item.year):'',
     genre:item.Genre?item.Genre.map(g=>g.tag).join(', '):'',
     rating:item.contentRating||'', plot:item.summary||'',
-    imdb:(item.Guid||[]).find(g=>g.id?.startsWith('imdb://'))?.id?.replace('imdb://','') || '',
-    poster:posterUrl(item.thumb), format:'Plex',
+    imdb: imdbId,
+    poster, format:'Plex',
     watched:type==='movie'?(item.viewCount>0):(item.leafCount===item.viewedLeafCount),
     plexKey:item.ratingKey, plexThumb:item.thumb,
     viewOffset:item.viewOffset||0, duration:item.duration||0, plexSource:true,
