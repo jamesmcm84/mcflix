@@ -411,14 +411,67 @@ function openMo(id){document.getElementById('mo-'+id).classList.add('open')}
 function closeMo(id){document.getElementById('mo-'+id).classList.remove('open')}
 
 // ─── STORAGE ───────────────────────────────────────────────────────────────────
+// Gist config (admin only, stored locally)
+const GK = 'mcflix_gist';
+let gistCfg = { id:'', token:'' };
+
+function loadGistCfg(){ try{const g=localStorage.getItem(GK);if(g)gistCfg=JSON.parse(g);}catch(e){} }
+function saveGistCfg(){ try{localStorage.setItem(GK,JSON.stringify(gistCfg));}catch(e){} }
+
 function loadAll(){
   try{const s=localStorage.getItem(SK);if(s)state=JSON.parse(s);}catch(e){}
   try{const p=localStorage.getItem(PK);if(p)plex=JSON.parse(p);}catch(e){}
+  loadGistCfg();
 }
-function saveState(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+
+function saveState(){
+  try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
+  pushGist();
+}
 function savePlex(){try{localStorage.setItem(PK,JSON.stringify(plex));}catch(e){}}
 function loadAuth(){try{return JSON.parse(localStorage.getItem(AK))||{};}catch(e){return{}}}
 function saveAuth(d){localStorage.setItem(AK,JSON.stringify(d))}
+
+// Pull shared data from Gist (all users on login)
+async function pullGist(){
+  // Guests use the public gist ID stored by admin, no token needed
+  const gistId = gistCfg.id || localStorage.getItem('mcflix_gist_public') || '';
+  if(!gistId) return false;
+  try{
+    const r = await fetch('https://api.github.com/gists/'+gistId, {
+      headers: gistCfg.token ? { Authorization:'token '+gistCfg.token } : {}
+    });
+    if(!r.ok) return false;
+    const d = await r.json();
+    const file = d.files && (d.files['mcflix-data.json'] || Object.values(d.files)[0]);
+    if(!file || !file.content) return false;
+    const parsed = JSON.parse(file.content);
+    if(parsed.library) state.library = parsed.library;
+    if(parsed.wishlist) state.wishlist = parsed.wishlist;
+    if(parsed.requests) state.requests = parsed.requests;
+    try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
+    return true;
+  }catch(e){ console.warn('McFlix: Gist pull failed',e); return false; }
+}
+
+// Push state to Gist after changes (debounced, admin token required)
+let _pushTimer = null;
+function pushGist(){
+  if(!gistCfg.id || !gistCfg.token) return;
+  clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(async ()=>{
+    try{
+      await fetch('https://api.github.com/gists/'+gistCfg.id, {
+        method:'PATCH',
+        headers:{ Authorization:'token '+gistCfg.token, 'Content-Type':'application/json' },
+        body: JSON.stringify({ files:{ 'mcflix-data.json':{ content: JSON.stringify({
+          library:state.library, wishlist:state.wishlist, requests:state.requests,
+          updatedAt:Date.now()
+        })}}})
+      });
+    }catch(e){ console.warn('McFlix: Gist push failed',e); }
+  }, 1500);
+}
 
 // ─── PASSWORDS ─────────────────────────────────────────────────────────────────
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)^s.charCodeAt(i);return(h>>>0).toString(36)}
@@ -485,10 +538,11 @@ function doLogin(){
   }
   errEl.textContent='';
   CU={...selUser};
-  // Switch screens
+  // Pull shared data from Gist before showing the app
   document.getElementById('login-screen').className='screen';
   document.getElementById('app-screen').className='screen active';
-  initApp();
+  loading(true, 'Loading library...');
+  pullGist().then(()=>{ loading(false); initApp(); });
 }
 
 // ─── APP INIT ─────────────────────────────────────────────────────────────────
@@ -868,6 +922,30 @@ function openSettings(){
     }
     h+=`</div>`;
 
+    // Gist section
+    h+=`<div class="set-sec"><div class="set-sec-lbl">Shared Storage (GitHub Gist)</div>`;
+    if(gistCfg.id){
+      h+=`<div class="connected-box">Gist connected — all users share this library.<br>
+        <span style="font-size:12px;color:var(--muted)">Gist ID: ${gistCfg.id.slice(0,12)}...</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="primary-btn" onclick="testGistPull()"><i class="ti ti-refresh"></i> Pull Now</button>
+          <button class="danger-btn" onclick="clearGist()"><i class="ti ti-unlink"></i> Disconnect</button>
+        </div>`;
+    } else {
+      h+=`
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+          Connect a GitHub Gist so all users (including guests on other devices) see the same library.<br>
+          <strong style="color:var(--light)">Setup:</strong> Create a secret Gist at gist.github.com with a file named <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">mcflix-data.json</code> containing <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">{}</code>. Then create a GitHub Personal Access Token with the <strong>gist</strong> scope.
+        </div>
+        <div class="ff" style="margin-bottom:10px"><label class="fl">Gist ID</label>
+          <input type="text" class="fi" id="s-gist-id" placeholder="abc123def456... (from the Gist URL)"></div>
+        <div class="ff" style="margin-bottom:12px"><label class="fl">GitHub Token (with gist scope)</label>
+          <input type="password" class="fi" id="s-gist-tok" placeholder="ghp_xxxxxxxxxxxx">
+          <div class="fhint">Stored locally on this device only. Guests only need the Gist ID (no token).</div></div>
+        <button class="primary-btn" onclick="saveGist()"><i class="ti ti-plug"></i> Connect Gist</button>`;
+    }
+    h+=`</div>`;
+
     h+=`<div class="set-sec"><div class="set-sec-lbl">Passwords</div>
       <div class="ff" style="margin-bottom:10px"><label class="fl">Admin Password</label><input type="password" class="fi" id="s-ap" placeholder="New admin password" autocomplete="new-password"></div>
       <div class="ff" style="margin-bottom:12px"><label class="fl">Guest Password (Alysa & Friends)</label><input type="password" class="fi" id="s-gp" placeholder="New guest password" autocomplete="new-password">
@@ -977,6 +1055,44 @@ function savePW(){
   if(ap)a.adminHash=hash(ap);
   if(gp)a.guestHash=hash(gp);
   saveAuth(a); closeMo('settings'); toast('Passwords saved!');
+}
+
+function saveGist(){
+  const id = document.getElementById('s-gist-id')?.value.trim();
+  const tok = document.getElementById('s-gist-tok')?.value.trim();
+  if(!id){ alert('Enter a Gist ID.'); return; }
+  gistCfg = { id, token: tok };
+  saveGistCfg();
+  shareGistIdForGuests();
+  loading(true, 'Testing Gist connection...');
+  pullGist().then(ok => {
+    loading(false);
+    if(ok){ closeMo('settings'); renderLib(); renderWish(); renderReq(); updateCounts(); toast('Gist connected! Library synced.'); }
+    else { alert('Could not read the Gist. Check the ID and make sure the file is named mcflix-data.json'); }
+  });
+}
+
+async function testGistPull(){
+  loading(true,'Pulling from Gist...');
+  const ok = await pullGist();
+  loading(false);
+  if(ok){ closeMo('settings'); renderLib(); renderWish(); renderReq(); updateCounts(); toast('Library refreshed from Gist!'); }
+  else { toast('Gist pull failed — check connection', true); }
+}
+
+function clearGist(){
+  if(!confirm('Disconnect Gist? Guests will no longer see the shared library.')) return;
+  gistCfg = { id:'', token:'' };
+  saveGistCfg();
+  closeMo('settings');
+  toast('Gist disconnected');
+}
+
+// Also share guest Gist ID so guests can pull (no token needed for public gist read)
+// Guests need the Gist ID saved locally — admin can share it via the URL or tell them
+// We store it in a publicly-readable localStorage key guests can use
+function shareGistIdForGuests(){
+  if(gistCfg.id) localStorage.setItem('mcflix_gist_public', gistCfg.id);
 }
 
 function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.classList.add('show')}}
