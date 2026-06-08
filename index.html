@@ -806,53 +806,35 @@ function submitAdd(){
 }
 
 // ─── PLEX ─────────────────────────────────────────────────────────────────────
-// All Plex API calls go through plex.tv proxy to avoid CORS issues when
-// hosted on GitHub Pages. The proxy URL format is:
-// https://plex.tv/api/v2/proxy/{machineIdentifier}{path}?X-Plex-Token=...
-// For direct server calls (local), we fall back to the server URL.
+// Plex API calls use the direct server URL with token as a query param.
+// This works from GitHub Pages because:
+// 1. Your server URL is already HTTPS (plex.direct)
+// 2. Plex sends Access-Control-Allow-Origin: * on API responses
+// 3. Token in query param avoids preflight CORS issues with custom headers
 
-function plexH(token){
-  return{
-    'X-Plex-Token':token||plex.token,
-    'X-Plex-Client-Identifier':plex.clientId||'mcflix',
-    'X-Plex-Product':'McFlix',
-    'X-Plex-Version':'1.0',
-    'Accept':'application/json',
-  };
+function plexH(){
+  return { 'Accept':'application/json' };
 }
 
-// Build a URL that works from any origin (GitHub Pages, local, etc.)
-// Uses plex.tv relay if machineId is known, else falls back to direct
+// Append token to URL instead of headers — avoids CORS preflight
 function plexUrl(path, token, base){
   const t = token || plex.token;
+  const b = (base || plex.serverUrl || '').replace(/\/$/,'');
   const sep = path.includes('?') ? '&' : '?';
-  // If we have a machineId, use the plex.tv proxy (CORS-safe from anywhere)
-  if(plex.machineId && !base){
-    return `https://plex.tv/api/v2/proxy/${plex.machineId}${path}${sep}X-Plex-Token=${t}`;
-  }
-  // Fall back to direct server URL (works locally, may fail from GitHub Pages)
-  const b = (base || plex.serverUrl).replace(/\/$/,'');
   return `${b}${path}${sep}X-Plex-Token=${t}`;
 }
 
 async function plexGet(path, token, base){
   const url = plexUrl(path, token, base);
-  const r = await fetch(url, { headers: plexH(token) });
-  if(!r.ok) throw new Error(`Plex ${r.status} on ${url}`);
+  const r = await fetch(url, { headers: plexH() });
+  if(!r.ok) throw new Error(`Plex ${r.status} — ${url}`);
   return r.json();
 }
 
-// Poster URLs: use plex.tv photo proxy which serves with correct CORS headers
+// Poster URLs — token in query param, direct server
 function posterUrl(thumb){
-  if(!thumb || !plex.token) return '';
-  if(plex.machineId){
-    // plex.tv proxy for images — CORS-safe
-    return `https://plex.tv/api/v2/proxy/${plex.machineId}${thumb}?X-Plex-Token=${plex.token}`;
-  }
-  if(plex.serverUrl){
-    return `${plex.serverUrl.replace(/\/$/,'')}${thumb}?X-Plex-Token=${plex.token}`;
-  }
-  return '';
+  if(!thumb || !plex.token || !plex.serverUrl) return '';
+  return `${plex.serverUrl.replace(/\/$/,'')}${thumb}?X-Plex-Token=${plex.token}`;
 }
 
 function plexToLocal(item, type){
@@ -1005,29 +987,38 @@ async function settingsConnect(){
   plex.serverUrl = '';
   let ok = false;
 
-  // 1) Try plex.tv proxy first — works from GitHub Pages, no CORS issues
-  if(plex.machineId){
-    try{
-      const proxyUrl=`https://plex.tv/api/v2/proxy/${plex.machineId}/library/sections?X-Plex-Token=${plex.token}`;
-      const r=await fetch(proxyUrl,{headers:plexH(plex.token)});
-      if(r.ok){ ok=true; console.log('McFlix: using plex.tv proxy'); }
-    }catch(e){ console.log('McFlix: proxy failed, trying direct',e); }
-  }
+  // Try each connection URL — prefer HTTPS, non-relay first
+  // Token goes in query param so no CORS preflight needed
+  const conns = [...(selSrv.connections||[])].sort((a,b)=>{
+    if(a.relay && !b.relay) return 1;
+    if(!a.relay && b.relay) return -1;
+    if(a.protocol==='https' && b.protocol!=='https') return -1;
+    return 0;
+  });
 
-  // 2) Fall back to direct server connections (works locally)
-  if(!ok){
-    const conns=[...(selSrv.connections||[])].sort((a,b)=>(a.relay?1:0)-(b.relay?1:0));
-    for(const c of conns){
-      try{
-        const url=c.uri||`${c.protocol}://${c.address}:${c.port}`;
-        await plexGet('/library/sections',plex.token,url);
-        plex.serverUrl=url; ok=true;
-        console.log('McFlix: using direct URL',url); break;
-      }catch(e){ continue; }
+  for(const c of conns){
+    try{
+      const url = c.uri || `${c.protocol}://${c.address}:${c.port}`;
+      console.log('McFlix: trying', url);
+      const testUrl = `${url}/identity?X-Plex-Token=${plex.token}`;
+      const r = await fetch(testUrl, { headers:{ 'Accept':'application/json' } });
+      if(r.ok){
+        plex.serverUrl = url;
+        ok = true;
+        console.log('McFlix: connected via', url);
+        break;
+      }
+    }catch(e){
+      console.log('McFlix: failed', c.uri || c.address, e.message);
+      continue;
     }
   }
 
-  if(!ok){ loading(false); toast('Could not reach Plex server. Make sure remote access is enabled in Plex Settings → Remote Access.',true); return; }
+  if(!ok){
+    loading(false);
+    toast('Could not reach your Plex server. Check Settings → Remote Access in Plex.', true);
+    return;
+  }
 
   savePlex(); closeMo('settings');
   document.getElementById('sync-btn').style.display='';
