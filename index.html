@@ -895,12 +895,23 @@ function openSettings(){
           <button class="danger-btn" onclick="disconnPlex()"><i class="ti ti-unlink"></i> Disconnect</button>
         </div>`;
     }else{
-      h+=`<div class="ff" style="margin-bottom:10px"><label class="fl">Plex Token</label>
-          <input type="password" class="fi" id="s-tok" placeholder="Paste your Plex token here">
-          <div class="fhint">Found in any Plex network request URL as X-Plex-Token=xxxx</div></div>
-          <div id="s-srv-area"></div>
-          <div class="err-box" id="s-err"></div>
-          <button class="plex-btn" id="s-find-btn" onclick="settingsFind()"><i class="ti ti-plug"></i> Find My Plex Servers</button>`;
+      h+=`
+        <div class="ff" style="margin-bottom:10px">
+          <label class="fl">Plex Token</label>
+          <input type="password" class="fi" id="s-tok" placeholder="fUtJszHH..." value="${plex.token||''}">
+          <div class="fhint">Found in any Plex network request URL as X-Plex-Token=xxxx</div>
+        </div>
+        <div class="ff" style="margin-bottom:10px">
+          <label class="fl">Server URL</label>
+          <input type="text" class="fi" id="s-url" placeholder="https://xxx.plex.direct:32400" value="${plex.serverUrl||''}">
+          <div class="fhint">The full URL from your Plex network requests (the plex.direct address). Found in F12 → Network → any request URL up to :32400</div>
+        </div>
+        <div class="ff" style="margin-bottom:12px">
+          <label class="fl">Server Name (optional)</label>
+          <input type="text" class="fi" id="s-name" placeholder="My Plex" value="${plex.serverName||''}">
+        </div>
+        <div class="err-box" id="s-err"></div>
+        <button class="plex-btn" onclick="settingsConnect()"><i class="ti ti-plug"></i> Connect & Sync</button>`;
     }
     h+=`</div>`;
 
@@ -945,87 +956,40 @@ function openSettings(){
   openMo('settings');
 }
 
-async function settingsFind(){
-  const tok=document.getElementById('s-tok')?.value.trim();
-  if(!tok){showErr('s-err','Enter your token first.');return}
-  const btn=document.getElementById('s-find-btn'),errEl=document.getElementById('s-err');
-  errEl.classList.remove('show'); btn.disabled=true;
-  btn.innerHTML='<i class="ti ti-loader" style="animation:spin .8s linear infinite"></i> Finding servers...';
-  try{
-    const cid='mcflix-'+Math.random().toString(36).slice(2);
-    const r=await fetch('https://plex.tv/api/v2/resources?includeHttps=1&includeRelay=1',{headers:{...plexH(tok),'X-Plex-Client-Identifier':cid}});
-    if(!r.ok)throw new Error('Cannot reach Plex.tv');
-    const data=await r.json();
-    const servers=data.filter(d=>d.provides?.includes('server'));
-    if(!servers.length)throw new Error('No servers found for this token.');
-    srvList=servers; plex.token=tok; plex.clientId=cid;
-    document.getElementById('s-srv-area').innerHTML=`
-      <div class="fl" style="margin-bottom:8px">Choose your server</div>
-      <div class="server-list">${servers.map((s,i)=>`
-        <div class="srv-item ${i===0?'selected':''}" onclick="pickSrv(${i})" id="sv-${i}">
-          <div><div class="srv-name">${s.name}</div><div class="srv-meta">${s.connections?.[0]?.address||''}</div></div>
-          <i class="ti ti-check srv-chk"></i>
-        </div>`).join('')}
-      </div>
-      <button class="plex-btn" onclick="settingsConnect()"><i class="ti ti-download"></i> Connect & Sync Library</button>`;
-    selSrv=servers[0];
-  }catch(e){showErr('s-err',e.message);}
-  btn.disabled=false;btn.innerHTML='<i class="ti ti-plug"></i> Find My Plex Servers';
-}
-
-function pickSrv(i){
-  selSrv=srvList[i];
-  document.querySelectorAll('.srv-item').forEach(e=>e.classList.remove('selected'));
-  document.getElementById('sv-'+i).classList.add('selected');
-}
-
 async function settingsConnect(){
-  if(!selSrv)return;
-  loading(true,'Connecting to Plex...');
-  plex.machineId = selSrv.clientIdentifier || '';
-  plex.serverName = selSrv.name;
-  plex.serverUrl = '';
-  let ok = false;
+  const tok = document.getElementById('s-tok')?.value.trim();
+  const url = document.getElementById('s-url')?.value.trim().replace(/\/$/,'');
+  const name = document.getElementById('s-name')?.value.trim() || 'My Plex';
+  const errEl = document.getElementById('s-err');
+  errEl.classList.remove('show');
 
-  // Try each connection URL — prefer HTTPS, non-relay first
-  // Token goes in query param so no CORS preflight needed
-  const conns = [...(selSrv.connections||[])].sort((a,b)=>{
-    if(a.relay && !b.relay) return 1;
-    if(!a.relay && b.relay) return -1;
-    if(a.protocol==='https' && b.protocol!=='https') return -1;
-    return 0;
-  });
+  if(!tok){ showErr('s-err','Enter your Plex token.'); return; }
+  if(!url){ showErr('s-err','Enter your server URL.'); return; }
 
-  for(const c of conns){
-    try{
-      const url = c.uri || `${c.protocol}://${c.address}:${c.port}`;
-      console.log('McFlix: trying', url);
-      const testUrl = `${url}/identity?X-Plex-Token=${plex.token}`;
-      const r = await fetch(testUrl, { headers:{ 'Accept':'application/json' } });
-      if(r.ok){
-        plex.serverUrl = url;
-        ok = true;
-        console.log('McFlix: connected via', url);
-        break;
-      }
-    }catch(e){
-      console.log('McFlix: failed', c.uri || c.address, e.message);
-      continue;
-    }
-  }
-
-  if(!ok){
+  loading(true,'Testing Plex connection...');
+  try{
+    const testUrl = `${url}/identity?X-Plex-Token=${tok}`;
+    console.log('McFlix: testing', testUrl);
+    const r = await fetch(testUrl, { headers:{ 'Accept':'application/json' } });
+    if(!r.ok) throw new Error(`Server returned ${r.status}`);
+    const d = await r.json();
+    console.log('McFlix: identity OK', d);
+    plex.token = tok;
+    plex.serverUrl = url;
+    plex.serverName = name;
+    plex.clientId = 'mcflix-'+Math.random().toString(36).slice(2);
+    plex.machineId = '';
+    savePlex(); closeMo('settings');
+    document.getElementById('sync-btn').style.display='';
+    document.getElementById('f-plex').style.display='';
+    document.getElementById('plex-pill').style.display='';
+    document.getElementById('plex-pill-name').textContent=plex.serverName;
+    await syncPlex(); loading(false);
+  }catch(e){
     loading(false);
-    toast('Could not reach your Plex server. Check Settings → Remote Access in Plex.', true);
-    return;
+    showErr('s-err', 'Cannot reach server: '+e.message+'. Make sure Remote Access is ON in Plex Settings.');
+    console.error('McFlix connect error:', e);
   }
-
-  savePlex(); closeMo('settings');
-  document.getElementById('sync-btn').style.display='';
-  document.getElementById('f-plex').style.display='';
-  document.getElementById('plex-pill').style.display='';
-  document.getElementById('plex-pill-name').textContent=plex.serverName;
-  await syncPlex(); loading(false);
 }
 
 function disconnPlex(){
