@@ -9,320 +9,336 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--card:#16161f;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
-  --gold:#e8b84b;--gold2:#f5d07a;--red:#e8354b;--green:#2ecc71;
-  --purple:#8a5af0;--blue:#3498db;--orange:#e67e22;
-  --text:#f0f0f5;--muted:#777788;--light:#bbbbcc;
+  --bg:#07070d;--bg2:#0e0e18;--bg3:#161622;--card:#111120;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --gold:#e8b84b;--gold2:#f5d07a;--gold-dim:rgba(232,184,75,0.15);
+  --red:#e8354b;--green:#2ecc71;--purple:#8a5af0;--blue:#3498db;
+  --text:#eeeef5;--muted:#666677;--light:#aaaabd;
+  --glow:0 0 40px rgba(232,184,75,0.08);
 }
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;overflow-x:hidden}
 
-/* SCREENS */
-.screen{display:none}.screen.active{display:block}
-#auth-screen.active{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#1e1030,#0a0a0f);padding:20px}
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+#auth-screen.active{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;
+  background:radial-gradient(ellipse at 50% 0%,#180828 0%,#07070d 65%);
+}
 
-/* AUTH BOX */
-.auth-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:36px 32px}
-.auth-logo{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:5px;color:var(--gold);text-align:center;line-height:1;margin-bottom:4px}
-.auth-logo span{color:#fff}
-.auth-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:28px}
-.auth-tabs{display:flex;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
-.auth-tab{flex:1;padding:8px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
-.auth-tab.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+/* ── AUTH ── */
+.auth-wrap{width:100%;max-width:420px}
+.auth-brand{text-align:center;margin-bottom:32px}
+.auth-brand-logo{font-family:'Bebas Neue',cursive;font-size:64px;letter-spacing:6px;color:var(--gold);line-height:1;text-shadow:0 0 60px rgba(232,184,75,0.3)}
+.auth-brand-logo span{color:#fff}
+.auth-brand-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.auth-box{background:rgba(14,14,24,0.8);border:1px solid var(--border2);border-radius:20px;padding:32px;backdrop-filter:blur(20px);box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.auth-tabs{display:flex;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:24px;gap:3px}
+.auth-tab{flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.auth-tab.active{background:linear-gradient(135deg,rgba(232,184,75,0.15),rgba(232,184,75,0.08));color:var(--gold);border:1px solid rgba(232,184,75,0.2)}
 .auth-panel{display:none}.auth-panel.active{display:block}
-.fl{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:5px}
-.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border .2s;margin-bottom:12px}
+.fl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border .2s,box-shadow .2s;margin-bottom:12px}
 .fi::placeholder{color:var(--muted)}
-.fi:focus{border-color:var(--gold)}
-.fi-row{display:flex;gap:8px}
-.fi-row .fi{flex:1}
-.auth-btn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
-.auth-btn:hover{background:var(--gold2)}
-.auth-err{font-size:13px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
-.auth-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.5}
+.fi:focus{border-color:rgba(232,184,75,0.4);box-shadow:0 0 0 3px rgba(232,184,75,0.08)}
+.auth-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;letter-spacing:.3px}
+.auth-btn:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,184,75,0.25)}
+.auth-err{font-size:12px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
+.auth-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.6;padding:10px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
 
-/* COLOR PICKER */
+/* ── COLOR PICKER ── */
 .color-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0}
-.color-swatch.sel{border-color:#fff;transform:scale(1.15)}
+.cswatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0}
+.cswatch.sel{border-color:#fff;transform:scale(1.2);box-shadow:0 0 10px rgba(255,255,255,0.2)}
 
-/* AVATAR */
+/* ── AVATAR ── */
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
-/* HEADER */
-.header{display:flex;align-items:center;gap:10px;padding:11px 20px;border-bottom:1px solid var(--border);background:rgba(10,10,15,.97);position:sticky;top:0;z-index:100;flex-wrap:wrap}
-.logo{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:3px;color:var(--gold);flex-shrink:0}
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;gap:12px;padding:0 24px;
+  height:56px;
+  border-bottom:1px solid var(--border);
+  background:rgba(7,7,13,0.96);
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(16px);
+}
+.logo{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.3)}
 .logo span{color:#fff}
-.nav{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;flex:1 1 100%;order:3;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.nav{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto}
 .nav::-webkit-scrollbar{display:none}
-.nb{padding:6px 11px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.nb.active{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.nb{padding:6px 12px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.nb.active{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,184,75,0.2)}
 .nb:hover:not(.active){color:var(--light)}
-.bdg{background:var(--gold);color:#000;font-size:10px;font-weight:700;border-radius:20px;padding:1px 6px;min-width:18px;text-align:center}
+.bdg{background:var(--gold);color:#000;font-size:9px;font-weight:700;border-radius:20px;padding:1px 6px;min-width:16px;text-align:center}
 .bdg.red{background:var(--red);color:#fff}
 .hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto}
-.user-pill{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;transition:all .2s}
+.dice-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s;flex-shrink:0}
+.dice-btn:hover{color:var(--gold);border-color:rgba(232,184,75,0.3);background:var(--gold-dim)}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:5px 12px 5px 6px;cursor:pointer;transition:all .2s}
 .user-pill:hover{border-color:var(--border2)}
-.role-tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
-.rt-admin{background:rgba(232,184,75,.15);color:var(--gold)}
-.rt-member{background:rgba(138,90,240,.15);color:var(--purple)}
+.role-tag{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.rt-admin{background:rgba(232,184,75,0.12);color:var(--gold)}
+.rt-member{background:rgba(138,90,240,0.12);color:var(--purple)}
 
-/* MAIN */
-.main{padding:18px 20px;max-width:1400px;margin:0 auto}
+/* ── MAIN ── */
+.main{padding:20px 24px;max-width:1440px;margin:0 auto}
 .tab{display:none}.tab.active{display:block}
 
-/* TOOLBAR */
-.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-.sw{flex:1;min-width:160px;position:relative}
-.sw i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
-.sw input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px 8px 32px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border .2s}
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.sw{flex:1;min-width:180px;position:relative}
+.sw i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.sw input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px 8px 32px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:all .2s}
 .sw input::placeholder{color:var(--muted)}
-.sw input:focus{border-color:var(--border2)}
-.fb{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
-.fb.active{background:var(--bg3);border-color:var(--gold);color:var(--gold)}
+.sw input:focus{border-color:rgba(232,184,75,0.3);background:var(--bg3)}
+.fb{padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.fb.active{background:var(--gold-dim);border-color:rgba(232,184,75,0.3);color:var(--gold)}
 .fb:hover:not(.active){color:var(--light);border-color:var(--border2)}
-.ab{padding:8px 14px;border:none;border-radius:8px;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
-.ab:hover{background:var(--gold2)}
-select.fb{appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777788' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.ab{padding:8px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap}
+.ab:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-1px)}
+select.fb{appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666677' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 select.fb option{background:var(--bg2);color:var(--text)}
 
-/* STATS BAR */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:8px;margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px;text-align:center}
-.stat-n{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--gold)}
-.stat-l{font-size:11px;color:var(--muted);margin-top:1px}
+/* ── STATS BAR ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center;transition:border-color .2s}
+.stat:hover{border-color:var(--border2)}
+.stat-n{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);line-height:1;text-shadow:0 0 20px rgba(232,184,75,0.2)}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.3px}
 
-/* SHELVES */
-.shelf{margin-bottom:24px}
-.shelf-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;color:var(--light);display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.shelf-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.shelf-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
-.shelf-scroll::-webkit-scrollbar{height:3px}
-.shelf-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.shelf-card{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;width:110px;aspect-ratio:2/3;border:1px solid var(--border);transition:transform .2s}
-.shelf-card:hover{transform:scale(1.04)}
-.shelf-card img{width:100%;height:100%;object-fit:cover}
-.shelf-card .ov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.9));padding:20px 7px 7px;font-size:10px;font-weight:600;color:#fff;line-height:1.3}
+/* ── SHELVES ── */
+.shelf{margin-bottom:28px}
+.shelf-hd{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--light);display:flex;align-items:center;gap:10px;margin-bottom:12px;text-transform:uppercase}
+.shelf-hd i{opacity:.7}
+.shelf-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
+.shelf-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
+.shelf-scroll::-webkit-scrollbar{height:2px}
+.shelf-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.shcard{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;width:100px;aspect-ratio:2/3;border:1px solid var(--border);transition:all .2s}
+.shcard:hover{transform:scale(1.05);border-color:rgba(232,184,75,0.3);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.shcard img{width:100%;height:100%;object-fit:cover}
+.shcard .shov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.95));padding:18px 6px 6px;font-size:9px;font-weight:600;color:#fff;line-height:1.3}
 
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
-.card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:transform .2s,border-color .2s;aspect-ratio:2/3}
-.card:hover{transform:scale(1.03);border-color:var(--border2)}
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px}
+.card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .25s;aspect-ratio:2/3}
+.card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(232,184,75,0.2);box-shadow:0 16px 40px rgba(0,0,0,.6),0 0 0 1px rgba(232,184,75,0.1)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
-.pfb{width:100%;height:100%;background:linear-gradient(145deg,#1a1a2e,#16213e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;text-align:center;position:absolute;inset:0}
-.pfb i{font-size:28px;color:var(--muted)}
+.pfb{width:100%;height:100%;background:linear-gradient(145deg,#14142a,#0e0e20);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;text-align:center;position:absolute;inset:0}
+.pfb i{font-size:28px;color:var(--muted);opacity:.5}
 .pfb span{font-size:10px;color:var(--light);font-weight:500;line-height:1.3}
-.ov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.93));padding:22px 8px 8px}
+.ov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.95));padding:24px 8px 8px}
 .ov-title{font-size:11px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:2px}
 .ov-meta{font-size:10px;color:var(--muted)}
-.wb{position:absolute;top:6px;right:6px;background:rgba(46,204,113,.9);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
-.wb i{font-size:11px;color:#fff}
-.tb{position:absolute;top:6px;left:6px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.tb-m{background:rgba(232,53,75,.85);color:#fff}
-.tb-tv{background:rgba(138,90,240,.85);color:#fff}
-.fav-star{position:absolute;bottom:34px;right:6px;color:var(--gold);font-size:13px;text-shadow:0 0 6px rgba(0,0,0,.8)}
-.rating-badge{position:absolute;bottom:34px;left:6px;background:rgba(0,0,0,.75);border-radius:4px;padding:2px 5px;font-size:10px;font-weight:700;color:var(--gold)}
+.wb{position:absolute;top:7px;right:7px;background:rgba(46,204,113,.95);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(46,204,113,.4)}
+.wb i{font-size:10px;color:#fff}
+.fav-pip{position:absolute;bottom:38px;right:7px;color:var(--gold);font-size:14px;text-shadow:0 0 8px rgba(232,184,75,.6)}
+.rat-pip{position:absolute;bottom:38px;left:7px;background:rgba(0,0,0,.8);border-radius:4px;padding:2px 5px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.2px}
+.type-pip{position:absolute;top:7px;left:7px;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.tp-m{background:rgba(232,53,75,.8);color:#fff}
+.tp-tv{background:rgba(138,90,240,.8);color:#fff}
 
-/* EMPTY */
-.empty{text-align:center;padding:60px 24px;color:var(--muted)}
-.empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.4}
+/* ── TAG BAR ── */
+.tag-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tpill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg3);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
+.tpill:hover,.tpill.active{background:var(--gold-dim);border-color:rgba(232,184,75,0.3);color:var(--gold)}
 
-/* SECTION LABEL */
-.sl{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;margin-bottom:12px;color:var(--light);display:flex;align-items:center;gap:10px}
-.sl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* ── SECTION LABEL ── */
+.sl{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;margin-bottom:12px;color:var(--light);display:flex;align-items:center;gap:10px;text-transform:uppercase}
+.sl::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
 
-/* TAG BAR */
-.tag-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.tpill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg3);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
-.tpill:hover{border-color:var(--gold);color:var(--gold)}
-.tpill.active{background:rgba(232,184,75,.15);border-color:var(--gold);color:var(--gold)}
+/* ── EMPTY ── */
+.empty{text-align:center;padding:72px 24px;color:var(--muted)}
+.empty i{font-size:52px;margin-bottom:14px;display:block;opacity:.2}
+.empty p{font-size:14px}
 
-/* MODALS */
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+/* ── MODALS ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .mo.open{display:flex}
-.md{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;position:relative;margin:auto}
-.md::-webkit-scrollbar{width:4px}
-.md::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.md-lg{max-width:700px}
+.md{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;position:relative;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,.8)}
+.md::-webkit-scrollbar{width:3px}
+.md::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.md-lg{max-width:720px}
 .md-sm{max-width:500px}
 .md-med{max-width:580px}
-.mc{position:absolute;top:13px;right:13px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:17px;z-index:10;transition:color .2s}
-.mc:hover{color:var(--text)}
+.mc{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px;z-index:10;transition:all .2s}
+.mc:hover{color:var(--text);background:rgba(255,255,255,.1)}
 
-/* DETAIL */
-.det-hero{position:relative;height:200px;overflow:hidden;border-radius:18px 18px 0 0;flex-shrink:0}
-.det-backdrop{width:100%;height:100%;object-fit:cover;filter:blur(4px) brightness(.35);transform:scale(1.06)}
-.det-hero-inner{position:absolute;inset:0;display:flex;align-items:flex-end;gap:16px;padding:16px 20px}
-.det-poster{width:90px;height:135px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,.15);flex-shrink:0;box-shadow:0 8px 24px rgba(0,0,0,.6)}
-.det-poster-fb{width:90px;height:135px;border-radius:8px;background:var(--bg3);border:2px solid rgba(255,255,255,.1);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.det-title{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:1px;line-height:1.1;margin-bottom:5px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.det-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-.dtag{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
-.det-body{padding:14px 18px}
-.det-plot{font-size:13px;color:var(--light);line-height:1.7;margin-bottom:14px}
-.det-actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.act{padding:7px 12px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);display:flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none;background:transparent;color:var(--text)}
-.act:hover{background:var(--bg3)}
-.act-w{background:rgba(46,204,113,.12);color:var(--green);border-color:rgba(46,204,113,.25)}
+/* ── DETAIL MODAL ── */
+.det-hero{position:relative;height:220px;overflow:hidden;border-radius:18px 18px 0 0;flex-shrink:0}
+.det-bd{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(6px) brightness(.25) saturate(1.4);transform:scale(1.1)}
+.det-hero-inner{position:absolute;inset:0;display:flex;align-items:flex-end;gap:18px;padding:18px 22px}
+.det-poster{width:100px;height:150px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.12);flex-shrink:0;box-shadow:0 12px 32px rgba(0,0,0,.7)}
+.det-poster-fb{width:100px;height:150px;border-radius:10px;background:var(--bg3);border:2px solid rgba(255,255,255,.08);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.det-info{flex:1;min-width:0}
+.det-title{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:1px;line-height:1.1;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.9)}
+.det-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.dchip{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+.det-actions{display:flex;gap:6px;flex-wrap:wrap}
+.act{padding:7px 12px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);display:flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none;background:transparent;color:var(--text)}
+.act:hover{background:rgba(255,255,255,.06);border-color:var(--border2)}
+.act-w{background:rgba(46,204,113,.1);color:var(--green);border-color:rgba(46,204,113,.2)}
 .act-w.on{background:var(--green);color:#fff;border-color:var(--green)}
-.act-fav{background:rgba(232,184,75,.12);color:var(--gold);border-color:rgba(232,184,75,.25)}
+.act-fav{background:rgba(232,184,75,.1);color:var(--gold);border-color:rgba(232,184,75,.2)}
 .act-fav.on{background:var(--gold);color:#000;border-color:var(--gold)}
-.act-now{background:rgba(52,152,219,.12);color:var(--blue);border-color:rgba(52,152,219,.25)}
+.act-now{background:rgba(52,152,219,.1);color:var(--blue);border-color:rgba(52,152,219,.2)}
 .act-now.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.act-imdb{background:rgba(245,197,48,.1);color:#f5c530;border-color:rgba(245,197,48,.25)}
-.act-del{background:rgba(232,53,75,.1);color:var(--red);border-color:rgba(232,53,75,.25)}
+.act-imdb{background:rgba(245,197,48,.08);color:#f5c530;border-color:rgba(245,197,48,.2)}
+.act-del{background:rgba(232,53,75,.08);color:var(--red);border-color:rgba(232,53,75,.2)}
 
-/* INFO GRID */
+/* ── DETAIL BODY ── */
+.det-body{padding:16px 20px 20px}
+.det-plot{font-size:13px;color:var(--light);line-height:1.75;margin-bottom:16px}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.info-item{background:var(--bg3);border-radius:8px;padding:9px 11px}
+.info-item{background:var(--bg3);border-radius:8px;padding:9px 12px;border:1px solid var(--border)}
 .info-item.full{grid-column:1/-1}
-.info-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.info-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
 .info-val{font-size:13px;font-weight:500}
 
-/* RATINGS */
-.rat-section{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:12px}
-.rat-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.rat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+/* ── RATINGS ── */
+.rat-wrap{background:var(--bg3);border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid var(--border)}
+.rat-hd{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.rat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .rat-row:last-child{margin-bottom:0}
-.rat-user{display:flex;align-items:center;gap:6px;min-width:100px}
+.rat-user{display:flex;align-items:center;gap:6px;min-width:96px}
 .rat-name{font-size:12px;font-weight:500;color:var(--light)}
 .stars{display:flex;gap:2px}
-.star{font-size:15px;cursor:pointer;color:var(--border2);transition:color .1s;line-height:1;user-select:none}
-.star.on{color:var(--gold)}
+.star{font-size:14px;cursor:pointer;color:rgba(255,255,255,.1);transition:color .1s;line-height:1;user-select:none}
+.star.on{color:var(--gold);text-shadow:0 0 6px rgba(232,184,75,.4)}
 .star:hover{color:var(--gold2)}
 .star.ro{cursor:default}
-.rat-val{font-size:12px;font-weight:700;color:var(--gold);min-width:26px}
-.rat-clr{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;flex-shrink:0}
+.rat-val{font-size:12px;font-weight:700;color:var(--gold);min-width:28px}
+.rat-clr{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;flex-shrink:0}
 .rat-clr:hover{color:var(--red)}
 
-/* NOTES */
-.notes-section{margin-bottom:12px}
-.notes-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.notes-ta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:56px;transition:border .2s}
-.notes-ta:focus{border-color:var(--border2)}
+/* ── NOTES & HISTORY ── */
+.sec-hd{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.notes-ta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:60px;transition:border .2s;line-height:1.6}
+.notes-ta:focus{border-color:rgba(232,184,75,.3)}
 .notes-ta::placeholder{color:var(--muted)}
-.save-note-btn{padding:5px 12px;border:none;border-radius:7px;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:5px;transition:background .2s}
-.save-note-btn:hover{background:var(--gold2)}
-
-/* HISTORY */
-.hist-list{display:flex;flex-direction:column;gap:3px;max-height:100px;overflow-y:auto;margin-bottom:6px}
-.hist-item{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:2px 0;border-bottom:1px solid var(--border)}
+.save-btn{padding:6px 14px;border:none;border-radius:7px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .2s}
+.save-btn:hover{background:linear-gradient(135deg,var(--gold2),var(--gold))}
+.hist-list{display:flex;flex-direction:column;gap:3px;max-height:96px;overflow-y:auto;margin-bottom:6px}
+.hist-item{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)}
 .hist-item:last-child{border:none}
 .hist-date{color:var(--light)}
-.hist-x{cursor:pointer;color:var(--muted);font-size:13px}
+.hist-x{cursor:pointer;color:var(--muted);font-size:12px;transition:color .2s}
 .hist-x:hover{color:var(--red)}
-.log-btn{padding:5px 12px;border:1px solid rgba(46,204,113,.3);border-radius:7px;background:rgba(46,204,113,.08);color:var(--green);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
-.log-btn:hover{background:rgba(46,204,113,.18)}
+.log-btn{padding:6px 13px;border:1px solid rgba(46,204,113,.25);border-radius:7px;background:rgba(46,204,113,.08);color:var(--green);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+.log-btn:hover{background:rgba(46,204,113,.16)}
 
-/* FORM */
-.form-sec{padding:18px 20px}
-.form-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:14px}
+/* ── LISTS TAB ── */
+.list-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;transition:border-color .2s}
+.list-card:hover{border-color:var(--border2)}
+.list-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.list-name{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;flex:1}
+.list-count{font-size:11px;color:var(--muted)}
+
+/* ── FORM ELEMENTS ── */
+.form-sec{padding:20px}
+.form-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:16px;text-transform:uppercase}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
 .ff{display:flex;flex-direction:column;gap:4px}
 .ff.full{grid-column:1/-1}
-.ffi{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border .2s;width:100%}
+.ffi{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border .2s,box-shadow .2s;width:100%}
 .ffi::placeholder{color:var(--muted)}
-.ffi:focus{border-color:var(--gold)}
+.ffi:focus{border-color:rgba(232,184,75,.3);box-shadow:0 0 0 3px rgba(232,184,75,.06)}
 select.ffi option{background:var(--bg2)}
 textarea.ffi{resize:vertical}
-.fhint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
 .lk-row{display:flex;gap:7px;align-items:flex-end}
 .lk-row .ffi{flex:1}
-.lk-btn{padding:8px 13px;border:none;border-radius:8px;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .2s;white-space:nowrap;flex-shrink:0}
-.lk-btn:hover{background:var(--gold2)}
-.lk-btn:disabled{opacity:.5;cursor:default}
-.lk-preview{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:8px;display:flex;gap:10px}
-.lk-thumb{width:50px;height:75px;border-radius:5px;object-fit:cover;flex-shrink:0}
-.lk-fb{width:50px;height:75px;border-radius:5px;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.lk-btn{padding:9px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.lk-btn:hover{background:linear-gradient(135deg,var(--gold2),var(--gold))}
+.lk-btn:disabled{opacity:.4;cursor:default}
+.lk-results{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow-y:auto;margin-bottom:8px}
+.lk-results::-webkit-scrollbar{width:3px}
+.lk-results::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.lk-opt{display:flex;gap:10px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.lk-opt:hover{border-color:rgba(232,184,75,.3);background:var(--card)}
+.lk-opt img{width:36px;height:54px;border-radius:4px;object-fit:cover;flex-shrink:0}
+.lk-opt-fb{width:36px;height:54px;border-radius:4px;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.lk-opt-title{font-size:12px;font-weight:600;line-height:1.3}
+.lk-opt-yr{font-size:10px;color:var(--muted);margin-top:2px}
+.lk-preview{background:var(--bg3);border:1px solid rgba(46,204,113,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.lk-thumb{width:48px;height:72px;border-radius:5px;object-fit:cover;flex-shrink:0}
 .lk-status{font-size:12px;color:var(--muted);padding:5px 0}
 .lk-status.err{color:var(--red)}
 .lk-status.loading{color:var(--gold)}
-.lk-results{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;margin-bottom:8px}
-.lk-results::-webkit-scrollbar{width:4px}
-.lk-results::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.lk-opt{display:flex;gap:10px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 9px;cursor:pointer;transition:all .15s;text-align:left}
-.lk-opt:hover{border-color:var(--gold);background:var(--card)}
-.lk-opt img{width:38px;height:57px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--card)}
-.lk-opt-fb{width:38px;height:57px;border-radius:4px;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.lk-opt-title{font-size:13px;font-weight:600;line-height:1.2}
-.lk-opt-yr{font-size:11px;color:var(--muted);margin-top:2px}
-.primary-btn{padding:9px 18px;border:none;border-radius:8px;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s}
-.primary-btn:hover{background:var(--gold2)}
+.primary-btn{padding:9px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+.primary-btn:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-1px)}
 .ghost-btn{padding:8px 14px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-.ghost-btn:hover{color:var(--text);border-color:var(--text)}
-.danger-btn{padding:8px 14px;border:1px solid rgba(232,53,75,.3);border-radius:8px;background:rgba(232,53,75,.08);color:var(--red);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-.danger-btn:hover{background:rgba(232,53,75,.18)}
+.ghost-btn:hover{color:var(--text);border-color:var(--border2)}
+.danger-btn{padding:8px 14px;border:1px solid rgba(232,53,75,.2);border-radius:8px;background:rgba(232,53,75,.06);color:var(--red);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+.danger-btn:hover{background:rgba(232,53,75,.14)}
 
-/* REQUESTS */
-.req-form{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:22px}
-.req-form-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;margin-bottom:12px;color:var(--gold)}
+/* ── REQUESTS ── */
+.req-form-wrap{background:linear-gradient(135deg,rgba(232,184,75,.06),rgba(138,90,240,.04));border:1px solid rgba(232,184,75,.12);border-radius:14px;padding:20px;margin-bottom:24px}
+.req-form-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;margin-bottom:14px;color:var(--gold);text-transform:uppercase}
 .req-list{display:flex;flex-direction:column;gap:8px}
-.req-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.req-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:border-color .2s}
+.req-card:hover{border-color:var(--border2)}
 .req-info{flex:1;min-width:120px}
 .req-name{font-weight:600;font-size:13px;margin-bottom:2px}
 .req-sub{font-size:11px;color:var(--muted)}
-.req-status{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600}
-.st-pend{background:rgba(232,184,75,.15);color:var(--gold)}
-.st-done{background:rgba(46,204,113,.15);color:var(--green)}
-.req-ok{padding:5px 10px;border:1px solid rgba(46,204,113,.3);border-radius:6px;background:rgba(46,204,113,.08);color:var(--green);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
-.req-ok:hover{background:rgba(46,204,113,.2)}
+.req-status{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.st-pend{background:rgba(232,184,75,.12);color:var(--gold)}
+.st-done{background:rgba(46,204,113,.12);color:var(--green)}
+.req-ok{padding:5px 10px;border:1px solid rgba(46,204,113,.2);border-radius:6px;background:rgba(46,204,113,.06);color:var(--green);font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
+.req-ok:hover{background:rgba(46,204,113,.16)}
 
-/* STATS PAGE */
+/* ── STATS PAGE ── */
 .stats-page{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.stat-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-.sbt{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:1px;color:var(--light);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.sbt i{color:var(--gold)}
-.stat-big{font-family:'Bebas Neue',cursive;font-size:44px;color:var(--gold);line-height:1}
-.gbar{display:flex;flex-direction:column;gap:7px}
-.gbar-row{display:flex;align-items:center;gap:7px;font-size:12px}
-.gbar-lbl{color:var(--light);min-width:72px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gbar-track{flex:1;background:var(--bg3);border-radius:4px;height:5px}
-.gbar-fill{height:5px;border-radius:4px;background:var(--gold)}
-.gbar-val{color:var(--muted);min-width:20px;text-align:right}
+.stat-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s}
+.stat-block:hover{border-color:var(--border2)}
+.sbt{font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;color:var(--light);margin-bottom:12px;display:flex;align-items:center;gap:7px;text-transform:uppercase}
+.sbt i{color:var(--gold);opacity:.8}
+.stat-big{font-family:'Bebas Neue',cursive;font-size:52px;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(232,184,75,.2)}
+.gbar{display:flex;flex-direction:column;gap:8px}
+.gbar-row{display:flex;align-items:center;gap:7px;font-size:11px}
+.gbar-lbl{color:var(--light);min-width:70px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gbar-track{flex:1;background:rgba(255,255,255,.05);border-radius:3px;height:4px}
+.gbar-fill{height:4px;border-radius:3px;background:linear-gradient(to right,var(--gold),var(--gold2))}
+.gbar-val{color:var(--muted);min-width:18px;text-align:right}
 
-/* PROFILE MODAL */
-.profile-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
-.profile-av-wrap{position:relative;cursor:pointer}
-.profile-av-wrap:hover::after{content:'Change';position:absolute;inset:0;background:rgba(0,0,0,.6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
-.profile-body{padding:16px 20px}
+/* ── PROFILE ── */
+.profile-hero{padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(232,184,75,.04),transparent)}
+.profile-body{padding:16px 20px 20px}
 
-/* PICKER */
-.picker-card{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:380px;padding:24px;text-align:center;position:relative;margin:auto}
-.picker-poster{width:130px;height:195px;border-radius:10px;object-fit:cover;margin:0 auto 14px;display:block;box-shadow:0 10px 28px rgba(0,0,0,.5)}
-.picker-fb{width:130px;height:195px;border-radius:10px;background:var(--bg3);margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
-.picker-title{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:1px;margin-bottom:4px}
-.picker-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+/* ── PICKER ── */
+.picker-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:360px;padding:28px;text-align:center;position:relative;margin:auto;box-shadow:0 32px 80px rgba(0,0,0,.8)}
+.picker-poster{width:140px;height:210px;border-radius:12px;object-fit:cover;margin:0 auto 16px;display:block;box-shadow:0 16px 48px rgba(0,0,0,.7)}
+.picker-fb{width:140px;height:210px;border-radius:12px;background:var(--bg3);margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+.picker-title{font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:1px;margin-bottom:4px}
+.picker-meta{font-size:12px;color:var(--muted);margin-bottom:20px}
 .picker-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 
-/* SETTINGS */
-.set-body{padding:18px 20px}
-.set-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:18px}
-.set-sec{margin-bottom:20px}
-.set-lbl{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.set-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
-.connected-box{background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.18);border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:10px;line-height:1.6}
-
-/* TOAST */
-.toast{position:fixed;bottom:22px;right:22px;background:var(--green);color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;display:flex;align-items:center;gap:7px;pointer-events:none;max-width:300px}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;opacity:0;transform:translateY(12px);transition:all .3s;display:flex;align-items:center;gap:7px;pointer-events:none;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.err{background:var(--red)}
 
-/* LOADING */
-.lov{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+/* ── LOADING ── */
+.lov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
 .lov.show{display:flex}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
-.ltxt{color:var(--light);font-size:13px}
+.spinner{width:36px;height:36px;border:2px solid rgba(232,184,75,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+.ltxt{color:var(--muted);font-size:13px;letter-spacing:.5px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:580px){
-  .header{padding:9px 12px}
+/* ── WISHLIST GROUPS ── */
+.wish-year-group{margin-bottom:24px}
+
+@media(max-width:600px){
+  .header{padding:0 12px;height:50px}
   .main{padding:12px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
-  .det-hero{height:170px}
+  .det-hero{height:180px}
   .det-title{font-size:20px}
   .info-grid,.fg{grid-template-columns:1fr}
   .ff.full{grid-column:1}
+  .auth-box{padding:24px 20px}
+  .auth-brand-logo{font-size:48px}
 }
 </style>
 </head>
@@ -331,46 +347,48 @@ textarea.ffi{resize:vertical}
 <div class="lov" id="lov"><div class="spinner"></div><div class="ltxt" id="ltxt">Loading...</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════════ AUTH SCREEN ═══════════════════════════ -->
+<!-- ════════════════════════ AUTH ════════════════════════ -->
 <div class="screen active" id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">Mc<span>Flix</span></div>
-    <div class="auth-sub">Your Digital Library</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="showAuthTab('login')">Sign In</button>
-      <button class="auth-tab" onclick="showAuthTab('signup')">Create Account</button>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">Mc<span>Flix</span></div>
+      <div class="auth-brand-sub">Your Digital Library</div>
     </div>
-
-    <!-- LOGIN -->
-    <div class="auth-panel active" id="auth-login">
-      <label class="fl">Username</label>
-      <input type="text" class="fi" id="l-user" placeholder="Your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()">
-      <label class="fl">Password</label>
-      <input type="password" class="fi" id="l-pass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" onclick="doLogin()"><i class="ti ti-arrow-right"></i> Sign In</button>
-      <div class="auth-err" id="l-err"></div>
-    </div>
-
-    <!-- SIGN UP -->
-    <div class="auth-panel" id="auth-signup">
-      <div class="auth-hint">Ask James for the invite code to create an account.</div>
-      <label class="fl">Username</label>
-      <input type="text" class="fi" id="s-user" placeholder="Pick a username" autocomplete="username">
-      <label class="fl">Password</label>
-      <input type="password" class="fi" id="s-pass" placeholder="Choose a password" autocomplete="new-password">
-      <label class="fl">Profile Photo URL <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:11px">(optional)</span></label>
-      <input type="text" class="fi" id="s-photo" placeholder="https://...your photo URL...">
-      <label class="fl">Pick a color</label>
-      <div class="color-picker" id="signup-colors"></div>
-      <label class="fl">Invite Code</label>
-      <input type="text" class="fi" id="s-code" placeholder="Enter invite code">
-      <button class="auth-btn" onclick="doSignup()"><i class="ti ti-user-plus"></i> Create Account</button>
-      <div class="auth-err" id="s-err"></div>
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="showAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="showAuthTab('signup')">Create Account</button>
+      </div>
+      <!-- LOGIN -->
+      <div class="auth-panel active" id="auth-login">
+        <label class="fl">Username</label>
+        <input type="text" class="fi" id="l-user" placeholder="Your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()">
+        <label class="fl">Password</label>
+        <input type="password" class="fi" id="l-pass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+        <div class="auth-err" id="l-err"></div>
+      </div>
+      <!-- SIGNUP -->
+      <div class="auth-panel" id="auth-signup">
+        <div class="auth-hint">You'll need an invite code from James to create an account.</div>
+        <label class="fl">Username</label>
+        <input type="text" class="fi" id="s-user" placeholder="Pick a username" autocomplete="username">
+        <label class="fl">Password</label>
+        <input type="password" class="fi" id="s-pass" placeholder="Choose a password" autocomplete="new-password">
+        <label class="fl">Profile Photo URL <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--muted)">(optional)</span></label>
+        <input type="text" class="fi" id="s-photo" placeholder="https://...">
+        <label class="fl">Pick a color</label>
+        <div class="color-picker" id="signup-colors"></div>
+        <label class="fl">Invite Code</label>
+        <input type="text" class="fi" id="s-code" placeholder="Ask James for the code">
+        <button class="auth-btn" onclick="doSignup()">Create Account →</button>
+        <div class="auth-err" id="s-err"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════ APP SCREEN ═══════════════════════════ -->
+<!-- ════════════════════════ APP ════════════════════════ -->
 <div class="screen" id="app-screen">
   <div class="header">
     <div class="logo">Mc<span>Flix</span></div>
@@ -378,12 +396,13 @@ textarea.ffi{resize:vertical}
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
+      <button class="nb" onclick="switchTab('requests',this)"><i class="ti ti-message-circle"></i> Requests <span class="bdg red" id="req-count" style="display:none">0</span></button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
     <div class="hdr-right">
-      <button class="fb" onclick="openPicker()" title="Random pick" style="padding:6px 9px;border-radius:8px"><i class="ti ti-dice" style="font-size:15px"></i></button>
+      <button class="dice-btn" onclick="openPicker()" title="Pick something to watch"><i class="ti ti-dice" style="font-size:15px"></i></button>
       <div class="user-pill" onclick="openProfile()">
-        <div class="av" id="hdr-av" style="width:26px;height:26px;font-size:11px"></div>
+        <div class="av" id="hdr-av" style="width:28px;height:28px;font-size:11px"></div>
         <span style="font-size:12px;font-weight:600" id="hdr-name"></span>
         <span class="role-tag" id="hdr-role"></span>
       </div>
@@ -391,48 +410,70 @@ textarea.ffi{resize:vertical}
   </div>
 
   <div class="main">
+
     <!-- LIBRARY -->
     <div class="tab active" id="tab-library">
       <div class="stats" id="lib-stats"></div>
-      <div class="shelf" id="now-shelf" style="display:none">
-        <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
-        <div class="shelf-scroll" id="now-scroll"></div>
+      <div id="now-shelf" style="display:none">
+        <div class="shelf-hd"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
+        <div class="shelf-scroll" id="now-scroll" style="margin-bottom:24px"></div>
       </div>
-      <div class="shelf" id="fav-shelf" style="display:none">
-        <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
-        <div class="shelf-scroll" id="fav-scroll"></div>
+      <div id="fav-shelf" style="display:none">
+        <div class="shelf-hd"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
+        <div class="shelf-scroll" id="fav-scroll" style="margin-bottom:24px"></div>
       </div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-lib" placeholder="Search titles, actors, directors..." oninput="renderLib()"></div>
         <select class="fb" id="f-genre" onchange="renderLib()"><option value="">All Genres</option></select>
         <select class="fb" id="f-watched" onchange="renderLib()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
-        <select class="fb" id="f-sort" onchange="renderLib()"><option value="added">Recently Added</option><option value="title">A–Z</option><option value="year">Year</option><option value="rating">My Rating</option></select>
+        <select class="fb" id="f-sort" onchange="renderLib()">
+          <option value="added">Recently Added</option>
+          <option value="title">A – Z</option>
+          <option value="year">Year</option>
+          <option value="rating">My Rating</option>
+        </select>
         <button class="fb" id="f-fav" onclick="toggleFavF(this)"><i class="ti ti-star"></i> Faves</button>
-        <button class="ab" id="add-lib-btn" style="display:none" onclick="openAdd('library')"><i class="ti ti-plus"></i> Add</button>
+        <button class="ab" id="add-lib-btn" style="display:none" onclick="openAdd('library')"><i class="ti ti-plus"></i> Add Title</button>
       </div>
       <div class="tag-bar" id="tag-bar"></div>
       <div class="grid" id="lib-grid"></div>
-      <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
+      <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p>No titles found.</p></div>
     </div>
 
     <!-- WISHLIST -->
     <div class="tab" id="tab-wishlist">
-      <div class="toolbar" style="margin-bottom:18px">
+      <div class="toolbar" style="margin-bottom:16px">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-wish" placeholder="Search wishlist..." oninput="renderWish()"></div>
         <button class="ab" id="add-wish-btn" style="display:none" onclick="openAdd('wishlist')"><i class="ti ti-plus"></i> Add</button>
       </div>
-      <div id="wish-grid"></div>
-      <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p style="font-size:14px">Nothing on the wishlist yet.</p></div>
+      <div id="wish-wrap"></div>
+      <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p>Nothing on the wishlist yet.</p></div>
     </div>
 
-    <!-- LISTS -->
+    <!-- MY LISTS -->
     <div class="tab" id="tab-lists">
-      <div class="toolbar" style="margin-bottom:18px">
-        <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
+      <div class="toolbar" style="margin-bottom:20px">
+        <div class="sl" style="flex:1;margin:0">My Lists</div>
         <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> New List</button>
       </div>
       <div id="lists-wrap"></div>
-      <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
+      <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p>No lists yet.<br><span style="font-size:12px">Open any title and add it to a new list.</span></p></div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div class="tab" id="tab-requests">
+      <div class="req-form-wrap">
+        <div class="req-form-title">Request a Title</div>
+        <div class="fg">
+          <div class="ff"><label class="fl">Type</label><select class="ffi" id="rq-type"><option value="movie">Movie</option><option value="tv">TV Show</option></select></div>
+          <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="rq-title" placeholder="What do you want to watch?"></div>
+          <div class="ff full"><label class="fl">Note <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(optional)</span></label><input type="text" class="ffi" id="rq-note" placeholder="Why you want it, where to find it..."></div>
+        </div>
+        <button class="primary-btn" onclick="submitReq()"><i class="ti ti-send"></i> Send Request</button>
+      </div>
+      <div class="sl">All Requests</div>
+      <div class="req-list" id="req-list"></div>
+      <div class="empty" id="req-empty" style="display:none"><i class="ti ti-inbox"></i><p>No requests yet.</p></div>
     </div>
 
     <!-- STATS -->
@@ -447,34 +488,37 @@ textarea.ffi{resize:vertical}
   <div class="md md-lg"><button class="mc" onclick="closeMo('detail')"><i class="ti ti-x"></i></button><div id="det-body"></div></div>
 </div>
 
-<!-- ADD/EDIT MODAL -->
+<!-- ADD / EDIT MODAL -->
 <div class="mo" id="mo-add" onclick="if(event.target===this)closeMo('add')">
   <div class="md md-med">
     <button class="mc" onclick="closeMo('add')"><i class="ti ti-x"></i></button>
     <div class="form-sec">
       <div class="form-title" id="add-lbl">Add to Library</div>
-      <div class="ff full" style="margin-bottom:8px">
+      <div class="ff full" style="margin-bottom:10px">
         <label class="fl">Search the movie database</label>
-        <div class="lk-row"><input type="text" class="ffi" id="add-search" placeholder="Type a title, then pick from the list..." onkeydown="if(event.key==='Enter')doLookup()"><button class="lk-btn" id="lk-btn" onclick="doLookup()"><i class="ti ti-search"></i> Search</button></div>
+        <div class="lk-row">
+          <input type="text" class="ffi" id="add-search" placeholder="Type a title, pick from results..." onkeydown="if(event.key==='Enter')doLookup()">
+          <button class="lk-btn" id="lk-btn" onclick="doLookup()"><i class="ti ti-search"></i> Search</button>
+        </div>
       </div>
       <div id="lk-result"></div>
       <div class="fg">
         <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="add-t"></div>
         <input type="hidden" id="add-type" value="movie">
         <div class="ff"><label class="fl">Year</label><input type="text" class="ffi" id="add-yr" placeholder="2024"></div>
-        <div class="ff"><label class="fl">Genre</label><input type="text" class="ffi" id="add-gn" placeholder="Action, Drama..."></div>
+        <div class="ff"><label class="fl">Genre</label><input type="text" class="ffi" id="add-gn"></div>
         <div class="ff"><label class="fl">Rated</label><input type="text" class="ffi" id="add-rat" placeholder="PG-13"></div>
         <div class="ff"><label class="fl">Director</label><input type="text" class="ffi" id="add-dir"></div>
-        <div class="ff full"><label class="fl">Cast</label><input type="text" class="ffi" id="add-act" placeholder="Actor 1, Actor 2..."></div>
+        <div class="ff full"><label class="fl">Cast</label><input type="text" class="ffi" id="add-act"></div>
         <div class="ff full"><label class="fl">Plot</label><textarea class="ffi" id="add-plot" rows="2"></textarea></div>
-        <div class="ff full"><label class="fl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none">(comma separated)</span></label><input type="text" class="ffi" id="add-tags" placeholder="e.g. sci-fi, rewatch, mind-bending"></div>
-        <div class="ff full"><label class="fl">Poster URL</label><input type="text" class="ffi" id="add-poster" placeholder="Auto-filled from OMDB"></div>
+        <div class="ff full"><label class="fl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(comma separated)</span></label><input type="text" class="ffi" id="add-tags" placeholder="sci-fi, rewatch, mind-bending"></div>
+        <div class="ff full"><label class="fl">Poster URL <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(auto-filled from search)</span></label><input type="text" class="ffi" id="add-poster"></div>
         <div class="ff full" id="add-watched-row" style="flex-direction:row;align-items:center;gap:8px;padding-top:2px">
           <input type="checkbox" id="add-wtch" style="width:15px;height:15px;accent-color:var(--gold)">
-          <label for="add-wtch" style="font-size:13px;color:var(--light);cursor:pointer">Mark as watched</label>
+          <label for="add-wtch" style="font-size:13px;color:var(--light);cursor:pointer">Mark as already watched</label>
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="primary-btn" id="add-submit" onclick="submitAdd()"><i class="ti ti-plus"></i> Add</button>
         <button class="ghost-btn" onclick="closeMo('add')">Cancel</button>
       </div>
@@ -487,16 +531,11 @@ textarea.ffi{resize:vertical}
   <div class="md md-sm"><button class="mc" onclick="closeMo('profile')"><i class="ti ti-x"></i></button><div id="profile-body"></div></div>
 </div>
 
-<!-- SETTINGS MODAL -->
-<div class="mo" id="mo-settings" onclick="if(event.target===this)closeMo('settings')">
-  <div class="md md-sm"><button class="mc" onclick="closeMo('settings')"><i class="ti ti-x"></i></button><div id="settings-body"></div></div>
-</div>
-
 <!-- PICKER MODAL -->
 <div class="mo" id="mo-picker" onclick="if(event.target===this)closeMo('picker')">
   <div class="picker-card">
     <button class="mc" onclick="closeMo('picker')"><i class="ti ti-x"></i></button>
-    <div style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1px;color:var(--muted);margin-bottom:14px">🎲 What Should We Watch?</div>
+    <div style="font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:3px;color:var(--muted);margin-bottom:16px;text-transform:uppercase">What Should We Watch?</div>
     <div id="picker-body"></div>
     <div class="picker-actions">
       <button class="primary-btn" onclick="rollPicker()"><i class="ti ti-refresh"></i> Pick Again</button>
@@ -506,128 +545,106 @@ textarea.ffi{resize:vertical}
 </div>
 
 <script>
+'use strict';
 // ══════════════════════════════════════════════════════════════════════════════
-// ─── CONFIG — EDIT THESE ──────────────────────────────────────────────────────
+// CONFIG — edit these values
 // ══════════════════════════════════════════════════════════════════════════════
-const ADMIN_CODE  = 'mcflix-admin-2024'; // invite code → creates admin account
-const MEMBER_CODE = 'watchparty';        // invite code → creates member account
-const OMDB_KEY    = 'trilogy';           // get your own free key: omdbapi.com/apikey.aspx
+const ADMIN_CODE  = 'mcflix-admin-2024'; // invite code for admin accounts
+const MEMBER_CODE = 'watchparty';        // invite code for member accounts
+const OMDB_KEY    = 'trilogy';           // free key from omdbapi.com/apikey.aspx
 
-// Cloudflare Worker backend — paste your deployed Worker URL and the shared
-// app token you set inside the Worker. (See deploy steps from Claude.)
-const WORKER_URL = 'https://mcflix-api.james-mcm84.workers.dev';  // your Cloudflare Worker URL
-const APP_TOKEN  = 'mcflix-7f3a-9c2e-b418-watchparty';  // must match APP_TOKEN inside the Worker
+// Cloudflare Worker — paste your Worker URL and the APP_TOKEN you set in the Worker
+const WORKER_URL = 'https://mcflix-api.james-mcm84.workers.dev';
+const APP_TOKEN  = 'mcflix-james-2024-watchparty'; // must match APP_TOKEN in the Worker
 // ══════════════════════════════════════════════════════════════════════════════
 
-const COLORS = ['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1abc9c','#e91e63','#f39c12','#9b59b6'];
+const COLORS=['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1abc9c','#e91e63','#f39c12','#9b59b6'];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let CU = null; // current user object
-let cloudLoaded = false; // becomes true once we've successfully pulled from the cloud at least once
-
-// Shared data (stored in Library Bin)
-let sharedData = { library:[], wishlist:[], requests:[] };
-
-// User accounts + personal data (stored in User Bin)
-// { accounts: [{id,username,passwordHash,role,color,photo,createdAt}], personal: {[userId]:{ratings,watched,nowWatching,favorites,notes,history}} }
-let allUsers = { accounts:[], personal:{} };
-
-// UI state
-let favFilterOn = false;
-let activeTag = '';
-let editingId = null;
-let addTarget = 'library';
-let pendingPoster = '';
-let pendingImdb = '';
-let signupColor = COLORS[0];
+let CU=null, cloudOk=false;
+let shared={library:[],wishlist:[],requests:[]};
+let users={accounts:[],personal:{}};
+let favFilterOn=false, activeTag='', editingId=null, addTarget='library';
+let pendingPoster='', pendingImdb='', signupColor=COLORS[0];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function uid(){ return 'u'+Date.now()+Math.random().toString(36).slice(2,6) }
-function hash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i); return (h>>>0).toString(36) }
-function ini(n){ return (n||'?').slice(0,2).toUpperCase() }
-function isAdmin(){ return CU?.role==='admin' }
-function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+const uid=()=>'u'+Date.now()+Math.random().toString(36).slice(2,6);
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)^s.charCodeAt(i);return(h>>>0).toString(36)};
+const ini=n=>(n||'?').slice(0,2).toUpperCase();
+const isAdmin=()=>CU?.role==='admin';
+const todayStr=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+const clamp=(v,a,b)=>Math.min(Math.max(v,a),b);
 
 function toast(msg,err=false){
   const t=document.getElementById('toast');
   t.className='toast'+(err?' err':'');
   t.innerHTML=`<i class="ti ti-${err?'alert-circle':'check'}"></i> <span>${msg}</span>`;
-  t.classList.add('show'); clearTimeout(t._t);
+  t.classList.add('show');clearTimeout(t._t);
   t._t=setTimeout(()=>t.classList.remove('show'),3000);
 }
 function loading(show,msg='Loading...'){
   document.getElementById('ltxt').textContent=msg;
   document.getElementById('lov').className='lov'+(show?' show':'');
 }
-function openMo(id){ document.getElementById('mo-'+id).classList.add('open') }
-function closeMo(id){ document.getElementById('mo-'+id).classList.remove('open') }
+function openMo(id){document.getElementById('mo-'+id).classList.add('open')}
+function closeMo(id){document.getElementById('mo-'+id).classList.remove('open')}
 
-function avatarEl(user, size=26){
-  if(user.photo){
-    return `<div class="av" style="width:${size}px;height:${size}px"><img src="${user.photo}" onerror="this.parentNode.innerHTML='${ini(user.username)}';this.parentNode.style.background='${user.color}22';this.parentNode.style.color='${user.color}'"></div>`;
-  }
-  return `<div class="av" style="width:${size}px;height:${size}px;font-size:${Math.floor(size*.4)}px;background:${user.color}22;color:${user.color}">${ini(user.username)}</div>`;
+function avatarEl(u,size=26){
+  const s=`width:${size}px;height:${size}px;font-size:${Math.floor(size*.38)}px`;
+  if(u.photo) return`<div class="av" style="${s}"><img src="${u.photo}" onerror="this.parentNode.textContent='${ini(u.username)}';this.parentNode.style.background='${u.color}22';this.parentNode.style.color='${u.color}'"></div>`;
+  return`<div class="av" style="${s};background:${u.color}22;color:${u.color}">${ini(u.username)}</div>`;
 }
 
-// ── CLOUD STORAGE (Cloudflare Worker + KV) ────────────────────────────────────
+// ── CLOUD (Cloudflare Worker + KV) ────────────────────────────────────────────
+// Header name must match: Worker checks 'X-McFlix-Token'
+const WH={'X-McFlix-Token':APP_TOKEN,'Content-Type':'application/json'};
+
 async function wGet(key){
   if(!WORKER_URL||!APP_TOKEN) return null;
   try{
-    const r=await fetch(`${WORKER_URL}/${key}`,{
-      headers:{'X-McFlix-Token':APP_TOKEN}
-    });
+    const r=await fetch(`${WORKER_URL}/data/${key}`,{headers:{'X-McFlix-Token':APP_TOKEN,'Accept':'application/json'}});
     if(!r.ok) return null;
-    const v=await r.json();
-    return v;  // may be null if nothing stored yet
-  }catch(e){ console.warn('wGet failed',e); return null; }
+    return await r.json();
+  }catch(e){console.warn('wGet',key,e);return null;}
 }
 
-async function wPut(key, data){
+async function wPut(key,data){
   if(!WORKER_URL||!APP_TOKEN) return false;
   try{
-    const r=await fetch(`${WORKER_URL}/${key}`,{
-      method:'PUT',
-      headers:{'X-McFlix-Token':APP_TOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    });
+    const r=await fetch(`${WORKER_URL}/data/${key}`,{method:'PUT',headers:WH,body:JSON.stringify(data)});
     return r.ok;
-  }catch(e){ console.warn('wPut failed',e); return false; }
+  }catch(e){console.warn('wPut',key,e);return false;}
 }
 
-async function loadFromCloud(){
+async function cloudLoad(){
   loading(true,'Loading library...');
-  const [lib, users] = await Promise.all([
-    wGet('library'),
-    wGet('users')
-  ]);
-  let ok = false;
-  if(lib){ sharedData=lib; ok = true; }
-  if(users){ allUsers=users; ok = true; }
-  if(ok) cloudLoaded = true;
-  // Cache locally
-  try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
-  try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
-  loading(false);
-  return ok;
+  try{
+    const[lib,usr]=await Promise.all([wGet('library'),wGet('users')]);
+    let ok=false;
+    if(lib){shared=lib;ok=true;}
+    if(usr){users=usr;ok=true;}
+    if(ok){
+      cloudOk=true;
+      try{localStorage.setItem('mcflix_lib',JSON.stringify(shared));}catch(e){}
+      try{localStorage.setItem('mcflix_usr',JSON.stringify(users));}catch(e){}
+    }
+    loading(false);
+    return ok;
+  }catch(e){loading(false);return false;}
 }
 
 async function saveShared(){
-  try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
-  if(WORKER_URL && APP_TOKEN){
-    await wPut('library', sharedData);
-  }
+  try{localStorage.setItem('mcflix_lib',JSON.stringify(shared));}catch(e){}
+  wPut('library',shared); // fire and forget
 }
-
 async function saveUsers(){
-  try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
-  if(WORKER_URL && APP_TOKEN){
-    await wPut('users', allUsers);
-  }
+  try{localStorage.setItem('mcflix_usr',JSON.stringify(users));}catch(e){}
+  wPut('users',users);
 }
 
-function loadLocal(){
-  try{ const s=localStorage.getItem('mcflix_lib'); if(s) sharedData=JSON.parse(s); }catch(e){}
-  try{ const u=localStorage.getItem('mcflix_usr'); if(u) allUsers=JSON.parse(u); }catch(e){}
+function localLoad(){
+  try{const s=localStorage.getItem('mcflix_lib');if(s)shared=JSON.parse(s);}catch(e){}
+  try{const u=localStorage.getItem('mcflix_usr');if(u)users=JSON.parse(u);}catch(e){}
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -639,26 +656,21 @@ function showAuthTab(t){
 
 function buildSignupColors(){
   document.getElementById('signup-colors').innerHTML=COLORS.map(c=>`
-    <div class="color-swatch ${c===signupColor?'sel':''}" style="background:${c}" onclick="pickSignupColor('${c}')"></div>`).join('');
+    <div class="cswatch ${c===signupColor?'sel':''}" style="background:${c}" onclick="signupColor='${c}';buildSignupColors()"></div>`).join('');
 }
-function pickSignupColor(c){ signupColor=c; buildSignupColors(); }
 
 async function doLogin(){
   const username=document.getElementById('l-user').value.trim().toLowerCase();
   const password=document.getElementById('l-pass').value;
   const errEl=document.getElementById('l-err');
-  if(!username||!password){ errEl.textContent='Enter username and password.'; return; }
-  // Pull the latest accounts from the cloud BEFORE checking credentials.
-  // This is what makes a fresh device (e.g. your phone) able to find accounts
-  // that were created elsewhere.
+  if(!username||!password){errEl.textContent='Enter username and password.';return;}
   errEl.textContent='';
-  await loadFromCloud();
-  const account=allUsers.accounts.find(a=>a.username.toLowerCase()===username);
-  if(!account||account.passwordHash!==hash(password)){
-    errEl.textContent='Wrong username or password.'; return;
-  }
-  CU={...account};
-  try{ localStorage.setItem('mcflix_session', CU.id); }catch(e){}
+  // Always pull fresh data from cloud so new accounts show up on any device
+  await cloudLoad();
+  const acct=users.accounts.find(a=>a.username.toLowerCase()===username);
+  if(!acct||acct.passwordHash!==hash(password)){errEl.textContent='Wrong username or password.';return;}
+  CU={...acct};
+  try{localStorage.setItem('mcflix_session',CU.id);}catch(e){}
   document.getElementById('auth-screen').className='screen';
   document.getElementById('app-screen').className='screen active';
   initApp();
@@ -670,30 +682,24 @@ function doSignup(){
   const photo=document.getElementById('s-photo').value.trim();
   const code=document.getElementById('s-code').value.trim();
   const errEl=document.getElementById('s-err');
-
-  if(!username||!password||!code){ errEl.textContent='Fill in all required fields.'; return; }
-  if(username.length<2){ errEl.textContent='Username must be at least 2 characters.'; return; }
-  if(password.length<4){ errEl.textContent='Password must be at least 4 characters.'; return; }
-  if(allUsers.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase())){
-    errEl.textContent='That username is taken.'; return;
-  }
-
+  if(!username||!password||!code){errEl.textContent='Fill in all required fields.';return;}
+  if(username.length<2){errEl.textContent='Username must be at least 2 characters.';return;}
+  if(password.length<4){errEl.textContent='Password must be at least 4 characters.';return;}
+  if(users.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase())){errEl.textContent='That username is already taken.';return;}
   let role='';
   if(code===ADMIN_CODE) role='admin';
   else if(code===MEMBER_CODE) role='member';
-  else { errEl.textContent='Invalid invite code.'; return; }
-
+  else{errEl.textContent='Invalid invite code.';return;}
   errEl.textContent='';
-  const account={ id:uid(), username, passwordHash:hash(password), role, color:signupColor, photo, createdAt:Date.now() };
-  allUsers.accounts.push(account);
-  if(!allUsers.personal) allUsers.personal={};
-  allUsers.personal[account.id]={ ratings:{}, watched:{}, nowWatching:{}, favorites:{}, notes:{}, history:{}, collections:[] };
-
+  const acct={id:uid(),username,passwordHash:hash(password),role,color:signupColor,photo,createdAt:Date.now()};
+  users.accounts.push(acct);
+  if(!users.personal) users.personal={};
+  users.personal[acct.id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
   loading(true,'Creating account...');
   saveUsers().then(()=>{
     loading(false);
-    CU={...account};
-    try{ localStorage.setItem('mcflix_session', CU.id); }catch(e){}
+    CU={...acct};
+    try{localStorage.setItem('mcflix_session',CU.id);}catch(e){}
     document.getElementById('auth-screen').className='screen';
     document.getElementById('app-screen').className='screen active';
     initApp();
@@ -703,7 +709,7 @@ function doSignup(){
 
 function signOut(){
   CU=null;
-  try{ localStorage.removeItem('mcflix_session'); }catch(e){}
+  try{localStorage.removeItem('mcflix_session');}catch(e){}
   document.getElementById('app-screen').className='screen';
   document.getElementById('auth-screen').className='screen active';
   document.getElementById('l-user').value='';
@@ -713,31 +719,29 @@ function signOut(){
 
 // ── APP INIT ──────────────────────────────────────────────────────────────────
 function initApp(){
-  // Header
   const av=document.getElementById('hdr-av');
-  if(CU.photo){ av.innerHTML=`<img src="${CU.photo}" onerror="this.parentNode.innerHTML='${ini(CU.username)}';this.parentNode.style.background='${CU.color}22';this.parentNode.style.color='${CU.color}'">`; }
-  else{ av.textContent=ini(CU.username); av.style.background=CU.color+'22'; av.style.color=CU.color; }
+  if(CU.photo){av.innerHTML=`<img src="${CU.photo}" onerror="this.parentNode.textContent='${ini(CU.username)}';this.parentNode.style.background='${CU.color}22';this.parentNode.style.color='${CU.color}'">`;}
+  else{av.textContent=ini(CU.username);av.style.background=CU.color+'22';av.style.color=CU.color;}
   document.getElementById('hdr-name').textContent=CU.username;
   const rt=document.getElementById('hdr-role');
   rt.textContent=isAdmin()?'Admin':'Member';
   rt.className='role-tag '+(isAdmin()?'rt-admin':'rt-member');
   document.getElementById('add-lib-btn').style.display=isAdmin()?'':'none';
-  document.getElementById('add-wish-btn').style.display='';  // everyone can add to the wishlist
-  buildGenreFilter();
-  renderLib();
-  updateCounts();
+  document.getElementById('add-wish-btn').style.display=''; // everyone can wishlist
+  buildGenreFilter();renderLib();updateCounts();
 }
 
 function myData(){
-  if(!allUsers.personal) allUsers.personal={};
-  if(!allUsers.personal[CU.id]) allUsers.personal[CU.id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
-  if(!allUsers.personal[CU.id].collections) allUsers.personal[CU.id].collections=[];
-  return allUsers.personal[CU.id];
+  if(!users.personal) users.personal={};
+  const d=users.personal[CU.id];
+  if(!d) users.personal[CU.id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
+  if(!users.personal[CU.id].collections) users.personal[CU.id].collections=[];
+  return users.personal[CU.id];
 }
-function udataFor(userId){
-  if(!allUsers.personal) allUsers.personal={};
-  if(!allUsers.personal[userId]) allUsers.personal[userId]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
-  return allUsers.personal[userId];
+function udataFor(id){
+  if(!users.personal) users.personal={};
+  if(!users.personal[id]) users.personal[id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
+  return users.personal[id];
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
@@ -746,49 +750,51 @@ function switchTab(t,el){
   document.getElementById('tab-'+t).classList.add('active');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  if(t==='library') renderLib();
-  if(t==='wishlist') renderWish();
-  if(t==='lists') renderLists();
-  if(t==='stats') renderStats();
+  ({library:renderLib,wishlist:renderWish,lists:renderLists,requests:renderReq,stats:renderStats})[t]?.();
 }
 
 function updateCounts(){
-  document.getElementById('lib-count').textContent=sharedData.library.length;
-  document.getElementById('wish-count').textContent=sharedData.wishlist.length;
-  if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
+  document.getElementById('lib-count').textContent=shared.library.length;
+  document.getElementById('wish-count').textContent=shared.wishlist.length;
+  if(CU){
+    const lc=document.getElementById('list-count');
+    if(lc) lc.textContent=(myData().collections||[]).length;
+  }
+  const p=(shared.requests||[]).filter(r=>r.status==='pending').length;
+  const rc=document.getElementById('req-count');
+  rc.textContent=p;rc.style.display=p?'':'none';
 }
 
-// ── FILTERS ───────────────────────────────────────────────────────────────────
+// ── GENRE FILTER ──────────────────────────────────────────────────────────────
 function buildGenreFilter(){
-  const genres=new Set();
-  sharedData.library.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
+  const g=new Set();
+  shared.library.forEach(m=>(m.genre||'').split(',').forEach(x=>{const t=x.trim();if(t)g.add(t)}));
   const sel=document.getElementById('f-genre'),cur=sel.value;
-  sel.innerHTML='<option value="">All Genres</option>'+[...genres].sort().map(g=>`<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
+  sel.innerHTML='<option value="">All Genres</option>'+[...g].sort().map(x=>`<option value="${x}"${x===cur?' selected':''}>${x}</option>`).join('');
 }
 
 function buildTagBar(){
-  const tags=new Set();
-  sharedData.library.forEach(m=>(m.tags||[]).forEach(t=>{if(t)tags.add(t)}));
+  const t=new Set();
+  shared.library.forEach(m=>(m.tags||[]).forEach(x=>{if(x)t.add(x)}));
   const bar=document.getElementById('tag-bar');
-  if(!tags.size){bar.innerHTML='';return}
-  bar.innerHTML=[...tags].sort().map(t=>`<span class="tpill ${activeTag===t?'active':''}" onclick="setTag('${t}')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('');
+  if(!t.size){bar.innerHTML='';return;}
+  bar.innerHTML=[...t].sort().map(x=>`<span class="tpill ${activeTag===x?'active':''}" onclick="setTag('${x}')"><i class="ti ti-tag" style="font-size:10px"></i> ${x}</span>`).join('');
 }
 
-function setTag(t){ activeTag=activeTag===t?'':t; buildTagBar(); renderLib(); }
-function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',favFilterOn); renderLib(); }
+function setTag(t){activeTag=activeTag===t?'':t;buildTagBar();renderLib();}
+function toggleFavF(el){favFilterOn=!favFilterOn;el.classList.toggle('active',favFilterOn);renderLib();}
 
 // ── RENDER LIBRARY ────────────────────────────────────────────────────────────
 function renderLib(){
-  buildGenreFilter(); buildTagBar();
+  buildGenreFilter();buildTagBar();
   const me=myData();
   const q=(document.getElementById('s-lib').value||'').toLowerCase();
-  const type='';
   const genre=document.getElementById('f-genre').value;
   const watched=document.getElementById('f-watched').value;
   const sort=document.getElementById('f-sort').value;
-  let items=sharedData.library.filter(m=>{
-    if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
-    if(type&&m.type!==type) return false;
+
+  let items=shared.library.filter(m=>{
+    if(q&&!`${m.title} ${m.actors||''} ${m.director||''} ${m.genre||''}`.toLowerCase().includes(q)) return false;
     if(genre&&!(m.genre||'').includes(genre)) return false;
     if(watched==='watched'&&!me.watched?.[m.id]) return false;
     if(watched==='unwatched'&&me.watched?.[m.id]) return false;
@@ -796,229 +802,253 @@ function renderLib(){
     if(activeTag&&!(m.tags||[]).includes(activeTag)) return false;
     return true;
   });
+
   items.sort((a,b)=>{
     if(sort==='title') return a.title.localeCompare(b.title);
-    if(sort==='year') return (b.year||0)-(a.year||0);
+    if(sort==='year') return (Number(b.year)||0)-(Number(a.year)||0);
     if(sort==='rating') return (me.ratings?.[b.id]||0)-(me.ratings?.[a.id]||0);
     return (b.addedAt||0)-(a.addedAt||0);
   });
 
-  // Stats bar
-  const total=sharedData.library.length;
-  const wCount=Object.values(me.watched||{}).filter(Boolean).length;
-  const movies=sharedData.library.filter(m=>m.type==='movie').length;
+  // Stats
+  const total=shared.library.length;
+  const wc=Object.values(me.watched||{}).filter(Boolean).length;
   document.getElementById('lib-stats').innerHTML=`
     <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n">${wCount}</div><div class="stat-l">Watched</div></div>
-    <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>`;
+    <div class="stat"><div class="stat-n">${shared.library.filter(m=>m.type==='movie').length}</div><div class="stat-l">Movies</div></div>
+    <div class="stat"><div class="stat-n">${shared.library.filter(m=>m.type==='tv').length}</div><div class="stat-l">TV Shows</div></div>
+    <div class="stat"><div class="stat-n">${wc}</div><div class="stat-l">Watched</div></div>
+    <div class="stat"><div class="stat-n">${total-wc}</div><div class="stat-l">Unwatched</div></div>`;
 
   // Shelves
-  const nw=sharedData.library.filter(m=>me.nowWatching?.[m.id]);
+  const nw=shared.library.filter(m=>me.nowWatching?.[m.id]);
   const ns=document.getElementById('now-shelf');
   ns.style.display=nw.length?'':'none';
-  if(nw.length) document.getElementById('now-scroll').innerHTML=nw.map(m=>miniCard(m)).join('');
-  const favs=sharedData.library.filter(m=>me.favorites?.[m.id]);
+  if(nw.length) document.getElementById('now-scroll').innerHTML=nw.map(shCard).join('');
+  const favs=shared.library.filter(m=>me.favorites?.[m.id]);
   const fs=document.getElementById('fav-shelf');
   fs.style.display=favs.length?'':'none';
-  if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join('');
+  if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(shCard).join('');
 
   // Grid
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
-  if(!items.length){grid.innerHTML='';empty.style.display='';return}
+  if(!items.length){grid.innerHTML='';empty.style.display='';return;}
   empty.style.display='none';
-  const r=me.ratings||{};
   grid.innerHTML=items.map(m=>{
     const hp=m.poster&&m.poster!=='N/A';
+    const r=me.ratings?.[m.id]||0;
     return `<div class="card" onclick="openDetail('${m.id}','library')">
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div></div>
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
-      ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
-      ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
+      <div class="type-pip ${m.type==='movie'?'tp-m':'tp-tv'}">${m.type==='movie'?'Film':'TV'}</div>
+      ${me.favorites?.[m.id]?`<div class="fav-pip">★</div>`:''}
+      ${r?`<div class="rat-pip">${r}/10</div>`:''}
     </div>`;
   }).join('');
   updateCounts();
 }
 
-function miniCard(m){
+function shCard(m){
   const hp=m.poster&&m.poster!=='N/A';
-  return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
-    ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-    <div class="ov">${m.title}</div>
+  return `<div class="shcard" onclick="openDetail('${m.id}','library')">
+    ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4;font-size:24px"></i></div>`}
+    <div class="shov">${m.title}</div>
   </div>`;
 }
 
 // ── RENDER WISHLIST ───────────────────────────────────────────────────────────
 function renderWish(){
   const q=(document.getElementById('s-wish').value||'').toLowerCase();
-  const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
-  const wrap=document.getElementById('wish-grid'),empty=document.getElementById('wish-empty');
-  if(!items.length){wrap.innerHTML='';empty.style.display='';updateCounts();return}
+  const items=shared.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
+  const wrap=document.getElementById('wish-wrap'),empty=document.getElementById('wish-empty');
+  if(!items.length){wrap.innerHTML='';empty.style.display='';updateCounts();return;}
   empty.style.display='none';
-
-  // Group by year
   const groups={};
-  items.forEach(m=>{
-    const y=(m.year||'').toString().slice(0,4);
-    const key=y||'Unknown';
-    (groups[key]=groups[key]||[]).push(m);
-  });
-  // Sort years newest-first; "Unknown" goes last
-  const years=Object.keys(groups).sort((a,b)=>{
-    if(a==='Unknown') return 1;
-    if(b==='Unknown') return -1;
-    return Number(b)-Number(a);
-  });
-
-  const cardHTML=m=>{
-    const hp=m.poster&&m.poster!=='N/A';
-    return `<div class="card" onclick="openDetail('${m.id}','wishlist')">
-      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-      <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
-    </div>`;
-  };
-
+  items.forEach(m=>{const y=(m.year||'').toString().slice(0,4)||'Unknown';(groups[y]=groups[y]||[]).push(m);});
+  const years=Object.keys(groups).sort((a,b)=>a==='Unknown'?1:b==='Unknown'?-1:Number(b)-Number(a));
   wrap.innerHTML=years.map(y=>{
-    const cards=groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('');
-    return `<div class="sl" style="margin-top:18px">${y} <span style="font-size:12px;color:var(--muted);-webkit-text-fill-color:var(--muted)">(${groups[y].length})</span></div>
-      <div class="grid">${cards}</div>`;
+    const cards=groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(m=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      return `<div class="card" onclick="openDetail('${m.id}','wishlist')">
+        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
+        <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
+      </div>`;
+    }).join('');
+    return `<div class="wish-year-group"><div class="sl">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div><div class="grid">${cards}</div></div>`;
   }).join('');
   updateCounts();
 }
 
-// ── TAGS (shared, editable by any user) ───────────────────────────────────────
-function findItem(id,src){
-  const list=src==='wishlist'?sharedData.wishlist:sharedData.library;
-  return list.find(x=>x.id===id);
-}
+// ── TAGS ──────────────────────────────────────────────────────────────────────
+function getItem(id,src){return(src==='wishlist'?shared.wishlist:shared.library).find(x=>x.id===id);}
+
 function addTag(id,src){
-  const inp=document.getElementById('tagin-'+id); if(!inp) return;
-  const val=inp.value.trim().toLowerCase(); if(!val) return;
-  const m=findItem(id,src); if(!m) return;
+  const inp=document.getElementById('tagin-'+id);if(!inp)return;
+  const val=inp.value.trim().toLowerCase();if(!val)return;
+  const m=getItem(id,src);if(!m)return;
   m.tags=m.tags||[];
-  if(!m.tags.includes(val)) m.tags.push(val);
+  if(!m.tags.includes(val))m.tags.push(val);
   inp.value='';
-  saveShared().then(()=>{ openDetail(id,src); renderLib(); });
-}
-function removeTag(id,src,tag){
-  const m=findItem(id,src); if(!m) return;
-  m.tags=(m.tags||[]).filter(t=>t!==tag);
-  saveShared().then(()=>{ openDetail(id,src); renderLib(); });
+  saveShared().then(()=>{openDetail(id,src);renderLib();});
 }
 
-// ── LISTS / COLLECTIONS (per-user) ────────────────────────────────────────────
+function removeTag(id,src,tag){
+  const m=getItem(id,src);if(!m)return;
+  m.tags=(m.tags||[]).filter(t=>t!==tag);
+  saveShared().then(()=>{openDetail(id,src);renderLib();});
+}
+
+// ── LISTS ─────────────────────────────────────────────────────────────────────
 function createList(addId){
-  const name=(prompt('Name your list:')||'').trim();
-  if(!name) return;
-  const me=myData(); me.collections=me.collections||[];
-  const list={ id:uid(), name, items: addId?[addId]:[] };
+  const name=(prompt('Name your list:')||'').trim();if(!name)return;
+  const me=myData();me.collections=me.collections||[];
+  const list={id:uid(),name,items:addId?[addId]:[]};
   me.collections.push(list);
   saveUsers().then(()=>{
     updateCounts();
-    if(addId){ openDetail(addId,'library'); toast('Added to "'+name+'"'); }
-    else { renderLists(); toast('List "'+name+'" created'); }
+    if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}
+    else{renderLists();toast('"'+name+'" created');}
   });
 }
 function toggleInList(listId,itemId){
   const me=myData();
-  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
+  const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=list.items||[];
   const i=list.items.indexOf(itemId);
-  if(i>-1) list.items.splice(i,1); else list.items.push(itemId);
-  saveUsers().then(()=>{ openDetail(itemId,'library'); });
+  if(i>-1)list.items.splice(i,1);else list.items.push(itemId);
+  saveUsers().then(()=>openDetail(itemId,'library'));
 }
 function renameList(listId){
   const me=myData();
-  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
-  const name=(prompt('Rename list:',list.name)||'').trim(); if(!name) return;
-  list.name=name;
-  saveUsers().then(()=>{ renderLists(); });
+  const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
+  const name=(prompt('Rename list:',list.name)||'').trim();if(!name)return;
+  list.name=name;saveUsers().then(renderLists);
 }
 function deleteList(listId){
-  if(!confirm('Delete this list? (Your titles stay in the library.)')) return;
+  if(!confirm('Delete this list?'))return;
   const me=myData();
   me.collections=(me.collections||[]).filter(c=>c.id!==listId);
-  saveUsers().then(()=>{ renderLists(); updateCounts(); });
+  saveUsers().then(()=>{renderLists();updateCounts();});
 }
 function removeFromList(listId,itemId){
   const me=myData();
-  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
+  const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=(list.items||[]).filter(x=>x!==itemId);
-  saveUsers().then(()=>{ renderLists(); });
+  saveUsers().then(renderLists);
 }
 function renderLists(){
   const me=myData();
   const cols=me.collections||[];
-  const wrap=document.getElementById('lists-wrap');
-  const empty=document.getElementById('lists-empty');
-  if(!cols.length){ wrap.innerHTML=''; empty.style.display=''; updateCounts(); return; }
+  const wrap=document.getElementById('lists-wrap'),empty=document.getElementById('lists-empty');
+  if(!cols.length){wrap.innerHTML='';empty.style.display='';updateCounts();return;}
   empty.style.display='none';
   wrap.innerHTML=cols.map(c=>{
-    const items=(c.items||[]).map(idv=>sharedData.library.find(m=>m.id===idv)).filter(Boolean);
-    const cards=items.length?`<div class="shelf-scroll">${items.map(m=>{
+    const items=(c.items||[]).map(id=>shared.library.find(m=>m.id===id)).filter(Boolean);
+    const scroll=items.length?`<div class="shelf-scroll">${items.map(m=>{
       const hp=m.poster&&m.poster!=='N/A';
-      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
-        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-        <div class="ov">${m.title}</div>
-        <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.7);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')"><i class="ti ti-x" style="font-size:13px;color:#fff"></i></div>
+      return `<div class="shcard" onclick="openDetail('${m.id}','library')" style="position:relative">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="shov">${m.title}</div>
+        <div onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')" style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.8);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ti ti-x" style="font-size:11px;color:#fff"></i></div>
       </div>`;
-    }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open a title and add it to this list.</div>';
-    return `<div class="stat-block" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
+    }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open any title and add it to this list.</div>';
+    return `<div class="list-card">
+      <div class="list-card-hd">
+        <div class="list-name">${c.name}</div>
+        <span class="list-count">${items.length} title${items.length!==1?'s':''}</span>
         <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
         <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
       </div>
-      ${cards}
+      ${scroll}
     </div>`;
   }).join('');
   updateCounts();
 }
 
+// ── REQUESTS ──────────────────────────────────────────────────────────────────
+function renderReq(){
+  const list=document.getElementById('req-list'),empty=document.getElementById('req-empty');
+  const reqs=shared.requests||[];
+  if(!reqs.length){list.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  list.innerHTML=reqs.slice().reverse().map(r=>`
+    <div class="req-card">
+      <div class="av" style="width:36px;height:36px;font-size:13px;background:${r.color||'#666'}22;color:${r.color||'#aaa'};flex-shrink:0">${ini(r.from)}</div>
+      <div class="req-info">
+        <div class="req-name">${r.title} <span style="font-size:10px;color:var(--muted)">(${r.type==='movie'?'Movie':'TV'})</span></div>
+        <div class="req-sub">By <strong>${r.from}</strong>${r.note?' · '+r.note:''}</div>
+      </div>
+      <div class="req-status ${r.status==='pending'?'st-pend':'st-done'}">${r.status==='pending'?'Pending':'Added ✓'}</div>
+      ${isAdmin()&&r.status==='pending'?`
+        <button class="req-ok" onclick="approveReq('${r.id}')"><i class="ti ti-check"></i> Add to Wishlist</button>
+        <button class="req-ok" style="background:rgba(232,53,75,.06);color:var(--red);border-color:rgba(232,53,75,.2)" onclick="denyReq('${r.id}')"><i class="ti ti-x"></i></button>`:''}
+    </div>`).join('');
+  updateCounts();
+}
+
+function submitReq(){
+  const title=document.getElementById('rq-title').value.trim();
+  if(!title){alert('Enter a title.');return;}
+  shared.requests=shared.requests||[];
+  shared.requests.push({id:uid(),from:CU.username,color:CU.color,title,type:document.getElementById('rq-type').value,note:document.getElementById('rq-note').value.trim(),status:'pending',ts:Date.now()});
+  document.getElementById('rq-title').value='';document.getElementById('rq-note').value='';
+  saveShared().then(()=>{renderReq();updateCounts();toast('Request sent!');});
+}
+function approveReq(id){
+  const r=shared.requests.find(x=>x.id===id);if(!r)return;
+  r.status='added';
+  shared.wishlist.push({id:uid(),title:r.title,type:r.type,year:'',genre:'',rating:'',director:'',actors:'',plot:'',poster:'',imdb:'',tags:[],addedAt:Date.now()});
+  saveShared().then(()=>{renderReq();renderWish();updateCounts();toast(r.title+' added to wishlist!');});
+}
+function denyReq(id){
+  shared.requests=shared.requests.filter(r=>r.id!==id);
+  saveShared().then(()=>{renderReq();updateCounts();});
+}
+
 // ── DETAIL MODAL ──────────────────────────────────────────────────────────────
 function openDetail(id,src){
-  const list=src==='library'?sharedData.library:sharedData.wishlist;
+  const list=src==='library'?shared.library:shared.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
   const me=myData();
   const hp=m.poster&&m.poster!=='N/A';
   const inLib=src==='library';
 
-  // Build ratings for all accounts
-  const ratingsHTML=allUsers.accounts.map(u=>{
+  const ratingRows=users.accounts.map(u=>{
     const ud=udataFor(u.id);
     const r=ud.ratings?.[id]||0;
-    const canEdit=CU.id===u.id;
+    const mine=CU.id===u.id;
     return `<div class="rat-row">
       <div class="rat-user">${avatarEl(u,22)}<span class="rat-name">${u.username}</span></div>
-      <div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<span class="star ${r>=n?'on':''} ${canEdit?'':'ro'}" ${canEdit?`onclick="setRating('${id}','${u.id}',${n})"`:''}>${r>=n?'★':'☆'}</span>`).join('')}</div>
+      <div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<span class="star ${r>=n?'on':''} ${mine?'':'ro'}" ${mine?`onclick="setRating('${id}','${u.id}',${n})"`:''}>${r>=n?'★':'☆'}</span>`).join('')}</div>
       <span class="rat-val">${r?r+'/10':'—'}</span>
-      ${canEdit&&r?`<span class="rat-clr" onclick="setRating('${id}','${u.id}',0)">clear</span>`:''}
+      ${mine&&r?`<span class="rat-clr" onclick="setRating('${id}','${u.id}',0)">clear</span>`:''}
     </div>`;
   }).join('');
 
-  const history=(me.history?.[id]||[]).slice().reverse();
-  const histHTML=history.length
-    ?`<div class="hist-list">${history.map((d,i)=>`<div class="hist-item"><span class="hist-date">${new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span><span class="hist-x" onclick="delHist('${id}',${history.length-1-i})"><i class="ti ti-x"></i></span></div>`).join('')}</div>`:'';
+  const hist=(me.history?.[id]||[]).slice().reverse();
+  const histRows=hist.length?`<div class="hist-list">${hist.map((d,i)=>`<div class="hist-item"><span class="hist-date">${new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span><span class="hist-x" onclick="delHist('${id}',${hist.length-1-i})"><i class="ti ti-x"></i></span></div>`).join('')}</div>`:''
 
   document.getElementById('det-body').innerHTML=`
     <div class="det-hero">
-      ${hp?`<img src="${m.poster}" class="det-backdrop" onerror="this.style.display='none'">`:'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#16213e)"></div>'}
+      <div class="det-bd" style="${hp?`background-image:url('${m.poster}')`:''};background-color:#14142a"></div>
       <div class="det-hero-inner">
-        ${hp?`<img src="${m.poster}" class="det-poster" onerror="this.style.display='none'">`:`<div class="det-poster-fb"><i class="ti ti-movie" style="font-size:28px;color:var(--muted)"></i></div>`}
-        <div style="flex:1;min-width:0">
+        ${hp?`<img src="${m.poster}" class="det-poster" onerror="this.style.display='none'">`:`<div class="det-poster-fb"><i class="ti ti-movie" style="font-size:28px;color:var(--muted);opacity:.4"></i></div>`}
+        <div class="det-info">
           <div class="det-title">${m.title}</div>
-          <div class="det-tags">
-            ${m.year?`<span class="dtag">${m.year}</span>`:''}
-            ${m.rating?`<span class="dtag">${m.rating}</span>`:''}
-            ${(m.genre||'').split(',').slice(0,2).map(g=>`<span class="dtag">${g.trim()}</span>`).join('')}
+          <div class="det-chips">
+            ${m.year?`<span class="dchip">${m.year}</span>`:''}
+            ${m.type?`<span class="dchip">${m.type==='movie'?'Movie':'TV Show'}</span>`:''}
+            ${m.rating?`<span class="dchip">${m.rating}</span>`:''}
+            ${(m.genre||'').split(',').slice(0,2).map(g=>`<span class="dchip">${g.trim()}</span>`).join('')}
           </div>
           <div class="det-actions">
             ${inLib?`<button class="act act-w ${me.watched?.[id]?'on':''}" onclick="toggleW('${id}')"><i class="ti ti-${me.watched?.[id]?'eye-off':'eye'}"></i> ${me.watched?.[id]?'Watched':'Mark Watched'}</button>`:''}
             ${inLib?`<button class="act act-fav ${me.favorites?.[id]?'on':''}" onclick="toggleFav('${id}')"><i class="ti ti-star${me.favorites?.[id]?'-filled':''}"></i></button>`:''}
-            ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Watching':'Now Watching'}</button>`:''}
-            ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
+            ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Now Watching':'Now Watching'}</button>`:''}
+            ${!inLib?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Move to Library</button>`:''}
             ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
             ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>`:''}
           </div>
@@ -1032,35 +1062,40 @@ function openDetail(id,src){
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
         ${m.actors&&m.actors!=='N/A'?`<div class="info-item full"><div class="info-lbl">Cast</div><div class="info-val">${m.actors}</div></div>`:''}
       </div>
-      <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
-      <div class="notes-section">
-        <div class="notes-lbl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none">(shared — visible to everyone)</span></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="tagchips-${id}">
-          ${(m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t} <i class="ti ti-x" style="font-size:11px;cursor:pointer" onclick="removeTag('${id}','${src}','${t.replace(/'/g,"\\'")}')"></i></span>`).join('')||'<span style="font-size:12px;color:var(--muted)">No tags yet.</span>'}
+
+      <div style="margin-bottom:14px">
+        <div class="sec-hd">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--muted)">(shared · visible to everyone)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+          ${(m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t} <i class="ti ti-x" style="font-size:10px;cursor:pointer;opacity:.6" onclick="removeTag('${id}','${src}','${t.replace(/'/g,"\\'")}')"></i></span>`).join('')||`<span style="font-size:12px;color:var(--muted)">No tags yet.</span>`}
         </div>
         <div class="lk-row">
-          <input type="text" class="ffi" id="tagin-${id}" placeholder="Add a tag..." onkeydown="if(event.key==='Enter'){addTag('${id}','${src}')}">
-          <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
+          <input type="text" class="ffi" id="tagin-${id}" placeholder="Add a tag..." onkeydown="if(event.key==='Enter')addTag('${id}','${src}')">
+          <button class="lk-btn" style="padding:7px 12px" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i></button>
         </div>
       </div>
-      ${inLib?`<div class="notes-section">
-        <div class="notes-lbl">Add to My Lists</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${(me.collections||[]).map(c=>{const on=(c.items||[]).includes(id);return `<span class="tpill ${on?'active':''}" onclick="toggleInList('${c.id}','${id}')">${on?'<i class="ti ti-check" style="font-size:11px"></i> ':''}${c.name}</span>`}).join('')}
-          <span class="tpill" style="border-style:dashed" onclick="createList('${id}')"><i class="ti ti-plus" style="font-size:11px"></i> New list</span>
+
+      ${inLib?`<div style="margin-bottom:14px">
+        <div class="sec-hd">Add to My Lists</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${(me.collections||[]).map(c=>{const on=(c.items||[]).includes(id);return`<span class="tpill ${on?'active':''}" onclick="toggleInList('${c.id}','${id}')">${on?'<i class="ti ti-check" style="font-size:10px"></i> ':''}${c.name}</span>`}).join('')}
+          <span class="tpill" style="border-style:dashed" onclick="createList('${id}')"><i class="ti ti-plus" style="font-size:10px"></i> New list</span>
         </div>
       </div>`:''}
-      <div class="notes-section">
-        <div class="notes-lbl">${CU.username}'s Notes</div>
-        <textarea class="notes-ta" id="notes-${id}" placeholder="Your thoughts...">${me.notes?.[id]||''}</textarea>
-        <button class="save-note-btn" onclick="saveNote('${id}')"><i class="ti ti-device-floppy"></i> Save</button>
+
+      <div class="rat-wrap"><div class="rat-hd">Ratings</div>${ratingRows}</div>
+
+      <div style="margin-bottom:14px">
+        <div class="sec-hd">${CU.username}'s Notes</div>
+        <textarea class="notes-ta" id="notes-${id}" placeholder="Your thoughts on this one...">${me.notes?.[id]||''}</textarea>
+        <button class="save-btn" onclick="saveNote('${id}')"><i class="ti ti-device-floppy"></i> Save Note</button>
       </div>
-      <div class="notes-section">
-        <div class="notes-lbl">Watch History</div>
-        ${histHTML}
-        <div class="lk-row">
+
+      <div>
+        <div class="sec-hd">Watch History</div>
+        ${histRows}
+        <div class="lk-row" style="margin-top:6px">
           <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
-          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
+          <button class="log-btn" onclick="logWatch('${id}')"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
         </div>
       </div>
     </div>`;
@@ -1068,68 +1103,65 @@ function openDetail(id,src){
 }
 
 function toggleW(id){
-  const me=myData(); me.watched=me.watched||{};
+  const me=myData();me.watched=me.watched||{};
   me.watched[id]=!me.watched[id];
-  if(me.watched[id]){ me.history=me.history||{}; me.history[id]=[...(me.history[id]||[]),Date.now()]; }
+  if(me.watched[id]){me.history=me.history||{};me.history[id]=[...(me.history[id]||[]),Date.now()];}
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast(me.watched[id]?'Marked as watched!':'Marked as unwatched');
 }
 function toggleFav(id){
-  const me=myData(); me.favorites=me.favorites||{};
+  const me=myData();me.favorites=me.favorites||{};
   me.favorites[id]=!me.favorites[id];
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
-  toast(me.favorites[id]?'Added to Top Picks!':'Removed from Top Picks');
+  toast(me.favorites[id]?'Added to Top Picks!':'Removed');
 }
 function toggleNow(id){
-  const me=myData(); me.nowWatching=me.nowWatching||{};
+  const me=myData();me.nowWatching=me.nowWatching||{};
   me.nowWatching[id]=!me.nowWatching[id];
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
 }
 function setRating(id,userId,val){
-  const ud=udataFor(userId); ud.ratings=ud.ratings||{};
+  const ud=udataFor(userId);ud.ratings=ud.ratings||{};
   ud.ratings[id]=val;
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast(val?`Rated ${val}/10!`:'Rating cleared');
 }
 function saveNote(id){
-  const me=myData(); me.notes=me.notes||{};
+  const me=myData();me.notes=me.notes||{};
   me.notes[id]=document.getElementById('notes-'+id)?.value||'';
   saveUsers().then(()=>toast('Note saved!'));
 }
 function logWatch(id){
-  const me=myData(); me.history=me.history||{};
+  const me=myData();me.history=me.history||{};
   let ts=Date.now();
   const el=document.getElementById('logdate-'+id);
-  if(el && el.value){
-    const [y,mo,d]=el.value.split('-').map(Number);
-    if(y&&mo&&d) ts=new Date(y,mo-1,d,12,0,0).getTime(); // noon local avoids timezone day-shift
-  }
+  if(el?.value){const[y,mo,d]=el.value.split('-').map(Number);if(y&&mo&&d)ts=new Date(y,mo-1,d,12).getTime();}
   me.history[id]=[...(me.history[id]||[]),ts];
-  me.watched=me.watched||{}; me.watched[id]=true;
+  me.watched=me.watched||{};me.watched[id]=true;
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast('Viewing logged!');
 }
 function delHist(id,idx){
-  const me=myData(); if(!me.history?.[id]) return;
+  const me=myData();if(!me.history?.[id])return;
   me.history[id].splice(idx,1);
   saveUsers().then(()=>openDetail(id,'library'));
 }
 function moveToLib(id){
-  const m=sharedData.wishlist.find(x=>x.id===id);if(!m)return;
-  sharedData.library.push({...m,id:uid(),addedAt:Date.now()});
-  sharedData.wishlist=sharedData.wishlist.filter(x=>x.id!==id);
+  const m=shared.wishlist.find(x=>x.id===id);if(!m)return;
+  shared.library.push({...m,id:uid(),addedAt:Date.now()});
+  shared.wishlist=shared.wishlist.filter(x=>x.id!==id);
   saveShared().then(()=>{closeMo('detail');renderLib();renderWish();updateCounts();toast(m.title+' moved to library!');});
 }
 function delItem(id,src){
   if(!confirm('Remove this title?'))return;
-  if(src==='library') sharedData.library=sharedData.library.filter(x=>x.id!==id);
-  else sharedData.wishlist=sharedData.wishlist.filter(x=>x.id!==id);
+  if(src==='library')shared.library=shared.library.filter(x=>x.id!==id);
+  else shared.wishlist=shared.wishlist.filter(x=>x.id!==id);
   saveShared().then(()=>{closeMo('detail');if(src==='library')renderLib();else renderWish();updateCounts();});
 }
 
 // ── ADD / EDIT ────────────────────────────────────────────────────────────────
 function openAdd(target='library'){
-  addTarget=target; editingId=null; pendingPoster=''; pendingImdb='';
+  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
   document.getElementById('add-lbl').textContent=target==='library'?'Add to Library':'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
@@ -1141,10 +1173,10 @@ function openAdd(target='library'){
 }
 
 function openEdit(id,src){
-  const list=src==='library'?sharedData.library:sharedData.wishlist;
+  const list=src==='library'?shared.library:shared.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
   closeMo('detail');
-  addTarget=src; editingId=id; pendingPoster=m.poster||''; pendingImdb=m.imdb||'';
+  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';
   document.getElementById('add-lbl').textContent='Edit: '+m.title;
   document.getElementById('add-watched-row').style.display='none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
@@ -1166,25 +1198,24 @@ function openEdit(id,src){
 async function doLookup(){
   const q=document.getElementById('add-search').value.trim();if(!q)return;
   const btn=document.getElementById('lk-btn'),res=document.getElementById('lk-result');
-  btn.disabled=true; res.innerHTML=`<div class="lk-status loading"><i class="ti ti-loader"></i> Searching...</div>`;
+  btn.disabled=true;res.innerHTML=`<div class="lk-status loading"><i class="ti ti-loader"></i> Searching...</div>`;
   try{
     const type=document.getElementById('add-type').value==='tv'?'series':'movie';
-    // ?s= returns up to 10 loose matches (no need for an exact title)
     const r=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(q)}&type=${type}`);
     const d=await r.json();
-    if(d.Response==='True' && d.Search && d.Search.length){
+    if(d.Response==='True'&&d.Search?.length){
       res.innerHTML=`<div class="lk-results">${d.Search.map(it=>{
         const hp=it.Poster&&it.Poster!=='N/A';
         return `<button type="button" class="lk-opt" onclick="pickResult('${it.imdbID}')">
-          ${hp?`<img src="${it.Poster}" onerror="this.style.display='none'">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+          ${hp?`<img src="${it.Poster}" onerror="this.style.display='none'">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted);font-size:14px"></i></div>`}
           <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.Title}</div><div class="lk-opt-yr">${it.Year||''}</div></div>
-          <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
+          <i class="ti ti-chevron-right" style="color:var(--muted);font-size:14px"></i>
         </button>`;
       }).join('')}</div>`;
     }else{
-      res.innerHTML=`<div class="lk-status err"><i class="ti ti-alert-circle"></i> Nothing found — try fewer or different words, or fill in below manually.</div>`;
+      res.innerHTML=`<div class="lk-status err"><i class="ti ti-alert-circle"></i> Nothing found — try different words or fill in below.</div>`;
     }
-  }catch(e){ res.innerHTML=`<div class="lk-status err">Search failed.</div>`; }
+  }catch(e){res.innerHTML=`<div class="lk-status err">Search failed.</div>`;}
   btn.disabled=false;
 }
 
@@ -1192,7 +1223,7 @@ async function pickResult(imdbID){
   const res=document.getElementById('lk-result');
   res.innerHTML=`<div class="lk-status loading"><i class="ti ti-loader"></i> Loading details...</div>`;
   try{
-    const r=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${encodeURIComponent(imdbID)}&plot=full`);
+    const r=await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${imdbID}&plot=full`);
     const d=await r.json();
     if(d.Response==='True'){
       pendingPoster=d.Poster&&d.Poster!=='N/A'?d.Poster:'';
@@ -1207,253 +1238,239 @@ async function pickResult(imdbID){
       document.getElementById('add-poster').value=pendingPoster;
       const hp=d.Poster&&d.Poster!=='N/A';
       res.innerHTML=`<div class="lk-preview">
-        ${hp?`<img src="${d.Poster}" class="lk-thumb" onerror="this.style.display='none'">`:`<div class="lk-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-        <div style="flex:1"><div style="font-weight:600;font-size:13px;margin-bottom:3px">${d.Title} (${d.Year}) <span style="font-weight:400;color:var(--green)">✓ filled in below</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${d.Genre||''} · ${d.Rated||''} · ⭐${d.imdbRating||'N/A'}</div>
-        <div style="font-size:11px;color:var(--light);line-height:1.5">${d.Plot&&d.Plot!=='N/A'?d.Plot.slice(0,120)+'...':''}</div></div></div>`;
-    }else{
-      res.innerHTML=`<div class="lk-status err">Couldn't load details — fill in below.</div>`;
-    }
-  }catch(e){ res.innerHTML=`<div class="lk-status err">Failed to load details.</div>`; }
+        ${hp?`<img src="${d.Poster}" class="lk-thumb" onerror="this.style.display='none'">`:`<div style="width:48px;height:72px;border-radius:5px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:13px;margin-bottom:3px">${d.Title} (${d.Year}) <span style="color:var(--green);font-size:11px">✓ filled in below</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${d.Genre||''} · ${d.Rated||''} · ⭐ ${d.imdbRating||'N/A'}</div>
+          <div style="font-size:11px;color:var(--light);line-height:1.5">${d.Plot&&d.Plot!=='N/A'?d.Plot.slice(0,110)+'...':''}</div>
+        </div>
+      </div>`;
+    }else{res.innerHTML=`<div class="lk-status err">Couldn't load details — fill in below.</div>`;}
+  }catch(e){res.innerHTML=`<div class="lk-status err">Failed to load details.</div>`;}
 }
 
 function submitAdd(){
-  const title=document.getElementById('add-t').value.trim();
-  if(!title){alert('Enter a title.');return}
+  const title=document.getElementById('add-t').value.trim();if(!title){alert('Enter a title.');return;}
   const poster=document.getElementById('add-poster').value.trim()||pendingPoster;
   const tags=document.getElementById('add-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const item={
-    id:editingId||uid(), title, type:document.getElementById('add-type').value,
+    id:editingId||uid(),title,type:document.getElementById('add-type').value,
     year:document.getElementById('add-yr').value.trim(),
     genre:document.getElementById('add-gn').value.trim(),
     rating:document.getElementById('add-rat').value.trim(),
     director:document.getElementById('add-dir').value.trim(),
     actors:document.getElementById('add-act').value.trim(),
     plot:document.getElementById('add-plot').value.trim(),
-    poster, imdb:pendingImdb, tags,
-    addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
+    poster,imdb:pendingImdb,tags,
+    addedAt:editingId?((shared.library.find(x=>x.id===editingId)||shared.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
   };
-  // Wishlist entries stay lean — no plot/cast — to save cloud storage space.
-  if(addTarget==='wishlist'){ item.plot=''; item.actors=''; }
+  if(addTarget==='wishlist'){item.plot='';item.actors='';}
   if(editingId){
-    const li=sharedData.library.findIndex(x=>x.id===editingId);
-    const wi=sharedData.wishlist.findIndex(x=>x.id===editingId);
-    if(li>-1) sharedData.library[li]={...sharedData.library[li],...item};
-    if(wi>-1) sharedData.wishlist[wi]={...sharedData.wishlist[wi],...item};
+    const li=shared.library.findIndex(x=>x.id===editingId);
+    const wi=shared.wishlist.findIndex(x=>x.id===editingId);
+    if(li>-1)shared.library[li]={...shared.library[li],...item};
+    if(wi>-1)shared.wishlist[wi]={...shared.wishlist[wi],...item};
   }else{
     if(addTarget==='library'){
-      sharedData.library.push(item);
+      shared.library.push(item);
       if(document.getElementById('add-wtch').checked){
-        const me=myData(); me.watched=me.watched||{}; me.watched[item.id]=true;
-        saveUsers();
+        const me=myData();me.watched=me.watched||{};me.watched[item.id]=true;saveUsers();
       }
     }else{
-      sharedData.wishlist.push(item);
+      shared.wishlist.push(item);
     }
   }
   saveShared().then(()=>{
-    closeMo('add'); buildGenreFilter();
-    if(addTarget==='library') renderLib(); else renderWish();
-    updateCounts(); toast(title+(editingId?' updated!':" added!"));
+    closeMo('add');buildGenreFilter();
+    if(addTarget==='library')renderLib();else renderWish();
+    updateCounts();toast(title+(editingId?' updated!':' added!'));
   });
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function renderStats(){
   const me=myData();
-  const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
-  const myRatings=Object.entries(me.ratings||{}).filter(([,v])=>v>0);
-  const avg=myRatings.length?Math.round(myRatings.reduce((s,[,v])=>s+v,0)/myRatings.length*10)/10:0;
-  const genreCount={};
-  watched.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genreCount[t]=(genreCount[t]||0)+1}));
-  const topGenres=Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const maxG=topGenres[0]?.[1]||1;
-  const topRated=sharedData.library.filter(m=>me.ratings?.[m.id]>0).sort((a,b)=>(me.ratings[b.id]||0)-(me.ratings[a.id]||0)).slice(0,5);
-
-  const userCards=allUsers.accounts.map(u=>{
-    const ud=udataFor(u.id);
-    const ur=Object.values(ud.ratings||{}).filter(v=>v>0);
-    const uw=Object.values(ud.watched||{}).filter(Boolean).length;
-    const ua=ur.length?Math.round(ur.reduce((s,v)=>s+v,0)/ur.length*10)/10:0;
-    return `<div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
-      ${avatarEl(u,36)}<div style="font-weight:600;font-size:13px;margin:7px 0 6px">${u.username}</div>
-      <div style="font-size:11px;color:var(--muted)">Watched: <strong style="color:var(--text)">${uw}</strong></div>
-      <div style="font-size:11px;color:var(--muted)">Rated: <strong style="color:var(--text)">${ur.length}</strong></div>
-      <div style="font-size:11px;color:var(--muted)">Avg: <strong style="color:var(--gold)">${ua||'—'}</strong></div>
-    </div>`;
-  }).join('');
+  const watched=shared.library.filter(m=>me.watched?.[m.id]);
+  const myR=Object.entries(me.ratings||{}).filter(([,v])=>v>0);
+  const avg=myR.length?Math.round(myR.reduce((s,[,v])=>s+v,0)/myR.length*10)/10:0;
+  const gc={};
+  watched.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)gc[t]=(gc[t]||0)+1}));
+  const tg=Object.entries(gc).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const mx=tg[0]?.[1]||1;
+  const tr=shared.library.filter(m=>me.ratings?.[m.id]>0).sort((a,b)=>(me.ratings[b.id]||0)-(me.ratings[a.id]||0)).slice(0,5);
 
   document.getElementById('stats-page').innerHTML=`
-    <div class="stat-block"><div class="sbt"><i class="ti ti-eye"></i> ${CU.username}'s Watch</div>
-      <div class="stat-big">${watched.length}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">of ${sharedData.library.length} titles · ${sharedData.library.length-watched.length} unwatched</div></div>
-    <div class="stat-block"><div class="sbt"><i class="ti ti-star"></i> ${CU.username}'s Ratings</div>
-      <div class="stat-big">${avg||'—'}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${myRatings.length} titles rated</div></div>
-    <div class="stat-block" style="grid-column:1/-1"><div class="sbt"><i class="ti ti-users"></i> All Members</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">${userCards}</div></div>
-    ${topGenres.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-tags"></i> Top Genres Watched</div>
-      <div class="gbar">${topGenres.map(([g,c])=>`<div class="gbar-row"><span class="gbar-lbl">${g}</span><div class="gbar-track"><div class="gbar-fill" style="width:${Math.round(c/maxG*100)}%"></div></div><span class="gbar-val">${c}</span></div>`).join('')}</div></div>`:''}
-    ${topRated.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-trophy"></i> ${CU.username}'s Top Rated</div>
-      ${topRated.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${m.id}','library')">
-        <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--muted);min-width:18px">${i+1}</div>
+    <div class="stat-block">
+      <div class="sbt"><i class="ti ti-eye"></i>${CU.username}'s Watch</div>
+      <div class="stat-big">${watched.length}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">of ${shared.library.length} · ${shared.library.length-watched.length} left</div>
+    </div>
+    <div class="stat-block">
+      <div class="sbt"><i class="ti ti-star"></i>Avg Rating</div>
+      <div class="stat-big">${avg||'—'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${myR.length} titles rated</div>
+    </div>
+    <div class="stat-block" style="grid-column:1/-1">
+      <div class="sbt"><i class="ti ti-users"></i>All Members</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px">
+        ${users.accounts.map(u=>{
+          const ud=udataFor(u.id);
+          const ur=Object.values(ud.ratings||{}).filter(v=>v>0);
+          const uw=Object.values(ud.watched||{}).filter(Boolean).length;
+          const ua=ur.length?Math.round(ur.reduce((s,v)=>s+v,0)/ur.length*10)/10:0;
+          return`<div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border)">
+            ${avatarEl(u,38)}<div style="font-weight:600;font-size:13px;margin:8px 0 6px">${u.username}</div>
+            <div style="font-size:11px;color:var(--muted)">Watched: <strong style="color:var(--text)">${uw}</strong></div>
+            <div style="font-size:11px;color:var(--muted)">Rated: <strong style="color:var(--text)">${ur.length}</strong></div>
+            <div style="font-size:11px;color:var(--muted)">Avg: <strong style="color:var(--gold)">${ua||'—'}</strong></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    ${tg.length?`<div class="stat-block">
+      <div class="sbt"><i class="ti ti-tags"></i>Top Genres Watched</div>
+      <div class="gbar">${tg.map(([g,c])=>`<div class="gbar-row"><span class="gbar-lbl">${g}</span><div class="gbar-track"><div class="gbar-fill" style="width:${Math.round(c/mx*100)}%"></div></div><span class="gbar-val">${c}</span></div>`).join('')}</div>
+    </div>`:''}
+    ${tr.length?`<div class="stat-block">
+      <div class="sbt"><i class="ti ti-trophy"></i>${CU.username}'s Top Rated</div>
+      ${tr.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${m.id}','library')">
+        <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--muted);min-width:16px">${i+1}</div>
         ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:3px;object-fit:cover" loading="lazy">`:'<div style="width:28px;height:42px;border-radius:3px;background:var(--bg3)"></div>'}
         <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:10px;color:var(--muted)">${m.year||''}</div></div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold)">${me.ratings[m.id]}/10</div>
-      </div>`).join('')}</div>`:''}`;
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;color:var(--gold)">${me.ratings[m.id]}/10</div>
+      </div>`).join('')}
+    </div>`:''}`;
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
-function openPicker(){ rollPicker(); openMo('picker'); }
+function openPicker(){rollPicker();openMo('picker');}
 function rollPicker(){
   const me=myData();
-  const pool=sharedData.library.filter(m=>!me.watched?.[m.id]);
-  if(!pool.length){ document.getElementById('picker-body').innerHTML=`<div style="color:var(--muted);margin-bottom:18px;font-size:13px">You've watched everything! Add more titles.</div>`; return; }
+  const pool=shared.library.filter(m=>!me.watched?.[m.id]);
+  if(!pool.length){document.getElementById('picker-body').innerHTML=`<div style="color:var(--muted);margin-bottom:18px;font-size:13px;line-height:1.6">You've watched everything! 🎉<br>Add more titles to the library.</div>`;return;}
   const m=pool[Math.floor(Math.random()*pool.length)];
   const hp=m.poster&&m.poster!=='N/A';
   document.getElementById('picker-body').innerHTML=`
-    ${hp?`<img src="${m.poster}" class="picker-poster" onerror="this.style.display='none'">`:`<div class="picker-fb"><i class="ti ti-movie" style="font-size:42px;color:var(--muted)"></i></div>`}
+    ${hp?`<img src="${m.poster}" class="picker-poster" onerror="this.style.display='none'">`:`<div class="picker-fb"><i class="ti ti-movie" style="font-size:48px;color:var(--muted);opacity:.3"></i></div>`}
     <div class="picker-title">${m.title}</div>
     <div class="picker-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}${m.rating?' · '+m.rating:''}</div>
-    <div style="margin-bottom:16px"><button class="act" style="margin:0 auto;display:inline-flex" onclick="closeMo('picker');openDetail('${m.id}','library')"><i class="ti ti-info-circle"></i> View Details</button></div>`;
+    <div style="margin-bottom:18px">
+      <button class="act" style="margin:0 auto;display:inline-flex" onclick="closeMo('picker');openDetail('${m.id}','library')"><i class="ti ti-info-circle"></i> View Details</button>
+    </div>`;
 }
 
 // ── PROFILE ───────────────────────────────────────────────────────────────────
 function openProfile(){
+  signupColor=CU.color||COLORS[0];
+  const cPicker=COLORS.map(c=>`<div class="cswatch ${c===signupColor?'sel':''}" style="background:${c}" onclick="signupColor='${c}';document.getElementById('p-colors').innerHTML=document.getElementById('p-colors').innerHTML.replace(/ sel/g,'');this.className='cswatch sel'"></div>`).join('');
   document.getElementById('profile-body').innerHTML=`
-    <div class="profile-header">
-      <div style="position:relative">
-        ${avatarEl(CU,56)}
-      </div>
+    <div class="profile-hero">
+      ${avatarEl(CU,52)}
       <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px">${CU.username}</div>
-        <div class="role-tag ${isAdmin()?'rt-admin':'rt-member'}" style="display:inline-block;margin-top:4px">${isAdmin()?'Admin':'Member'}</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px">${CU.username}</div>
+        <div class="role-tag ${isAdmin()?'rt-admin':'rt-member'}" style="display:inline-block;margin-top:5px">${isAdmin()?'Admin':'Member'}</div>
       </div>
     </div>
     <div class="profile-body">
-      <div class="set-lbl" style="margin-bottom:10px">Edit Profile</div>
-      <div class="ff" style="margin-bottom:10px"><label class="fl">Profile Photo URL</label>
-        <input type="text" class="ffi" id="p-photo" value="${CU.photo||''}" placeholder="https://..."></div>
-      <div class="ff" style="margin-bottom:12px"><label class="fl">Pick a Color</label>
-        <div class="color-picker" id="profile-colors"></div>
-      </div>
-      <div class="set-lbl" style="margin-bottom:10px">Change Password</div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Edit Profile</div>
+      <div class="ff" style="margin-bottom:10px"><label class="fl">Profile Photo URL</label><input type="text" class="ffi" id="p-photo" value="${CU.photo||''}" placeholder="https://..."></div>
+      <div class="ff" style="margin-bottom:14px"><label class="fl">Accent Color</label><div class="color-picker" id="p-colors">${cPicker}</div></div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Change Password</div>
       <div class="ff" style="margin-bottom:8px"><label class="fl">Current Password</label><input type="password" class="ffi" id="p-cur" placeholder="Current password"></div>
-      <div class="ff" style="margin-bottom:12px"><label class="fl">New Password</label><input type="password" class="ffi" id="p-new" placeholder="New password"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <div class="ff" style="margin-bottom:14px"><label class="fl">New Password</label><input type="password" class="ffi" id="p-new" placeholder="New password (min 4 chars)"></div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
         <button class="primary-btn" onclick="saveProfile()"><i class="ti ti-device-floppy"></i> Save Changes</button>
       </div>
-      ${isAdmin()?`<div class="set-lbl" style="margin-bottom:10px">Admin: Invite Codes</div>
-        <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:12px">
-          Admin code: <code style="color:var(--gold)">${ADMIN_CODE}</code><br>
-          Member code: <code style="color:var(--purple)">${MEMBER_CODE}</code><br>
-          <span style="color:var(--muted);font-size:11px">Share the member code with people you want to invite. Change it in the HTML file.</span>
-        </div>
-        <div class="set-lbl" style="margin-bottom:10px">Admin: Manage Members</div>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
-          ${allUsers.accounts.map(u=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 10px">
-            ${avatarEl(u,28)}<span style="flex:1;font-size:13px;font-weight:500">${u.username}</span>
-            <span class="role-tag ${u.role==='admin'?'rt-admin':'rt-member'}">${u.role}</span>
-            ${u.id!==CU.id?`<button onclick="removeUser('${u.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px" title="Remove user"><i class="ti ti-user-x"></i></button>`:''}
-          </div>`).join('')}
-        </div>
-        <div class="set-lbl" style="margin-bottom:10px">Admin: Cloud Setup</div>
-        ${(WORKER_URL && APP_TOKEN && cloudLoaded)?`<div class="connected-box">✓ Cloud backend connected and data loaded — syncs across all devices</div>`:((WORKER_URL && APP_TOKEN)?`<div style="font-size:12px;color:var(--orange);margin-bottom:10px;line-height:1.6">⚠ Worker URL/token are set, but this device hasn't loaded from the cloud yet. Check the URL, token, and your connection.</div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-          Set <strong style="color:var(--text)">WORKER_URL</strong> and <strong style="color:var(--text)">APP_TOKEN</strong> at the top of the HTML file (from your Cloudflare Worker).<br>
-          Until connected, data saves to this browser only.
-        </div>`)}`:''}
-      <div class="set-lbl" style="margin-bottom:10px">Account</div>
+      ${isAdmin()?`
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Invite Codes</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px 14px;font-size:12px;margin-bottom:16px;border:1px solid var(--border);line-height:1.8">
+        Admin code: <code style="color:var(--gold);background:rgba(232,184,75,.1);padding:1px 6px;border-radius:4px">${ADMIN_CODE}</code><br>
+        Member code: <code style="color:var(--purple);background:rgba(138,90,240,.1);padding:1px 6px;border-radius:4px">${MEMBER_CODE}</code><br>
+        <span style="color:var(--muted);font-size:11px">Change these in the HTML file under CONFIG.</span>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Members</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+        ${users.accounts.map(u=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 10px;border:1px solid var(--border)">
+          ${avatarEl(u,28)}<span style="flex:1;font-size:13px;font-weight:500">${u.username}</span>
+          <span class="role-tag ${u.role==='admin'?'rt-admin':'rt-member'}">${u.role}</span>
+          ${u.id!==CU.id?`<button onclick="removeUser('${u.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:4px" title="Remove"><i class="ti ti-user-x" style="font-size:15px"></i></button>`:''}
+        </div>`).join('')}
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Cloud Status</div>
+      <div style="background:${cloudOk?'rgba(46,204,113,.07)':'rgba(232,184,75,.07)'};border:1px solid ${cloudOk?'rgba(46,204,113,.2)':'rgba(232,184,75,.2)'};border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:16px;line-height:1.6;color:${cloudOk?'var(--green)':'var(--gold)'}">
+        ${cloudOk?'✓ Cloud connected — data syncs across all devices':'⚠ Not connected to cloud. Data saves locally only.<br><span style="color:var(--muted)">Check WORKER_URL and APP_TOKEN in the HTML match your Cloudflare Worker.</span>'}
+      </div>`:''}
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
     </div>`;
-  // Color picker
-  signupColor=CU.color||COLORS[0];
-  document.getElementById('profile-colors').innerHTML=COLORS.map(c=>`
-    <div class="color-swatch ${c===signupColor?'sel':''}" style="background:${c}" onclick="pickSignupColor('${c}');document.getElementById('profile-colors').innerHTML=document.getElementById('profile-colors').innerHTML"></div>`).join('');
   openMo('profile');
 }
 
 function saveProfile(){
   const photo=document.getElementById('p-photo')?.value.trim()||'';
-  const curPass=document.getElementById('p-cur')?.value;
-  const newPass=document.getElementById('p-new')?.value;
-  const account=allUsers.accounts.find(a=>a.id===CU.id);
-  if(!account)return;
-  account.photo=photo; account.color=signupColor;
-  CU.photo=photo; CU.color=signupColor;
-  if(curPass&&newPass){
-    if(account.passwordHash!==hash(curPass)){toast('Current password is wrong.',true);return;}
-    if(newPass.length<4){toast('New password too short.',true);return;}
-    account.passwordHash=hash(newPass);
+  const cur=document.getElementById('p-cur')?.value;
+  const nw=document.getElementById('p-new')?.value;
+  const acct=users.accounts.find(a=>a.id===CU.id);if(!acct)return;
+  acct.photo=photo;acct.color=signupColor;
+  CU.photo=photo;CU.color=signupColor;
+  if(cur&&nw){
+    if(acct.passwordHash!==hash(cur)){toast('Current password is wrong.',true);return;}
+    if(nw.length<4){toast('New password too short.',true);return;}
+    acct.passwordHash=hash(nw);
   }
   saveUsers().then(()=>{initApp();closeMo('profile');toast('Profile updated!');});
 }
 
 function removeUser(id){
-  if(!confirm('Remove this user? Their personal data will be deleted.'))return;
-  allUsers.accounts=allUsers.accounts.filter(a=>a.id!==id);
-  delete allUsers.personal[id];
+  if(!confirm('Remove this user and all their data?'))return;
+  users.accounts=users.accounts.filter(a=>a.id!==id);
+  delete users.personal[id];
   saveUsers().then(()=>{openProfile();toast('User removed.');});
 }
 
-// ── SEED DATA ──────────────────────────────────────────────────────────────────
+// ── SEED DATA ─────────────────────────────────────────────────────────────────
 function seed(){
-  sharedData={
+  shared={
     library:[
       {id:'s1',title:'Interstellar',type:'movie',year:'2014',genre:'Sci-Fi, Adventure',rating:'PG-13',director:'Christopher Nolan',actors:'Matthew McConaughey, Anne Hathaway, Jessica Chastain',plot:"A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",poster:'https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg',imdb:'tt0816692',tags:['sci-fi','epic','mind-bending'],addedAt:Date.now()-5},
       {id:'s2',title:'The Dark Knight',type:'movie',year:'2008',genre:'Action, Crime, Drama',rating:'PG-13',director:'Christopher Nolan',actors:'Christian Bale, Heath Ledger, Aaron Eckhart',plot:'Batman raises the stakes in his war on crime as the Joker wreaks havoc on Gotham City.',poster:'https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg',imdb:'tt0468569',tags:['superhero','dark','classic'],addedAt:Date.now()-4},
-      {id:'s3',title:'Oppenheimer',type:'movie',year:'2023',genre:'Biography, Drama, History',rating:'R',director:'Christopher Nolan',actors:'Cillian Murphy, Emily Blunt, Matt Damon',plot:'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.',poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',imdb:'tt15398776',tags:['historical','drama'],addedAt:Date.now()-3},
-      {id:'s5',title:'Dune: Part Two',type:'movie',year:'2024',genre:'Action, Adventure, Sci-Fi',rating:'PG-13',director:'Denis Villeneuve',actors:'Timothée Chalamet, Zendaya, Rebecca Ferguson',plot:'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators.',poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg',imdb:'tt15239678',tags:['sci-fi','epic'],addedAt:Date.now()-1},
+      {id:'s3',title:'Oppenheimer',type:'movie',year:'2023',genre:'Biography, Drama, History',rating:'R',director:'Christopher Nolan',actors:'Cillian Murphy, Emily Blunt, Matt Damon',plot:'The story of J. Robert Oppenheimer and his role in the development of the atomic bomb.',poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',imdb:'tt15398776',tags:['historical','drama'],addedAt:Date.now()-3},
+      {id:'s4',title:'Breaking Bad',type:'tv',year:'2008',genre:'Crime, Drama, Thriller',rating:'TV-MA',director:'Vince Gilligan',actors:'Bryan Cranston, Aaron Paul, Anna Gunn',plot:"A chemistry teacher diagnosed with cancer turns to manufacturing methamphetamine.",poster:'https://m.media-amazon.com/images/M/MV5BYmQ4YWMxYjUtNjZmYi00MDdmLWJjOTUtYjc3NzgwYTZiMWMxXkEyXkFqcGdeQXVyMTMzNDExODE5._V1_SX300.jpg',imdb:'tt0903747',tags:['crime','binge-worthy'],addedAt:Date.now()-2},
+      {id:'s5',title:'Dune: Part Two',type:'movie',year:'2024',genre:'Action, Adventure, Sci-Fi',rating:'PG-13',director:'Denis Villeneuve',actors:'Timothée Chalamet, Zendaya, Rebecca Ferguson',plot:'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.',poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg',imdb:'tt15239678',tags:['sci-fi','epic'],addedAt:Date.now()-1},
     ],
     wishlist:[
-      {id:'w1',title:'Killers of the Flower Moon',type:'movie',year:'2023',genre:'Crime, Drama, History',rating:'R',director:'Martin Scorsese',actors:'Leonardo DiCaprio, Robert De Niro',plot:'Members of the Osage Nation are murdered under mysterious circumstances in the 1920s.',poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg',imdb:'tt5537002',tags:[],addedAt:Date.now()},
-    ]
+      {id:'w1',title:'Killers of the Flower Moon',type:'movie',year:'2023',genre:'Crime, Drama, History',rating:'R',director:'Martin Scorsese',actors:'',plot:'',poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg',imdb:'tt5537002',tags:[],addedAt:Date.now()},
+    ],
+    requests:[]
   };
   saveShared();
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 buildSignupColors();
+localLoad();
 
-// Load local cache first (instant paint), then pull the real data from the cloud
-// BEFORE anyone tries to log in or before we decide whether to seed.
-loadLocal();
-(async function(){
-  const ok = await loadFromCloud();          // get accounts + library up front
-  // Only seed if BOTH the cloud and local are empty. This prevents a fresh
-  // device from overwriting the real cloud library with demo titles.
-  if(ok && sharedData.library.length===0 && (!allUsers.accounts || allUsers.accounts.length===0)){
-    seed();
-  } else if(!ok && sharedData.library.length===0){
-    // No cloud reachable and nothing cached → show demo so the app isn't blank
-    seed();
-  }
-  // One-time cleanup: strip plot/cast from existing wishlist items to reclaim
-  // cloud space. Only writes back if something actually changed.
-  if(ok && Array.isArray(sharedData.wishlist)){
-    let changed=false;
-    sharedData.wishlist.forEach(m=>{
-      if(m.plot){ m.plot=''; changed=true; }
-      if(m.actors){ m.actors=''; changed=true; }
-    });
-    if(changed) saveShared();
-  }
-  // Restore a saved session so a reload doesn't kick the user back to login.
-  let savedId=null;
-  try{ savedId=localStorage.getItem('mcflix_session'); }catch(e){}
-  if(savedId){
-    const account=allUsers.accounts.find(a=>a.id===savedId);
-    if(account){
-      CU={...account};
+(async()=>{
+  const ok=await cloudLoad();
+  if(!ok&&shared.library.length===0) seed();
+  else if(ok&&shared.library.length===0&&(!users.accounts||users.accounts.length===0)) seed();
+
+  // Restore session
+  let sid=null;try{sid=localStorage.getItem('mcflix_session');}catch(e){}
+  if(sid){
+    const acct=users.accounts.find(a=>a.id===sid);
+    if(acct){
+      CU={...acct};
       document.getElementById('auth-screen').className='screen';
       document.getElementById('app-screen').className='screen active';
       initApp();
     }else{
-      // Account no longer exists (e.g. removed) → clear stale session
-      try{ localStorage.removeItem('mcflix_session'); }catch(e){}
+      try{localStorage.removeItem('mcflix_session');}catch(e){}
     }
   }
 })();
 
 if(!WORKER_URL||!APP_TOKEN){
-  console.log('%cMcFlix: cloud backend not configured. Data saves locally only. Set WORKER_URL and APP_TOKEN at the top of the script for cross-device sync.','color:#e8b84b;font-size:13px');
+  console.log('%cMcFlix: no cloud backend configured. Set WORKER_URL + APP_TOKEN at the top of the script.','color:#e8b84b;font-size:13px');
 }
 </script>
 </body>
