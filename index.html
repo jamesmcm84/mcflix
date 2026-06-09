@@ -1233,6 +1233,8 @@ function submitAdd(){
     poster, imdb:pendingImdb, tags,
     addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
   };
+  // Wishlist entries stay lean — no plot/cast — to save cloud storage space.
+  if(addTarget==='wishlist'){ item.plot=''; item.actors=''; }
   if(editingId){
     const li=sharedData.library.findIndex(x=>x.id===editingId);
     const wi=sharedData.wishlist.findIndex(x=>x.id===editingId);
@@ -1422,6 +1424,16 @@ loadLocal();
   } else if(!ok && sharedData.library.length===0){
     // No cloud reachable and nothing cached → show demo so the app isn't blank
     seed();
+  }
+  // One-time cleanup: strip plot/cast from existing wishlist items to reclaim
+  // cloud space. Only writes back if something actually changed.
+  if(ok && Array.isArray(sharedData.wishlist)){
+    let changed=false;
+    sharedData.wishlist.forEach(m=>{
+      if(m.plot){ m.plot=''; changed=true; }
+      if(m.actors){ m.actors=''; changed=true; }
+    });
+    if(changed) saveShared();
   }
   // Restore a saved session so a reload doesn't kick the user back to login.
   let savedId=null;
