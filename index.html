@@ -556,6 +556,7 @@ function uid(){ return 'u'+Date.now()+Math.random().toString(36).slice(2,6) }
 function hash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i); return (h>>>0).toString(36) }
 function ini(n){ return (n||'?').slice(0,2).toUpperCase() }
 function isAdmin(){ return CU?.role==='admin' }
+function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 
 function toast(msg,err=false){
   const t=document.getElementById('toast');
@@ -1091,7 +1092,10 @@ function openDetail(id,src){
       <div class="notes-section">
         <div class="notes-lbl">Watch History</div>
         ${histHTML}
-        <button class="log-btn" onclick="logWatch('${id}')"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
+        <div class="lk-row">
+          <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
+          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
+        </div>
       </div>
     </div>`;
   openMo('detail');
@@ -1128,7 +1132,13 @@ function saveNote(id){
 }
 function logWatch(id){
   const me=myData(); me.history=me.history||{};
-  me.history[id]=[...(me.history[id]||[]),Date.now()];
+  let ts=Date.now();
+  const el=document.getElementById('logdate-'+id);
+  if(el && el.value){
+    const [y,mo,d]=el.value.split('-').map(Number);
+    if(y&&mo&&d) ts=new Date(y,mo-1,d,12,0,0).getTime(); // noon local avoids timezone day-shift
+  }
+  me.history[id]=[...(me.history[id]||[]),ts];
   me.watched=me.watched||{}; me.watched[id]=true;
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast('Viewing logged!');
