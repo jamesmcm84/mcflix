@@ -368,6 +368,7 @@ textarea.ffi{resize:vertical}
     <div class="nav">
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('requests',this)"><i class="ti ti-message-circle"></i> Requests <span class="bdg red" id="req-count" style="display:none">0</span></button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
@@ -431,6 +432,16 @@ textarea.ffi{resize:vertical}
       <div class="sl">All Requests</div>
       <div class="req-list" id="req-list"></div>
       <div class="empty" id="req-empty" style="display:none"><i class="ti ti-inbox"></i><p style="font-size:14px">No requests yet.</p></div>
+    </div>
+
+    <!-- LISTS -->
+    <div class="tab" id="tab-lists">
+      <div class="toolbar" style="margin-bottom:18px">
+        <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
+        <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> New List</button>
+      </div>
+      <div id="lists-wrap"></div>
+      <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
     </div>
 
     <!-- STATS -->
@@ -655,6 +666,7 @@ async function doLogin(){
     errEl.textContent='Wrong username or password.'; return;
   }
   CU={...account};
+  try{ localStorage.setItem('mcflix_session', CU.id); }catch(e){}
   document.getElementById('auth-screen').className='screen';
   document.getElementById('app-screen').className='screen active';
   initApp();
@@ -683,12 +695,13 @@ function doSignup(){
   const account={ id:uid(), username, passwordHash:hash(password), role, color:signupColor, photo, createdAt:Date.now() };
   allUsers.accounts.push(account);
   if(!allUsers.personal) allUsers.personal={};
-  allUsers.personal[account.id]={ ratings:{}, watched:{}, nowWatching:{}, favorites:{}, notes:{}, history:{} };
+  allUsers.personal[account.id]={ ratings:{}, watched:{}, nowWatching:{}, favorites:{}, notes:{}, history:{}, collections:[] };
 
   loading(true,'Creating account...');
   saveUsers().then(()=>{
     loading(false);
     CU={...account};
+    try{ localStorage.setItem('mcflix_session', CU.id); }catch(e){}
     document.getElementById('auth-screen').className='screen';
     document.getElementById('app-screen').className='screen active';
     initApp();
@@ -698,6 +711,7 @@ function doSignup(){
 
 function signOut(){
   CU=null;
+  try{ localStorage.removeItem('mcflix_session'); }catch(e){}
   document.getElementById('app-screen').className='screen';
   document.getElementById('auth-screen').className='screen active';
   document.getElementById('l-user').value='';
@@ -724,12 +738,13 @@ function initApp(){
 
 function myData(){
   if(!allUsers.personal) allUsers.personal={};
-  if(!allUsers.personal[CU.id]) allUsers.personal[CU.id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{}};
+  if(!allUsers.personal[CU.id]) allUsers.personal[CU.id]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
+  if(!allUsers.personal[CU.id].collections) allUsers.personal[CU.id].collections=[];
   return allUsers.personal[CU.id];
 }
 function udataFor(userId){
   if(!allUsers.personal) allUsers.personal={};
-  if(!allUsers.personal[userId]) allUsers.personal[userId]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{}};
+  if(!allUsers.personal[userId]) allUsers.personal[userId]={ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]};
   return allUsers.personal[userId];
 }
 
@@ -741,6 +756,7 @@ function switchTab(t,el){
   el.classList.add('active');
   if(t==='library') renderLib();
   if(t==='wishlist') renderWish();
+  if(t==='lists') renderLists();
   if(t==='requests') renderReq();
   if(t==='stats') renderStats();
 }
@@ -748,6 +764,7 @@ function switchTab(t,el){
 function updateCounts(){
   document.getElementById('lib-count').textContent=sharedData.library.length;
   document.getElementById('wish-count').textContent=sharedData.wishlist.length;
+  if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
   const p=(sharedData.requests||[]).filter(r=>r.status==='pending').length;
   const rc=document.getElementById('req-count');
   rc.textContent=p; rc.style.display=p?'':'none';
@@ -904,6 +921,95 @@ function denyReq(id){
   saveShared().then(()=>{renderReq();updateCounts();});
 }
 
+// ── TAGS (shared, editable by any user) ───────────────────────────────────────
+function findItem(id,src){
+  const list=src==='wishlist'?sharedData.wishlist:sharedData.library;
+  return list.find(x=>x.id===id);
+}
+function addTag(id,src){
+  const inp=document.getElementById('tagin-'+id); if(!inp) return;
+  const val=inp.value.trim().toLowerCase(); if(!val) return;
+  const m=findItem(id,src); if(!m) return;
+  m.tags=m.tags||[];
+  if(!m.tags.includes(val)) m.tags.push(val);
+  inp.value='';
+  saveShared().then(()=>{ openDetail(id,src); renderLib(); });
+}
+function removeTag(id,src,tag){
+  const m=findItem(id,src); if(!m) return;
+  m.tags=(m.tags||[]).filter(t=>t!==tag);
+  saveShared().then(()=>{ openDetail(id,src); renderLib(); });
+}
+
+// ── LISTS / COLLECTIONS (per-user) ────────────────────────────────────────────
+function createList(addId){
+  const name=(prompt('Name your list:')||'').trim();
+  if(!name) return;
+  const me=myData(); me.collections=me.collections||[];
+  const list={ id:uid(), name, items: addId?[addId]:[] };
+  me.collections.push(list);
+  saveUsers().then(()=>{
+    updateCounts();
+    if(addId){ openDetail(addId,'library'); toast('Added to "'+name+'"'); }
+    else { renderLists(); toast('List "'+name+'" created'); }
+  });
+}
+function toggleInList(listId,itemId){
+  const me=myData();
+  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
+  list.items=list.items||[];
+  const i=list.items.indexOf(itemId);
+  if(i>-1) list.items.splice(i,1); else list.items.push(itemId);
+  saveUsers().then(()=>{ openDetail(itemId,'library'); });
+}
+function renameList(listId){
+  const me=myData();
+  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
+  const name=(prompt('Rename list:',list.name)||'').trim(); if(!name) return;
+  list.name=name;
+  saveUsers().then(()=>{ renderLists(); });
+}
+function deleteList(listId){
+  if(!confirm('Delete this list? (Your titles stay in the library.)')) return;
+  const me=myData();
+  me.collections=(me.collections||[]).filter(c=>c.id!==listId);
+  saveUsers().then(()=>{ renderLists(); updateCounts(); });
+}
+function removeFromList(listId,itemId){
+  const me=myData();
+  const list=(me.collections||[]).find(c=>c.id===listId); if(!list) return;
+  list.items=(list.items||[]).filter(x=>x!==itemId);
+  saveUsers().then(()=>{ renderLists(); });
+}
+function renderLists(){
+  const me=myData();
+  const cols=me.collections||[];
+  const wrap=document.getElementById('lists-wrap');
+  const empty=document.getElementById('lists-empty');
+  if(!cols.length){ wrap.innerHTML=''; empty.style.display=''; updateCounts(); return; }
+  empty.style.display='none';
+  wrap.innerHTML=cols.map(c=>{
+    const items=(c.items||[]).map(idv=>sharedData.library.find(m=>m.id===idv)).filter(Boolean);
+    const cards=items.length?`<div class="shelf-scroll">${items.map(m=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+        <div class="ov">${m.title}</div>
+        <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.7);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')"><i class="ti ti-x" style="font-size:13px;color:#fff"></i></div>
+      </div>`;
+    }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open a title and add it to this list.</div>';
+    return `<div class="stat-block" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
+        <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
+        <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+      ${cards}
+    </div>`;
+  }).join('');
+  updateCounts();
+}
+
 // ── DETAIL MODAL ──────────────────────────────────────────────────────────────
 function openDetail(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
@@ -958,9 +1064,25 @@ function openDetail(id,src){
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
         ${m.actors&&m.actors!=='N/A'?`<div class="info-item full"><div class="info-lbl">Cast</div><div class="info-val">${m.actors}</div></div>`:''}
-        ${(m.tags||[]).length?`<div class="info-item full"><div class="info-lbl">Tags</div><div class="info-val" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px">${(m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t}</span>`).join('')}</div></div>`:''}
       </div>
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
+      <div class="notes-section">
+        <div class="notes-lbl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none">(shared — visible to everyone)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="tagchips-${id}">
+          ${(m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t} <i class="ti ti-x" style="font-size:11px;cursor:pointer" onclick="removeTag('${id}','${src}','${t.replace(/'/g,"\\'")}')"></i></span>`).join('')||'<span style="font-size:12px;color:var(--muted)">No tags yet.</span>'}
+        </div>
+        <div class="lk-row">
+          <input type="text" class="ffi" id="tagin-${id}" placeholder="Add a tag..." onkeydown="if(event.key==='Enter'){addTag('${id}','${src}')}">
+          <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
+        </div>
+      </div>
+      ${inLib?`<div class="notes-section">
+        <div class="notes-lbl">Add to My Lists</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${(me.collections||[]).map(c=>{const on=(c.items||[]).includes(id);return `<span class="tpill ${on?'active':''}" onclick="toggleInList('${c.id}','${id}')">${on?'<i class="ti ti-check" style="font-size:11px"></i> ':''}${c.name}</span>`}).join('')}
+          <span class="tpill" style="border-style:dashed" onclick="createList('${id}')"><i class="ti ti-plus" style="font-size:11px"></i> New list</span>
+        </div>
+      </div>`:''}
       <div class="notes-section">
         <div class="notes-lbl">${CU.username}'s Notes</div>
         <textarea class="notes-ta" id="notes-${id}" placeholder="Your thoughts...">${me.notes?.[id]||''}</textarea>
@@ -1305,6 +1427,21 @@ loadLocal();
   } else if(!ok && sharedData.library.length===0){
     // No cloud reachable and nothing cached → show demo so the app isn't blank
     seed();
+  }
+  // Restore a saved session so a reload doesn't kick the user back to login.
+  let savedId=null;
+  try{ savedId=localStorage.getItem('mcflix_session'); }catch(e){}
+  if(savedId){
+    const account=allUsers.accounts.find(a=>a.id===savedId);
+    if(account){
+      CU={...account};
+      document.getElementById('auth-screen').className='screen';
+      document.getElementById('app-screen').className='screen active';
+      initApp();
+    }else{
+      // Account no longer exists (e.g. removed) → clear stale session
+      try{ localStorage.removeItem('mcflix_session'); }catch(e){}
+    }
   }
 })();
 
