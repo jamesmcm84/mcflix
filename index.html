@@ -395,7 +395,6 @@ textarea.ffi{resize:vertical}
       </div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-lib" placeholder="Search titles, actors, directors..." oninput="renderLib()"></div>
-        <select class="fb" id="f-type" onchange="renderLib()"><option value="">All Types</option><option value="movie">Movies</option><option value="tv">TV Shows</option></select>
         <select class="fb" id="f-genre" onchange="renderLib()"><option value="">All Genres</option></select>
         <select class="fb" id="f-watched" onchange="renderLib()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
         <select class="fb" id="f-sort" onchange="renderLib()"><option value="added">Recently Added</option><option value="title">A–Z</option><option value="year">Year</option><option value="rating">My Rating</option></select>
@@ -421,9 +420,9 @@ textarea.ffi{resize:vertical}
     <!-- REQUESTS -->
     <div class="tab" id="tab-requests">
       <div class="req-form">
-        <div class="req-form-title">Request a Movie or Show</div>
+        <div class="req-form-title">Request a Movie</div>
+        <input type="hidden" id="rq-type" value="movie">
         <div class="fg">
-          <div class="ff"><label class="fl">Type</label><select class="ffi" id="rq-type"><option value="movie">Movie</option><option value="tv">TV Show</option></select></div>
           <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="rq-title" placeholder="Title..."></div>
           <div class="ff full"><label class="fl">Note (optional)</label><input type="text" class="ffi" id="rq-note" placeholder="Why you want it..."></div>
         </div>
@@ -459,7 +458,7 @@ textarea.ffi{resize:vertical}
       <div id="lk-result"></div>
       <div class="fg">
         <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="add-t"></div>
-        <div class="ff"><label class="fl">Type</label><select class="ffi" id="add-type"><option value="movie">Movie</option><option value="tv">TV Show</option></select></div>
+        <input type="hidden" id="add-type" value="movie">
         <div class="ff"><label class="fl">Year</label><input type="text" class="ffi" id="add-yr" placeholder="2024"></div>
         <div class="ff"><label class="fl">Genre</label><input type="text" class="ffi" id="add-gn" placeholder="Action, Drama..."></div>
         <div class="ff"><label class="fl">Rated</label><input type="text" class="ffi" id="add-rat" placeholder="PG-13"></div>
@@ -778,7 +777,7 @@ function renderLib(){
   buildGenreFilter(); buildTagBar();
   const me=myData();
   const q=(document.getElementById('s-lib').value||'').toLowerCase();
-  const type=document.getElementById('f-type').value;
+  const type='';
   const genre=document.getElementById('f-genre').value;
   const watched=document.getElementById('f-watched').value;
   const sort=document.getElementById('f-sort').value;
@@ -803,11 +802,8 @@ function renderLib(){
   const total=sharedData.library.length;
   const wCount=Object.values(me.watched||{}).filter(Boolean).length;
   const movies=sharedData.library.filter(m=>m.type==='movie').length;
-  const tv=sharedData.library.filter(m=>m.type==='tv').length;
   document.getElementById('lib-stats').innerHTML=`
     <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n">${movies}</div><div class="stat-l">Movies</div></div>
-    <div class="stat"><div class="stat-n">${tv}</div><div class="stat-l">TV Shows</div></div>
     <div class="stat"><div class="stat-n">${wCount}</div><div class="stat-l">Watched</div></div>
     <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>`;
 
@@ -833,7 +829,6 @@ function renderLib(){
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div></div>
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
-      <div class="tb ${m.type==='movie'?'tb-m':'tb-tv'}">${m.type==='movie'?'Film':'TV'}</div>
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
       ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
     </div>`;
@@ -862,7 +857,6 @@ function renderWish(){
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
-      <div class="tb ${m.type==='movie'?'tb-m':'tb-tv'}">${m.type==='movie'?'Film':'TV'}</div>
     </div>`;
   }).join('');
   updateCounts();
@@ -878,7 +872,7 @@ function renderReq(){
     <div class="req-card">
       <div class="av" style="width:36px;height:36px;font-size:13px;background:${r.color||'#888'}22;color:${r.color||'#888'};flex-shrink:0">${ini(r.from)}</div>
       <div class="req-info">
-        <div class="req-name">${r.title} <span style="font-size:10px;color:var(--muted)">(${r.type==='movie'?'Movie':'TV'})</span></div>
+        <div class="req-name">${r.title}</div>
         <div class="req-sub">By <strong>${r.from}</strong>${r.note?' · '+r.note:''}</div>
       </div>
       <div class="req-status ${r.status==='pending'?'st-pend':'st-done'}">${r.status==='pending'?'Pending':'Added ✓'}</div>
@@ -944,7 +938,6 @@ function openDetail(id,src){
           <div class="det-title">${m.title}</div>
           <div class="det-tags">
             ${m.year?`<span class="dtag">${m.year}</span>`:''}
-            ${m.type?`<span class="dtag">${m.type==='movie'?'Movie':'TV Show'}</span>`:''}
             ${m.rating?`<span class="dtag">${m.rating}</span>`:''}
             ${(m.genre||'').split(',').slice(0,2).map(g=>`<span class="dtag">${g.trim()}</span>`).join('')}
           </div>
@@ -1291,7 +1284,7 @@ function seed(){
       {id:'w1',title:'Killers of the Flower Moon',type:'movie',year:'2023',genre:'Crime, Drama, History',rating:'R',director:'Martin Scorsese',actors:'Leonardo DiCaprio, Robert De Niro',plot:'Members of the Osage Nation are murdered under mysterious circumstances in the 1920s.',poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg',imdb:'tt5537002',tags:[],addedAt:Date.now()},
     ],
     requests:[
-      {id:'r1',from:'Alysa',color:'#8a5af0',title:'The Bear',type:'tv',note:"Everyone says it's amazing!",status:'pending',ts:Date.now()-3600000},
+      {id:'r1',from:'Alysa',color:'#8a5af0',title:'The Substance',type:'movie',note:"Everyone says it's amazing!",status:'pending',ts:Date.now()-3600000},
     ]
   };
   saveShared();
