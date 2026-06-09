@@ -421,8 +421,7 @@ textarea.ffi{resize:vertical}
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-wish" placeholder="Search wishlist..." oninput="renderWish()"></div>
         <button class="ab" id="add-wish-btn" style="display:none" onclick="openAdd('wishlist')"><i class="ti ti-plus"></i> Add</button>
       </div>
-      <div class="sl">Shared Wishlist</div>
-      <div class="grid" id="wish-grid"></div>
+      <div id="wish-grid"></div>
       <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p style="font-size:14px">Nothing on the wishlist yet.</p></div>
     </div>
 
@@ -854,16 +853,37 @@ function miniCard(m){
 function renderWish(){
   const q=(document.getElementById('s-wish').value||'').toLowerCase();
   const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
-  const grid=document.getElementById('wish-grid'),empty=document.getElementById('wish-empty');
-  if(!items.length){grid.innerHTML='';empty.style.display='';return}
+  const wrap=document.getElementById('wish-grid'),empty=document.getElementById('wish-empty');
+  if(!items.length){wrap.innerHTML='';empty.style.display='';updateCounts();return}
   empty.style.display='none';
-  grid.innerHTML=items.map(m=>{
+
+  // Group by year
+  const groups={};
+  items.forEach(m=>{
+    const y=(m.year||'').toString().slice(0,4);
+    const key=y||'Unknown';
+    (groups[key]=groups[key]||[]).push(m);
+  });
+  // Sort years newest-first; "Unknown" goes last
+  const years=Object.keys(groups).sort((a,b)=>{
+    if(a==='Unknown') return 1;
+    if(b==='Unknown') return -1;
+    return Number(b)-Number(a);
+  });
+
+  const cardHTML=m=>{
     const hp=m.poster&&m.poster!=='N/A';
     return `<div class="card" onclick="openDetail('${m.id}','wishlist')">
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
     </div>`;
+  };
+
+  wrap.innerHTML=years.map(y=>{
+    const cards=groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('');
+    return `<div class="sl" style="margin-top:18px">${y} <span style="font-size:12px;color:var(--muted);-webkit-text-fill-color:var(--muted)">(${groups[y].length})</span></div>
+      <div class="grid">${cards}</div>`;
   }).join('');
   updateCounts();
 }
