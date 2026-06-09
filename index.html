@@ -52,9 +52,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
 .logo{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
-.nav{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;flex:1 1 100%;order:3;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.nav::-webkit-scrollbar{display:none}
-.nb{padding:6px 11px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.nav-bar{display:flex;align-items:center;justify-content:center;gap:2px;padding:8px 20px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto}
+.nav-bar::-webkit-scrollbar{display:none}
+.nav{display:contents}
+.nb{padding:7px 14px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
 .nb.active{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,184,75,0.2)}
 .nb:hover:not(.active){color:var(--light)}
 .bdg{background:var(--gold);color:#000;font-size:10px;font-weight:700;border-radius:20px;padding:1px 6px;min-width:18px;text-align:center}
@@ -69,7 +70,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .rt-member{background:rgba(138,90,240,.15);color:var(--purple)}
 
 /* MAIN */
-.main{padding:18px 20px;max-width:1400px;margin:0 auto}
+.main{padding:18px 20px;max-width:1400px;margin:0 auto;}
 .tab{display:none}.tab.active{display:block}
 
 /* TOOLBAR */
@@ -122,8 +123,24 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .tb{position:absolute;top:6px;left:6px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .tb-m{background:rgba(232,53,75,.85);color:#fff}
 .tb-tv{background:rgba(138,90,240,.85);color:#fff}
-.fav-star{position:absolute;bottom:34px;right:6px;color:var(--gold);font-size:13px;text-shadow:0 0 8px rgba(232,184,75,.5)}
-.rating-badge{position:absolute;bottom:34px;left:6px;background:rgba(0,0,0,.8);border-radius:4px;padding:2px 5px;font-size:10px;font-weight:700;color:var(--gold)}
+.fav-star{position:absolute;bottom:34px;left:6px;color:var(--gold);font-size:13px;text-shadow:0 0 8px rgba(232,184,75,.5)}
+.rating-badge{position:absolute;bottom:34px;right:6px;background:rgba(0,0,0,.8);border-radius:4px;padding:2px 5px;font-size:10px;font-weight:700;color:var(--gold)}
+
+/* COMMENTS */
+.comments-section{margin-bottom:14px}
+.comments-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.comment-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.comment-header{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.comment-name{font-size:12px;font-weight:600}
+.comment-time{font-size:10px;color:var(--muted)}
+.comment-del{margin-left:auto;cursor:pointer;color:var(--muted);font-size:13px;transition:color .2s}
+.comment-del:hover{color:var(--red)}
+.comment-text{font-size:13px;color:var(--light);line-height:1.6}
+.comment-input-wrap{display:flex;gap:7px;align-items:flex-end}
+.comment-input-wrap .ffi{flex:1;resize:none;min-height:38px}
+.comment-submit{padding:8px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.comment-submit:hover{background:linear-gradient(135deg,var(--gold2),var(--gold))}
+.no-comments{font-size:12px;color:var(--muted);padding:4px 0;margin-bottom:6px}
 
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
@@ -352,12 +369,6 @@ textarea.ffi{resize:vertical}
 <div class="screen" id="app-screen">
   <div class="header">
     <div class="logo">Mc<span>Flix</span></div>
-    <div class="nav">
-      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="bdg" id="lib-count">0</span></button>
-      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
-      <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
-      <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
-    </div>
     <div class="hdr-right">
       <button class="dice-btn" onclick="openPicker()" title="Random pick"><i class="ti ti-dice" style="font-size:15px"></i></button>
       <div class="user-pill" onclick="openProfile()">
@@ -365,6 +376,14 @@ textarea.ffi{resize:vertical}
         <span style="font-size:12px;font-weight:600" id="hdr-name"></span>
         <span class="role-tag" id="hdr-role"></span>
       </div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <div class="nav">
+      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="bdg" id="lib-count">0</span></button>
+      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
+      <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
   </div>
 
@@ -438,7 +457,14 @@ textarea.ffi{resize:vertical}
       <div id="lk-result"></div>
       <div class="fg">
         <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="add-t"></div>
-        <input type="hidden" id="add-type" value="movie">
+        <div class="ff">
+          <label class="fl">Type</label>
+          <div style="display:flex;gap:4px">
+            <button type="button" id="type-btn-movie" class="nb active" style="flex:1;justify-content:center;border:1px solid rgba(232,53,75,0.3);background:rgba(232,53,75,0.1);color:#f07080" onclick="setAddType('movie')"><i class="ti ti-movie"></i> Movie</button>
+            <button type="button" id="type-btn-tv" class="nb" style="flex:1;justify-content:center;border:1px solid rgba(138,90,240,0.3);background:rgba(138,90,240,0.08);color:#b080f0" onclick="setAddType('tv')"><i class="ti ti-device-tv"></i> TV Show</button>
+          </div>
+          <input type="hidden" id="add-type" value="movie">
+        </div>
         <div class="ff"><label class="fl">Year</label><input type="text" class="ffi" id="add-yr" placeholder="2024"></div>
         <div class="ff"><label class="fl">Genre</label><input type="text" class="ffi" id="add-gn" placeholder="Action, Drama..."></div>
         <div class="ff"><label class="fl">Rated</label><input type="text" class="ffi" id="add-rat" placeholder="PG-13"></div>
@@ -953,10 +979,15 @@ function openDetail(id,src){
           <span class="tpill" style="border-style:dashed" onclick="createList('${id}')"><i class="ti ti-plus" style="font-size:11px"></i> New list</span>
         </div>
       </div>`:''}
-      <div class="notes-section">
-        <div class="notes-lbl">${CU.username}'s Notes</div>
-        <textarea class="notes-ta" id="notes-${id}" placeholder="Your thoughts...">${me.notes?.[id]||''}</textarea>
-        <button class="save-note-btn" onclick="saveNote('${id}')"><i class="ti ti-device-floppy"></i> Save</button>
+      <div class="comments-section">
+        <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Comments</div>
+        <div class="comments-list" id="comments-list-${id}">
+          ${buildComments(m,id,src)}
+        </div>
+        <div class="comment-input-wrap">
+          <textarea class="ffi comment-input-wrap" id="comment-input-${id}" placeholder="Leave a comment..." rows="2" style="flex:1;resize:none"></textarea>
+          <button class="comment-submit" onclick="addComment('${id}','${src}')"><i class="ti ti-send"></i> Post</button>
+        </div>
       </div>
       <div class="notes-section">
         <div class="notes-lbl">Watch History</div>
@@ -994,10 +1025,63 @@ function setRating(id,userId,val){
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast(val?`Rated ${val}/10!`:'Rating cleared');
 }
-function saveNote(id){
-  const me=myData();me.notes=me.notes||{};
-  me.notes[id]=document.getElementById('notes-'+id)?.value||'';
-  saveUsers().then(()=>toast('Note saved!'));
+function buildComments(m,id,src){
+  const comments=(m.comments||[]);
+  if(!comments.length) return '<div class="no-comments">No comments yet. Be the first!</div>';
+  return comments.slice().reverse().map((c,ri)=>{
+    const realIdx=comments.length-1-ri;
+    const canDel=CU.id===c.userId||isAdmin();
+    const ago=formatAgo(c.ts);
+    const u=allUsers.accounts.find(a=>a.id===c.userId);
+    return `<div class="comment-item">
+      <div class="comment-header">
+        ${u?avatarEl(u,20):''}
+        <span class="comment-name">${c.username}</span>
+        <span class="comment-time">${ago}</span>
+        ${canDel?`<span class="comment-del" onclick="deleteComment('${id}','${src}',${realIdx})"><i class="ti ti-x"></i></span>`:''}
+      </div>
+      <div class="comment-text">${c.text.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+}
+
+function formatAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  if(s<604800) return Math.floor(s/86400)+'d ago';
+  return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function addComment(id,src){
+  const inp=document.getElementById('comment-input-'+id);
+  if(!inp) return;
+  const text=inp.value.trim();
+  if(!text) return;
+  const m=findItem(id,src);
+  if(!m) return;
+  m.comments=m.comments||[];
+  m.comments.push({userId:CU.id,username:CU.username,text,ts:Date.now()});
+  inp.value='';
+  saveShared().then(()=>{
+    // Re-render just the comments list without closing the modal
+    const cl=document.getElementById('comments-list-'+id);
+    if(cl) cl.innerHTML=buildComments(m,id,src);
+    toast('Comment posted!');
+  });
+}
+
+function deleteComment(id,src,idx){
+  if(!confirm('Delete this comment?')) return;
+  const m=findItem(id,src);
+  if(!m||!m.comments) return;
+  m.comments.splice(idx,1);
+  saveShared().then(()=>{
+    const cl=document.getElementById('comments-list-'+id);
+    if(cl) cl.innerHTML=buildComments(m,id,src);
+    toast('Comment deleted');
+  });
 }
 function logWatch(id){
   const me=myData();me.history=me.history||{};
@@ -1028,6 +1112,20 @@ function delItem(id,src){
 }
 
 // ── ADD / EDIT ────────────────────────────────────────────────────────────────
+function setAddType(type){
+  document.getElementById('add-type').value=type;
+  const mb=document.getElementById('type-btn-movie');
+  const tb=document.getElementById('type-btn-tv');
+  if(!mb||!tb) return;
+  if(type==='movie'){
+    mb.style.background='rgba(232,53,75,0.2)';mb.style.borderColor='rgba(232,53,75,0.5)';mb.style.color='#f07080';
+    tb.style.background='rgba(138,90,240,0.06)';tb.style.borderColor='rgba(138,90,240,0.2)';tb.style.color='#b080f0';
+  } else {
+    tb.style.background='rgba(138,90,240,0.2)';tb.style.borderColor='rgba(138,90,240,0.5)';tb.style.color='#b080f0';
+    mb.style.background='rgba(232,53,75,0.06)';mb.style.borderColor='rgba(232,53,75,0.2)';mb.style.color='#f07080';
+  }
+}
+
 function openAdd(target='library'){
   addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
   document.getElementById('add-lbl').textContent=target==='library'?'Add to Library':'Add to Wishlist';
@@ -1035,6 +1133,7 @@ function openAdd(target='library'){
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
   ['add-t','add-yr','add-gn','add-rat','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   document.getElementById('add-type').value='movie';
+  setAddType('movie');
   document.getElementById('add-wtch').checked=false;
   document.getElementById('lk-result').innerHTML='';
   openMo('add');
@@ -1049,6 +1148,7 @@ function openEdit(id,src){
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
   document.getElementById('add-t').value=m.title||'';
   document.getElementById('add-type').value=m.type||'movie';
+  setAddType(m.type||'movie');
   document.getElementById('add-yr').value=m.year||'';
   document.getElementById('add-gn').value=m.genre||'';
   document.getElementById('add-rat').value=m.rating||'';
