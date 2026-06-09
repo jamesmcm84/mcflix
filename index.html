@@ -513,11 +513,10 @@ const ADMIN_CODE  = 'mcflix-admin-2024'; // invite code → creates admin accoun
 const MEMBER_CODE = 'watchparty';        // invite code → creates member account
 const OMDB_KEY    = 'trilogy';           // get your own free key: omdbapi.com/apikey.aspx
 
-// JSONBin config — sign up free at jsonbin.io, create 2 bins, paste IDs + key here
-// Bin 1: shared library data   Bin 2: all user accounts + personal data
-const JSONBIN_KEY      = '$2a$10$o/wEukVwDjqbRvOqTMGlouRDvjJxc5k3gfefmkQTxRohUqNewtb/u';  // your JSONBin API key (X-Master-Key)
-const LIBRARY_BIN_ID   = '6a2811ecf5f4af5e29d1d311';  // Bin 1 ID
-const USERDATA_BIN_ID  = '6a2811f3f5f4af5e29d1d35a';  // Bin 2 ID
+// Cloudflare Worker backend — paste your deployed Worker URL and the shared
+// app token you set inside the Worker. (See deploy steps from Claude.)
+const WORKER_URL = '';  // e.g. 'https://mcflix-api.yourname.workers.dev'
+const APP_TOKEN  = '';  // must match APP_TOKEN inside the Worker
 // ══════════════════════════════════════════════════════════════════════════════
 
 const COLORS = ['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1abc9c','#e91e63','#f39c12','#9b59b6'];
@@ -570,35 +569,36 @@ function avatarEl(user, size=26){
   return `<div class="av" style="width:${size}px;height:${size}px;font-size:${Math.floor(size*.4)}px;background:${user.color}22;color:${user.color}">${ini(user.username)}</div>`;
 }
 
-// ── JSONBIN ───────────────────────────────────────────────────────────────────
-async function jbGet(binId){
-  if(!JSONBIN_KEY||!binId) return null;
+// ── CLOUD STORAGE (Cloudflare Worker + KV) ────────────────────────────────────
+async function wGet(key){
+  if(!WORKER_URL||!APP_TOKEN) return null;
   try{
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{
-      headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}
+    const r=await fetch(`${WORKER_URL}/${key}`,{
+      headers:{'X-McFlix-Token':APP_TOKEN}
     });
     if(!r.ok) return null;
-    return await r.json();
-  }catch(e){ console.warn('jbGet failed',e); return null; }
+    const v=await r.json();
+    return v;  // may be null if nothing stored yet
+  }catch(e){ console.warn('wGet failed',e); return null; }
 }
 
-async function jbPut(binId, data){
-  if(!JSONBIN_KEY||!binId) return false;
+async function wPut(key, data){
+  if(!WORKER_URL||!APP_TOKEN) return false;
   try{
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${binId}`,{
+    const r=await fetch(`${WORKER_URL}/${key}`,{
       method:'PUT',
-      headers:{'X-Master-Key':JSONBIN_KEY,'Content-Type':'application/json','X-Bin-Versioning':'false'},
+      headers:{'X-McFlix-Token':APP_TOKEN,'Content-Type':'application/json'},
       body:JSON.stringify(data)
     });
     return r.ok;
-  }catch(e){ console.warn('jbPut failed',e); return false; }
+  }catch(e){ console.warn('wPut failed',e); return false; }
 }
 
 async function loadFromCloud(){
   loading(true,'Loading library...');
   const [lib, users] = await Promise.all([
-    jbGet(LIBRARY_BIN_ID),
-    jbGet(USERDATA_BIN_ID)
+    wGet('library'),
+    wGet('users')
   ]);
   let ok = false;
   if(lib){ sharedData=lib; ok = true; }
@@ -613,15 +613,15 @@ async function loadFromCloud(){
 
 async function saveShared(){
   try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
-  if(JSONBIN_KEY && LIBRARY_BIN_ID){
-    await jbPut(LIBRARY_BIN_ID, sharedData);
+  if(WORKER_URL && APP_TOKEN){
+    await wPut('library', sharedData);
   }
 }
 
 async function saveUsers(){
   try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
-  if(JSONBIN_KEY && USERDATA_BIN_ID){
-    await jbPut(USERDATA_BIN_ID, allUsers);
+  if(WORKER_URL && APP_TOKEN){
+    await wPut('users', allUsers);
   }
 }
 
@@ -1355,9 +1355,9 @@ function openProfile(){
             ${u.id!==CU.id?`<button onclick="removeUser('${u.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px" title="Remove user"><i class="ti ti-user-x"></i></button>`:''}
           </div>`).join('')}
         </div>
-        <div class="set-lbl" style="margin-bottom:10px">Admin: JSONBin Setup</div>
-        ${(JSONBIN_KEY && cloudLoaded)?`<div class="connected-box">✓ JSONBin connected and data loaded — syncs across all devices</div>`:(JSONBIN_KEY?`<div style="font-size:12px;color:var(--orange);margin-bottom:10px;line-height:1.6">⚠ Bin values are set, but this device hasn't successfully loaded from the cloud yet. Check your key/bin IDs and your connection.</div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-          Sign up free at <strong style="color:var(--text)">jsonbin.io</strong>, create 2 bins, paste the IDs + API key in the HTML file (top of the script section).<br>
+        <div class="set-lbl" style="margin-bottom:10px">Admin: Cloud Setup</div>
+        ${(WORKER_URL && APP_TOKEN && cloudLoaded)?`<div class="connected-box">✓ Cloud backend connected and data loaded — syncs across all devices</div>`:((WORKER_URL && APP_TOKEN)?`<div style="font-size:12px;color:var(--orange);margin-bottom:10px;line-height:1.6">⚠ Worker URL/token are set, but this device hasn't loaded from the cloud yet. Check the URL, token, and your connection.</div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+          Set <strong style="color:var(--text)">WORKER_URL</strong> and <strong style="color:var(--text)">APP_TOKEN</strong> at the top of the HTML file (from your Cloudflare Worker).<br>
           Until connected, data saves to this browser only.
         </div>`)}`:''}
       <div class="set-lbl" style="margin-bottom:10px">Account</div>
@@ -1452,8 +1452,8 @@ loadLocal();
   }
 })();
 
-if(!JSONBIN_KEY){
-  console.log('%cMcFlix: JSONBin not configured. Data saves locally only. Set up JSONBIN_KEY, LIBRARY_BIN_ID, and USERDATA_BIN_ID in the script for cross-device sync.','color:#e8b84b;font-size:13px');
+if(!WORKER_URL||!APP_TOKEN){
+  console.log('%cMcFlix: cloud backend not configured. Data saves locally only. Set WORKER_URL and APP_TOKEN at the top of the script for cross-device sync.','color:#e8b84b;font-size:13px');
 }
 </script>
 </body>
