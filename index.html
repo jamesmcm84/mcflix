@@ -523,6 +523,7 @@ const COLORS = ['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1a
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let CU = null; // current user object
+let cloudLoaded = false; // becomes true once we've successfully pulled from the cloud at least once
 
 // Shared data (stored in Library Bin)
 let sharedData = { library:[], wishlist:[], requests:[] };
@@ -597,12 +598,15 @@ async function loadFromCloud(){
     jbGet(LIBRARY_BIN_ID),
     jbGet(USERDATA_BIN_ID)
   ]);
-  if(lib){ sharedData=lib; }
-  if(users){ allUsers=users; }
+  let ok = false;
+  if(lib){ sharedData=lib; ok = true; }
+  if(users){ allUsers=users; ok = true; }
+  if(ok) cloudLoaded = true;
   // Cache locally
   try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
   try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
   loading(false);
+  return ok;
 }
 
 async function saveShared(){
@@ -637,22 +641,24 @@ function buildSignupColors(){
 }
 function pickSignupColor(c){ signupColor=c; buildSignupColors(); }
 
-function doLogin(){
+async function doLogin(){
   const username=document.getElementById('l-user').value.trim().toLowerCase();
   const password=document.getElementById('l-pass').value;
   const errEl=document.getElementById('l-err');
   if(!username||!password){ errEl.textContent='Enter username and password.'; return; }
+  // Pull the latest accounts from the cloud BEFORE checking credentials.
+  // This is what makes a fresh device (e.g. your phone) able to find accounts
+  // that were created elsewhere.
+  errEl.textContent='';
+  await loadFromCloud();
   const account=allUsers.accounts.find(a=>a.username.toLowerCase()===username);
   if(!account||account.passwordHash!==hash(password)){
     errEl.textContent='Wrong username or password.'; return;
   }
-  errEl.textContent='';
   CU={...account};
   document.getElementById('auth-screen').className='screen';
   document.getElementById('app-screen').className='screen active';
-  // Reload fresh data from cloud then init
-  loading(true,'Loading...');
-  loadFromCloud().then(()=>{ loading(false); initApp(); });
+  initApp();
 }
 
 function doSignup(){
@@ -911,7 +917,6 @@ function openDetail(id,src){
   const me=myData();
   const hp=m.poster&&m.poster!=='N/A';
   const inLib=src==='library';
-  const prog=m.duration>0?Math.round((m.viewOffset/m.duration)*100):0;
 
   // Build ratings for all accounts
   const ratingsHTML=allUsers.accounts.map(u=>{
@@ -1236,10 +1241,10 @@ function openProfile(){
           </div>`).join('')}
         </div>
         <div class="set-lbl" style="margin-bottom:10px">Admin: JSONBin Setup</div>
-        ${JSONBIN_KEY?`<div class="connected-box">✓ JSONBin connected — data syncs across all devices</div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+        ${(JSONBIN_KEY && cloudLoaded)?`<div class="connected-box">✓ JSONBin connected and data loaded — syncs across all devices</div>`:(JSONBIN_KEY?`<div style="font-size:12px;color:var(--orange);margin-bottom:10px;line-height:1.6">⚠ Bin values are set, but this device hasn't successfully loaded from the cloud yet. Check your key/bin IDs and your connection.</div>`:`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
           Sign up free at <strong style="color:var(--text)">jsonbin.io</strong>, create 2 bins, paste the IDs + API key in the HTML file (top of the script section).<br>
           Until connected, data saves to this browser only.
-        </div>`}`:''}
+        </div>`)}`:''}
       <div class="set-lbl" style="margin-bottom:10px">Account</div>
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
     </div>`;
@@ -1247,7 +1252,6 @@ function openProfile(){
   signupColor=CU.color||COLORS[0];
   document.getElementById('profile-colors').innerHTML=COLORS.map(c=>`
     <div class="color-swatch ${c===signupColor?'sel':''}" style="background:${c}" onclick="pickSignupColor('${c}');document.getElementById('profile-colors').innerHTML=document.getElementById('profile-colors').innerHTML"></div>`).join('');
-  // Re-render with updated selection
   openMo('profile');
 }
 
@@ -1280,8 +1284,8 @@ function seed(){
     library:[
       {id:'s1',title:'Interstellar',type:'movie',year:'2014',genre:'Sci-Fi, Adventure',rating:'PG-13',director:'Christopher Nolan',actors:'Matthew McConaughey, Anne Hathaway, Jessica Chastain',plot:"A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",poster:'https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg',imdb:'tt0816692',tags:['sci-fi','epic','mind-bending'],addedAt:Date.now()-5},
       {id:'s2',title:'The Dark Knight',type:'movie',year:'2008',genre:'Action, Crime, Drama',rating:'PG-13',director:'Christopher Nolan',actors:'Christian Bale, Heath Ledger, Aaron Eckhart',plot:'Batman raises the stakes in his war on crime as the Joker wreaks havoc on Gotham City.',poster:'https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg',imdb:'tt0468569',tags:['superhero','dark','classic'],addedAt:Date.now()-4},
-      {id:'s3',title:'Oppenheimer',type:'movie',year:'2023',genre:'Biography, Drama, History',rating:'R',director:'Christopher Nolan',actors:'Cillian Murphy, Emily Blunt, Matt Damon',plot:'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.',poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',imdb:'tt15398776',tags:['historical','drama'],addedAt:Date.now()-3}, {id:'s5',title:'Dune: Part Two',type:'movie',year:'2024',genre:'Action, Adventure, Sci-Fi',rating:'PG-13',director:'Denis Villeneuve',actors:'Timothée Chalamet, Zendaya, Rebecca Ferguson',plot:'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators.',poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg',imdb:'tt15239678',tags:['sci-fi','epic'],addedAt:Date.now()-1},
-      
+      {id:'s3',title:'Oppenheimer',type:'movie',year:'2023',genre:'Biography, Drama, History',rating:'R',director:'Christopher Nolan',actors:'Cillian Murphy, Emily Blunt, Matt Damon',plot:'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.',poster:'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_SX300.jpg',imdb:'tt15398776',tags:['historical','drama'],addedAt:Date.now()-3},
+      {id:'s5',title:'Dune: Part Two',type:'movie',year:'2024',genre:'Action, Adventure, Sci-Fi',rating:'PG-13',director:'Denis Villeneuve',actors:'Timothée Chalamet, Zendaya, Rebecca Ferguson',plot:'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators.',poster:'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtODhmNDBiNTIwYWQ3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg',imdb:'tt15239678',tags:['sci-fi','epic'],addedAt:Date.now()-1},
     ],
     wishlist:[
       {id:'w1',title:'Killers of the Flower Moon',type:'movie',year:'2023',genre:'Crime, Drama, History',rating:'R',director:'Martin Scorsese',actors:'Leonardo DiCaprio, Robert De Niro',plot:'Members of the Osage Nation are murdered under mysterious circumstances in the 1920s.',poster:'https://m.media-amazon.com/images/M/MV5BNjU3NjcxNTA1MV5BMl5BanBnXkFtZTcwNzEzOTkzMg@@._V1_SX300.jpg',imdb:'tt5537002',tags:[],addedAt:Date.now()},
@@ -1296,11 +1300,21 @@ function seed(){
 // ── INIT ───────────────────────────────────────────────────────────────────────
 buildSignupColors();
 
-// Load local cache first (instant), then try cloud
+// Load local cache first (instant paint), then pull the real data from the cloud
+// BEFORE anyone tries to log in or before we decide whether to seed.
 loadLocal();
-if(sharedData.library.length===0) seed();
+(async function(){
+  const ok = await loadFromCloud();          // get accounts + library up front
+  // Only seed if BOTH the cloud and local are empty. This prevents a fresh
+  // device from overwriting the real cloud library with demo titles.
+  if(ok && sharedData.library.length===0 && (!allUsers.accounts || allUsers.accounts.length===0)){
+    seed();
+  } else if(!ok && sharedData.library.length===0){
+    // No cloud reachable and nothing cached → show demo so the app isn't blank
+    seed();
+  }
+})();
 
-// If JSONBin not configured, show a gentle notice in console
 if(!JSONBIN_KEY){
   console.log('%cMcFlix: JSONBin not configured. Data saves locally only. Set up JSONBIN_KEY, LIBRARY_BIN_ID, and USERDATA_BIN_ID in the script for cross-device sync.','color:#e8b84b;font-size:13px');
 }
