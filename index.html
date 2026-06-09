@@ -1128,7 +1128,7 @@ function submitAdd(){
     poster,imdb:pendingImdb,tags,
     addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
   };
-  if(addTarget==='wishlist'){item.plot='';item.actors='';}
+  // plot and actors kept for all items
   if(editingId){
     const li=sharedData.library.findIndex(x=>x.id===editingId);
     const wi=sharedData.wishlist.findIndex(x=>x.id===editingId);
@@ -1300,11 +1300,7 @@ loadLocal();
   const ok=await loadFromCloud();
   if(ok&&sharedData.library.length===0&&(!allUsers.accounts||allUsers.accounts.length===0)) seed();
   else if(!ok&&sharedData.library.length===0) seed();
-  if(ok&&Array.isArray(sharedData.wishlist)){
-    let changed=false;
-    sharedData.wishlist.forEach(m=>{if(m.plot){m.plot='';changed=true;}if(m.actors){m.actors='';changed=true;}});
-    if(changed) saveShared();
-  }
+
   let savedId=null;
   try{savedId=localStorage.getItem('mcflix_session');}catch(e){}
   if(savedId){
