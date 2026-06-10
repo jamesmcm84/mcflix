@@ -52,10 +52,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
 .logo{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
-.nav-bar{display:flex;align-items:center;justify-content:center;gap:2px;padding:8px 20px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto}
+.nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .nav-bar::-webkit-scrollbar{display:none}
 .nav{display:contents}
-.nb{padding:7px 14px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.nb{padding:6px 10px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
 .nb.active{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,184,75,0.2)}
 .nb:hover:not(.active){color:var(--light)}
 .bdg{background:var(--gold);color:#000;font-size:10px;font-weight:700;border-radius:20px;padding:1px 6px;min-width:18px;text-align:center}
@@ -156,6 +156,48 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .watcher-av{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .watcher-av img{width:100%;height:100%;object-fit:cover}
 
+/* DIARY */
+.diary-month{margin-bottom:28px}
+.diary-month-hd{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;color:var(--light);display:flex;align-items:center;gap:10px;margin-bottom:12px;text-transform:uppercase}
+.diary-month-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
+.diary-entries{display:flex;flex-direction:column;gap:6px}
+.diary-entry{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s}
+.diary-entry:hover{border-color:var(--border2);transform:translateX(3px)}
+.diary-date{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--gold);min-width:42px;text-align:center;line-height:1}
+.diary-date-month{font-size:9px;color:var(--muted);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.diary-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.diary-info{flex:1;min-width:0}
+.diary-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.diary-rating{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--gold)}
+
+/* YEAR IN REVIEW */
+.yir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.yir-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.yir-num{font-family:'Bebas Neue',cursive;font-size:52px;color:var(--gold);line-height:1;text-shadow:0 0 24px rgba(232,184,75,.2)}
+.yir-lbl{font-size:11px;color:var(--muted);margin-top:3px}
+.yir-poster-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.yir-poster-row::-webkit-scrollbar{height:2px}
+.yir-poster-row::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.yir-mini{width:70px;height:105px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--bg3);cursor:pointer;transition:transform .2s}
+.yir-mini:hover{transform:scale(1.05)}
+.yir-mini-fb{width:70px;height:105px;border-radius:7px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* PERSONAL WISHLIST */
+.pwish-empty{font-size:13px;color:var(--muted);padding:40px;text-align:center}
+
+/* DUPLICATE */
+.dup-card{background:var(--card);border:1px solid rgba(232,53,75,.2);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dup-title{font-weight:600;font-size:13px;flex:1}
+.dup-badge{background:rgba(232,53,75,.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+
+/* BANNER */
+.lib-banner{position:relative;height:180px;overflow:hidden;border-radius:12px;margin-bottom:20px;background:linear-gradient(135deg,#14142a,#0e0e20)}
+.lib-banner img{width:100%;height:100%;object-fit:cover;opacity:.5}
+.lib-banner-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,13,.9) 0%,rgba(7,7,13,.4) 60%,transparent 100%);display:flex;align-items:center;padding:24px}
+.lib-banner-title{font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.lib-banner-sub{font-size:13px;color:var(--light);margin-top:4px}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -165,7 +207,13 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .sl::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
 
 /* TAG BAR */
-.tag-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag-bar{margin-bottom:12px;position:relative}
+.tag-dropdown{display:none;position:absolute;top:100%;left:0;z-index:50;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:8px;min-width:220px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);flex-wrap:wrap;gap:5px}
+.tag-dropdown.open{display:flex}
+.tag-dropdown::-webkit-scrollbar{width:3px}
+.tag-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.tag-toggle-btn{padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
+.tag-toggle-btn.has-active{border-color:rgba(232,184,75,0.3);color:var(--gold);background:var(--gold-dim)}
 .tpill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg3);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
 .tpill:hover{border-color:rgba(232,184,75,0.3);color:var(--gold)}
 .tpill.active{background:var(--gold-dim);border-color:rgba(232,184,75,0.3);color:var(--gold)}
@@ -397,7 +445,9 @@ textarea.ffi{resize:vertical}
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" onclick="switchTab('pwishlist',this)"><i class="ti ti-heart"></i> My Wishlist</button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
+      <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
   </div>
@@ -405,6 +455,12 @@ textarea.ffi{resize:vertical}
   <div class="main">
     <!-- LIBRARY -->
     <div class="tab active" id="tab-library">
+      <div class="lib-banner" id="lib-banner" style="display:none">
+        <img id="lib-banner-img" src="" alt="">
+        <div class="lib-banner-overlay">
+          <div><div class="lib-banner-title">McFlix</div><div class="lib-banner-sub" id="lib-banner-sub"></div></div>
+        </div>
+      </div>
       <div class="stats" id="lib-stats"></div>
       <div class="shelf" id="now-shelf" style="display:none">
         <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
@@ -469,6 +525,26 @@ textarea.ffi{resize:vertical}
       </div>
       <div id="lists-wrap"></div>
       <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
+    </div>
+
+    <!-- PERSONAL WISHLIST -->
+    <div class="tab" id="tab-pwishlist">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+        <div class="sl" style="flex:1;margin:0">My Wishlist</div>
+        <button class="ab" onclick="addToPersonalWishlist()"><i class="ti ti-plus"></i> Add Title</button>
+      </div>
+      <div id="pwish-grid"></div>
+      <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
+    </div>
+
+    <!-- DIARY -->
+    <div class="tab" id="tab-diary">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+        <div class="sl" style="flex:1;margin:0">Watch Diary</div>
+        <select class="fb" id="diary-year" onchange="renderDiary()" style="min-width:90px"></select>
+      </div>
+      <div id="diary-body"></div>
+      <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Log viewings from each title's detail view.</span></p></div>
     </div>
 
     <!-- STATS -->
@@ -742,6 +818,7 @@ function initApp(){
   buildGenreFilter();
   renderLib();
   updateCounts();
+  buildDiaryYearSelect();
   fetchPlexActivity().then(()=>renderLib());
 }
 
@@ -766,7 +843,9 @@ function switchTab(t,el){
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
   if(t==='wishlist') renderWish();
+  if(t==='pwishlist') renderPWishlist();
   if(t==='lists') renderLists();
+  if(t==='diary') renderDiary();
   if(t==='stats') renderStats();
 }
 
@@ -796,11 +875,29 @@ function buildTVGenreFilter(){
 
 function buildTagBar(){
   const tags=new Set();
-  sharedData.library.forEach(m=>(m.tags||[]).forEach(t=>{if(t)tags.add(t)}));
+  sharedData.library.filter(m=>m.type!=='tv').forEach(m=>(m.tags||[]).forEach(t=>{if(t)tags.add(t)}));
   const bar=document.getElementById('tag-bar');
+  if(!bar) return;
   if(!tags.size){bar.innerHTML='';return}
-  bar.innerHTML=[...tags].sort().map(t=>`<span class="tpill ${activeTag===t?'active':''}" onclick="setTag('${t}')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('');
+  const sorted=[...tags].sort();
+  bar.innerHTML=`
+    <button class="tag-toggle-btn ${activeTag?'has-active':''}" onclick="toggleTagDropdown('lib-tags')">
+      <i class="ti ti-tag" style="font-size:12px"></i>
+      ${activeTag?`Tag: ${activeTag}`:'Filter by Tag'}
+      <i class="ti ti-chevron-down" style="font-size:11px"></i>
+    </button>
+    <div class="tag-dropdown" id="lib-tags">
+      ${activeTag?`<span class="tpill active" onclick="setTag('${activeTag}');toggleTagDropdown('lib-tags')"><i class="ti ti-x" style="font-size:10px"></i> Clear</span>`:''}
+      ${sorted.map(t=>`<span class="tpill ${activeTag===t?'active':''}" onclick="setTag('${t}');toggleTagDropdown('lib-tags')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('')}
+    </div>`;
 }
+function toggleTagDropdown(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.tag-bar')) document.querySelectorAll('.tag-dropdown').forEach(d=>d.classList.remove('open'));
+});
 
 function setTag(t){ activeTag=activeTag===t?'':t; buildTagBar(); renderLib(); }
 function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',favFilterOn); renderLib(); }
@@ -816,7 +913,17 @@ function buildTVTagBar(){
   const bar=document.getElementById('tv-tag-bar');
   if(!bar) return;
   if(!tags.size){bar.innerHTML='';return}
-  bar.innerHTML=[...tags].sort().map(t=>`<span class="tpill ${activeTVTag===t?'active':''}" onclick="setTVTag('${t}')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('');
+  const sorted=[...tags].sort();
+  bar.innerHTML=`
+    <button class="tag-toggle-btn ${activeTVTag?'has-active':''}" onclick="toggleTagDropdown('tv-tags')" id="tv-tag-btn">
+      <i class="ti ti-tag" style="font-size:12px"></i>
+      ${activeTVTag?`Tag: ${activeTVTag}`:'Filter by Tag'}
+      <i class="ti ti-chevron-down" style="font-size:11px"></i>
+    </button>
+    <div class="tag-dropdown" id="tv-tags">
+      ${activeTVTag?`<span class="tpill active" onclick="setTVTag('${activeTVTag}');toggleTagDropdown('tv-tags')"><i class="ti ti-x" style="font-size:10px"></i> Clear</span>`:''}
+      ${sorted.map(t=>`<span class="tpill ${activeTVTag===t?'active':''}" onclick="setTVTag('${t}');toggleTagDropdown('tv-tags')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('')}
+    </div>`;
 }
 
 function renderTV(){
@@ -954,6 +1061,32 @@ async function fetchPlexActivity(){
 
     plexActivity = { history, sessions, plexUsers, lastFetch: Date.now() };
     console.log('McFlix Plex: loaded '+history.length+' history entries, '+plexUsers.length+' users');
+
+    // Auto-mark watched and log history for the current user based on Plex activity
+    if(CU && history.length){
+      const me = myData();
+      let changed = false;
+      history.forEach(h => {
+        // Find matching McFlix user via plexUsername
+        const pu = plexUsers.find(u => u.id === h.accountID);
+        const mu = pu ? plexUserToMcFlix(pu.username) : null;
+        if(!mu || mu.id !== CU.id) return; // only update current user
+        // Find matching library item by title
+        const item = sharedData.library.find(m => m.title.toLowerCase() === h.title.toLowerCase());
+        if(!item) return;
+        const ud = allUsers.personal[mu.id] || (allUsers.personal[mu.id] = {ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]});
+        // Mark as watched
+        if(!ud.watched) ud.watched = {};
+        if(!ud.watched[item.id]){ ud.watched[item.id] = true; changed = true; }
+        // Log history date if not already logged for this timestamp
+        if(!ud.history) ud.history = {};
+        if(!ud.history[item.id]) ud.history[item.id] = [];
+        const ts = h.lastViewedAt * 1000; // convert unix to ms
+        const alreadyLogged = ud.history[item.id].some(d => Math.abs(d - ts) < 86400000); // within 24h
+        if(!alreadyLogged){ ud.history[item.id].push(ts); changed = true; }
+      });
+      if(changed){ saveUsers(); console.log('McFlix Plex: synced watch history to user data'); }
+    }
   }catch(e){ console.warn('McFlix Plex fetch failed:', e.message); }
 }
 
@@ -1557,6 +1690,219 @@ function submitAdd(){
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
+// ── BANNER ───────────────────────────────────────────────────────────────────
+function updateBanner(){
+  const me = myData();
+  // Pick the most recently watched movie poster as banner
+  const recent = sharedData.library
+    .filter(m => m.type !== 'tv' && me.watched?.[m.id] && m.poster && m.poster !== 'N/A')
+    .sort((a,b) => {
+      const ah = (me.history?.[a.id]||[]).slice(-1)[0]||0;
+      const bh = (me.history?.[b.id]||[]).slice(-1)[0]||0;
+      return bh - ah;
+    })[0];
+  const banner = document.getElementById('lib-banner');
+  const img    = document.getElementById('lib-banner-img');
+  const sub    = document.getElementById('lib-banner-sub');
+  if(!banner) return;
+  if(recent){
+    banner.style.display = '';
+    img.src = recent.poster;
+    const movies = sharedData.library.filter(m=>m.type!=='tv').length;
+    const watched = sharedData.library.filter(m=>m.type!=='tv'&&me.watched?.[m.id]).length;
+    sub.textContent = `${movies} movies · ${watched} watched`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ── PERSONAL WISHLIST ─────────────────────────────────────────────────────────
+function addToPersonalWishlist(){
+  const title = prompt('Add to your personal wishlist:')?.trim();
+  if(!title) return;
+  const me = myData();
+  me.personalWishlist = me.personalWishlist || [];
+  me.personalWishlist.push({ id: uid(), title, addedAt: Date.now() });
+  saveUsers().then(() => { renderPWishlist(); toast('Added to your wishlist!'); });
+}
+
+function removeFromPWishlist(id){
+  const me = myData();
+  me.personalWishlist = (me.personalWishlist||[]).filter(x => x.id !== id);
+  saveUsers().then(() => renderPWishlist());
+}
+
+function renderPWishlist(){
+  const me = myData();
+  const items = me.personalWishlist || [];
+  const grid  = document.getElementById('pwish-grid');
+  const empty = document.getElementById('pwish-empty');
+  if(!grid) return;
+  if(!items.length){ grid.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display = 'none';
+
+  // Check if any match library titles
+  grid.innerHTML = items.slice().sort((a,b)=>b.addedAt-a.addedAt).map(item => {
+    const match = sharedData.library.find(m => m.title.toLowerCase() === item.title.toLowerCase());
+    const hp = match?.poster && match.poster !== 'N/A';
+    return `<div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">
+      ${hp ? `<img src="${match.poster}" style="width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0">` : `<div style="width:36px;height:54px;border-radius:5px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-heart" style="color:var(--muted);opacity:.4"></i></div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600">${item.title}</div>
+        ${match ? `<div style="font-size:11px;color:var(--green);margin-top:2px">✓ In library</div>` : `<div style="font-size:11px;color:var(--muted);margin-top:2px">Not in library yet</div>`}
+      </div>
+      ${match ? `<button class="act act-w" onclick="openDetail('${match.id}','library')" style="flex-shrink:0"><i class="ti ti-eye"></i> View</button>` : ''}
+      <button class="act act-del" onclick="removeFromPWishlist('${item.id}')" style="flex-shrink:0"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
+// ── DIARY ─────────────────────────────────────────────────────────────────────
+function buildDiaryYearSelect(){
+  const me = myData();
+  const years = new Set();
+  Object.values(me.history||{}).forEach(dates => {
+    dates.forEach(ts => years.add(new Date(ts).getFullYear()));
+  });
+  if(!years.size) return;
+  const sel = document.getElementById('diary-year');
+  if(!sel) return;
+  const curYear = new Date().getFullYear();
+  const sorted = [...years].sort((a,b)=>b-a);
+  sel.innerHTML = sorted.map(y => `<option value="${y}"${y===curYear?' selected':''}>${y}</option>`).join('');
+}
+
+function renderDiary(){
+  const me = myData();
+  const sel = document.getElementById('diary-year');
+  const filterYear = sel ? parseInt(sel.value) : new Date().getFullYear();
+  const body = document.getElementById('diary-body');
+  const empty = document.getElementById('diary-empty');
+  if(!body) return;
+
+  // Build a flat list of all watch events in the selected year
+  const entries = [];
+  Object.entries(me.history||{}).forEach(([itemId, dates]) => {
+    const m = sharedData.library.find(x => x.id === itemId);
+    if(!m) return;
+    dates.forEach(ts => {
+      const d = new Date(ts);
+      if(d.getFullYear() === filterYear){
+        entries.push({ m, ts, rating: me.ratings?.[itemId]||0 });
+      }
+    });
+  });
+
+  if(!entries.length){ body.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display = 'none';
+
+  // Sort newest first
+  entries.sort((a,b) => b.ts - a.ts);
+
+  // Group by month
+  const months = {};
+  entries.forEach(e => {
+    const key = new Date(e.ts).toLocaleString('en-US',{month:'long',year:'numeric'});
+    (months[key] = months[key]||[]).push(e);
+  });
+
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  body.innerHTML = Object.entries(months).map(([monthKey, mes]) => {
+    const rows = mes.map(e => {
+      const d = new Date(e.ts);
+      const hp = e.m.poster && e.m.poster !== 'N/A';
+      return `<div class="diary-entry" onclick="openDetail('${e.m.id}','library')">
+        <div style="min-width:42px;text-align:center">
+          <div class="diary-date">${d.getDate()}</div>
+          <div class="diary-date-month">${MONTH_NAMES[d.getMonth()]}</div>
+        </div>
+        ${hp ? `<img src="${e.m.poster}" class="diary-poster">` : `<div class="diary-poster" style="display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="diary-info">
+          <div class="diary-title">${e.m.title}</div>
+          <div class="diary-meta">${e.m.year||''}${e.m.genre?' · '+e.m.genre.split(',')[0]:''}</div>
+        </div>
+        ${e.rating ? `<div class="diary-rating">${e.rating}<span style="font-size:12px;color:var(--muted)">/10</span></div>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="diary-month"><div class="diary-month-hd">${monthKey} <span style="font-size:12px;color:var(--muted)">(${mes.length})</span></div><div class="diary-entries">${rows}</div></div>`;
+  }).join('');
+}
+
+// ── YEAR IN REVIEW ────────────────────────────────────────────────────────────
+function renderYearInReview(year, me, watched){
+  const curYear = year || new Date().getFullYear();
+  // Titles watched this year
+  const thisYear = [];
+  Object.entries(me.history||{}).forEach(([itemId, dates]) => {
+    const m = sharedData.library.find(x => x.id === itemId);
+    if(!m) return;
+    dates.forEach(ts => {
+      if(new Date(ts).getFullYear() === curYear) thisYear.push({ m, ts });
+    });
+  });
+  thisYear.sort((a,b) => a.ts - b.ts);
+  const unique = [...new Map(thisYear.map(e=>[e.m.id,e])).values()];
+  const firstWatch = thisYear[0];
+  const lastWatch  = thisYear[thisYear.length-1];
+
+  // Genre breakdown for this year
+  const gc = {};
+  unique.forEach(e => (e.m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)gc[t]=(gc[t]||0)+1}));
+  const topGenre = Object.entries(gc).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+
+  // Avg rating this year
+  const ratedThisYear = unique.filter(e=>me.ratings?.[e.m.id]>0);
+  const avgRating = ratedThisYear.length
+    ? Math.round(ratedThisYear.reduce((s,e)=>s+(me.ratings[e.m.id]||0),0)/ratedThisYear.length*10)/10
+    : 0;
+
+  return `
+    <div style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:var(--gold);margin-bottom:16px;text-shadow:0 0 20px rgba(232,184,75,.2)">${curYear} In Review</div>
+    <div class="yir-grid">
+      <div class="yir-card"><div class="yir-num">${unique.length}</div><div class="yir-lbl">Titles Watched</div></div>
+      <div class="yir-card"><div class="yir-num">${thisYear.length}</div><div class="yir-lbl">Total Viewings</div></div>
+      <div class="yir-card"><div class="yir-num">${avgRating||'—'}</div><div class="yir-lbl">Avg Rating</div></div>
+      <div class="yir-card"><div class="yir-num" style="font-size:28px">${topGenre}</div><div class="yir-lbl">Top Genre</div></div>
+    </div>
+    ${firstWatch?`<div class="sl" style="margin-bottom:10px">First Watch of ${curYear}</div>
+    <div class="diary-entry" onclick="openDetail('${firstWatch.m.id}','library')" style="margin-bottom:20px">
+      ${firstWatch.m.poster&&firstWatch.m.poster!=='N/A'?`<img src="${firstWatch.m.poster}" class="diary-poster">`:'<div class="diary-poster"></div>'}
+      <div class="diary-info"><div class="diary-title">${firstWatch.m.title}</div><div class="diary-meta">${new Date(firstWatch.ts).toLocaleDateString('en-US',{month:'long',day:'numeric'})}</div></div>
+    </div>`:''}
+    ${unique.length?`<div class="sl" style="margin-bottom:10px">Watched in ${curYear}</div>
+    <div class="yir-poster-row">${unique.map(e=>{
+      const hp=e.m.poster&&e.m.poster!=='N/A';
+      return hp?`<img src="${e.m.poster}" class="yir-mini" onclick="openDetail('${e.m.id}','library')" title="${e.m.title}">`:`<div class="yir-mini-fb" onclick="openDetail('${e.m.id}','library')"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`;
+    }).join('')}</div>`:''}`;
+}
+
+// ── DUPLICATE DETECTOR ────────────────────────────────────────────────────────
+function findDuplicates(){
+  const seen = {};
+  const dups = [];
+  sharedData.library.forEach(m => {
+    const key = m.title.toLowerCase().trim();
+    if(seen[key]) dups.push({ title: m.title, ids: [seen[key].id, m.id], items: [seen[key], m] });
+    else seen[key] = m;
+  });
+  return dups;
+}
+
+function renderDuplicates(container){
+  const dups = findDuplicates();
+  if(!dups.length){
+    container.innerHTML = '<div style="font-size:13px;color:var(--green);padding:8px 0">✓ No duplicates found!</div>';
+    return;
+  }
+  container.innerHTML = dups.map(d => `
+    <div class="dup-card">
+      <div class="dup-title">${d.title}</div>
+      <div class="dup-badge">${d.ids.length} copies</div>
+      ${isAdmin() ? d.items.map((item,i) => `<button class="danger-btn" style="font-size:11px;padding:4px 10px" onclick="delItem('${item.id}','library');renderStats()">Remove copy ${i+1} (added ${new Date(item.addedAt||0).toLocaleDateString()})</button>`).join('') : ''}
+    </div>`).join('');
+}
+
 function renderStats(){
   const me=myData();
   const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
@@ -1581,7 +1927,21 @@ function renderStats(){
       <div style="font-size:11px;color:var(--muted)">Avg: <strong style="color:var(--gold)">${ua||'—'}</strong></div>
     </div>`;
   }).join('');
+  // Build year selector for diary
+  buildDiaryYearSelect();
+  // Update banner
+  updateBanner();
+
+  const curYear = new Date().getFullYear();
+  const dupCount = findDuplicates().length;
+
   document.getElementById('stats-page').innerHTML=`
+    <div style="grid-column:1/-1">${renderYearInReview(curYear, me, watched)}</div>
+    ${dupCount&&isAdmin()?`<div class="stat-block" style="grid-column:1/-1">
+      <div class="sbt"><i class="ti ti-copy"></i> Duplicate Detector</div>
+      <div id="dup-results"></div>
+    </div>`:''}
+  ` + `
     <div class="stat-block"><div class="sbt"><i class="ti ti-eye"></i> ${CU.username}'s Watch</div>
       <div class="stat-big">${watched.length}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">of ${sharedData.library.length} titles · ${sharedData.library.length-watched.length} unwatched</div></div>
     <div class="stat-block"><div class="sbt"><i class="ti ti-star"></i> ${CU.username}'s Ratings</div>
@@ -1597,6 +1957,9 @@ function renderStats(){
         <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:10px;color:var(--muted)">${m.year||''}</div></div>
         <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold)">${me.ratings[m.id]}/10</div>
       </div>`).join('')}</div>`:''}`;
+  // Render duplicates if any
+  const dupEl = document.getElementById('dup-results');
+  if(dupEl) renderDuplicates(dupEl);
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
