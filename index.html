@@ -394,7 +394,8 @@ textarea.ffi{resize:vertical}
   </div>
   <div class="nav-bar">
     <div class="nav">
-      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-stack-2"></i> Library <span class="bdg" id="lib-count">0</span></button>
+      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
+      <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
@@ -424,6 +425,30 @@ textarea.ffi{resize:vertical}
       <div class="tag-bar" id="tag-bar"></div>
       <div class="grid" id="lib-grid"></div>
       <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
+    </div>
+
+    <!-- TV SHOWS -->
+    <div class="tab" id="tab-tvshows">
+      <div class="stats" id="tv-stats"></div>
+      <div class="shelf" id="tv-now-shelf" style="display:none">
+        <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
+        <div class="shelf-scroll" id="tv-now-scroll"></div>
+      </div>
+      <div class="shelf" id="tv-fav-shelf" style="display:none">
+        <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
+        <div class="shelf-scroll" id="tv-fav-scroll"></div>
+      </div>
+      <div class="toolbar">
+        <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-tv" placeholder="Search TV shows..." oninput="renderTV()"></div>
+        <select class="fb" id="f-tv-genre" onchange="renderTV()"><option value="">All Genres</option></select>
+        <select class="fb" id="f-tv-watched" onchange="renderTV()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
+        <select class="fb" id="f-tv-sort" onchange="renderTV()"><option value="added">Recently Added</option><option value="title">A–Z</option><option value="year">Year</option><option value="rating">My Rating</option></select>
+        <button class="fb" id="f-tv-fav" onclick="toggleTVFavF(this)"><i class="ti ti-star"></i> Faves</button>
+        <button class="ab" id="add-tv-btn" style="display:none" onclick="openAdd('library','tv')"><i class="ti ti-plus"></i> Add</button>
+      </div>
+      <div class="tag-bar" id="tv-tag-bar"></div>
+      <div class="grid" id="tv-grid"></div>
+      <div class="empty" id="tv-empty" style="display:none"><i class="ti ti-device-tv"></i><p style="font-size:14px">No TV shows yet.</p></div>
     </div>
 
     <!-- WISHLIST -->
@@ -712,6 +737,7 @@ function initApp(){
   rt.textContent=isAdmin()?'Admin':'Member';
   rt.className='role-tag '+(isAdmin()?'rt-admin':'rt-member');
   document.getElementById('add-lib-btn').style.display=isAdmin()?'':'none';
+  if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
   document.getElementById('add-wish-btn').style.display='';
   buildGenreFilter();
   renderLib();
@@ -738,13 +764,17 @@ function switchTab(t,el){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   if(t==='library') renderLib();
+  if(t==='tvshows') renderTV();
   if(t==='wishlist') renderWish();
   if(t==='lists') renderLists();
   if(t==='stats') renderStats();
 }
 
 function updateCounts(){
-  document.getElementById('lib-count').textContent=sharedData.library.length;
+  const movies=sharedData.library.filter(m=>m.type==='movie'||!m.type);
+  const tvshows=sharedData.library.filter(m=>m.type==='tv');
+  document.getElementById('lib-count').textContent=movies.length;
+  document.getElementById('tv-count').textContent=tvshows.length;
   document.getElementById('wish-count').textContent=sharedData.wishlist.length;
   if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
 }
@@ -752,8 +782,15 @@ function updateCounts(){
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 function buildGenreFilter(){
   const genres=new Set();
-  sharedData.library.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
+  sharedData.library.filter(m=>m.type!=='tv').forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
   const sel=document.getElementById('f-genre'),cur=sel.value;
+  sel.innerHTML='<option value="">All Genres</option>'+[...genres].sort().map(g=>`<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
+}
+
+function buildTVGenreFilter(){
+  const genres=new Set();
+  sharedData.library.filter(m=>m.type==='tv').forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
+  const sel=document.getElementById('f-tv-genre'),cur=sel.value;
   sel.innerHTML='<option value="">All Genres</option>'+[...genres].sort().map(g=>`<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
 }
 
@@ -768,6 +805,82 @@ function buildTagBar(){
 function setTag(t){ activeTag=activeTag===t?'':t; buildTagBar(); renderLib(); }
 function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',favFilterOn); renderLib(); }
 
+let tvFavFilterOn = false;
+let activeTVTag = '';
+function toggleTVFavF(el){ tvFavFilterOn=!tvFavFilterOn; el.classList.toggle('active',tvFavFilterOn); renderTV(); }
+function setTVTag(t){ activeTVTag=activeTVTag===t?'':t; buildTVTagBar(); renderTV(); }
+
+function buildTVTagBar(){
+  const tags=new Set();
+  sharedData.library.filter(m=>m.type==='tv').forEach(m=>(m.tags||[]).forEach(t=>{if(t)tags.add(t)}));
+  const bar=document.getElementById('tv-tag-bar');
+  if(!bar) return;
+  if(!tags.size){bar.innerHTML='';return}
+  bar.innerHTML=[...tags].sort().map(t=>`<span class="tpill ${activeTVTag===t?'active':''}" onclick="setTVTag('${t}')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('');
+}
+
+function renderTV(){
+  buildTVGenreFilter(); buildTVTagBar();
+  const me=myData();
+  const q=(document.getElementById('s-tv')?.value||'').toLowerCase();
+  const genre=document.getElementById('f-tv-genre')?.value||'';
+  const watched=document.getElementById('f-tv-watched')?.value||'';
+  const sort=document.getElementById('f-tv-sort')?.value||'added';
+
+  let items=sharedData.library.filter(m=>{
+    if(m.type!=='tv') return false;
+    if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
+    if(genre&&!(m.genre||'').includes(genre)) return false;
+    if(watched==='watched'&&!me.watched?.[m.id]) return false;
+    if(watched==='unwatched'&&me.watched?.[m.id]) return false;
+    if(tvFavFilterOn&&!me.favorites?.[m.id]) return false;
+    if(activeTVTag&&!(m.tags||[]).includes(activeTVTag)) return false;
+    return true;
+  });
+
+  items.sort((a,b)=>{
+    if(sort==='title') return a.title.localeCompare(b.title);
+    if(sort==='year') return (Number(b.year)||0)-(Number(a.year)||0);
+    if(sort==='rating') return (me.ratings?.[b.id]||0)-(me.ratings?.[a.id]||0);
+    return (b.addedAt||0)-(a.addedAt||0);
+  });
+
+  const total=sharedData.library.filter(m=>m.type==='tv').length;
+  const wCount=sharedData.library.filter(m=>m.type==='tv'&&me.watched?.[m.id]).length;
+  const tvStatsEl=document.getElementById('tv-stats');
+  if(tvStatsEl) tvStatsEl.innerHTML=`
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Shows</div></div>
+    <div class="stat"><div class="stat-n">${wCount}</div><div class="stat-l">Watched</div></div>
+    <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>`;
+
+  // Now Watching shelf
+  const nw=sharedData.library.filter(m=>m.type==='tv'&&me.nowWatching?.[m.id]);
+  const ns=document.getElementById('tv-now-shelf');
+  if(ns){ ns.style.display=nw.length?'':'none'; if(nw.length) document.getElementById('tv-now-scroll').innerHTML=nw.map(m=>miniCard(m)).join(''); }
+  const favs=sharedData.library.filter(m=>m.type==='tv'&&me.favorites?.[m.id]);
+  const fs=document.getElementById('tv-fav-shelf');
+  if(fs){ fs.style.display=favs.length?'':'none'; if(favs.length) document.getElementById('tv-fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join(''); }
+
+  const grid=document.getElementById('tv-grid'),empty=document.getElementById('tv-empty');
+  if(!grid) return;
+  if(!items.length){grid.innerHTML='';if(empty)empty.style.display='';return}
+  if(empty) empty.style.display='none';
+  const r=me.ratings||{};
+  grid.innerHTML=items.map(m=>{
+    const hp=m.poster&&m.poster!=='N/A';
+    return `<div class="card" onclick="openDetail('${m.id}','library')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-device-tv"></i><span>${m.title}</span></div>
+      <div class="ov"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div></div>
+      ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
+      ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
+      ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
+      ${watcherAvatarsHTML(m)}
+    </div>`;
+  }).join('');
+  updateCounts();
+}
+
 // ── PLEX ACTIVITY (browser-direct) ───────────────────────────────────────────
 async function fetchPlexActivity(){
   const cfg = getPlexCfg();
@@ -780,7 +893,7 @@ async function fetchPlexActivity(){
 
     // Use the proper history endpoint — returns accountID correctly
     const histR = await fetch(
-      `${base}/status/sessions/history/all?sort=viewedAt:desc&limit=200&X-Plex-Token=${tok}`,
+      `${base}/status/sessions/history/all?sort=viewedAt:desc&limit=2000&X-Plex-Token=${tok}`,
       { headers }
     );
     if(!histR.ok) throw new Error('history '+histR.status);
@@ -943,6 +1056,7 @@ function renderLib(){
   const watched=document.getElementById('f-watched').value;
   const sort=document.getElementById('f-sort').value;
   let items=sharedData.library.filter(m=>{
+    if(m.type==='tv') return false; // TV shows have their own tab
     if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
     if(genre&&!(m.genre||'').includes(genre)) return false;
     if(watched==='watched'&&!me.watched?.[m.id]) return false;
@@ -957,17 +1071,18 @@ function renderLib(){
     if(sort==='rating') return (me.ratings?.[b.id]||0)-(me.ratings?.[a.id]||0);
     return (b.addedAt||0)-(a.addedAt||0);
   });
-  const total=sharedData.library.length;
-  const wCount=Object.values(me.watched||{}).filter(Boolean).length;
+  const allMovies=sharedData.library.filter(m=>m.type!=='tv');
+  const total=allMovies.length;
+  const wCount=allMovies.filter(m=>me.watched?.[m.id]).length;
   document.getElementById('lib-stats').innerHTML=`
-    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Movies</div></div>
     <div class="stat"><div class="stat-n">${wCount}</div><div class="stat-l">Watched</div></div>
     <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>`;
-  const nw=sharedData.library.filter(m=>me.nowWatching?.[m.id]);
+  const nw=sharedData.library.filter(m=>m.type!=='tv'&&me.nowWatching?.[m.id]);
   const ns=document.getElementById('now-shelf');
   ns.style.display=nw.length?'':'none';
   if(nw.length) document.getElementById('now-scroll').innerHTML=nw.map(m=>miniCard(m)).join('');
-  const favs=sharedData.library.filter(m=>me.favorites?.[m.id]);
+  const favs=sharedData.library.filter(m=>m.type!=='tv'&&me.favorites?.[m.id]);
   const fs=document.getElementById('fav-shelf');
   fs.style.display=favs.length?'':'none';
   if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join('');
@@ -1322,14 +1437,14 @@ function setAddType(type){
   }
 }
 
-function openAdd(target='library'){
+function openAdd(target='library', typeHint='movie'){
   addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
-  document.getElementById('add-lbl').textContent=target==='library'?'Add to Library':'Add to Wishlist';
+  document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
   ['add-t','add-yr','add-gn','add-rat','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
-  document.getElementById('add-type').value='movie';
-  setAddType('movie');
+  document.getElementById('add-type').value=typeHint;
+  setAddType(typeHint);
   document.getElementById('add-wtch').checked=false;
   document.getElementById('lk-result').innerHTML='';
   openMo('add');
@@ -1445,6 +1560,8 @@ function submitAdd(){
 function renderStats(){
   const me=myData();
   const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
+  const watchedMovies=watched.filter(m=>m.type!=='tv');
+  const watchedTV=watched.filter(m=>m.type==='tv');
   const myRatings=Object.entries(me.ratings||{}).filter(([,v])=>v>0);
   const avg=myRatings.length?Math.round(myRatings.reduce((s,[,v])=>s+v,0)/myRatings.length*10)/10:0;
   const genreCount={};
