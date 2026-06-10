@@ -2365,12 +2365,6 @@ if(!WORKER_URL||!APP_TOKEN){
     <button class="mc" onclick="closeMo('secret')"><i class="ti ti-x"></i></button>
     <div style="font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:3px;color:var(--red);margin-bottom:6px;text-shadow:0 0 20px rgba(232,53,75,0.4)">TV Pornography</div>
     <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px">Premium Exclusive Content</div>
-    <div id="secret-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px">
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
-    </div>
     <button onclick="secretAddClick()" style="width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--red),#c0203a);color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 20px rgba(232,53,75,0.3)">
       <i class="ti ti-plus"></i> Add Title
     </button>
@@ -2382,16 +2376,7 @@ if(!WORKER_URL||!APP_TOKEN){
 // ── SECRET PAGE ───────────────────────────────────────────────────────────────
 function openSecret(){
   openMo('secret');
-  // Populate fake "titles"
-  const fakeTitles = [
-    'Desperate Housewives S01','The Wire: Uncut','Breaking Bad Special','Game of Thrones Extras',
-    'The Sopranos Extended','Ozark: Raw Cut','Succession Uncensored','Twin Peaks Director Cut'
-  ];
-  document.getElementById('secret-grid').innerHTML = fakeTitles.map(t=>`
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px;aspect-ratio:2/3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0a0e,#2a0a14);opacity:.9"></div>
-      <div style="position:relative;font-size:9px;font-weight:600;color:var(--light);text-align:center;line-height:1.3">${t}</div>
-    </div>`).join('');
+
 }
 
 let secretLaughing = false;
