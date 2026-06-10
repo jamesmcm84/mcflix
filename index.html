@@ -2402,23 +2402,37 @@ function secretAddClick(){
   }, 180);
 }
 
-// Long press on TV stat box
+// Long press on TV stat box — must hold 600ms, cancels on release before that
 (function(){
   let pressTimer = null;
+  let didLongPress = false;
+
   function startPress(e){
+    didLongPress = false;
     pressTimer = setTimeout(()=>{
+      didLongPress = true;
       openSecret();
-      pressTimer = null;
-    }, 500);
+    }, 600);
   }
+
   function cancelPress(){
     if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
   }
-  // Attach after DOM is ready — watch for the stats element to be rendered
+
+  function handleClick(e){
+    // If long press fired, swallow the click so setWatchedFilter('tv') doesn't run
+    if(didLongPress){
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      didLongPress = false;
+    }
+  }
+
   const observer = new MutationObserver(()=>{
     const stats = document.getElementById('watched-stats');
-    if(!stats) return;
-    // Find TV box by watching clicks on stat boxes
+    if(!stats || stats._secretBound) return;
+    stats._secretBound = true;
+
     stats.addEventListener('mousedown', e=>{
       const box = e.target.closest('.stat');
       if(box && box.textContent.includes('TV')) startPress(e);
@@ -2427,9 +2441,12 @@ function secretAddClick(){
       const box = e.target.closest('.stat');
       if(box && box.textContent.includes('TV')) startPress(e);
     }, {passive:true});
+    // Cancel on any release
     ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{
       stats.addEventListener(ev, cancelPress);
     });
+    // Intercept click if long press fired
+    stats.addEventListener('click', handleClick, true);
   });
   observer.observe(document.body, {childList:true, subtree:true});
 })();
