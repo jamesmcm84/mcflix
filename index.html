@@ -448,6 +448,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('pwishlist',this)"><i class="ti ti-heart"></i> My Wishlist</button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
+      <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
   </div>
@@ -531,7 +532,7 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-pwishlist">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
         <div class="sl" style="flex:1;margin:0">My Wishlist</div>
-        <button class="ab" onclick="addToPersonalWishlistSearch()"><i class="ti ti-plus"></i> Add Title</button>
+        <button class="ab" onclick="openAdd('pwishlist')"><i class="ti ti-plus"></i> Add Title</button>
       </div>
       <div id="pwish-grid"></div>
       <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
@@ -546,6 +547,21 @@ textarea.ffi{resize:vertical}
       </div>
       <div id="diary-body"></div>
       <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
+    </div>
+
+    <!-- WATCHED -->
+    <div class="tab" id="tab-watched">
+      <div class="toolbar" style="margin-bottom:16px">
+        <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-watched" placeholder="Search watched titles..." oninput="renderWatched()"></div>
+        <select class="fb" id="f-watched-type" onchange="renderWatched()">
+          <option value="">All Types</option>
+          <option value="movie">Movies</option>
+          <option value="tv">TV Shows</option>
+        </select>
+      </div>
+      <div class="stats" id="watched-stats"></div>
+      <div class="grid" id="watched-grid"></div>
+      <div class="empty" id="watched-empty" style="display:none"><i class="ti ti-eye"></i><p style="font-size:14px">Nothing watched yet.</p></div>
     </div>
 
     <!-- STATS -->
@@ -877,6 +893,7 @@ function switchTab(t,el){
   if(t==='pwishlist') renderPWishlist();
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
+  if(t==='watched') renderWatched();
   if(t==='stats') renderStats();
 }
 
@@ -1616,7 +1633,7 @@ function autoSortTitle(){
 
 function openAdd(target='library', typeHint='movie'){
   addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
-  document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):'Add to Wishlist';
+  document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):target==='pwishlist'?'Add to My Wishlist':'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
   ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
@@ -1728,6 +1745,12 @@ function submitAdd(){
     if(addTarget==='library'){
       sharedData.library.push(item);
       if(document.getElementById('add-wtch').checked){const me=myData();me.watched=me.watched||{};me.watched[item.id]=true;saveUsers();}
+    }else if(addTarget==='pwishlist'){
+      const me=myData();
+      me.personalWishlist=me.personalWishlist||[];
+      me.personalWishlist.push({id:item.id,title:item.title,year:item.year,poster:item.poster,type:item.type,addedAt:item.addedAt});
+      saveUsers().then(()=>{closeMo('add');renderPWishlist();toast(title+' added to your wishlist!');});
+      return;
     }else{
       sharedData.wishlist.push(item);
     }
@@ -1763,64 +1786,13 @@ function updateBanner(){
 }
 
 // ── PERSONAL WISHLIST ─────────────────────────────────────────────────────────
-function addToPersonalWishlist(){
-  const title = prompt('Add to your personal wishlist:')?.trim();
-  if(!title) return;
-  const me = myData();
-  me.personalWishlist = me.personalWishlist || [];
-  me.personalWishlist.push({ id: uid(), title, addedAt: Date.now() });
-  saveUsers().then(() => { renderPWishlist(); toast('Added to your wishlist!'); });
-}
-
 function removeFromPWishlist(id){
   const me = myData();
   me.personalWishlist = (me.personalWishlist||[]).filter(x => x.id !== id);
   saveUsers().then(() => renderPWishlist());
 }
 
-async function addToPersonalWishlistSearch(){
-  // Open a search modal-like flow using OMDB
-  const q = prompt('Search for a title to add to your wishlist:')?.trim();
-  if(!q) return;
-  try{
-    const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(q)}`);
-    const d = await r.json();
-    if(d.Response==='True'&&d.Search?.length){
-      // Build a quick picker
-      const opts = d.Search.slice(0,8).map((it,i)=>` ${i+1}. ${it.Title} (${it.Year})`).join('\n');
-      const pick = prompt('Pick a number:\n'+opts);
-      const idx = parseInt(pick)-1;
-      if(isNaN(idx)||idx<0||idx>=d.Search.length) return;
-      const chosen = d.Search[idx];
-      // Fetch full details
-      const r2 = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${chosen.imdbID}`);
-      const d2 = await r2.json();
-      const me = myData();
-      me.personalWishlist = me.personalWishlist||[];
-      me.personalWishlist.push({
-        id:uid(), title:d2.Title||chosen.Title,
-        year:(d2.Year||chosen.Year||'').slice(0,4),
-        poster:d2.Poster&&d2.Poster!=='N/A'?d2.Poster:'',
-        type:d2.Type==='series'?'tv':'movie',
-        addedAt:Date.now()
-      });
-      saveUsers().then(()=>{ renderPWishlist(); toast('Added to your wishlist!'); });
-    }else{
-      // Fallback to manual
-      const title = prompt('Nothing found. Enter title manually:')?.trim();
-      if(!title) return;
-      const me = myData(); me.personalWishlist = me.personalWishlist||[];
-      me.personalWishlist.push({id:uid(),title,year:'',poster:'',type:'movie',addedAt:Date.now()});
-      saveUsers().then(()=>{ renderPWishlist(); toast('Added!'); });
-    }
-  }catch(e){
-    const title = prompt('Search failed. Enter title manually:')?.trim();
-    if(!title) return;
-    const me = myData(); me.personalWishlist = me.personalWishlist||[];
-    me.personalWishlist.push({id:uid(),title,year:'',poster:'',type:'movie',addedAt:Date.now()});
-    saveUsers().then(()=>{ renderPWishlist(); toast('Added!'); });
-  }
-}
+
 
 function renderPWishlist(){
   const me = myData();
@@ -1874,33 +1846,63 @@ function openDiaryAdd(){
   setTimeout(()=>document.getElementById('diary-search').focus(), 100);
 }
 
-function diarySearchLib(){
-  const q = (document.getElementById('diary-search').value||'').toLowerCase();
+let diarySelectedItem = null;
+
+async function diarySearchLib(){
+  const q = (document.getElementById('diary-search').value||'').toLowerCase().trim();
   const res = document.getElementById('diary-results');
   if(!q){ res.innerHTML=''; return; }
-  const matches = sharedData.library
-    .filter(m => m.title.toLowerCase().includes(q))
-    .slice(0,8);
-  if(!matches.length){ res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No titles found.</div>`; return; }
-  res.innerHTML = matches.map(m => {
+
+  const libMatches = sharedData.library.filter(m => m.title.toLowerCase().includes(q)).slice(0,5);
+  const libHTML = libMatches.map(m => {
     const hp = m.poster && m.poster !== 'N/A';
-    return `<button type="button" class="lk-opt" onclick="selectDiaryItem('${m.id}','${m.title.replace(/'/g,"\'")}')">
+    return `<button type="button" class="lk-opt" onclick="selectDiaryItem('${m.id}','${m.title.replace(/'/g,"\\'")}','${m.poster||""}',true)">
       ${hp?`<img src="${m.poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-      <div style="flex:1;min-width:0"><div class="lk-opt-title">${m.title}</div><div class="lk-opt-yr">${m.year||''} · ${m.type==='tv'?'TV':'Movie'}</div></div>
+      <div style="flex:1;min-width:0"><div class="lk-opt-title">${m.title}</div><div class="lk-opt-yr">${m.year||''} · In Library</div></div>
       <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
     </button>`;
   }).join('');
+
+  res.innerHTML = libHTML || `<div style="font-size:11px;color:var(--muted);padding:4px 0">Searching OMDB...</div>`;
+
+  try{
+    const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(q)}`);
+    const d = await r.json();
+    if(d.Response==='True'&&d.Search?.length){
+      const omdbHTML = d.Search.slice(0,8).map(it=>{
+        if(sharedData.library.find(m=>m.title.toLowerCase()===it.Title.toLowerCase())) return '';
+        const hp = it.Poster && it.Poster !== 'N/A';
+        return `<button type="button" class="lk-opt" onclick="selectDiaryItem('omdb:${it.imdbID}','${it.Title.replace(/'/g,"\\'")}','${hp?it.Poster:""}',false)">
+          ${hp?`<img src="${it.Poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+          <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.Title}</div><div class="lk-opt-yr">${it.Year||''} · OMDB</div></div>
+          <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
+        </button>`;
+      }).filter(Boolean).join('');
+      res.innerHTML = (libHTML||'') + (omdbHTML||'');
+      if(!libHTML&&!omdbHTML) res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
+    }else if(!libMatches.length){
+      res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
+    }
+  }catch(e){}
 }
 
-function selectDiaryItem(id, title){
+function selectDiaryItem(id, title, poster, inLibrary){
   diarySelectedId = id;
+  diarySelectedItem = { id, title, poster, inLibrary };
   document.getElementById('diary-search').value = '';
   document.getElementById('diary-results').innerHTML = '';
-  document.getElementById('diary-selected').textContent = title;
+  const sel = document.getElementById('diary-selected');
+  const hp = poster && poster !== 'N/A';
+  sel.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
+    ${hp?`<img src="${poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:''}
+    <span>${title}</span>
+    ${!inLibrary?'<span style="font-size:10px;color:var(--muted)">· Not in library</span>':''}
+  </div>`;
   document.getElementById('diary-selected-wrap').style.display = '';
 }
 
-function submitDiaryAdd(){
+
+async function submitDiaryAdd(){
   if(!diarySelectedId){ toast('Pick a title first.',true); return; }
   const dateVal = document.getElementById('diary-log-date').value;
   if(!dateVal){ toast('Pick a date.',true); return; }
@@ -1909,8 +1911,32 @@ function submitDiaryAdd(){
   const me = myData();
   me.history = me.history||{};
   me.watched = me.watched||{};
-  me.history[diarySelectedId] = [...(me.history[diarySelectedId]||[]), ts];
-  me.watched[diarySelectedId] = true;
+
+  let itemId = diarySelectedId;
+
+  // If this is an OMDB item not in the library, fetch full details and add to personal diary items
+  if(diarySelectedId.startsWith('omdb:')){
+    const imdbID = diarySelectedId.replace('omdb:','');
+    try{
+      const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${imdbID}&plot=full`);
+      const d2 = await r.json();
+      if(d2.Response==='True'){
+        // Store as a diary-only item in personal data (not in shared library)
+        if(!me.diaryItems) me.diaryItems={};
+        itemId = 'diary:'+imdbID;
+        me.diaryItems[itemId]={
+          id:itemId, title:d2.Title, year:(d2.Year||'').slice(0,4),
+          poster:d2.Poster&&d2.Poster!=='N/A'?d2.Poster:'',
+          genre:d2.Genre||'', type:d2.Type==='series'?'tv':'movie',
+          director:d2.Director&&d2.Director!=='N/A'?d2.Director:'',
+          imdb:d2.imdbID||'',
+        };
+      }
+    }catch(e){ toast('Could not fetch title details',true); return; }
+  }
+
+  me.history[itemId] = [...(me.history[itemId]||[]), ts];
+  me.watched[itemId] = true;
   saveUsers().then(()=>{
     closeMo('diary-add');
     buildDiaryYearSelect();
@@ -1946,7 +1972,9 @@ function renderDiary(){
   // Build a flat list of all watch events in the selected year
   const entries = [];
   Object.entries(me.history||{}).forEach(([itemId, dates]) => {
-    const m = sharedData.library.find(x => x.id === itemId);
+    // Check shared library first, then personal diary items
+    const m = sharedData.library.find(x => x.id === itemId)
+           || (me.diaryItems&&me.diaryItems[itemId]);
     if(!m) return;
     dates.forEach(ts => {
       const d = new Date(ts);
@@ -2064,6 +2092,48 @@ function renderDuplicates(container){
       <div class="dup-badge">${d.ids.length} copies</div>
       ${isAdmin() ? d.items.map((item,i) => `<button class="danger-btn" style="font-size:11px;padding:4px 10px" onclick="delItem('${item.id}','library');renderStats()">Remove copy ${i+1} (added ${new Date(item.addedAt||0).toLocaleDateString()})</button>`).join('') : ''}
     </div>`).join('');
+}
+
+function renderWatched(){
+  const me = myData();
+  const q = (document.getElementById('s-watched')?.value||'').toLowerCase();
+  const typeFilter = document.getElementById('f-watched-type')?.value||'';
+
+  const items = sharedData.library.filter(m => {
+    if(!me.watched?.[m.id]) return false;
+    if(typeFilter && m.type !== typeFilter) return false;
+    if(q && !(m.title+' '+(m.actors||'')+' '+(m.director||'')).toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b) => (a.sortTitle||a.title).localeCompare(b.sortTitle||b.title));
+
+  const movies = items.filter(m=>m.type!=='tv').length;
+  const tv = items.filter(m=>m.type==='tv').length;
+  const statsEl = document.getElementById('watched-stats');
+  if(statsEl) statsEl.innerHTML=`
+    <div class="stat"><div class="stat-n">${items.length}</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n">${movies}</div><div class="stat-l">Movies</div></div>
+    <div class="stat"><div class="stat-n">${tv}</div><div class="stat-l">TV Shows</div></div>`;
+
+  const grid = document.getElementById('watched-grid');
+  const empty = document.getElementById('watched-empty');
+  if(!grid) return;
+  if(!items.length){ grid.innerHTML=''; if(empty)empty.style.display=''; return; }
+  if(empty) empty.style.display='none';
+
+  const r = me.ratings||{};
+  grid.innerHTML = items.map(m => {
+    const hp = m.poster && m.poster !== 'N/A';
+    const lastWatched = (me.history?.[m.id]||[]).slice(-1)[0];
+    const when = lastWatched ? formatAgo(lastWatched) : '';
+    return `<div class="card" onclick="openDetail('${m.id}','library')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-${m.type==='tv'?'device-tv':'movie'}"></i><span>${m.title}</span></div>
+      <div class="ov"><div class="ov-title">${m.sortTitle||m.title}</div><div class="ov-meta">${when||m.year||''}</div></div>
+      <div class="wb"><i class="ti ti-check"></i></div>
+      ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
+      ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 function renderStats(){
