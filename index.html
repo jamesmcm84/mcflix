@@ -474,7 +474,7 @@ textarea.ffi{resize:vertical}
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-lib" placeholder="Search titles, actors, directors..." oninput="renderLib()"></div>
         <select class="fb" id="f-genre" onchange="renderLib()"><option value="">All Genres</option></select>
         <select class="fb" id="f-watched" onchange="renderLib()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
-        <select class="fb" id="f-sort" onchange="renderLib()"><option value="added">Recently Added</option><option value="title">A–Z</option><option value="year">Year</option><option value="rating">My Rating</option></select>
+        <select class="fb" id="f-sort" onchange="renderLib()"><option value="title">A–Z</option><option value="added">Recently Added</option><option value="year">Year</option><option value="rating">My Rating</option></select>
         <button class="fb" id="f-fav" onclick="toggleFavF(this)"><i class="ti ti-star"></i> Faves</button>
         <button class="ab" id="add-lib-btn" style="display:none" onclick="openAdd('library')"><i class="ti ti-plus"></i> Add</button>
       </div>
@@ -498,7 +498,7 @@ textarea.ffi{resize:vertical}
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-tv" placeholder="Search TV shows..." oninput="renderTV()"></div>
         <select class="fb" id="f-tv-genre" onchange="renderTV()"><option value="">All Genres</option></select>
         <select class="fb" id="f-tv-watched" onchange="renderTV()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
-        <select class="fb" id="f-tv-sort" onchange="renderTV()"><option value="added">Recently Added</option><option value="title">A–Z</option><option value="year">Year</option><option value="rating">My Rating</option></select>
+        <select class="fb" id="f-tv-sort" onchange="renderTV()"><option value="title">A–Z</option><option value="added">Recently Added</option><option value="year">Year</option><option value="rating">My Rating</option></select>
         <button class="fb" id="f-tv-fav" onclick="toggleTVFavF(this)"><i class="ti ti-star"></i> Faves</button>
         <button class="ab" id="add-tv-btn" style="display:none" onclick="openAdd('library','tv')"><i class="ti ti-plus"></i> Add</button>
       </div>
@@ -531,7 +531,7 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-pwishlist">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
         <div class="sl" style="flex:1;margin:0">My Wishlist</div>
-        <button class="ab" onclick="addToPersonalWishlist()"><i class="ti ti-plus"></i> Add Title</button>
+        <button class="ab" onclick="addToPersonalWishlistSearch()"><i class="ti ti-plus"></i> Add Title</button>
       </div>
       <div id="pwish-grid"></div>
       <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
@@ -542,9 +542,10 @@ textarea.ffi{resize:vertical}
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
         <div class="sl" style="flex:1;margin:0">Watch Diary</div>
         <select class="fb" id="diary-year" onchange="renderDiary()" style="min-width:90px"></select>
+        <button class="ab" onclick="openDiaryAdd()"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
       <div id="diary-body"></div>
-      <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Log viewings from each title's detail view.</span></p></div>
+      <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
     </div>
 
     <!-- STATS -->
@@ -604,6 +605,35 @@ textarea.ffi{resize:vertical}
 <!-- PROFILE MODAL -->
 <div class="mo" id="mo-profile" onclick="if(event.target===this)closeMo('profile')">
   <div class="md md-sm"><button class="mc" onclick="closeMo('profile')"><i class="ti ti-x"></i></button><div id="profile-body"></div></div>
+</div>
+
+<!-- DIARY ADD MODAL -->
+<div class="mo" id="mo-diary-add" onclick="if(event.target===this)closeMo('diary-add')">
+  <div class="md md-med">
+    <button class="mc" onclick="closeMo('diary-add')"><i class="ti ti-x"></i></button>
+    <div class="form-sec">
+      <div class="form-title">Log a Watch</div>
+      <div class="ff full" style="margin-bottom:10px">
+        <label class="fl">Search Library</label>
+        <div class="lk-row">
+          <input type="text" class="ffi" id="diary-search" placeholder="Search your library..." oninput="diarySearchLib()">
+        </div>
+        <div id="diary-results" style="display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto;margin-top:8px"></div>
+      </div>
+      <div class="ff full" id="diary-selected-wrap" style="display:none;margin-bottom:10px">
+        <label class="fl">Selected</label>
+        <div id="diary-selected" style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--gold)"></div>
+      </div>
+      <div class="ff full" style="margin-bottom:12px">
+        <label class="fl">Date Watched</label>
+        <input type="date" class="ffi" id="diary-log-date">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="primary-btn" onclick="submitDiaryAdd()"><i class="ti ti-device-floppy"></i> Log It</button>
+        <button class="ghost-btn" onclick="closeMo('diary-add')">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PICKER MODAL -->
@@ -1732,32 +1762,149 @@ function removeFromPWishlist(id){
   saveUsers().then(() => renderPWishlist());
 }
 
+async function addToPersonalWishlistSearch(){
+  // Open a search modal-like flow using OMDB
+  const q = prompt('Search for a title to add to your wishlist:')?.trim();
+  if(!q) return;
+  try{
+    const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&s=${encodeURIComponent(q)}`);
+    const d = await r.json();
+    if(d.Response==='True'&&d.Search?.length){
+      // Build a quick picker
+      const opts = d.Search.slice(0,8).map((it,i)=>` ${i+1}. ${it.Title} (${it.Year})`).join('\n');
+      const pick = prompt('Pick a number:\n'+opts);
+      const idx = parseInt(pick)-1;
+      if(isNaN(idx)||idx<0||idx>=d.Search.length) return;
+      const chosen = d.Search[idx];
+      // Fetch full details
+      const r2 = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${chosen.imdbID}`);
+      const d2 = await r2.json();
+      const me = myData();
+      me.personalWishlist = me.personalWishlist||[];
+      me.personalWishlist.push({
+        id:uid(), title:d2.Title||chosen.Title,
+        year:(d2.Year||chosen.Year||'').slice(0,4),
+        poster:d2.Poster&&d2.Poster!=='N/A'?d2.Poster:'',
+        type:d2.Type==='series'?'tv':'movie',
+        addedAt:Date.now()
+      });
+      saveUsers().then(()=>{ renderPWishlist(); toast('Added to your wishlist!'); });
+    }else{
+      // Fallback to manual
+      const title = prompt('Nothing found. Enter title manually:')?.trim();
+      if(!title) return;
+      const me = myData(); me.personalWishlist = me.personalWishlist||[];
+      me.personalWishlist.push({id:uid(),title,year:'',poster:'',type:'movie',addedAt:Date.now()});
+      saveUsers().then(()=>{ renderPWishlist(); toast('Added!'); });
+    }
+  }catch(e){
+    const title = prompt('Search failed. Enter title manually:')?.trim();
+    if(!title) return;
+    const me = myData(); me.personalWishlist = me.personalWishlist||[];
+    me.personalWishlist.push({id:uid(),title,year:'',poster:'',type:'movie',addedAt:Date.now()});
+    saveUsers().then(()=>{ renderPWishlist(); toast('Added!'); });
+  }
+}
+
 function renderPWishlist(){
   const me = myData();
   const items = me.personalWishlist || [];
   const grid  = document.getElementById('pwish-grid');
   const empty = document.getElementById('pwish-empty');
   if(!grid) return;
-  if(!items.length){ grid.innerHTML=''; empty.style.display=''; return; }
-  empty.style.display = 'none';
+  if(!items.length){ grid.innerHTML=''; if(empty)empty.style.display=''; return; }
+  if(empty) empty.style.display = 'none';
 
-  // Check if any match library titles
-  grid.innerHTML = items.slice().sort((a,b)=>b.addedAt-a.addedAt).map(item => {
-    const match = sharedData.library.find(m => m.title.toLowerCase() === item.title.toLowerCase());
-    const hp = match?.poster && match.poster !== 'N/A';
-    return `<div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">
-      ${hp ? `<img src="${match.poster}" style="width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0">` : `<div style="width:36px;height:54px;border-radius:5px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-heart" style="color:var(--muted);opacity:.4"></i></div>`}
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600">${item.title}</div>
-        ${match ? `<div style="font-size:11px;color:var(--green);margin-top:2px">✓ In library</div>` : `<div style="font-size:11px;color:var(--muted);margin-top:2px">Not in library yet</div>`}
-      </div>
-      ${match ? `<button class="act act-w" onclick="openDetail('${match.id}','library')" style="flex-shrink:0"><i class="ti ti-eye"></i> View</button>` : ''}
-      <button class="act act-del" onclick="removeFromPWishlist('${item.id}')" style="flex-shrink:0"><i class="ti ti-trash"></i></button>
-    </div>`;
+  // Group by year, like the shared wishlist
+  const groups = {};
+  items.forEach(item => {
+    const y = (item.year||'').toString().slice(0,4)||'Unknown';
+    (groups[y]=groups[y]||[]).push(item);
+  });
+  const years = Object.keys(groups).sort((a,b)=>{
+    if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+    return Number(b)-Number(a);
+  });
+
+  grid.innerHTML = years.map(y => {
+    const cards = groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(item => {
+      const match = sharedData.library.find(m => m.title.toLowerCase() === item.title.toLowerCase());
+      const poster = item.poster||(match?.poster)||'';
+      const hp = poster && poster !== 'N/A';
+      return `<div class="card" style="position:relative" onclick="${match?`openDetail('${match.id}','library')`:''}">
+        ${hp?`<img src="${poster}" alt="${item.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-heart"></i><span>${item.title}</span></div>
+        <div class="ov"><div class="ov-title">${item.title}</div><div class="ov-meta">${item.year||''}${match?' · In Library':''}</div></div>
+        ${match?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
+        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromPWishlist('${item.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:20px"><div class="sl" style="margin-bottom:10px">${y} <span style="font-size:12px;color:var(--muted)">(${groups[y].length})</span></div><div class="grid">${cards}</div></div>`;
   }).join('');
 }
 
 // ── DIARY ─────────────────────────────────────────────────────────────────────
+let diarySelectedId = null;
+
+function openDiaryAdd(){
+  diarySelectedId = null;
+  const today = todayStr();
+  document.getElementById('diary-log-date').value = today;
+  document.getElementById('diary-search').value = '';
+  document.getElementById('diary-results').innerHTML = '';
+  document.getElementById('diary-selected-wrap').style.display = 'none';
+  document.getElementById('diary-selected').textContent = '';
+  openMo('diary-add');
+  setTimeout(()=>document.getElementById('diary-search').focus(), 100);
+}
+
+function diarySearchLib(){
+  const q = (document.getElementById('diary-search').value||'').toLowerCase();
+  const res = document.getElementById('diary-results');
+  if(!q){ res.innerHTML=''; return; }
+  const matches = sharedData.library
+    .filter(m => m.title.toLowerCase().includes(q))
+    .slice(0,8);
+  if(!matches.length){ res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No titles found.</div>`; return; }
+  res.innerHTML = matches.map(m => {
+    const hp = m.poster && m.poster !== 'N/A';
+    return `<button type="button" class="lk-opt" onclick="selectDiaryItem('${m.id}','${m.title.replace(/'/g,"\'")}')">
+      ${hp?`<img src="${m.poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+      <div style="flex:1;min-width:0"><div class="lk-opt-title">${m.title}</div><div class="lk-opt-yr">${m.year||''} · ${m.type==='tv'?'TV':'Movie'}</div></div>
+      <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
+    </button>`;
+  }).join('');
+}
+
+function selectDiaryItem(id, title){
+  diarySelectedId = id;
+  document.getElementById('diary-search').value = '';
+  document.getElementById('diary-results').innerHTML = '';
+  document.getElementById('diary-selected').textContent = title;
+  document.getElementById('diary-selected-wrap').style.display = '';
+}
+
+function submitDiaryAdd(){
+  if(!diarySelectedId){ toast('Pick a title first.',true); return; }
+  const dateVal = document.getElementById('diary-log-date').value;
+  if(!dateVal){ toast('Pick a date.',true); return; }
+  const [y,mo,d] = dateVal.split('-').map(Number);
+  const ts = new Date(y,mo-1,d,12,0,0).getTime();
+  const me = myData();
+  me.history = me.history||{};
+  me.watched = me.watched||{};
+  me.history[diarySelectedId] = [...(me.history[diarySelectedId]||[]), ts];
+  me.watched[diarySelectedId] = true;
+  saveUsers().then(()=>{
+    closeMo('diary-add');
+    buildDiaryYearSelect();
+    renderDiary();
+    renderLib();
+    renderTV();
+    toast('Logged!');
+  });
+}
+
 function buildDiaryYearSelect(){
   const me = myData();
   const years = new Set();
