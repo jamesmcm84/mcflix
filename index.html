@@ -551,15 +551,10 @@ textarea.ffi{resize:vertical}
 
     <!-- WATCHED -->
     <div class="tab" id="tab-watched">
-      <div class="toolbar" style="margin-bottom:16px">
+      <div class="toolbar" style="margin-bottom:12px">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-watched" placeholder="Search watched titles..." oninput="renderWatched()"></div>
-        <select class="fb" id="f-watched-type" onchange="renderWatched()">
-          <option value="">All Types</option>
-          <option value="movie">Movies</option>
-          <option value="tv">TV Shows</option>
-        </select>
       </div>
-      <div class="stats" id="watched-stats"></div>
+      <div class="stats" id="watched-stats" style="cursor:pointer;margin-bottom:16px"></div>
       <div class="grid" id="watched-grid"></div>
       <div class="empty" id="watched-empty" style="display:none"><i class="ti ti-eye"></i><p style="font-size:14px">Nothing watched yet.</p></div>
     </div>
@@ -2094,25 +2089,44 @@ function renderDuplicates(container){
     </div>`).join('');
 }
 
+let watchedTypeFilter = ''; // '', 'movie', 'tv'
+
+function setWatchedFilter(type){
+  watchedTypeFilter = watchedTypeFilter === type ? '' : type;
+  renderWatched();
+}
+
 function renderWatched(){
   const me = myData();
   const q = (document.getElementById('s-watched')?.value||'').toLowerCase();
-  const typeFilter = document.getElementById('f-watched-type')?.value||'';
 
-  const items = sharedData.library.filter(m => {
-    if(!me.watched?.[m.id]) return false;
-    if(typeFilter && m.type !== typeFilter) return false;
+  // Build full pool: shared library + diary-only items
+  const diaryItems = Object.values(me.diaryItems||{});
+  const allItems = [
+    ...sharedData.library.map(m => ({...m, _src:'library'})),
+    ...diaryItems.map(m => ({...m, _src:'diary'}))
+  ];
+
+  // All watched regardless of filter — for counts
+  const allWatched = allItems.filter(m => me.watched?.[m.id]);
+  const totalMovies = allWatched.filter(m => m.type !== 'tv').length;
+  const totalTV     = allWatched.filter(m => m.type === 'tv').length;
+
+  // Filtered list
+  const items = allWatched.filter(m => {
+    if(watchedTypeFilter && m.type !== watchedTypeFilter) return false;
     if(q && !(m.title+' '+(m.actors||'')+' '+(m.director||'')).toLowerCase().includes(q)) return false;
     return true;
   }).sort((a,b) => (a.sortTitle||a.title).localeCompare(b.sortTitle||b.title));
 
-  const movies = items.filter(m=>m.type!=='tv').length;
-  const tv = items.filter(m=>m.type==='tv').length;
   const statsEl = document.getElementById('watched-stats');
   if(statsEl) statsEl.innerHTML=`
-    <div class="stat"><div class="stat-n">${items.length}</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n">${movies}</div><div class="stat-l">Movies</div></div>
-    <div class="stat"><div class="stat-n">${tv}</div><div class="stat-l">TV Shows</div></div>`;
+    <div class="stat ${watchedTypeFilter===''?'':'opacity:0.5'}" onclick="setWatchedFilter('')" style="cursor:pointer;${watchedTypeFilter===''?'border-color:rgba(232,184,75,0.3)':''}">
+      <div class="stat-n">${allWatched.length}</div><div class="stat-l">All</div></div>
+    <div class="stat" onclick="setWatchedFilter('movie')" style="cursor:pointer;${watchedTypeFilter==='movie'?'border-color:rgba(232,53,75,0.4);background:rgba(232,53,75,0.06)':''}">
+      <div class="stat-n" style="${watchedTypeFilter==='movie'?'color:var(--red)':''}">${totalMovies}</div><div class="stat-l">Movies</div></div>
+    <div class="stat" onclick="setWatchedFilter('tv')" style="cursor:pointer;${watchedTypeFilter==='tv'?'border-color:rgba(138,90,240,0.4);background:rgba(138,90,240,0.06)':''}">
+      <div class="stat-n" style="${watchedTypeFilter==='tv'?'color:var(--purple)':''}">${totalTV}</div><div class="stat-l">TV Shows</div></div>`;
 
   const grid = document.getElementById('watched-grid');
   const empty = document.getElementById('watched-empty');
@@ -2125,13 +2139,15 @@ function renderWatched(){
     const hp = m.poster && m.poster !== 'N/A';
     const lastWatched = (me.history?.[m.id]||[]).slice(-1)[0];
     const when = lastWatched ? formatAgo(lastWatched) : '';
-    return `<div class="card" onclick="openDetail('${m.id}','library')">
+    const isDiary = m._src === 'diary';
+    return `<div class="card" ${isDiary?'':`onclick="openDetail('${m.id}','library')"`}>
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-${m.type==='tv'?'device-tv':'movie'}"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-title">${m.sortTitle||m.title}</div><div class="ov-meta">${when||m.year||''}</div></div>
       <div class="wb"><i class="ti ti-check"></i></div>
       ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
+      ${isDiary?`<div class="tb tb-m" style="background:rgba(52,152,219,0.8)">Personal</div>`:''}
     </div>`;
   }).join('');
 }
