@@ -2359,5 +2359,95 @@ if(!WORKER_URL||!APP_TOKEN){
   console.log('%cMcFlix: cloud backend not configured. Set WORKER_URL and APP_TOKEN at the top of the script.','color:#e8b84b;font-size:13px');
 }
 </script>
+<!-- SECRET PAGE -->
+<div class="mo" id="mo-secret" onclick="if(event.target===this)closeMo('secret')">
+  <div class="md md-sm" style="text-align:center;padding:40px 32px;background:var(--bg2)">
+    <button class="mc" onclick="closeMo('secret')"><i class="ti ti-x"></i></button>
+    <div style="font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:3px;color:var(--red);margin-bottom:6px;text-shadow:0 0 20px rgba(232,53,75,0.4)">TV Pornography</div>
+    <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px">Premium Exclusive Content</div>
+    <div id="secret-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">Loading...</div>
+    </div>
+    <button onclick="secretAddClick()" style="width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--red),#c0203a);color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 20px rgba(232,53,75,0.3)">
+      <i class="ti ti-plus"></i> Add Title
+    </button>
+    <div id="secret-laugh" style="font-size:28px;margin-top:16px;min-height:36px;letter-spacing:4px;color:var(--gold);font-family:'Bebas Neue',cursive;opacity:0;transition:opacity .3s"></div>
+  </div>
+</div>
+
+<script>
+// ── SECRET PAGE ───────────────────────────────────────────────────────────────
+function openSecret(){
+  openMo('secret');
+  // Populate fake "titles"
+  const fakeTitles = [
+    'Desperate Housewives S01','The Wire: Uncut','Breaking Bad Special','Game of Thrones Extras',
+    'The Sopranos Extended','Ozark: Raw Cut','Succession Uncensored','Twin Peaks Director Cut'
+  ];
+  document.getElementById('secret-grid').innerHTML = fakeTitles.map(t=>`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px;aspect-ratio:2/3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0a0e,#2a0a14);opacity:.9"></div>
+      <div style="position:relative;font-size:9px;font-weight:600;color:var(--light);text-align:center;line-height:1.3">${t}</div>
+    </div>`).join('');
+}
+
+let secretLaughing = false;
+function secretAddClick(){
+  if(secretLaughing) return;
+  secretLaughing = true;
+  const el = document.getElementById('secret-laugh');
+  const laughs = ['HA', 'HA', 'HA', 'HA'];
+  el.style.opacity = '1';
+  let i = 0;
+  el.textContent = '';
+  const interval = setInterval(()=>{
+    if(i < laughs.length){
+      el.textContent += (i>0?' ':'') + laughs[i];
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(()=>{
+        el.style.opacity='0';
+        setTimeout(()=>{ el.textContent=''; secretLaughing=false; },300);
+      }, 1200);
+    }
+  }, 180);
+}
+
+// Long press on TV stat box
+(function(){
+  let pressTimer = null;
+  function startPress(e){
+    pressTimer = setTimeout(()=>{
+      openSecret();
+      pressTimer = null;
+    }, 500);
+  }
+  function cancelPress(){
+    if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
+  }
+  // Attach after DOM is ready — watch for the stats element to be rendered
+  const observer = new MutationObserver(()=>{
+    const stats = document.getElementById('watched-stats');
+    if(!stats) return;
+    // Find TV box by watching clicks on stat boxes
+    stats.addEventListener('mousedown', e=>{
+      const box = e.target.closest('.stat');
+      if(box && box.textContent.includes('TV')) startPress(e);
+    });
+    stats.addEventListener('touchstart', e=>{
+      const box = e.target.closest('.stat');
+      if(box && box.textContent.includes('TV')) startPress(e);
+    }, {passive:true});
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{
+      stats.addEventListener(ev, cancelPress);
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+})();
+</script>
 </body>
 </html>
