@@ -772,41 +772,42 @@ function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',
 async function fetchPlexActivity(){
   const cfg = getPlexCfg();
   if(!cfg.url || !cfg.token) return;
-  if(Date.now() - plexActivity.lastFetch < 90000) return; // cache 90s
+  if(Date.now() - plexActivity.lastFetch < 90000) return;
   try{
     const base = cfg.url.replace(/\/$/, '');
     const tok  = cfg.token;
     const headers = { 'Accept': 'application/json', 'X-Plex-Token': tok };
 
-    // Fetch library sections
-    const libsR = await fetch(`${base}/library/sections?X-Plex-Token=${tok}`, { headers });
-    if(!libsR.ok) throw new Error('sections '+libsR.status);
-    const libs = await libsR.json();
-    const sections = libs.MediaContainer?.Directory || [];
+    // Use the proper history endpoint — returns accountID correctly
+    const histR = await fetch(
+      `${base}/status/sessions/history/all?sort=viewedAt:desc&limit=200&X-Plex-Token=${tok}`,
+      { headers }
+    );
+    if(!histR.ok) throw new Error('history '+histR.status);
+    const histData = await histR.json();
+    const raw = histData.MediaContainer?.Metadata || [];
 
-    const history = [];
-    for(const sec of sections){
-      if(sec.type !== 'movie' && sec.type !== 'show') continue;
-      const type = sec.type === 'movie' ? 1 : 4;
-      const r = await fetch(
-        `${base}/library/sections/${sec.key}/all?type=${type}&sort=lastViewedAt:desc&limit=40&viewedLeafCount=1&X-Plex-Token=${tok}`,
-        { headers }
-      );
-      if(!r.ok) continue;
-      const d = await r.json();
-      (d.MediaContainer?.Metadata||[]).forEach(item=>{
-        if(!item.lastViewedAt) return;
-        history.push({
-          ratingKey:    item.ratingKey,
-          title:        item.grandparentTitle ? `${item.grandparentTitle} · ${item.title}` : item.title,
-          type:         sec.type,
-          lastViewedAt: item.lastViewedAt,
-          viewCount:    item.viewCount||0,
-          accountID:    String(item.accountID||''),
-          imdb:         (item.Guid||[]).find(g=>g.id?.startsWith('imdb://')  )?.id?.replace('imdb://','') || null,
-        });
-      });
-    }
+    // Group by title+accountID, keep the most recent viewedAt and count plays
+    const seen = {};
+    raw.forEach(item => {
+      // For episodes use the show title, for movies use title
+      const titleKey = item.grandparentTitle || item.title;
+      const key = titleKey + '||' + item.accountID;
+      if(!seen[key]){
+        seen[key] = {
+          ratingKey:   item.grandparentRatingKey || item.ratingKey,
+          title:       titleKey,
+          type:        item.type === 'episode' ? 'show' : 'movie',
+          lastViewedAt: item.viewedAt,
+          viewCount:   1,
+          accountID:   String(item.accountID || ''),
+        };
+      } else {
+        seen[key].viewCount++;
+        if(item.viewedAt > seen[key].lastViewedAt) seen[key].lastViewedAt = item.viewedAt;
+      }
+    });
+    const history = Object.values(seen);
 
     // Active sessions
     let sessions = [];
@@ -816,7 +817,7 @@ async function fetchPlexActivity(){
         const sd = await sessR.json();
         sessions = (sd.MediaContainer?.Metadata||[]).map(s=>({
           ratingKey: s.ratingKey,
-          title:     s.grandparentTitle ? `${s.grandparentTitle} · ${s.title}` : s.title,
+          title:     s.grandparentTitle || s.title,
           state:     s.Player?.state||'playing',
           progress:  s.viewOffset&&s.duration ? Math.round(s.viewOffset/s.duration*100) : null,
           user:      s.User?.title||s.User?.name||null,
@@ -825,22 +826,21 @@ async function fetchPlexActivity(){
       }
     }catch(e){}
 
-    // Home users for accountID mapping
+    // Fetch accounts from the server directly (works without plex.tv)
     let plexUsers = [];
     try{
-      const uR = await fetch(`https://plex.tv/api/v2/home/users?includeSettings=0&X-Plex-Token=${tok}`,{
-        headers:{ ...headers, 'X-Plex-Client-Identifier':'mcflix', 'X-Plex-Product':'McFlix' }
-      });
+      const uR = await fetch(`${base}/accounts?X-Plex-Token=${tok}`, { headers });
       if(uR.ok){
         const ud = await uR.json();
-        plexUsers = (ud||[]).map(u=>({
-          id: String(u.id),
-          username: u.username||u.title||u.name||String(u.id),
+        plexUsers = (ud.MediaContainer?.Account||[]).map(u=>({
+          id:       String(u.id),
+          username: u.name||String(u.id),
         }));
       }
     }catch(e){}
 
     plexActivity = { history, sessions, plexUsers, lastFetch: Date.now() };
+    console.log('McFlix Plex: loaded '+history.length+' history entries, '+plexUsers.length+' users');
   }catch(e){ console.warn('McFlix Plex fetch failed:', e.message); }
 }
 
@@ -852,13 +852,14 @@ function plexUserToMcFlix(plexUsername){
 }
 
 function activityForItem(m){
-  const key = String(m.ratingKey||m.plexKey||'__none__');
-  const imdb = m.imdb||'';
+  const titleLower = (m.title||'').toLowerCase();
+  // Match history by title (case-insensitive)
   const hist = plexActivity.history.filter(h =>
-    String(h.ratingKey)===key || (imdb && h.imdb===imdb)
+    h.title.toLowerCase() === titleLower
   );
+  // Match sessions by title too
   const sess = plexActivity.sessions.filter(s =>
-    String(s.ratingKey)===key
+    s.title.toLowerCase() === titleLower
   );
   return { hist, sess };
 }
