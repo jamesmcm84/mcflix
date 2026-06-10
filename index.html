@@ -143,17 +143,16 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .no-comments{font-size:12px;color:var(--muted);padding:4px 0;margin-bottom:6px}
 
 /* PLEX ACTIVITY */
-.activity-feed{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.activity-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)}
+.activity-feed{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.activity-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
 .activity-item:last-child{border:none}
-.activity-info{flex:1;min-width:0}
 .activity-who{font-weight:600;color:var(--light)}
 .activity-when{color:var(--muted);font-size:11px}
 .activity-empty{font-size:12px;color:var(--muted);padding:4px 0}
-.watching-now{display:flex;align-items:center;gap:6px;background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.2);border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:8px}
-.watching-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse .8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.watchers-bar{display:flex;gap:4px;align-items:center;position:absolute;bottom:36px;left:50%;transform:translateX(-50%)}
+.watching-now{display:flex;align-items:center;gap:7px;background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.2);border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:8px}
+.watching-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;animation:wpulse .9s infinite}
+@keyframes wpulse{0%,100%{opacity:1}50%{opacity:.2}}
+.watchers-bar{display:flex;gap:3px;align-items:center;position:absolute;bottom:36px;left:50%;transform:translateX(-50%)}
 .watcher-av{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .watcher-av img{width:100%;height:100%;object-fit:cover}
 
@@ -535,6 +534,10 @@ const COLORS = ['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1a
 
 let CU = null;
 let plexActivity = { history:[], sessions:[], plexUsers:[], lastFetch:0 };
+
+// Plex config — stored in localStorage, never in HTML source
+function getPlexCfg(){ try{ return JSON.parse(localStorage.getItem('mcflix_plex')||'{}'); }catch(e){ return {}; } }
+function savePlexCfg(cfg){ try{ localStorage.setItem('mcflix_plex', JSON.stringify(cfg)); }catch(e){} }
 let cloudLoaded = false;
 let sharedData = { library:[], wishlist:[], requests:[] };
 let allUsers = { accounts:[], personal:{} };
@@ -713,7 +716,6 @@ function initApp(){
   buildGenreFilter();
   renderLib();
   updateCounts();
-  // Fetch Plex activity in background after login
   fetchPlexActivity().then(()=>renderLib());
 }
 
@@ -766,122 +768,168 @@ function buildTagBar(){
 function setTag(t){ activeTag=activeTag===t?'':t; buildTagBar(); renderLib(); }
 function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',favFilterOn); renderLib(); }
 
-// ── PLEX ACTIVITY ─────────────────────────────────────────────────────────────
+// ── PLEX ACTIVITY (browser-direct) ───────────────────────────────────────────
 async function fetchPlexActivity(){
-  if(!WORKER_URL||!APP_TOKEN) return;
-  // Don't refetch more than once every 2 minutes
-  if(Date.now()-plexActivity.lastFetch < 120000) return;
+  const cfg = getPlexCfg();
+  if(!cfg.url || !cfg.token) return;
+  if(Date.now() - plexActivity.lastFetch < 90000) return; // cache 90s
   try{
-    const r=await fetch(`${WORKER_URL}/plex/activity`,{
-      headers:{'X-McFlix-Token':APP_TOKEN}
-    });
-    if(!r.ok) return;
-    const d=await r.json();
-    if(d.ok){
-      plexActivity={...d,lastFetch:Date.now()};
+    const base = cfg.url.replace(/\/$/, '');
+    const tok  = cfg.token;
+    const headers = { 'Accept': 'application/json', 'X-Plex-Token': tok };
+
+    // Fetch library sections
+    const libsR = await fetch(`${base}/library/sections?X-Plex-Token=${tok}`, { headers });
+    if(!libsR.ok) throw new Error('sections '+libsR.status);
+    const libs = await libsR.json();
+    const sections = libs.MediaContainer?.Directory || [];
+
+    const history = [];
+    for(const sec of sections){
+      if(sec.type !== 'movie' && sec.type !== 'show') continue;
+      const type = sec.type === 'movie' ? 1 : 4;
+      const r = await fetch(
+        `${base}/library/sections/${sec.key}/all?type=${type}&sort=lastViewedAt:desc&limit=40&viewedLeafCount=1&X-Plex-Token=${tok}`,
+        { headers }
+      );
+      if(!r.ok) continue;
+      const d = await r.json();
+      (d.MediaContainer?.Metadata||[]).forEach(item=>{
+        if(!item.lastViewedAt) return;
+        history.push({
+          ratingKey:    item.ratingKey,
+          title:        item.grandparentTitle ? `${item.grandparentTitle} · ${item.title}` : item.title,
+          type:         sec.type,
+          lastViewedAt: item.lastViewedAt,
+          viewCount:    item.viewCount||0,
+          accountID:    String(item.accountID||''),
+          imdb:         (item.Guid||[]).find(g=>g.id?.startsWith('imdb://')  )?.id?.replace('imdb://','') || null,
+        });
+      });
     }
-  }catch(e){console.warn('McFlix: Plex activity fetch failed',e);}
+
+    // Active sessions
+    let sessions = [];
+    try{
+      const sessR = await fetch(`${base}/status/sessions?X-Plex-Token=${tok}`, { headers });
+      if(sessR.ok){
+        const sd = await sessR.json();
+        sessions = (sd.MediaContainer?.Metadata||[]).map(s=>({
+          ratingKey: s.ratingKey,
+          title:     s.grandparentTitle ? `${s.grandparentTitle} · ${s.title}` : s.title,
+          state:     s.Player?.state||'playing',
+          progress:  s.viewOffset&&s.duration ? Math.round(s.viewOffset/s.duration*100) : null,
+          user:      s.User?.title||s.User?.name||null,
+          accountID: String(s.User?.id||''),
+        }));
+      }
+    }catch(e){}
+
+    // Home users for accountID mapping
+    let plexUsers = [];
+    try{
+      const uR = await fetch(`https://plex.tv/api/v2/home/users?includeSettings=0&X-Plex-Token=${tok}`,{
+        headers:{ ...headers, 'X-Plex-Client-Identifier':'mcflix', 'X-Plex-Product':'McFlix' }
+      });
+      if(uR.ok){
+        const ud = await uR.json();
+        plexUsers = (ud||[]).map(u=>({
+          id: String(u.id),
+          username: u.username||u.title||u.name||String(u.id),
+        }));
+      }
+    }catch(e){}
+
+    plexActivity = { history, sessions, plexUsers, lastFetch: Date.now() };
+  }catch(e){ console.warn('McFlix Plex fetch failed:', e.message); }
 }
 
-// Map a Plex accountID or username to a McFlix user
 function plexUserToMcFlix(plexUsername){
   if(!plexUsername) return null;
-  return allUsers.accounts.find(a=>
-    a.plexUsername&&a.plexUsername.toLowerCase()===plexUsername.toLowerCase()
-  )||null;
+  return allUsers.accounts.find(a =>
+    a.plexUsername && a.plexUsername.toLowerCase() === plexUsername.toLowerCase()
+  ) || null;
 }
 
-// Get activity for a specific ratingKey
-function activityForItem(ratingKey){
-  const key=String(ratingKey);
-  const history=plexActivity.history.filter(h=>String(h.ratingKey)===key);
-  const sessions=plexActivity.sessions.filter(s=>String(s.ratingKey)===key);
-  return{history,sessions};
+function activityForItem(m){
+  const key = String(m.ratingKey||m.plexKey||'__none__');
+  const imdb = m.imdb||'';
+  const hist = plexActivity.history.filter(h =>
+    String(h.ratingKey)===key || (imdb && h.imdb===imdb)
+  );
+  const sess = plexActivity.sessions.filter(s =>
+    String(s.ratingKey)===key
+  );
+  return { hist, sess };
 }
 
-// Build small watcher avatars for a card
-function watcherAvatarsHTML(ratingKey){
+function watcherAvatarsHTML(m){
   if(!plexActivity.lastFetch) return '';
-  const{history,sessions}=activityForItem(ratingKey);
-  // Collect unique plex usernames who watched
-  const seen=new Set();
-  const watchers=[];
-  // Active sessions first
-  sessions.forEach(s=>{
-    const u=plexUserToMcFlix(s.user);
-    const key=s.user||'?';
-    if(!seen.has(key)){seen.add(key);watchers.push({mcUser:u,plexUser:s.user,active:true});}
+  const { hist, sess } = activityForItem(m);
+  const seen = new Set();
+  const watchers = [];
+  sess.forEach(s => {
+    if(seen.has(s.accountID)) return; seen.add(s.accountID);
+    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
+    const mu = plexUserToMcFlix(pu?.username||s.user||'');
+    watchers.push({ mu, name: pu?.username||s.user||'?', active: true });
   });
-  // Then history
-  history.forEach(h=>{
-    const pu=plexActivity.plexUsers.find(u=>String(u.id)===String(h.accountID));
-    const pname=pu?.username||String(h.accountID||'');
-    const u=plexUserToMcFlix(pname);
-    if(!seen.has(pname)){seen.add(pname);watchers.push({mcUser:u,plexUser:pname,active:false});}
+  hist.forEach(h => {
+    if(seen.has(h.accountID)) return; seen.add(h.accountID);
+    const pu = plexActivity.plexUsers.find(u=>u.id===h.accountID);
+    const mu = plexUserToMcFlix(pu?.username||'');
+    watchers.push({ mu, name: pu?.username||h.accountID||'?', active: false });
   });
   if(!watchers.length) return '';
-  const avatars=watchers.slice(0,4).map(w=>{
-    if(w.mcUser){
-      const u=w.mcUser;
-      const inner=u.photo
-        ?`<img src="${u.photo}">`
-        :`<span style="color:${u.color}">${ini(u.username)}</span>`;
-      return `<div class="watcher-av" style="background:${u.color}22;${w.active?'box-shadow:0 0 0 2px var(--blue)':''}">${inner}</div>`;
+  return `<div class="watchers-bar">${watchers.slice(0,4).map(w=>{
+    if(w.mu){
+      const inner = w.mu.photo
+        ? `<img src="${w.mu.photo}">`
+        : `<span style="color:${w.mu.color}">${ini(w.mu.username)}</span>`;
+      return `<div class="watcher-av" style="background:${w.mu.color}22;${w.active?'box-shadow:0 0 0 2px var(--blue)':''}">${inner}</div>`;
     }
-    return `<div class="watcher-av" style="background:var(--bg3);color:var(--muted)">${(w.plexUser||'?').slice(0,1).toUpperCase()}</div>`;
-  }).join('');
-  return `<div class="watchers-bar">${avatars}</div>`;
+    return `<div class="watcher-av" style="background:var(--bg3);color:var(--muted)">${w.name.slice(0,1).toUpperCase()}</div>`;
+  }).join('')}</div>`;
 }
 
-// Build activity section for detail modal
 function buildActivitySection(m){
+  const cfg = getPlexCfg();
+  if(!cfg.url||!cfg.token){
+    return `<div class="activity-empty">Add your Plex server in Settings to see activity here.</div>`;
+  }
   if(!plexActivity.lastFetch){
-    return`<div class="activity-empty">Connect Plex in your profile to see activity here.</div>`;
+    return `<div class="activity-empty">Loading Plex activity...</div>`;
   }
-  const{history,sessions}=activityForItem(m.plexKey||m.ratingKey||m.imdb);
-  // Try by IMDb ID too if no ratingKey match
-  const allHistory=history.length?history:
-    plexActivity.history.filter(h=>m.imdb&&h.imdb===m.imdb);
-
-  let html='';
-
-  // Active sessions
-  if(sessions.length){
-    sessions.forEach(s=>{
-      const u=plexUserToMcFlix(s.user);
-      const name=u?u.username:(s.user||'Someone');
-      const av=u?avatarEl(u,20):`<div class="av" style="width:20px;height:20px;font-size:8px;background:var(--bg3);color:var(--muted)">${(s.user||'?').slice(0,1).toUpperCase()}</div>`;
-      html+=`<div class="watching-now">${av}<div class="watching-dot"></div><span><strong>${name}</strong> is watching right now${s.progress!=null?' · '+s.progress+'%':''}</span></div>`;
-    });
-  }
-
-  if(!allHistory.length&&!sessions.length){
-    return html+`<div class="activity-empty">No one has watched this yet.</div>`;
-  }
-
-  // Group by plex user, show last watched
-  const byUser={};
-  allHistory.forEach(h=>{
-    const pu=plexActivity.plexUsers.find(u=>String(u.id)===String(h.accountID));
-    const pname=pu?.username||String(h.accountID||'unknown');
-    if(!byUser[pname]||h.lastViewedAt>byUser[pname].lastViewedAt){
-      byUser[pname]={...h,plexUsername:pname};
-    }
+  const { hist, sess } = activityForItem(m);
+  let html = '';
+  sess.forEach(s=>{
+    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
+    const mu = plexUserToMcFlix(pu?.username||s.user||'');
+    const name = mu ? mu.username : (pu?.username||s.user||'Someone');
+    const av = mu ? avatarEl(mu,20) : `<div class="av" style="width:20px;height:20px;font-size:8px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
+    html += `<div class="watching-now">${av}<div class="watching-dot"></div><span><strong>${name}</strong> is watching right now${s.progress!=null?' · '+s.progress+'%':''}</span></div>`;
   });
-
-  const entries=Object.values(byUser).sort((a,b)=>b.lastViewedAt-a.lastViewedAt);
-  if(!entries.length) return html+`<div class="activity-empty">No watch history found.</div>`;
-
-  html+=`<div class="activity-feed">`;
+  if(!hist.length && !sess.length){
+    return html + `<div class="activity-empty">No one has watched this yet.</div>`;
+  }
+  // Group by account, keep latest
+  const byAcct = {};
+  hist.forEach(h=>{
+    if(!byAcct[h.accountID]||h.lastViewedAt>byAcct[h.accountID].lastViewedAt) byAcct[h.accountID]=h;
+  });
+  const entries = Object.values(byAcct).sort((a,b)=>b.lastViewedAt-a.lastViewedAt);
+  if(!entries.length) return html + `<div class="activity-empty">No watch history found.</div>`;
+  html += `<div class="activity-feed">`;
   entries.forEach(e=>{
-    const u=plexUserToMcFlix(e.plexUsername);
-    const name=u?u.username:e.plexUsername;
-    const av=u?avatarEl(u,22):`<div class="av" style="width:22px;height:22px;font-size:9px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
-    const when=e.lastViewedAt?formatAgo(e.lastViewedAt*1000):'';
-    const times=e.viewCount>1?` · ${e.viewCount}× watched`:'';
-    html+=`<div class="activity-item">${av}<div class="activity-info"><span class="activity-who">${name}</span> watched this<span class="activity-when"> · ${when}${times}</span></div></div>`;
+    const pu = plexActivity.plexUsers.find(u=>u.id===e.accountID);
+    const mu = plexUserToMcFlix(pu?.username||'');
+    const name = mu ? mu.username : (pu?.username||e.accountID||'Unknown');
+    const av = mu ? avatarEl(mu,22) : `<div class="av" style="width:22px;height:22px;font-size:9px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
+    const when = e.lastViewedAt ? formatAgo(e.lastViewedAt*1000) : '';
+    const times = e.viewCount>1 ? ` · ${e.viewCount}× watched` : '';
+    html += `<div class="activity-item">${av}<div style="flex:1"><span class="activity-who">${name}</span> watched this<span class="activity-when"> · ${when}${times}</span></div></div>`;
   });
-  html+=`</div>`;
+  html += `</div>`;
   return html;
 }
 
@@ -935,7 +983,7 @@ function renderLib(){
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
       ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
-      ${watcherAvatarsHTML(m.plexKey||m.ratingKey||'')}
+      ${watcherAvatarsHTML(m)}
     </div>`;
   }).join('');
   updateCounts();
@@ -1051,10 +1099,10 @@ function renderLists(){
 function openDetail(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
-  // Refresh Plex activity silently when opening a detail view
   fetchPlexActivity().then(()=>{
-    const el=document.getElementById('plex-activity-'+id);
+    const el=document.getElementById('plex-act-'+id);
     if(el) el.innerHTML=buildActivitySection(m);
+    renderLib();
   });
   const me=myData();
   const hp=m.poster&&m.poster!=='N/A';
@@ -1134,7 +1182,7 @@ function openDetail(id,src){
       </div>
       <div class="notes-section">
         <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Plex Activity</div>
-        <div id="plex-activity-${id}">${buildActivitySection(m)}</div>
+        <div id="plex-act-${id}">${buildActivitySection(m)}</div>
       </div>
       <div class="notes-section">
         <div class="notes-lbl">Watch History</div>
@@ -1463,7 +1511,8 @@ function openProfile(){
       <div class="ff" style="margin-bottom:10px"><label class="fl">Profile Photo URL</label>
         <input type="text" class="ffi" id="p-photo" value="${CU.photo||''}" placeholder="https://..."></div>
       <div class="ff" style="margin-bottom:12px"><label class="fl">Plex Username <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(for activity tracking)</span></label>
-        <input type="text" class="ffi" id="p-plex" value="${CU.plexUsername||''}" placeholder="Your Plex username or email"></div>
+        <input type="text" class="ffi" id="p-plex" value="${CU.plexUsername||''}" placeholder="Your Plex username"></div>
+
       <div class="ff" style="margin-bottom:12px"><label class="fl">Pick a Color</label>
         <div class="color-picker" id="profile-colors"></div>
       </div>
@@ -1487,6 +1536,16 @@ function openProfile(){
           <span class="role-tag ${u.role==='admin'?'rt-admin':'rt-member'}">${u.role}</span>
           ${u.id!==CU.id?`<button onclick="removeUser('${u.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px" title="Remove user"><i class="ti ti-user-x"></i></button>`:''}
         </div>`).join('')}
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Plex Setup</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">Connect your Plex server to show watch activity on titles. Token stored locally — never uploaded.</div>
+      <div class="ff" style="margin-bottom:8px"><label class="fl">Plex Server URL</label>
+        <input type="text" class="ffi" id="s-plex-url" value="${getPlexCfg().url||''}" placeholder="https://xxx.plex.direct:32400"></div>
+      <div class="ff" style="margin-bottom:10px"><label class="fl">Plex Token</label>
+        <input type="password" class="ffi" id="s-plex-tok" value="${getPlexCfg().token||''}" placeholder="Your X-Plex-Token"></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="primary-btn" onclick="savePlexCfg({url:document.getElementById('s-plex-url').value.trim(),token:document.getElementById('s-plex-tok').value.trim()});plexActivity.lastFetch=0;fetchPlexActivity().then(()=>{renderLib();toast('Plex connected!');closeMo('profile');})"><i class="ti ti-plug"></i> Save & Connect</button>
+        ${getPlexCfg().url?`<button class="danger-btn" onclick="savePlexCfg({});plexActivity={history:[],sessions:[],plexUsers:[],lastFetch:0};renderLib();toast('Plex disconnected');closeMo('profile')"><i class="ti ti-unlink"></i> Disconnect</button>`:''}
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Cloud Status</div>
       ${(WORKER_URL&&APP_TOKEN&&cloudLoaded)?
