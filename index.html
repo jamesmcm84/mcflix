@@ -572,7 +572,8 @@ textarea.ffi{resize:vertical}
       </div>
       <div id="lk-result"></div>
       <div class="fg">
-        <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="add-t"></div>
+        <div class="ff full"><label class="fl">Title</label><input type="text" class="ffi" id="add-t" oninput="autoSortTitle()"></div>
+        <div class="ff full"><label class="fl">Sort Title <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(for A–Z, e.g. &quot;Dark Knight, The&quot;)</span></label><input type="text" class="ffi" id="add-sort-title" placeholder="Auto-filled — edit if needed"></div>
         <div class="ff">
           <label class="fl">Type</label>
           <div style="display:flex;gap:4px">
@@ -976,7 +977,7 @@ function renderTV(){
   });
 
   items.sort((a,b)=>{
-    if(sort==='title') return a.title.localeCompare(b.title);
+    if(sort==='title') return (a.sortTitle||a.title).localeCompare(b.sortTitle||b.title);
     if(sort==='year') return (Number(b.year)||0)-(Number(a.year)||0);
     if(sort==='rating') return (me.ratings?.[b.id]||0)-(me.ratings?.[a.id]||0);
     return (b.addedAt||0)-(a.addedAt||0);
@@ -1229,7 +1230,7 @@ function renderLib(){
     return true;
   });
   items.sort((a,b)=>{
-    if(sort==='title') return a.title.localeCompare(b.title);
+    if(sort==='title') return (a.sortTitle||a.title).localeCompare(b.sortTitle||b.title);
     if(sort==='year') return (b.year||0)-(a.year||0);
     if(sort==='rating') return (me.ratings?.[b.id]||0)-(me.ratings?.[a.id]||0);
     return (b.addedAt||0)-(a.addedAt||0);
@@ -1600,12 +1601,25 @@ function setAddType(type){
   }
 }
 
+function autoSortTitle(){
+  const title = document.getElementById('add-t').value.trim();
+  const sortEl = document.getElementById('add-sort-title');
+  if(!sortEl) return;
+  // Auto-move leading articles to end: "The Dark Knight" → "Dark Knight, The"
+  const match = title.match(/^(The|A|An)\s+(.+)$/i);
+  if(match){
+    sortEl.value = match[2] + ', ' + match[1];
+  } else {
+    sortEl.value = title;
+  }
+}
+
 function openAdd(target='library', typeHint='movie'){
   addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
   document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
-  ['add-t','add-yr','add-gn','add-rat','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   document.getElementById('add-type').value=typeHint;
   setAddType(typeHint);
   document.getElementById('add-wtch').checked=false;
@@ -1621,6 +1635,7 @@ function openEdit(id,src){
   document.getElementById('add-watched-row').style.display='none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
   document.getElementById('add-t').value=m.title||'';
+  document.getElementById('add-sort-title').value=m.sortTitle||'';
   document.getElementById('add-type').value=m.type||'movie';
   setAddType(m.type||'movie');
   document.getElementById('add-yr').value=m.year||'';
@@ -1691,8 +1706,9 @@ function submitAdd(){
   const title=document.getElementById('add-t').value.trim();if(!title){alert('Enter a title.');return}
   const poster=document.getElementById('add-poster').value.trim()||pendingPoster;
   const tags=document.getElementById('add-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const sortTitle=document.getElementById('add-sort-title').value.trim();
   const item={
-    id:editingId||uid(),title,type:document.getElementById('add-type').value,
+    id:editingId||uid(),title,sortTitle:sortTitle||'',type:document.getElementById('add-type').value,
     year:document.getElementById('add-yr').value.trim(),
     genre:document.getElementById('add-gn').value.trim(),
     rating:document.getElementById('add-rat').value.trim(),
