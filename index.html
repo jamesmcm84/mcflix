@@ -198,6 +198,52 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .lib-banner-title{font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
 .lib-banner-sub{font-size:13px;color:var(--light);margin-top:4px}
 
+/* SKELETON */
+.skel{background:linear-gradient(90deg,var(--bg3) 25%,var(--card) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{aspect-ratio:2/3;border-radius:10px}
+.skel-text{height:12px;margin-bottom:6px}
+.skel-text.short{width:60%}
+
+/* BOTTOM NAV (mobile) */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
+.bottom-nav .bnb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
+.bottom-nav .bnb.active{color:var(--gold)}
+.bottom-nav .bnb i{font-size:18px}
+.bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
+@media(max-width:600px){
+  .bottom-nav{display:flex}
+  .nav-bar{display:none}
+  .main{padding-bottom:72px}
+}
+
+/* ACTIVITY FEED */
+.feed-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border:none}
+.feed-poster{width:32px;height:48px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.feed-content{flex:1;min-width:0}
+.feed-who{font-size:12px;font-weight:600;color:var(--light)}
+.feed-action{font-size:12px;color:var(--muted)}
+.feed-title{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;cursor:pointer}
+.feed-title:hover{color:var(--gold)}
+.feed-when{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* SERIES PROGRESS */
+.series-progress{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.sp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sp-label{font-size:11px;color:var(--muted);min-width:60px}
+.sp-input{width:52px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;text-align:center;outline:none}
+.sp-input:focus{border-color:rgba(232,184,75,.4)}
+
+/* USER PROFILE PAGE */
+.user-profile-hero{height:120px;background:linear-gradient(135deg,#14142a,#0e0e20);position:relative;border-radius:18px 18px 0 0;overflow:hidden}
+.user-profile-av{position:absolute;bottom:-28px;left:20px;border:3px solid var(--bg2);border-radius:50%}
+
+/* SUGGESTION CARDS */
+.suggest-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.suggest-scroll::-webkit-scrollbar{height:2px}
+.suggest-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -449,6 +495,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
+      <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
   </div>
@@ -559,11 +606,28 @@ textarea.ffi{resize:vertical}
       <div class="empty" id="watched-empty" style="display:none"><i class="ti ti-eye"></i><p style="font-size:14px">Nothing watched yet.</p></div>
     </div>
 
+    <!-- ACTIVITY FEED -->
+    <div class="tab" id="tab-activity">
+      <div class="sl" style="margin-bottom:16px">Recent Activity</div>
+      <div id="activity-feed-body"></div>
+      <div class="empty" id="activity-empty" style="display:none"><i class="ti ti-activity"></i><p style="font-size:14px">No activity yet.</p></div>
+    </div>
+
     <!-- STATS -->
     <div class="tab" id="tab-stats">
       <div class="stats-page" id="stats-page"></div>
     </div>
   </div>
+
+  <!-- BOTTOM NAV (mobile only) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnb active" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Movies</span></button>
+    <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
+    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Wishlist</span><span class="bdg" id="bnb-wish-count" style="display:none"></span></button>
+    <button class="bnb" id="bnb-watched" onclick="switchTabMobile('watched',this)"><i class="ti ti-eye"></i><span>Watched</span></button>
+    <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
+    <button class="bnb" id="bnb-stats" onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
+  </nav>
 </div>
 
 <!-- DETAIL MODAL -->
@@ -643,6 +707,35 @@ textarea.ffi{resize:vertical}
       <div style="display:flex;gap:8px">
         <button class="primary-btn" onclick="submitDiaryAdd()"><i class="ti ti-device-floppy"></i> Log It</button>
         <button class="ghost-btn" onclick="closeMo('diary-add')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USER PROFILE MODAL -->
+<div class="mo" id="mo-userprofile" onclick="if(event.target===this)closeMo('userprofile')">
+  <div class="md md-sm"><button class="mc" onclick="closeMo('userprofile')"><i class="ti ti-x"></i></button><div id="userprofile-body"></div></div>
+</div>
+
+<!-- LETTERBOXD IMPORT MODAL -->
+<div class="mo" id="mo-letterboxd" onclick="if(event.target===this)closeMo('letterboxd')">
+  <div class="md md-med">
+    <button class="mc" onclick="closeMo('letterboxd')"><i class="ti ti-x"></i></button>
+    <div class="form-sec">
+      <div class="form-title">Letterboxd Import</div>
+      <div style="font-size:13px;color:var(--light);line-height:1.7;margin-bottom:14px">
+        Export your diary from Letterboxd:<br>
+        <strong>letterboxd.com → Settings → Import & Export → Export Your Data</strong><br>
+        Open the ZIP, find <code style="color:var(--gold)">diary.csv</code> and paste its contents below.
+      </div>
+      <div class="ff full" style="margin-bottom:12px">
+        <label class="fl">Paste diary.csv contents</label>
+        <textarea class="ffi" id="lb-csv" rows="8" placeholder="Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date&#10;2024-01-15,Oppenheimer,2023,..."></textarea>
+      </div>
+      <div id="lb-preview" style="font-size:12px;color:var(--muted);margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="primary-btn" onclick="importLetterboxd()"><i class="ti ti-file-import"></i> Import</button>
+        <button class="ghost-btn" onclick="closeMo('letterboxd')">Cancel</button>
       </div>
     </div>
   </div>
@@ -889,6 +982,7 @@ function switchTab(t,el){
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
   if(t==='watched') renderWatched();
+  if(t==='activity') renderActivity();
   if(t==='stats') renderStats();
 }
 
@@ -1265,6 +1359,7 @@ function renderLib(){
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
   if(!items.length){grid.innerHTML='';empty.style.display='';return}
   empty.style.display='none';
+  if(!grid.querySelector('.card')&&items.length>0) showSkeletons('lib-grid',Math.min(items.length,12));
   const r=me.ratings||{};
   grid.innerHTML=items.map(m=>{
     const hp=m.poster&&m.poster!=='N/A';
@@ -1404,7 +1499,7 @@ function openDetail(id,src){
     const r=ud.ratings?.[id]||0;
     const canEdit=CU.id===u.id;
     return `<div class="rat-row">
-      <div class="rat-user">${avatarEl(u,22)}<span class="rat-name">${u.username}</span></div>
+      <div class="rat-user" onclick="openUserProfile('${u.id}')" style="cursor:pointer" title="View ${u.username}'s profile">${avatarEl(u,22)}<span class="rat-name">${u.username}</span></div>
       <div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<span class="star ${r>=n?'on':''} ${canEdit?'':'ro'}" ${canEdit?`onclick="setRating('${id}','${u.id}',${n})"`:''}>${r>=n?'★':'☆'}</span>`).join('')}</div>
       <span class="rat-val">${r?r+'/10':'—'}</span>
       ${canEdit&&r?`<span class="rat-clr" onclick="setRating('${id}','${u.id}',0)">clear</span>`:''}
@@ -1444,6 +1539,7 @@ function openDetail(id,src){
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
         ${m.actors&&m.actors!=='N/A'?`<div class="info-item full"><div class="info-lbl">Cast</div><div class="info-val">${m.actors}</div></div>`:''}
       </div>
+      ${seriesProgressHTML(m)}
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       <div class="notes-section">
         <div class="notes-lbl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(shared — visible to everyone)</span></div>
@@ -2152,6 +2248,271 @@ function renderWatched(){
   }).join('');
 }
 
+// ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
+function switchTabMobile(t, el){
+  // sync top nav
+  document.querySelectorAll('.nb').forEach(b => {
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+t+"'"))
+      b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  // sync bottom nav
+  document.querySelectorAll('.bnb').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  // run tab
+  document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
+  const tabEl = document.getElementById('tab-'+t);
+  if(tabEl) tabEl.classList.add('active');
+  ({library:renderLib,tvshows:renderTV,wishlist:renderWish,pwishlist:renderPWishlist,
+    lists:renderLists,diary:renderDiary,watched:renderWatched,activity:renderActivity,stats:renderStats})[t]?.();
+}
+
+// Keep top and bottom nav in sync
+const _origSwitchTab = switchTab;
+function switchTab(t,el){
+  _origSwitchTab(t,el);
+  document.querySelectorAll('.bnb').forEach(b=>{
+    const id=b.id.replace('bnb-','');
+    b.classList.toggle('active',id===t);
+  });
+}
+
+// ── LOADING SKELETONS ─────────────────────────────────────────────────────────
+function showSkeletons(gridId, count=12){
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  grid.innerHTML = Array(count).fill(`<div class="skel skel-card"></div>`).join('');
+}
+
+// ── TOTAL HOURS WATCHED ───────────────────────────────────────────────────────
+function totalMinutes(me){
+  let mins = 0;
+  const watched = sharedData.library.filter(m => me.watched?.[m.id]);
+  watched.forEach(m => {
+    const runtime = parseInt((m.runtime||'').replace(/[^0-9]/g,''))||0;
+    const times = (me.history?.[m.id]||[]).length || 1;
+    mins += runtime * times;
+  });
+  return mins;
+}
+function formatHours(mins){
+  const h = Math.floor(mins/60);
+  const m = mins%60;
+  if(h===0) return m+'m';
+  if(m===0) return h+'h';
+  return h+'h '+m+'m';
+}
+
+// ── SERIES PROGRESS ───────────────────────────────────────────────────────────
+function getSeriesProgress(itemId){
+  const me = myData();
+  return me.seriesProgress?.[itemId] || {season:0,episode:0};
+}
+function saveSeriesProgress(itemId, season, episode){
+  const me = myData();
+  me.seriesProgress = me.seriesProgress||{};
+  me.seriesProgress[itemId] = {season:parseInt(season)||0, episode:parseInt(episode)||0};
+  saveUsers();
+}
+function seriesProgressHTML(m){
+  if(m.type !== 'tv') return '';
+  const p = getSeriesProgress(m.id);
+  return `<div class="series-progress">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Series Progress</div>
+    <div class="sp-row">
+      <span class="sp-label">Season</span>
+      <input type="number" class="sp-input" id="sp-s-${m.id}" value="${p.season||''}" min="0" placeholder="—" onchange="saveSeriesProgress('${m.id}',this.value,document.getElementById('sp-e-${m.id}').value)">
+      <span class="sp-label" style="min-width:52px">Episode</span>
+      <input type="number" class="sp-input" id="sp-e-${m.id}" value="${p.episode||''}" min="0" placeholder="—" onchange="saveSeriesProgress('${m.id}',document.getElementById('sp-s-${m.id}').value,this.value)">
+      ${p.season?`<span style="font-size:11px;color:var(--muted)">S${p.season}${p.episode?' E'+p.episode:''}</span>`:''}
+    </div>
+  </div>`;
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────────────────────
+function buildActivityFeed(){
+  const events = [];
+  allUsers.accounts.forEach(u => {
+    const ud = allUsers.personal?.[u.id];
+    if(!ud) return;
+    // Watch history events
+    Object.entries(ud.history||{}).forEach(([itemId, dates]) => {
+      const m = sharedData.library.find(x=>x.id===itemId)||(ud.diaryItems?.[itemId]);
+      if(!m) return;
+      dates.forEach(ts => events.push({type:'watched', user:u, m, ts}));
+    });
+    // Rating events — approximate ts from addedAt (we don't store rating ts)
+    Object.entries(ud.ratings||{}).forEach(([itemId, rating]) => {
+      if(!rating) return;
+      const m = sharedData.library.find(x=>x.id===itemId);
+      if(!m) return;
+      events.push({type:'rated', user:u, m, rating, ts: m.addedAt||0});
+    });
+    // Comment events
+    sharedData.library.forEach(m => {
+      (m.comments||[]).filter(c=>c.userId===u.id).forEach(c => {
+        events.push({type:'commented', user:u, m, comment:c.text, ts:c.ts});
+      });
+    });
+  });
+  return events.sort((a,b)=>b.ts-a.ts).slice(0,60);
+}
+
+function renderActivity(){
+  const events = buildActivityFeed();
+  const body = document.getElementById('activity-feed-body');
+  const empty = document.getElementById('activity-empty');
+  if(!body) return;
+  if(!events.length){ body.innerHTML=''; if(empty)empty.style.display=''; return; }
+  if(empty) empty.style.display='none';
+  body.innerHTML = events.map(e => {
+    const hp = e.m.poster && e.m.poster !== 'N/A';
+    let action='', detail='';
+    if(e.type==='watched') action='watched';
+    else if(e.type==='rated'){ action='rated'; detail=` <strong style="color:var(--gold)">${e.rating}/10</strong>`; }
+    else if(e.type==='commented'){ action='commented on'; detail=` <span style="color:var(--muted)">· "${e.comment.slice(0,40)}${e.comment.length>40?'…':''}"</span>`; }
+    return `<div class="feed-item">
+      ${avatarEl(e.user,32)}
+      <div style="flex:1;min-width:0">
+        <div><span class="feed-who">${e.user.username}</span> <span class="feed-action">${action}${detail}</span></div>
+        <div class="feed-title" onclick="openDetail('${e.m.id}','library')">${e.m.title}</div>
+        <div class="feed-when">${formatAgo(e.ts)}</div>
+      </div>
+      ${hp?`<img src="${e.m.poster}" class="feed-poster" onerror="this.style.display='none'">`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── YOU MIGHT LIKE ────────────────────────────────────────────────────────────
+function getSuggestions(me, limit=8){
+  // Score unwatched titles by genre overlap with highly rated watched titles
+  const watched = sharedData.library.filter(m=>me.watched?.[m.id]&&(me.ratings?.[m.id]||0)>=7);
+  const genreScore = {};
+  watched.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genreScore[t]=(genreScore[t]||0)+(me.ratings?.[m.id]||5);}));
+  const unwatched = sharedData.library.filter(m=>!me.watched?.[m.id]);
+  return unwatched.map(m=>{
+    let score=0;
+    (m.genre||'').split(',').forEach(g=>{score+=(genreScore[g.trim()]||0);});
+    return{m,score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,limit).map(x=>x.m);
+}
+
+// ── ON THIS DAY ───────────────────────────────────────────────────────────────
+function getOnThisDay(me){
+  const now = new Date();
+  const md = now.getMonth()*100 + now.getDate(); // month*100+day as key
+  const results = [];
+  Object.entries(me.history||{}).forEach(([itemId,dates])=>{
+    dates.forEach(ts=>{
+      const d = new Date(ts);
+      const pastYear = d.getFullYear();
+      if(pastYear===now.getFullYear()) return; // skip this year
+      if(d.getMonth()*100+d.getDate()===md){
+        const m = sharedData.library.find(x=>x.id===itemId)||(me.diaryItems?.[itemId]);
+        if(m) results.push({m, ts, yearsAgo: now.getFullYear()-pastYear});
+      }
+    });
+  });
+  return results.sort((a,b)=>b.yearsAgo-a.yearsAgo);
+}
+
+// ── USER PROFILE PAGE ─────────────────────────────────────────────────────────
+function openUserProfile(userId){
+  const u = allUsers.accounts.find(a=>a.id===userId);
+  if(!u) return;
+  const ud = allUsers.personal?.[userId]||{};
+  const watched = sharedData.library.filter(m=>ud.watched?.[m.id]);
+  const ratings = Object.entries(ud.ratings||{}).filter(([,v])=>v>0);
+  const avg = ratings.length?Math.round(ratings.reduce((s,[,v])=>s+v,0)/ratings.length*10)/10:0;
+  const topRated = sharedData.library.filter(m=>ud.ratings?.[m.id]>0).sort((a,b)=>(ud.ratings[b.id]||0)-(ud.ratings[a.id]||0)).slice(0,6);
+  const recent = watched.filter(m=>(ud.history?.[m.id]||[]).length>0).sort((a,b)=>{
+    const ah=(ud.history[a.id]||[]).slice(-1)[0]||0;
+    const bh=(ud.history[b.id]||[]).slice(-1)[0]||0;
+    return bh-ah;
+  }).slice(0,6);
+  const mins = totalMinutes(ud);
+
+  document.getElementById('userprofile-body').innerHTML=`
+    <div class="user-profile-hero" style="background:linear-gradient(135deg,${u.color}22,#0e0e20)"></div>
+    <div style="padding:0 20px 20px;margin-top:-28px">
+      <div class="user-profile-av">${avatarEl(u,56)}</div>
+      <div style="margin-top:36px">
+        <div style="font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:1px">${u.username}</div>
+        <div class="role-tag ${u.role==='admin'?'rt-admin':'rt-member'}" style="display:inline-block;margin-top:4px">${u.role}</div>
+      </div>
+      <div class="stats" style="margin-top:16px;margin-bottom:20px">
+        <div class="stat"><div class="stat-n">${watched.length}</div><div class="stat-l">Watched</div></div>
+        <div class="stat"><div class="stat-n">${avg||'—'}</div><div class="stat-l">Avg Rating</div></div>
+        <div class="stat"><div class="stat-n">${formatHours(mins)}</div><div class="stat-l">Watch Time</div></div>
+      </div>
+      ${recent.length?`<div class="sl" style="margin-bottom:10px">Recently Watched</div>
+      <div class="suggest-scroll" style="margin-bottom:20px">${recent.map(m=>{
+        const hp=m.poster&&m.poster!=='N/A';
+        return `<div class="shcard" onclick="closeMo('userprofile');openDetail('${m.id}','library')" style="flex-shrink:0">
+          ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+          <div class="shov">${m.title}</div>
+        </div>`;
+      }).join('')}</div>`:''}
+      ${topRated.length?`<div class="sl" style="margin-bottom:10px">Top Rated</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${topRated.map(m=>`
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="closeMo('userprofile');openDetail('${m.id}','library')">
+          ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover">`:'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3)"></div>'}
+          <div style="flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold)">${ud.ratings[m.id]}/10</div>
+        </div>`).join('')}</div>`:''}
+    </div>`;
+  openMo('userprofile');
+}
+
+// ── LETTERBOXD IMPORT ─────────────────────────────────────────────────────────
+function importLetterboxd(){
+  const csv = document.getElementById('lb-csv')?.value.trim();
+  if(!csv){ toast('Paste your diary.csv contents first.',true); return; }
+  const lines = csv.split('\n').filter(Boolean);
+  if(!lines.length){ toast('No data found.',true); return; }
+  // Skip header row
+  const rows = lines.slice(1);
+  let imported=0, skipped=0;
+  const me = myData();
+  me.history=me.history||{}; me.watched=me.watched||{};
+  rows.forEach(row=>{
+    // CSV: Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date
+    const cols = row.match(/(".*?"|[^,]+)(?=,|$)/g)||row.split(',');
+    const clean = c => (c||'').replace(/^"|"$/g,'').trim();
+    const name = clean(cols[1]);
+    const year = clean(cols[2]).slice(0,4);
+    const ratingRaw = clean(cols[4]);
+    const watchedDate = clean(cols[7])||clean(cols[0]);
+    if(!name) return;
+    // Find in library
+    const m = sharedData.library.find(x=>x.title.toLowerCase()===name.toLowerCase());
+    if(!m){ skipped++; return; }
+    // Parse date
+    let ts = Date.now();
+    if(watchedDate){
+      const parts = watchedDate.split('-').map(Number);
+      if(parts.length===3) ts=new Date(parts[0],parts[1]-1,parts[2],12).getTime();
+    }
+    // Add to history if not already there (within 24h)
+    if(!me.history[m.id]) me.history[m.id]=[];
+    const alreadyLogged = me.history[m.id].some(d=>Math.abs(d-ts)<86400000);
+    if(!alreadyLogged){ me.history[m.id].push(ts); me.watched[m.id]=true; imported++; }
+    else skipped++;
+    // Import rating if present
+    if(ratingRaw){
+      const r = parseFloat(ratingRaw)*2; // Letterboxd is /5, McFlix is /10
+      if(r>0&&r<=10){ me.ratings=me.ratings||{}; me.ratings[m.id]=Math.round(r); }
+    }
+  });
+  saveUsers().then(()=>{
+    closeMo('letterboxd');
+    buildDiaryYearSelect();
+    renderDiary();
+    renderLib();
+    toast(`Imported ${imported} entries${skipped?', '+skipped+' skipped (not in library)':''}`);
+  });
+}
+
 function renderStats(){
   const me=myData();
   const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
@@ -2169,7 +2530,7 @@ function renderStats(){
     const ur=Object.values(ud.ratings||{}).filter(v=>v>0);
     const uw=Object.values(ud.watched||{}).filter(Boolean).length;
     const ua=ur.length?Math.round(ur.reduce((s,v)=>s+v,0)/ur.length*10)/10:0;
-    return `<div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border)">
+    return `<div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);cursor:pointer;transition:border-color .2s" onclick="openUserProfile('${u.id}')">
       ${avatarEl(u,36)}<div style="font-weight:600;font-size:13px;margin:7px 0 6px">${u.username}</div>
       <div style="font-size:11px;color:var(--muted)">Watched: <strong style="color:var(--text)">${uw}</strong></div>
       <div style="font-size:11px;color:var(--muted)">Rated: <strong style="color:var(--text)">${ur.length}</strong></div>
@@ -2184,8 +2545,14 @@ function renderStats(){
   const curYear = new Date().getFullYear();
   const dupCount = findDuplicates().length;
 
+  const totalMins = totalMinutes(me);
   document.getElementById('stats-page').innerHTML=`
     <div style="grid-column:1/-1">${renderYearInReview(curYear, me, watched)}</div>
+    <div class="stat-block">
+      <div class="sbt"><i class="ti ti-clock"></i> Watch Time</div>
+      <div class="stat-big" style="font-size:40px">${formatHours(totalMins)}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">across ${watched.length} titles</div>
+    </div>
     ${dupCount&&isAdmin()?`<div class="stat-block" style="grid-column:1/-1">
       <div class="sbt"><i class="ti ti-copy"></i> Duplicate Detector</div>
       <div id="dup-results"></div>
@@ -2199,6 +2566,7 @@ function renderStats(){
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">${userCards}</div></div>
     ${topGenres.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-tags"></i> Top Genres Watched</div>
       <div class="gbar">${topGenres.map(([g,c])=>`<div class="gbar-row"><span class="gbar-lbl">${g}</span><div class="gbar-track"><div class="gbar-fill" style="width:${Math.round(c/maxG*100)}%"></div></div><span class="gbar-val">${c}</span></div>`).join('')}</div></div>`:''}
+    <div id="stats-extras" style="display:contents"></div>
     ${topRated.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-trophy"></i> ${CU.username}'s Top Rated</div>
       ${topRated.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${m.id}','library')">
         <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--muted);min-width:18px">${i+1}</div>
@@ -2209,6 +2577,39 @@ function renderStats(){
   // Render duplicates if any
   const dupEl = document.getElementById('dup-results');
   if(dupEl) renderDuplicates(dupEl);
+
+  // You Might Like
+  const suggestions = getSuggestions(me);
+  const onThisDay = getOnThisDay(me);
+  const extraEl = document.getElementById('stats-extras');
+  if(extraEl){
+    let extraHtml = '';
+    if(onThisDay.length){
+      extraHtml += `<div class="stat-block" style="grid-column:1/-1">
+        <div class="sbt"><i class="ti ti-calendar-event"></i> On This Day</div>
+        <div class="suggest-scroll">${onThisDay.map(e=>{
+          const hp=e.m.poster&&e.m.poster!=='N/A';
+          return `<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="openDetail('${e.m.id}','library')">
+            ${hp?`<img src="${e.m.poster}" style="width:80px;height:120px;border-radius:8px;object-fit:cover;display:block;margin-bottom:5px">`:`<div style="width:80px;height:120px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin-bottom:5px"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+            <div style="font-size:10px;color:var(--muted)">${e.yearsAgo}y ago</div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    }
+    if(suggestions.length){
+      extraHtml += `<div class="stat-block" style="grid-column:1/-1">
+        <div class="sbt"><i class="ti ti-sparkles"></i> You Might Like</div>
+        <div class="suggest-scroll">${suggestions.map(m=>{
+          const hp=m.poster&&m.poster!=='N/A';
+          return `<div class="shcard" onclick="openDetail('${m.id}','library')" style="flex-shrink:0">
+            ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+            <div class="shov">${m.title}</div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    }
+    extraEl.innerHTML = extraHtml;
+  }
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
@@ -2285,6 +2686,7 @@ function openProfile(){
         `<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">Set WORKER_URL and APP_TOKEN at the top of the HTML file to enable cross-device sync.</div>`}
       `:''}
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Account</div>
+      <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
     </div>`;
   signupColor=CU.color||COLORS[0];
