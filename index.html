@@ -252,6 +252,21 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .ext-rat-rt-rotten{color:#fa320a;border-color:rgba(250,50,10,.25);background:rgba(250,50,10,.06)}
 .ext-rat-mc{color:#6c0;border-color:rgba(102,204,0,.25);background:rgba(102,204,0,.08)}
 
+/* TROPHIES */
+.trophy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.trophy{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;transition:all .2s;position:relative}
+.trophy.earned{border-color:rgba(232,184,75,.35);background:rgba(232,184,75,.06)}
+.trophy.locked{opacity:.4;filter:grayscale(.6)}
+.trophy-icon{font-size:32px;margin-bottom:8px;line-height:1;display:block}
+.trophy-name{font-size:11px;font-weight:700;color:var(--light);margin-bottom:3px;line-height:1.3}
+.trophy-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.trophy-date{font-size:9px;color:var(--gold);margin-top:4px}
+.trophy-new{position:absolute;top:6px;right:6px;background:var(--gold);color:#000;font-size:8px;font-weight:700;padding:1px 5px;border-radius:10px;letter-spacing:.3px}
+.trophy-section-hd{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--light);margin:20px 0 12px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
+.trophy-section-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
+.trophy-progress{height:3px;background:var(--bg3);border-radius:3px;margin-top:6px;overflow:hidden}
+.trophy-progress-fill{height:3px;background:linear-gradient(to right,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -503,6 +518,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
+      <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
     </div>
   </div>
@@ -630,6 +646,15 @@ textarea.ffi{resize:vertical}
       <div class="sl" style="margin-bottom:16px">Recent Activity</div>
       <div id="activity-feed-body"></div>
       <div class="empty" id="activity-empty" style="display:none"><i class="ti ti-activity"></i><p style="font-size:14px">No activity yet.</p></div>
+    </div>
+
+    <!-- TROPHIES -->
+    <div class="tab" id="tab-trophies">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap">
+        <div class="sl" style="flex:1;margin:0">Trophy Case</div>
+        <div id="trophy-summary" style="font-size:12px;color:var(--muted)"></div>
+      </div>
+      <div id="trophy-body"></div>
     </div>
 
     <!-- STATS -->
@@ -1010,6 +1035,7 @@ function switchTab(t,el){
   if(t==='diary') renderDiary();
   if(t==='watched') renderWatched();
   if(t==='activity') renderActivity();
+  if(t==='trophies') renderTrophies();
   if(t==='stats') renderStats();
 }
 
@@ -1645,7 +1671,7 @@ function toggleW(id){
   const me=myData();me.watched=me.watched||{};
   me.watched[id]=!me.watched[id];
   if(me.watched[id]){me.history=me.history||{};me.history[id]=[...(me.history[id]||[]),Date.now()];}
-  saveUsers().then(()=>{openDetail(id,'library');renderLib();});
+  saveUsers().then(()=>{openDetail(id,'library');renderLib();evaluateTrophies();});
   toast(me.watched[id]?'Marked as watched!':'Marked as unwatched');
 }
 function toggleFav(id){
@@ -1662,7 +1688,7 @@ function toggleNow(id){
 function setRating(id,userId,val){
   const ud=udataFor(userId);ud.ratings=ud.ratings||{};
   ud.ratings[id]=val;
-  saveUsers().then(()=>{openDetail(id,'library');renderLib();});
+  saveUsers().then(()=>{openDetail(id,'library');renderLib();evaluateTrophies();});
   toast(val?`Rated ${val}/10!`:'Rating cleared');
 }
 function buildComments(m,id,src){
@@ -2590,6 +2616,190 @@ async function backfillRuntimes(){
   }
   await saveShared();
   toast(`Updated runtimes for ${updated} titles!`);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TROPHY SYSTEM
+// ══════════════════════════════════════════════════════════════════════════════
+const TROPHIES = [
+  // ── WATCHING ──────────────────────────────────────────────────────────────
+  { id:'watch_1',    cat:'Watching',  icon:'🎬', name:'First Watch',       desc:'Watch your first title',                   check:(w,r,u,lib,me)=>w>=1 },
+  { id:'watch_10',   cat:'Watching',  icon:'🍿', name:'Movie Night',       desc:'Watch 10 titles',                          check:(w)=>w>=10,  progress:(w)=>[w,10] },
+  { id:'watch_25',   cat:'Watching',  icon:'🎞️', name:'Film Buff',         desc:'Watch 25 titles',                          check:(w)=>w>=25,  progress:(w)=>[w,25] },
+  { id:'watch_50',   cat:'Watching',  icon:'🏆', name:'Cinephile',         desc:'Watch 50 titles',                          check:(w)=>w>=50,  progress:(w)=>[w,50] },
+  { id:'watch_100',  cat:'Watching',  icon:'💫', name:'Century Club',      desc:'Watch 100 titles',                         check:(w)=>w>=100, progress:(w)=>[w,100] },
+  { id:'watch_250',  cat:'Watching',  icon:'🌟', name:'The Archivist',     desc:'Watch 250 titles',                         check:(w)=>w>=250, progress:(w)=>[w,250] },
+  { id:'tv_10',      cat:'Watching',  icon:'📺', name:'Binge Watcher',     desc:'Watch 10 TV shows',                        check:(w,r,u,lib,me)=>lib.filter(m=>m.type==='tv'&&me.watched?.[m.id]).length>=10 },
+  { id:'tv_25',      cat:'Watching',  icon:'📡', name:'Series Addict',     desc:'Watch 25 TV shows',                        check:(w,r,u,lib,me)=>lib.filter(m=>m.type==='tv'&&me.watched?.[m.id]).length>=25 },
+  { id:'same_day',   cat:'Watching',  icon:'⚡', name:'Hot Off the Press', desc:'Watch something the same day it was added', check:(w,r,u,lib,me)=>{
+    return lib.some(m=>{
+      if(!me.watched?.[m.id]||!m.addedAt) return false;
+      const dates=me.history?.[m.id]||[];
+      return dates.some(d=>Math.abs(d-(m.addedAt||0))<86400000);
+    });
+  }},
+  { id:'three_in_one',cat:'Watching', icon:'🔥', name:'Marathon',          desc:'Watch 3 things in one day',                check:(w,r,u,lib,me)=>{
+    const allDates=[];
+    Object.values(me.history||{}).forEach(dates=>dates.forEach(d=>allDates.push(new Date(d).toDateString())));
+    const counts={};
+    allDates.forEach(d=>counts[d]=(counts[d]||0)+1);
+    return Object.values(counts).some(c=>c>=3);
+  }},
+  { id:'rewatcher',  cat:'Watching',  icon:'🔄', name:'Rewatcher',         desc:'Watch the same title twice',               check:(w,r,u,lib,me)=>Object.values(me.history||{}).some(d=>d.length>=2) },
+  { id:'old_movie',  cat:'Watching',  icon:'🎭', name:'Time Traveler',     desc:'Watch a movie from before 1980',           check:(w,r,u,lib,me)=>lib.some(m=>me.watched?.[m.id]&&parseInt(m.year||0)<1980) },
+  { id:'new_movie',  cat:'Watching',  icon:'🚀', name:'Early Adopter',     desc:'Watch something from the current year',    check:(w,r,u,lib,me)=>{
+    const yr=new Date().getFullYear();
+    return lib.some(m=>me.watched?.[m.id]&&parseInt(m.year||0)===yr);
+  }},
+  { id:'xmas',       cat:'Watching',  icon:'🎄', name:'Christmas Viewer',  desc:'Watch something on Christmas Day',         check:(w,r,u,lib,me)=>{
+    return Object.values(me.history||{}).flat().some(d=>{const dt=new Date(d);return dt.getMonth()===11&&dt.getDate()===25;});
+  }},
+  { id:'new_year',   cat:'Watching',  icon:'🎆', name:'New Year Watch',    desc:"Watch something on January 1st",           check:(w,r,u,lib,me)=>{
+    return Object.values(me.history||{}).flat().some(d=>{const dt=new Date(d);return dt.getMonth()===0&&dt.getDate()===1;});
+  }},
+
+  // ── RATINGS ───────────────────────────────────────────────────────────────
+  { id:'rate_1',     cat:'Ratings',   icon:'⭐', name:'Critic',            desc:'Rate your first title',                    check:(w,rated)=>rated>=1 },
+  { id:'rate_10',    cat:'Ratings',   icon:'🎯', name:'Reviewer',          desc:'Rate 10 titles',                           check:(w,rated)=>rated>=10,  progress:(w,r)=>[r,10] },
+  { id:'rate_25',    cat:'Ratings',   icon:'📝', name:'The Analyst',       desc:'Rate 25 titles',                           check:(w,rated)=>rated>=25,  progress:(w,r)=>[r,25] },
+  { id:'rate_50',    cat:'Ratings',   icon:'🏅', name:'The Connoisseur',   desc:'Rate 50 titles',                           check:(w,rated)=>rated>=50,  progress:(w,r)=>[r,50] },
+  { id:'perfect_10', cat:'Ratings',   icon:'💯', name:'Perfection',        desc:'Give a title a perfect 10',                check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===10) },
+  { id:'score_1',    cat:'Ratings',   icon:'💀', name:'Scorched Earth',    desc:'Give a title a 1/10',                      check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===1) },
+  { id:'agree_10',   cat:'Ratings',   icon:'🤝', name:'Same Taste',        desc:'Match another user's rating on 10+ titles', check:(w,r,u,lib,me)=>{
+    const others=u.filter(a=>a.id!==CU.id);
+    return others.some(other=>{
+      const od=allUsers.personal?.[other.id]?.ratings||{};
+      let matches=0;
+      Object.entries(me.ratings||{}).forEach(([id,v])=>{if(od[id]===v)matches++;});
+      return matches>=10;
+    });
+  }},
+
+  // ── LIBRARY ───────────────────────────────────────────────────────────────
+  { id:'first_add',  cat:'Library',   icon:'➕', name:'Curator',           desc:'Add your first title to the library',      check:(w,r,u,lib)=>lib.length>=1 },
+  { id:'lib_50',     cat:'Library',   icon:'📚', name:'Collection',        desc:'Library reaches 50 titles',                check:(w,r,u,lib)=>lib.length>=50,  progress:(w,r,u,lib)=>[lib.length,50] },
+  { id:'lib_100',    cat:'Library',   icon:'🗃️', name:'The Archive',       desc:'Library reaches 100 titles',               check:(w,r,u,lib)=>lib.length>=100, progress:(w,r,u,lib)=>[lib.length,100] },
+  { id:'lib_200',    cat:'Library',   icon:'🏛️', name:'The Museum',        desc:'Library reaches 200 titles',               check:(w,r,u,lib)=>lib.length>=200, progress:(w,r,u,lib)=>[lib.length,200] },
+  { id:'first_comment',cat:'Library', icon:'💬', name:'Commentator',       desc:'Post your first comment',                  check:(w,r,u,lib)=>lib.some(m=>(m.comments||[]).some(c=>c.userId===CU.id)) },
+  { id:'first_tag',  cat:'Library',   icon:'🏷️', name:'Tagger',            desc:'Add a tag to any title',                   check:(w,r,u,lib)=>lib.some(m=>(m.tags||[]).length>0) },
+  { id:'director_sweep',cat:'Library',icon:'🎥', name:'Completionist',     desc:'Watch every film by one director (min 3)', check:(w,r,u,lib,me)=>{
+    const dirs={};
+    lib.filter(m=>m.director&&m.director!=='N/A').forEach(m=>{
+      const d=m.director.split(',')[0].trim();
+      if(!dirs[d]) dirs[d]={total:0,watched:0};
+      dirs[d].total++;
+      if(me.watched?.[m.id]) dirs[d].watched++;
+    });
+    return Object.values(dirs).some(d=>d.total>=3&&d.total===d.watched);
+  }},
+
+  // ── SOCIAL ────────────────────────────────────────────────────────────────
+  { id:'first_watch_new',cat:'Social',icon:'🥇', name:'First!',            desc:'First person to watch something after it's added', check:(w,r,u,lib,me)=>{
+    return lib.some(m=>{
+      if(!me.watched?.[m.id]||!m.addedAt) return false;
+      const myFirst=(me.history?.[m.id]||[]).sort((a,b)=>a-b)[0]||Infinity;
+      return u.filter(a=>a.id!==CU.id).every(other=>{
+        const od=allUsers.personal?.[other.id];
+        if(!od?.watched?.[m.id]) return true;
+        const theirFirst=(od.history?.[m.id]||[]).sort((a,b)=>a-b)[0]||Infinity;
+        return myFirst<=theirFirst;
+      });
+    });
+  }},
+  { id:'request_granted',cat:'Social',icon:'🙏', name:'Wish Granted',      desc:'Have a request added to the library',      check:(w,r,u,lib)=>(sharedData.requests||[]).some(req=>req.status==='added'&&req.from===CU.username) },
+
+  // ── SPECIAL ───────────────────────────────────────────────────────────────
+  { id:'night_owl',  cat:'Special',   icon:'🦉', name:'Night Owl',         desc:'Log a watch after midnight',               check:(w,r,u,lib,me)=>{
+    return Object.values(me.history||{}).flat().some(d=>{const h=new Date(d).getHours();return h>=0&&h<5;});
+  }},
+  { id:'genre_sweep',cat:'Special',   icon:'🌈', name:'Genre Hopper',      desc:'Watch titles from 5 different genres',     check:(w,r,u,lib,me)=>{
+    const genres=new Set();
+    lib.filter(m=>me.watched?.[m.id]).forEach(m=>(m.genre||'').split(',').forEach(g=>{if(g.trim())genres.add(g.trim())}));
+    return genres.size>=5;
+  }},
+  { id:'plex_sync',  cat:'Special',   icon:'🔌', name:'Connected',         desc:'Connect your Plex account',                check:(w,r,u,lib,me)=>!!(CU.plexUsername) },
+  { id:'diary_10',   cat:'Special',   icon:'📓', name:'Diarist',           desc:'Log 10 viewings in your diary',            check:(w,r,u,lib,me)=>{
+    let total=0;Object.values(me.history||{}).forEach(d=>total+=d.length);return total>=10;
+  }},
+];
+
+function evaluateTrophies(){
+  const me = myData();
+  const lib = sharedData.library;
+  const watchedAll = lib.filter(m=>me.watched?.[m.id]);
+  const w = watchedAll.length;
+  const rated = Object.values(me.ratings||{}).filter(v=>v>0).length;
+  const u = allUsers.accounts;
+
+  // Load previously earned trophies
+  if(!me.trophies) me.trophies = {};
+  let newlyEarned = [];
+
+  TROPHIES.forEach(t=>{
+    const wasEarned = !!me.trophies[t.id];
+    let earned = false;
+    try{ earned = t.check(w, rated, u, lib, me); }catch(e){}
+    if(earned && !wasEarned){
+      me.trophies[t.id] = { earnedAt: Date.now(), isNew: true };
+      newlyEarned.push(t);
+    }
+  });
+
+  if(newlyEarned.length){
+    saveUsers();
+    newlyEarned.forEach(t => toast(`🏆 Trophy unlocked: ${t.name}!`));
+  }
+  return me.trophies;
+}
+
+function renderTrophies(){
+  const me = myData();
+  const earned = evaluateTrophies();
+  const lib = sharedData.library;
+  const w = lib.filter(m=>me.watched?.[m.id]).length;
+  const rated = Object.values(me.ratings||{}).filter(v=>v>0).length;
+  const u = allUsers.accounts;
+
+  const total = TROPHIES.length;
+  const earnedCount = Object.keys(earned).length;
+  const summaryEl = document.getElementById('trophy-summary');
+  if(summaryEl) summaryEl.textContent = `${earnedCount} / ${total} unlocked`;
+
+  // Group by category
+  const cats = {};
+  TROPHIES.forEach(t=>{ (cats[t.cat]=cats[t.cat]||[]).push(t); });
+
+  const body = document.getElementById('trophy-body');
+  if(!body) return;
+
+  body.innerHTML = Object.entries(cats).map(([cat, trophies])=>{
+    const cards = trophies.map(t=>{
+      const e = earned[t.id];
+      const isEarned = !!e;
+      const isNew = e?.isNew;
+      let prog = null;
+      if(!isEarned && t.progress){
+        try{ prog = t.progress(w, rated, u, lib, me); }catch(ex){}
+      }
+      const pct = prog ? Math.min(100, Math.round(prog[0]/prog[1]*100)) : 0;
+      return `<div class="trophy ${isEarned?'earned':'locked'}" title="${t.desc}">
+        ${isNew?'<div class="trophy-new">NEW</div>':''}
+        <span class="trophy-icon">${t.icon}</span>
+        <div class="trophy-name">${t.name}</div>
+        <div class="trophy-desc">${t.desc}</div>
+        ${isEarned&&e.earnedAt?`<div class="trophy-date">Earned ${new Date(e.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>`:''}
+        ${!isEarned&&prog?`<div class="trophy-progress"><div class="trophy-progress-fill" style="width:${pct}%"></div></div><div style="font-size:9px;color:var(--muted);margin-top:3px">${prog[0]} / ${prog[1]}</div>`:''}
+      </div>`;
+    }).join('');
+    const catEarned = trophies.filter(t=>earned[t.id]).length;
+    return `<div class="trophy-section-hd">${cat} <span style="font-size:11px;color:var(--muted)">${catEarned}/${trophies.length}</span></div>
+    <div class="trophy-grid">${cards}</div>`;
+  }).join('');
+
+  // Clear "new" flags after viewing
+  let changed = false;
+  Object.values(me.trophies).forEach(e=>{ if(e.isNew){ e.isNew=false; changed=true; } });
+  if(changed) saveUsers();
 }
 
 function renderStats(){
