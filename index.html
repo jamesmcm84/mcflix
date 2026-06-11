@@ -1559,8 +1559,7 @@ async function fetchPlexRecentlyAdded(){
     if(!items.length) return;
     // Store base/tok with each item for poster URLs
     plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
-    renderPlexNewShelf(); // render immediately wherever shelf is visible
-    renderLib();          // also re-render lib so shelf shows on mobile too
+    renderPlexNewShelf(); // render the shelf directly
   }catch(e){ console.warn('Plex recently added failed:',e.message); }
 }
 
@@ -1569,18 +1568,16 @@ function renderPlexNewShelf(){
   const scroll = document.getElementById('plex-new-scroll');
   if(!shelf||!scroll) return;
   if(!plexRecentItems.length){ shelf.style.display='none'; return; }
-  // Use same miniCard style as other shelves — limit to 12
   scroll.innerHTML = plexRecentItems.slice(0,12).map(m=>{
     const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
     const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
       : (m.thumb ? `${m._base}${m.thumb}?X-Plex-Token=${m._tok}` : '');
     const hp = !!poster;
-    // Use miniCard structure so size matches other shelves
-    return `<div class="shcard" onclick="${inLib?`openDetail('${inLib.id}','library')`:'void 0'}" style="cursor:${inLib?'pointer':'default'};position:relative">
+    return `<div class="shelf-card" onclick="${inLib?`openDetail('${inLib.id}','library')`:'void 0'}" style="cursor:${inLib?'pointer':'default'};position:relative">
       ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4;font-size:24px"></i></div>
+      <div style="width:100%;height:100%;display:${hp?'none':'flex'};background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>
       ${!inLib?'<div class="plex-new-badge">New</div>':''}
-      <div class="shov">${m.title}</div>
+      <div class="ov">${m.title}</div>
     </div>`;
   }).join('');
   shelf.style.display='';
