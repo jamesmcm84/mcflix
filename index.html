@@ -557,7 +557,7 @@ textarea.ffi{resize:vertical}
       </div>
       <div class="stats" id="lib-stats"></div>
       <div id="plex-new-shelf" style="display:none">
-        <div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> New on Plex</div>
+        <div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> New on Plex <span id="plex-new-status" style="font-size:10px;color:var(--muted);font-family:'Outfit',sans-serif;letter-spacing:0;text-transform:none;font-weight:400"></span></div>
         <div class="shelf-scroll" id="plex-new-scroll" style="margin-bottom:20px"></div>
       </div>
       <div class="shelf" id="now-shelf" style="display:none">
@@ -1113,7 +1113,9 @@ function initApp(){
   updateCounts();
   buildDiaryYearSelect();
   loadPlexCfg().then(()=>{
-    fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();});
+    renderPlexNewShelf(); // show shelf immediately if items cached
+    fetchPlexActivity().then(()=>{renderLib();});
+    fetchPlexRecentlyAdded(); // run in parallel, re-renders shelf when done
   });
 }
 
@@ -1612,6 +1614,7 @@ async function fetchPlexRecentlyAdded(){
     if(!items.length) return;
     // Store base/tok with each item for poster URLs
     plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
+    console.log('McFlix: Plex recently added loaded', plexRecentItems.length, 'items');
     renderPlexNewShelf(); // render the shelf directly
   }catch(e){ console.warn('Plex recently added failed:',e.message); }
 }
@@ -1619,8 +1622,21 @@ async function fetchPlexRecentlyAdded(){
 function renderPlexNewShelf(){
   const shelf = document.getElementById('plex-new-shelf');
   const scroll = document.getElementById('plex-new-scroll');
+  const status = document.getElementById('plex-new-status');
   if(!shelf||!scroll) return;
-  if(!plexRecentItems.length){ shelf.style.display='none'; return; }
+  if(!plexRecentItems.length){
+    // Show shelf anyway with a loading message if Plex is configured
+    const cfg = getPlexCfg();
+    if(cfg.url && cfg.token){
+      shelf.style.display='';
+      if(status) status.textContent = '(loading...)';
+      scroll.innerHTML='';
+    } else {
+      shelf.style.display='none';
+    }
+    return;
+  }
+  if(status) status.textContent = '('+plexRecentItems.length+' titles)';
   scroll.innerHTML = plexRecentItems.slice(0,12).map(m=>{
     const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
     const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
@@ -3221,6 +3237,7 @@ function openProfile(){
       <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
       ${isAdmin()?`<button class="ghost-btn" onclick="backfillOMDBRatings()" style="margin-bottom:8px"><i class="ti ti-star"></i> Backfill Ratings from OMDB</button>`:''}
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:.5px">McFlix v${VERSION}</div>
     </div>`;
   signupColor=CU.color||COLORS[0];
   document.getElementById('profile-colors').innerHTML=COLORS.map(c=>`
