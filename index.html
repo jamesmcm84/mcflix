@@ -896,9 +896,40 @@ let CU = null;
 let plexActivity = { history:[], sessions:[], plexUsers:[], lastFetch:0 };
 let plexRecentItems = []; // cached recently added from Plex
 
-// Plex config — stored in localStorage, never in HTML source
-function getPlexCfg(){ try{ return JSON.parse(localStorage.getItem('mcflix_plex')||'{}'); }catch(e){ return {}; } }
-function savePlexCfg(cfg){ try{ localStorage.setItem('mcflix_plex', JSON.stringify(cfg)); }catch(e){} }
+// Plex config — stored in Worker KV so all devices share it automatically
+let _plexCfgCache = null;
+function getPlexCfg(){ return _plexCfgCache || {}; }
+async function savePlexCfg(cfg){
+  _plexCfgCache = cfg;
+  // Also keep in localStorage as fallback
+  try{ localStorage.setItem('mcflix_plex', JSON.stringify(cfg)); }catch(e){}
+  // Save to Worker KV
+  if(WORKER_URL && APP_TOKEN){
+    try{
+      await fetch(`${WORKER_URL}/data/plex_config`,{
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-McFlix-Token':APP_TOKEN},
+        body:JSON.stringify(cfg)
+      });
+    }catch(e){ console.warn('Could not save Plex config to Worker:', e.message); }
+  }
+}
+async function loadPlexCfg(){
+  // Try Worker first
+  if(WORKER_URL && APP_TOKEN){
+    try{
+      const r = await fetch(`${WORKER_URL}/data/plex_config`,{
+        headers:{'X-McFlix-Token':APP_TOKEN}
+      });
+      if(r.ok){
+        const d = await r.json();
+        if(d && d.url && d.token){ _plexCfgCache = d; return; }
+      }
+    }catch(e){}
+  }
+  // Fallback to localStorage
+  try{ _plexCfgCache = JSON.parse(localStorage.getItem('mcflix_plex')||'{}'); }catch(e){ _plexCfgCache={}; }
+}
 let cloudLoaded = false;
 let sharedData = { library:[], wishlist:[], requests:[] };
 let allUsers = { accounts:[], personal:{} };
@@ -1080,7 +1111,9 @@ function initApp(){
   renderLib();
   updateCounts();
   buildDiaryYearSelect();
-  fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();});
+  loadPlexCfg().then(()=>{
+    fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();});
+  });
 }
 
 function myData(){
@@ -3154,8 +3187,8 @@ function openProfile(){
       <div class="ff" style="margin-bottom:10px"><label class="fl">Plex Token</label>
         <input type="password" class="ffi" id="s-plex-tok" value="${getPlexCfg().token||''}" placeholder="Your X-Plex-Token"></div>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <button class="primary-btn" onclick="savePlexCfg({url:document.getElementById('s-plex-url').value.trim(),token:document.getElementById('s-plex-tok').value.trim()});plexActivity.lastFetch=0;fetchPlexActivity().then(()=>{renderLib();toast('Plex connected!');closeMo('profile');})"><i class="ti ti-plug"></i> Save & Connect</button>
-        ${getPlexCfg().url?`<button class="danger-btn" onclick="savePlexCfg({});plexActivity={history:[],sessions:[],plexUsers:[],lastFetch:0};renderLib();toast('Plex disconnected');closeMo('profile')"><i class="ti ti-unlink"></i> Disconnect</button>`:''}
+        <button class="primary-btn" onclick="savePlexCfg({url:document.getElementById('s-plex-url').value.trim(),token:document.getElementById('s-plex-tok').value.trim()}).then(()=>{plexActivity.lastFetch=0;fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();toast('Plex connected!');closeMo('profile');})})"><i class="ti ti-plug"></i> Save & Connect</button>
+        ${getPlexCfg().url?`<button class="danger-btn" onclick="savePlexCfg({}).then(()=>{plexActivity={history:[],sessions:[],plexUsers:[],lastFetch:0};renderLib();toast('Plex disconnected');closeMo('profile')})"><i class="ti ti-unlink"></i> Disconnect</button>`:''}
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Cloud Status</div>
       ${(WORKER_URL&&APP_TOKEN&&cloudLoaded)?
