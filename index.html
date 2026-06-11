@@ -244,6 +244,14 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .suggest-scroll::-webkit-scrollbar{height:2px}
 .suggest-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
+/* EXTERNAL RATINGS */
+.ext-ratings{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ext-rat{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border2);background:var(--bg3)}
+.ext-rat-imdb{color:#f5c530;border-color:rgba(245,197,48,.25);background:rgba(245,197,48,.08)}
+.ext-rat-rt-fresh{color:#fa320a;border-color:rgba(250,50,10,.25);background:rgba(250,50,10,.08)}
+.ext-rat-rt-rotten{color:#fa320a;border-color:rgba(250,50,10,.25);background:rgba(250,50,10,.06)}
+.ext-rat-mc{color:#6c0;border-color:rgba(102,204,0,.25);background:rgba(102,204,0,.08)}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -784,6 +792,7 @@ let addTarget = 'library';
 let pendingPoster = '';
 let pendingImdb = '';
 let pendingRuntime = 0;
+let pendingRatings = [];
 let signupColor = COLORS[0];
 
 function uid(){ return 'u'+Date.now()+Math.random().toString(36).slice(2,6) }
@@ -1551,6 +1560,7 @@ function openDetail(id,src){
     </div>
     <div class="det-body">
       ${m.plot&&m.plot!=='N/A'?`<div class="det-plot">${m.plot}</div>`:''}
+      ${externalRatingsHTML(m)}
       <div class="info-grid">
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
@@ -1740,7 +1750,7 @@ function autoSortTitle(){
 }
 
 function openAdd(target='library', typeHint='movie'){
-  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';pendingRuntime=0;
+  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';pendingRuntime=0;pendingRatings=[];
   document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):target==='pwishlist'?'Add to My Wishlist':'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
@@ -1755,7 +1765,7 @@ function openEdit(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
   closeMo('detail');
-  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';pendingRuntime=m.runtime||0;
+  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';pendingRuntime=m.runtime||0;pendingRatings=m.externalRatings||[];
   document.getElementById('add-lbl').textContent='Edit: '+m.title;
   document.getElementById('add-watched-row').style.display='none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
@@ -1810,6 +1820,7 @@ async function pickResult(imdbID){
       pendingPoster=d.Poster&&d.Poster!=='N/A'?d.Poster:'';
       pendingImdb=d.imdbID||'';
       pendingRuntime=parseInt((d.Runtime||'').replace(/[^0-9]/g,''))||0;
+      pendingRatings=(d.Ratings||[]).map(r=>({s:r.Source,v:r.Value}));
       document.getElementById('add-t').value=d.Title||'';
       document.getElementById('add-yr').value=(d.Year||'').slice(0,4);
       document.getElementById('add-gn').value=d.Genre&&d.Genre!=='N/A'?d.Genre:'';
@@ -1841,7 +1852,7 @@ function submitAdd(){
     director:document.getElementById('add-dir').value.trim(),
     actors:document.getElementById('add-act').value.trim(),
     plot:document.getElementById('add-plot').value.trim(),
-    poster,imdb:pendingImdb,tags,runtime:pendingRuntime||0,
+    poster,imdb:pendingImdb,tags,runtime:pendingRuntime||0,externalRatings:pendingRatings||[],
     addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
   };
   // plot and actors kept for all items
@@ -2301,6 +2312,27 @@ function formatHours(mins){
 }
 
 // ── SERIES PROGRESS ───────────────────────────────────────────────────────────
+function externalRatingsHTML(m){
+  const ratings = m.externalRatings||[];
+  if(!ratings.length) return '';
+  const badges = ratings.map(r=>{
+    if(r.s==='Internet Movie Database'){
+      return `<div class="ext-rat ext-rat-imdb"><span>⭐</span> IMDb ${r.v}</div>`;
+    }
+    if(r.s==='Rotten Tomatoes'){
+      const pct = parseInt(r.v)||0;
+      const fresh = pct>=60;
+      return `<div class="ext-rat ${fresh?'ext-rat-rt-fresh':'ext-rat-rt-rotten'}"><span>${fresh?'🍅':'🦠'}</span> RT ${r.v}</div>`;
+    }
+    if(r.s==='Metacritic'){
+      return `<div class="ext-rat ext-rat-mc"><span>Ⓜ️</span> MC ${r.v}</div>`;
+    }
+    return '';
+  }).filter(Boolean).join('');
+  if(!badges) return '';
+  return `<div class="ext-ratings">${badges}</div>`;
+}
+
 function getSeriesProgress(itemId){
   const me = myData();
   return me.seriesProgress?.[itemId] || {season:0,episode:0};
@@ -2563,6 +2595,35 @@ function renderStats(){
   const dupCount = findDuplicates().length;
 
   const totalMins = totalMinutes(me);
+  // Build extras (On This Day, You Might Like) as string first
+  const suggestions = getSuggestions(me);
+  const onThisDay = getOnThisDay(me);
+  let extrasHtml = '';
+  if(onThisDay.length){
+    extrasHtml += `<div class="stat-block" style="grid-column:1/-1">
+      <div class="sbt"><i class="ti ti-calendar-event"></i> On This Day</div>
+      <div class="suggest-scroll">${onThisDay.map(e=>{
+        const hp=e.m.poster&&e.m.poster!=='N/A';
+        return `<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="openDetail('${e.m.id}','library')">
+          ${hp?`<img src="${e.m.poster}" style="width:80px;height:120px;border-radius:8px;object-fit:cover;display:block;margin-bottom:5px">`:`<div style="width:80px;height:120px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin-bottom:5px"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+          <div style="font-size:10px;color:var(--muted)">${e.yearsAgo}y ago</div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+  if(suggestions.length){
+    extrasHtml += `<div class="stat-block" style="grid-column:1/-1">
+      <div class="sbt"><i class="ti ti-sparkles"></i> You Might Like</div>
+      <div class="suggest-scroll">${suggestions.map(m=>{
+        const hp=m.poster&&m.poster!=='N/A';
+        return `<div class="shcard" onclick="openDetail('${m.id}','library')" style="flex-shrink:0">
+          ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+          <div class="shov">${m.title}</div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+
   document.getElementById('stats-page').innerHTML=`
     <div style="grid-column:1/-1">${renderYearInReview(curYear, me, watched)}</div>
     <div class="stat-block">
@@ -2570,11 +2631,6 @@ function renderStats(){
       <div class="stat-big" style="font-size:40px">${formatHours(totalMins)}</div>
       <div style="font-size:11px;color:var(--muted);margin-top:4px">across ${watched.length} titles</div>
     </div>
-    ${dupCount&&isAdmin()?`<div class="stat-block" style="grid-column:1/-1">
-      <div class="sbt"><i class="ti ti-copy"></i> Duplicate Detector</div>
-      <div id="dup-results"></div>
-    </div>`:''}
-  ` + `
     <div class="stat-block"><div class="sbt"><i class="ti ti-eye"></i> ${CU.username}'s Watch</div>
       <div class="stat-big">${watched.length}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">of ${sharedData.library.length} titles · ${sharedData.library.length-watched.length} unwatched</div></div>
     <div class="stat-block"><div class="sbt"><i class="ti ti-star"></i> ${CU.username}'s Ratings</div>
@@ -2583,50 +2639,22 @@ function renderStats(){
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">${userCards}</div></div>
     ${topGenres.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-tags"></i> Top Genres Watched</div>
       <div class="gbar">${topGenres.map(([g,c])=>`<div class="gbar-row"><span class="gbar-lbl">${g}</span><div class="gbar-track"><div class="gbar-fill" style="width:${Math.round(c/maxG*100)}%"></div></div><span class="gbar-val">${c}</span></div>`).join('')}</div></div>`:''}
-    <div id="stats-extras" style="display:contents"></div>
+    ${extrasHtml}
     ${topRated.length?`<div class="stat-block"><div class="sbt"><i class="ti ti-trophy"></i> ${CU.username}'s Top Rated</div>
       ${topRated.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${m.id}','library')">
         <div style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--muted);min-width:18px">${i+1}</div>
         ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:3px;object-fit:cover" loading="lazy">`:'<div style="width:28px;height:42px;border-radius:3px;background:var(--bg3)"></div>'}
         <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:10px;color:var(--muted)">${m.year||''}</div></div>
         <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold)">${me.ratings[m.id]}/10</div>
-      </div>`).join('')}</div>`:''}`;
+      </div>`).join('')}</div>`:''}
+    ${dupCount&&isAdmin()?`<div class="stat-block" style="grid-column:1/-1">
+      <div class="sbt"><i class="ti ti-copy"></i> Duplicate Detector</div>
+      <div id="dup-results"></div>
+    </div>`:''}`;
   // Render duplicates if any
   const dupEl = document.getElementById('dup-results');
   if(dupEl) renderDuplicates(dupEl);
 
-  // You Might Like
-  const suggestions = getSuggestions(me);
-  const onThisDay = getOnThisDay(me);
-  const extraEl = document.getElementById('stats-extras');
-  if(extraEl){
-    let extraHtml = '';
-    if(onThisDay.length){
-      extraHtml += `<div class="stat-block" style="grid-column:1/-1">
-        <div class="sbt"><i class="ti ti-calendar-event"></i> On This Day</div>
-        <div class="suggest-scroll">${onThisDay.map(e=>{
-          const hp=e.m.poster&&e.m.poster!=='N/A';
-          return `<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="openDetail('${e.m.id}','library')">
-            ${hp?`<img src="${e.m.poster}" style="width:80px;height:120px;border-radius:8px;object-fit:cover;display:block;margin-bottom:5px">`:`<div style="width:80px;height:120px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin-bottom:5px"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
-            <div style="font-size:10px;color:var(--muted)">${e.yearsAgo}y ago</div>
-          </div>`;
-        }).join('')}</div>
-      </div>`;
-    }
-    if(suggestions.length){
-      extraHtml += `<div class="stat-block" style="grid-column:1/-1">
-        <div class="sbt"><i class="ti ti-sparkles"></i> You Might Like</div>
-        <div class="suggest-scroll">${suggestions.map(m=>{
-          const hp=m.poster&&m.poster!=='N/A';
-          return `<div class="shcard" onclick="openDetail('${m.id}','library')" style="flex-shrink:0">
-            ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
-            <div class="shov">${m.title}</div>
-          </div>`;
-        }).join('')}</div>
-      </div>`;
-    }
-    extraEl.innerHTML = extraHtml;
-  }
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
