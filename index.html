@@ -1768,6 +1768,8 @@ function renderLib(){
 
   // New on Plex shelf — render from cached data
   renderPlexNewShelf();
+  // Cover flow banner
+  updateBanner();
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
   if(!items.length){grid.innerHTML='';empty.style.display='';return}
   empty.style.display='none';
