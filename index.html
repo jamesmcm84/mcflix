@@ -2741,7 +2741,7 @@ const TROPHIES = [
   { id:'rate_50',    cat:'Ratings',   icon:'🏅', name:'The Connoisseur',   desc:'Rate 50 titles',                           check:(w,rated)=>rated>=50,  progress:(w,r)=>[r,50] },
   { id:'perfect_10', cat:'Ratings',   icon:'💯', name:'Perfection',        desc:'Give a title a perfect 10',                check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===10) },
   { id:'score_1',    cat:'Ratings',   icon:'💀', name:'Scorched Earth',    desc:'Give a title a 1/10',                      check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===1) },
-  { id:'agree_10',   cat:'Ratings',   icon:'🤝', name:'Same Taste',        desc:'Match another user's rating on 10+ titles', check:(w,r,u,lib,me)=>{
+  { id:'agree_10',   cat:'Ratings',   icon:'🤝', name:'Same Taste',        desc:'Match another user rating on 10+ titles', check:(w,r,u,lib,me)=>{
     const others=u.filter(a=>a.id!==CU.id);
     return others.some(other=>{
       const od=allUsers.personal?.[other.id]?.ratings||{};
@@ -2770,7 +2770,7 @@ const TROPHIES = [
   }},
 
   // ── SOCIAL ────────────────────────────────────────────────────────────────
-  { id:'first_watch_new',cat:'Social',icon:'🥇', name:'First!',            desc:'First person to watch something after it's added', check:(w,r,u,lib,me)=>{
+  { id:'first_watch_new',cat:'Social',icon:'🥇', name:'First!',            desc:'First person to watch something after added', check:(w,r,u,lib,me)=>{
     return lib.some(m=>{
       if(!me.watched?.[m.id]||!m.addedAt) return false;
       const myFirst=(me.history?.[m.id]||[]).sort((a,b)=>a-b)[0]||Infinity;
