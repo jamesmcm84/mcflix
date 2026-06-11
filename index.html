@@ -272,6 +272,14 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .trophy-progress{height:3px;background:var(--bg3);border-radius:3px;margin-top:6px;overflow:hidden}
 .trophy-progress-fill{height:3px;background:linear-gradient(to right,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
 
+/* RECENTLY ADDED FROM PLEX */
+.plex-new-badge{position:absolute;top:6px;left:6px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase}
+
+/* AUTO COLLECTIONS */
+.collection-shelf{margin-bottom:24px}
+.collection-shelf-title{font-size:13px;font-weight:700;color:var(--light);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.collection-count{font-size:10px;color:var(--muted);font-weight:400}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -517,6 +525,7 @@ textarea.ffi{resize:vertical}
   <div class="nav-bar">
     <div class="nav">
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
+      <button class="nb" onclick="switchTab('collections',this)"><i class="ti ti-layers-intersect"></i> Collections</button>
       <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
@@ -551,6 +560,10 @@ textarea.ffi{resize:vertical}
         <div class="shelf-title"><i class="ti ti-clock" style="color:var(--purple)"></i> Recently Added</div>
         <div class="shelf-scroll" id="recent-scroll" style="margin-bottom:20px"></div>
       </div>
+      <div id="plex-new-shelf" style="display:none">
+        <div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> New on Plex</div>
+        <div class="shelf-scroll" id="plex-new-scroll" style="margin-bottom:20px"></div>
+      </div>
       <div class="shelf" id="now-shelf" style="display:none">
         <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
         <div class="shelf-scroll" id="now-scroll"></div>
@@ -570,6 +583,14 @@ textarea.ffi{resize:vertical}
       <div class="tag-bar" id="tag-bar"></div>
       <div class="grid" id="lib-grid"></div>
       <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
+    </div>
+
+    <!-- COLLECTIONS -->
+    <div class="tab" id="tab-collections">
+      <div class="sl" style="margin-bottom:4px">Auto-Collections</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Automatically grouped by director, franchise, and shared cast.</div>
+      <div id="collections-body"></div>
+      <div class="empty" id="collections-empty" style="display:none"><i class="ti ti-layers-intersect"></i><p style="font-size:14px">Add more titles to start seeing collections.</p></div>
     </div>
 
     <!-- TV SHOWS -->
@@ -1062,7 +1083,7 @@ function initApp(){
   renderLib();
   updateCounts();
   buildDiaryYearSelect();
-  fetchPlexActivity().then(()=>renderLib());
+  fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();});
 }
 
 function myData(){
@@ -1089,6 +1110,7 @@ function switchTab(t,el){
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   closeMoreMenu();
   if(t==='library') renderLib();
+  if(t==='collections') renderCollections();
   if(t==='tvshows') renderTV();
   if(t==='wishlist'){
     // Reset to shared tab when switching to wishlist
@@ -1317,6 +1339,7 @@ async function fetchPlexActivity(){
     plexActivity = { history, sessions, plexUsers, lastFetch: Date.now() };
     console.log('McFlix Plex: loaded '+history.length+' history entries, '+plexUsers.length+' users');
     updateNowPlayingBanner();
+    fetchPlexRecentlyAdded();
 
     // Auto-mark watched and log history for the current user based on Plex activity
     if(CU && history.length){
@@ -1446,6 +1469,167 @@ function buildActivitySection(m){
   });
   html += `</div>`;
   return html;
+}
+
+// ── AUTO-COLLECTIONS ─────────────────────────────────────────────────────────
+function buildCollections(){
+  const lib = sharedData.library;
+  const colls = {};
+
+  // Director collections (min 2 titles)
+  lib.forEach(m=>{
+    const dir = (m.director||'').split(',')[0].trim();
+    if(!dir||dir==='N/A') return;
+    (colls['dir:'+dir]=colls['dir:'+dir]||{name:dir+' Films',type:'director',items:[]}).items.push(m);
+  });
+
+  // Franchise detection — titles sharing a keyword (e.g. "Rocky", "Star Wars")
+  const franchiseWords = {};
+  lib.forEach(m=>{
+    const words = m.title.replace(/[^a-zA-Z0-9 ]/g,'').split(' ').filter(w=>w.length>3&&!/^(The|And|For|With|From|Into|Part|Vol|Volume)$/i.test(w));
+    words.forEach(w=>{
+      (franchiseWords[w.toLowerCase()]=franchiseWords[w.toLowerCase()]||[]).push(m);
+    });
+  });
+  Object.entries(franchiseWords).forEach(([word, items])=>{
+    if(items.length>=2){
+      const key = 'franchise:'+word;
+      if(!colls[key]) colls[key]={name:word.charAt(0).toUpperCase()+word.slice(1)+' Series',type:'franchise',items:[]};
+      items.forEach(m=>{ if(!colls[key].items.find(x=>x.id===m.id)) colls[key].items.push(m); });
+    }
+  });
+
+  // Shared lead actor collections (min 3 titles)
+  const actorMap = {};
+  lib.forEach(m=>{
+    const actors = (m.actors||'').split(',').slice(0,2).map(a=>a.trim()).filter(a=>a&&a!=='N/A');
+    actors.forEach(a=>{
+      (actorMap[a]=actorMap[a]||[]).push(m);
+    });
+  });
+  Object.entries(actorMap).forEach(([actor,items])=>{
+    if(items.length>=3){
+      colls['actor:'+actor]={name:'Starring '+actor,type:'actor',items};
+    }
+  });
+
+  // Filter to collections with 2+ items, dedupe vs franchise
+  return Object.values(colls)
+    .filter(c=>c.items.length>=2)
+    .sort((a,b)=>b.items.length-a.items.length)
+    .slice(0,20);
+}
+
+function renderCollections(){
+  const colls = buildCollections();
+  const body = document.getElementById('collections-body');
+  const empty = document.getElementById('collections-empty');
+  if(!body) return;
+  if(!colls.length){ body.innerHTML=''; if(empty)empty.style.display=''; return; }
+  if(empty) empty.style.display='none';
+  const me = myData();
+  body.innerHTML = colls.map(c=>{
+    const icon = c.type==='director'?'🎬':c.type==='actor'?'🎭':'🎞';
+    const cards = c.items.slice(0,8).map(m=>{
+      const hp = m.poster&&m.poster!=='N/A';
+      return `<div class="shcard" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        ${me.watched?.[m.id]?`<div style="position:absolute;bottom:2px;right:2px;background:rgba(46,204,113,.8);border-radius:3px;width:14px;height:14px;display:flex;align-items:center;justify-content:center"><i class="ti ti-check" style="font-size:8px;color:#fff"></i></div>`:''}
+        <div class="shov">${m.title}</div>
+      </div>`;
+    }).join('');
+    const watched = c.items.filter(m=>me.watched?.[m.id]).length;
+    return `<div class="collection-shelf">
+      <div class="collection-shelf-title">${icon} ${c.name} <span class="collection-count">${c.items.length} titles · ${watched} watched</span></div>
+      <div class="suggest-scroll">${cards}${c.items.length>8?`<div style="flex-shrink:0;display:flex;align-items:center;padding:0 10px;color:var(--muted);font-size:12px">+${c.items.length-8} more</div>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── RECENTLY ADDED FROM PLEX ──────────────────────────────────────────────────
+async function fetchPlexRecentlyAdded(){
+  const cfg = getPlexCfg();
+  if(!cfg.url||!cfg.token) return;
+  try{
+    const base = cfg.url.replace(/\/$/, '');
+    const tok = cfg.token;
+    const r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20`,{
+      headers:{'Accept':'application/json','X-Plex-Token':tok}
+    });
+    if(!r.ok) return;
+    const d = await r.json();
+    const items = (d.MediaContainer?.Metadata||[]).filter(m=>m.type==='movie'||m.type==='show');
+    if(!items.length) return;
+
+    const shelf = document.getElementById('plex-new-shelf');
+    const scroll = document.getElementById('plex-new-scroll');
+    if(!shelf||!scroll) return;
+
+    scroll.innerHTML = items.map(m=>{
+      const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
+      const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
+        : (m.thumb ? `${base}${m.thumb}?X-Plex-Token=${tok}` : '');
+      const hp = !!poster;
+      return `<div class="shcard" style="position:relative" onclick="${inLib?`openDetail('${inLib.id}','library')`:''}">
+        ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+        <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4"></i></div>
+        ${!inLib?'<div class="plex-new-badge">New</div>':''}
+        <div class="shov">${m.title}</div>
+      </div>`;
+    }).join('');
+    shelf.style.display='';
+  }catch(e){ console.warn('Plex recently added failed:',e.message); }
+}
+
+// ── PLEX POSTER PULL ──────────────────────────────────────────────────────────
+async function pullPlexPoster(itemId){
+  const cfg = getPlexCfg();
+  if(!cfg.url||!cfg.token){ toast('Connect Plex first',true); return; }
+  const m = sharedData.library.find(x=>x.id===itemId);
+  if(!m) return;
+  const base = cfg.url.replace(/\/$/, '');
+  const tok = cfg.token;
+  try{
+    // Search Plex for this title
+    const r = await fetch(`${base}/search?query=${encodeURIComponent(m.title)}&X-Plex-Token=${tok}`,{
+      headers:{'Accept':'application/json','X-Plex-Token':tok}
+    });
+    if(!r.ok){ toast('Plex search failed',true); return; }
+    const d = await r.json();
+    const results = d.MediaContainer?.Metadata||[];
+    const match = results.find(x=>x.title.toLowerCase()===m.title.toLowerCase()&&(x.type==='movie'||x.type==='show'));
+    if(!match||!match.thumb){ toast('No poster found on Plex',true); return; }
+    const posterUrl = `${base}${match.thumb}?X-Plex-Token=${tok}`;
+    // Update the library item
+    const idx = sharedData.library.findIndex(x=>x.id===itemId);
+    if(idx>-1){
+      sharedData.library[idx].poster = posterUrl;
+      await saveShared();
+      openDetail(itemId,'library');
+      toast('Plex poster applied!');
+    }
+  }catch(e){ toast('Could not pull Plex poster',true); }
+}
+
+// ── OMDB RATINGS BACKFILL ─────────────────────────────────────────────────────
+async function backfillOMDBRatings(){
+  const missing = sharedData.library.filter(m=>m.imdb&&(!m.externalRatings||!m.externalRatings.length));
+  if(!missing.length){ toast('All titles already have ratings!'); return; }
+  toast(`Fetching ratings for ${missing.length} titles...`);
+  let updated=0;
+  for(const m of missing){
+    try{
+      const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${m.imdb}`);
+      const d = await r.json();
+      if(d.Response==='True'&&d.Ratings?.length){
+        m.externalRatings = d.Ratings.map(x=>({s:x.Source,v:x.Value}));
+        updated++;
+      }
+      await new Promise(res=>setTimeout(res,250));
+    }catch(e){}
+  }
+  await saveShared();
+  toast(`Updated ratings for ${updated} titles!`);
 }
 
 // ── RENDER LIBRARY ────────────────────────────────────────────────────────────
@@ -1675,7 +1859,7 @@ function openDetail(id,src){
             ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Watching':'Now Watching'}</button>`:''}
             ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
             ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
-            ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>`:''}
+            ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
           </div>
         </div>
       </div>
@@ -2985,6 +3169,7 @@ function openProfile(){
       `:''}
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Account</div>
       <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
+      ${isAdmin()?`<button class="ghost-btn" onclick="backfillOMDBRatings()" style="margin-bottom:8px"><i class="ti ti-star"></i> Backfill Ratings from OMDB</button>`:''}
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
     </div>`;
   signupColor=CU.color||COLORS[0];
