@@ -1502,6 +1502,25 @@ function buildActivitySection(m){
   return html;
 }
 
+// ── CURRENTLY PLAYING BANNER ─────────────────────────────────────────────────
+function updateNowPlayingBanner(){
+  const banner = document.getElementById('now-playing-banner');
+  const usersEl = document.getElementById('now-playing-users');
+  if(!banner||!usersEl) return;
+  const sessions = plexActivity.sessions||[];
+  if(!sessions.length){ banner.classList.remove('show'); return; }
+  const items = sessions.map(s=>{
+    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
+    const mu = pu ? plexUserToMcFlix(pu.username||'') : null;
+    const name = mu ? mu.username : (pu?.username||s.user||'Someone');
+    const av = mu ? avatarEl(mu,20) : `<div class="av" style="width:20px;height:20px;font-size:8px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
+    const pct = s.progress!=null ? ` <span style="color:var(--muted)">${s.progress}%</span>` : '';
+    return `<div class="now-playing-item">${av} <strong>${name}</strong> is watching <strong>${s.title}</strong>${pct}</div>`;
+  }).join('<span style="color:var(--border2);margin:0 4px">·</span>');
+  usersEl.innerHTML = items;
+  banner.classList.add('show');
+}
+
 // ── AUTO-COLLECTIONS ─────────────────────────────────────────────────────────
 function buildCollections(){
   const lib = sharedData.library;
