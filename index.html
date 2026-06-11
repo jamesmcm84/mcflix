@@ -556,10 +556,6 @@ textarea.ffi{resize:vertical}
         </div>
       </div>
       <div class="stats" id="lib-stats"></div>
-      <div id="recent-shelf" style="display:none">
-        <div class="shelf-title"><i class="ti ti-clock" style="color:var(--purple)"></i> Recently Added</div>
-        <div class="shelf-scroll" id="recent-scroll" style="margin-bottom:20px"></div>
-      </div>
       <div id="plex-new-shelf" style="display:none">
         <div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> New on Plex</div>
         <div class="shelf-scroll" id="plex-new-scroll" style="margin-bottom:20px"></div>
@@ -1550,7 +1546,7 @@ function renderCollections(){
 // ── RECENTLY ADDED FROM PLEX ──────────────────────────────────────────────────
 async function fetchPlexRecentlyAdded(){
   const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token) return;
+  if(!cfg.url||!cfg.token){ console.log('McFlix: no Plex config for recently added'); return; }
   try{
     const base = cfg.url.replace(/\/$/, '');
     const tok = cfg.token;
@@ -1570,15 +1566,18 @@ async function fetchPlexRecentlyAdded(){
 function renderPlexNewShelf(){
   const shelf = document.getElementById('plex-new-shelf');
   const scroll = document.getElementById('plex-new-scroll');
-  if(!shelf||!scroll||!plexRecentItems.length) return;
-  scroll.innerHTML = plexRecentItems.map(m=>{
+  if(!shelf||!scroll) return;
+  if(!plexRecentItems.length){ shelf.style.display='none'; return; }
+  // Use same miniCard style as other shelves — limit to 12
+  scroll.innerHTML = plexRecentItems.slice(0,12).map(m=>{
     const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
     const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
       : (m.thumb ? `${m._base}${m.thumb}?X-Plex-Token=${m._tok}` : '');
     const hp = !!poster;
-    return `<div class="shcard" style="position:relative" onclick="${inLib?`openDetail('${inLib.id}','library')`:''}">
+    // Use miniCard structure so size matches other shelves
+    return `<div class="shcard" onclick="${inLib?`openDetail('${inLib.id}','library')`:'void 0'}" style="cursor:${inLib?'pointer':'default'};position:relative">
       ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4"></i></div>
+      <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4;font-size:24px"></i></div>
       ${!inLib?'<div class="plex-new-badge">New</div>':''}
       <div class="shov">${m.title}</div>
     </div>`;
@@ -1677,13 +1676,6 @@ function renderLib(){
   fs.style.display=favs.length?'':'none';
   if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join('');
 
-  // Recently Added shelf — last 10 movies added
-  const recent=sharedData.library.filter(m=>m.type!=='tv').sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).slice(0,10);
-  const rs=document.getElementById('recent-shelf');
-  if(rs){
-    rs.style.display=recent.length?'':'none';
-    if(recent.length) document.getElementById('recent-scroll').innerHTML=recent.map(m=>miniCard(m)).join('');
-  }
   // New on Plex shelf — render from cached data
   renderPlexNewShelf();
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
