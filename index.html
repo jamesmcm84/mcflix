@@ -1605,7 +1605,7 @@ async function fetchPlexRecentlyAdded(){
   try{
     const base = cfg.url.replace(/\/$/, '');
     const tok = cfg.token;
-    const r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20`,{
+    const r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20&type=1`,{
       headers:{'Accept':'application/json','X-Plex-Token':tok}
     });
     if(!r.ok) return;
@@ -3182,7 +3182,10 @@ function openProfile(){
       ${avatarEl(CU,56)}
       <div>
         <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px">${CU.username}</div>
-        <div class="role-tag ${isAdmin()?'rt-admin':'rt-member'}" style="display:inline-block;margin-top:4px">${isAdmin()?'Admin':'Member'}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <div class="role-tag ${isAdmin()?'rt-admin':'rt-member'}" style="display:inline-block">${isAdmin()?'Admin':'Member'}</div>
+          <div style="font-size:10px;color:var(--muted);letter-spacing:.5px">v${VERSION}</div>
+        </div>
       </div>
     </div>
     <div class="profile-body">
@@ -3237,7 +3240,7 @@ function openProfile(){
       <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
       ${isAdmin()?`<button class="ghost-btn" onclick="backfillOMDBRatings()" style="margin-bottom:8px"><i class="ti ti-star"></i> Backfill Ratings from OMDB</button>`:''}
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
-      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:.5px">McFlix v${VERSION}</div>
+
     </div>`;
   signupColor=CU.color||COLORS[0];
   document.getElementById('profile-colors').innerHTML=COLORS.map(c=>`
