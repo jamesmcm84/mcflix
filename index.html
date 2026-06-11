@@ -192,11 +192,15 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .dup-badge{background:rgba(232,53,75,.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
 
 /* BANNER */
-.lib-banner{position:relative;height:180px;overflow:hidden;border-radius:12px;margin-bottom:20px;background:linear-gradient(135deg,#14142a,#0e0e20)}
-.lib-banner img{width:100%;height:100%;object-fit:cover;opacity:.5}
-.lib-banner-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,13,.9) 0%,rgba(7,7,13,.4) 60%,transparent 100%);display:flex;align-items:center;padding:24px}
-.lib-banner-title{font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
-.lib-banner-sub{font-size:13px;color:var(--light);margin-top:4px}
+.lib-banner{position:relative;height:200px;overflow:hidden;border-radius:12px;margin-bottom:20px;background:#07070d}
+.cf-stage{position:relative;height:200px;display:flex;align-items:center;justify-content:center;perspective:900px}
+.cf-card{position:absolute;width:110px;height:165px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);transition:all 0.8s cubic-bezier(0.25,0.46,0.45,0.94);pointer-events:none}
+.cf-card img{width:100%;height:100%;object-fit:cover;display:block}
+.cf-card-fb{width:100%;height:100%;background:linear-gradient(135deg,#14142a,#0e0e20)}
+.cf-refl{position:absolute;bottom:-165px;left:0;width:100%;height:165px;border-radius:8px;overflow:hidden;transform:scaleY(-1);opacity:.12;-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 60%);mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 60%)}
+.cf-refl img{width:100%;height:100%;object-fit:cover}
+.cf-fade-l{position:absolute;left:0;top:0;bottom:0;width:100px;background:linear-gradient(to right,#07070d,transparent);z-index:20;pointer-events:none}
+.cf-fade-r{position:absolute;right:0;top:0;bottom:0;width:100px;background:linear-gradient(to left,#07070d,transparent);z-index:20;pointer-events:none}
 
 /* SKELETON */
 .skel{background:linear-gradient(90deg,var(--bg3) 25%,var(--card) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
@@ -550,10 +554,9 @@ textarea.ffi{resize:vertical}
     <!-- LIBRARY -->
     <div class="tab active" id="tab-library">
       <div class="lib-banner" id="lib-banner" style="display:none">
-        <img id="lib-banner-img" src="" alt="">
-        <div class="lib-banner-overlay">
-          <div><div class="lib-banner-title">McFlix</div><div class="lib-banner-sub" id="lib-banner-sub"></div></div>
-        </div>
+        <div class="cf-fade-l"></div>
+        <div class="cf-fade-r"></div>
+        <div class="cf-stage" id="cf-stage"></div>
       </div>
       <div class="stats" id="lib-stats"></div>
       <div id="plex-new-shelf" style="display:none">
@@ -2271,29 +2274,72 @@ function submitAdd(){
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 // ── BANNER ───────────────────────────────────────────────────────────────────
+let _cfCurrent = 0;
+let _cfPosters = [];
+let _cfTimer = null;
+
 function updateBanner(){
-  const me = myData();
-  // Pick the most recently watched movie poster as banner
-  const recent = sharedData.library
-    .filter(m => m.type !== 'tv' && me.watched?.[m.id] && m.poster && m.poster !== 'N/A')
-    .sort((a,b) => {
-      const ah = (me.history?.[a.id]||[]).slice(-1)[0]||0;
-      const bh = (me.history?.[b.id]||[]).slice(-1)[0]||0;
-      return bh - ah;
-    })[0];
   const banner = document.getElementById('lib-banner');
-  const img    = document.getElementById('lib-banner-img');
-  const sub    = document.getElementById('lib-banner-sub');
-  if(!banner) return;
-  if(recent){
-    banner.style.display = '';
-    img.src = recent.poster;
-    const movies = sharedData.library.filter(m=>m.type!=='tv').length;
-    const watched = sharedData.library.filter(m=>m.type!=='tv'&&me.watched?.[m.id]).length;
-    sub.textContent = `${movies} movies · ${watched} watched`;
-  } else {
-    banner.style.display = 'none';
-  }
+  const stage  = document.getElementById('cf-stage');
+  if(!banner||!stage) return;
+
+  // Build poster pool from library
+  _cfPosters = sharedData.library
+    .filter(m => m.poster && m.poster !== 'N/A')
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 12);
+
+  if(!_cfPosters.length){ banner.style.display='none'; return; }
+  banner.style.display = '';
+
+  // Build cards
+  stage.innerHTML = '';
+  _cfPosters.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'cf-card';
+    card.style.opacity = '0';
+    const img = document.createElement('img');
+    img.src = m.poster;
+    img.alt = '';
+    img.onerror = function(){ this.style.display='none'; card.style.background='linear-gradient(135deg,#14142a,#0e0e20)'; };
+    card.appendChild(img);
+    const refl = document.createElement('div');
+    refl.className = 'cf-refl';
+    const rimg = document.createElement('img');
+    rimg.src = m.poster;
+    refl.appendChild(rimg);
+    card.appendChild(refl);
+    stage.appendChild(card);
+  });
+
+  _cfCurrent = 0;
+  cfRender();
+  if(_cfTimer) clearInterval(_cfTimer);
+  _cfTimer = setInterval(()=>{
+    _cfCurrent = (_cfCurrent + 1) % _cfPosters.length;
+    cfRender();
+  }, 2200);
+}
+
+function cfRender(){
+  const stage = document.getElementById('cf-stage');
+  if(!stage) return;
+  const cards = stage.querySelectorAll('.cf-card');
+  const total = _cfPosters.length;
+  cards.forEach((card, i) => {
+    const offset = ((i - _cfCurrent + total) % total) - Math.floor(total / 2);
+    const absOffset = Math.abs(offset);
+    if(absOffset > 3){ card.style.opacity='0'; return; }
+    const tx = offset * 130;
+    const tz = absOffset === 0 ? 0 : -90 - absOffset * 45;
+    const ry = offset * -38;
+    const sc = absOffset === 0 ? 1 : 0.82 - absOffset * 0.06;
+    const op = absOffset === 0 ? 1 : absOffset === 1 ? 0.75 : absOffset === 2 ? 0.45 : 0.15;
+    card.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
+    card.style.opacity = op;
+    card.style.zIndex = 10 - absOffset;
+    card.style.boxShadow = absOffset === 0 ? '0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(232,184,75,.15)' : 'none';
+  });
 }
 
 // ── PERSONAL WISHLIST ─────────────────────────────────────────────────────────
