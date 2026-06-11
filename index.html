@@ -2625,7 +2625,7 @@ const TROPHIES = [
   // ── WATCHING ──────────────────────────────────────────────────────────────
   { id:'watch_1',    cat:'Watching',  icon:'🎬', name:'First Watch',       desc:'Watch your first title',                   check:(w,r,u,lib,me)=>w>=1 },
   { id:'watch_10',   cat:'Watching',  icon:'🍿', name:'Movie Night',       desc:'Watch 10 titles',                          check:(w)=>w>=10,  progress:(w)=>[w,10] },
-  { id:'watch_25',   cat:'Watching',  icon:'🎞️', name:'Film Buff',         desc:'Watch 25 titles',                          check:(w)=>w>=25,  progress:(w)=>[w,25] },
+  { id:'watch_25',   cat:'Watching',  icon:'🎞', name:'Film Buff',         desc:'Watch 25 titles',                          check:(w)=>w>=25,  progress:(w)=>[w,25] },
   { id:'watch_50',   cat:'Watching',  icon:'🏆', name:'Cinephile',         desc:'Watch 50 titles',                          check:(w)=>w>=50,  progress:(w)=>[w,50] },
   { id:'watch_100',  cat:'Watching',  icon:'💫', name:'Century Club',      desc:'Watch 100 titles',                         check:(w)=>w>=100, progress:(w)=>[w,100] },
   { id:'watch_250',  cat:'Watching',  icon:'🌟', name:'The Archivist',     desc:'Watch 250 titles',                         check:(w)=>w>=250, progress:(w)=>[w,250] },
@@ -2678,10 +2678,10 @@ const TROPHIES = [
   // ── LIBRARY ───────────────────────────────────────────────────────────────
   { id:'first_add',  cat:'Library',   icon:'➕', name:'Curator',           desc:'Add your first title to the library',      check:(w,r,u,lib)=>lib.length>=1 },
   { id:'lib_50',     cat:'Library',   icon:'📚', name:'Collection',        desc:'Library reaches 50 titles',                check:(w,r,u,lib)=>lib.length>=50,  progress:(w,r,u,lib)=>[lib.length,50] },
-  { id:'lib_100',    cat:'Library',   icon:'🗃️', name:'The Archive',       desc:'Library reaches 100 titles',               check:(w,r,u,lib)=>lib.length>=100, progress:(w,r,u,lib)=>[lib.length,100] },
-  { id:'lib_200',    cat:'Library',   icon:'🏛️', name:'The Museum',        desc:'Library reaches 200 titles',               check:(w,r,u,lib)=>lib.length>=200, progress:(w,r,u,lib)=>[lib.length,200] },
+  { id:'lib_100',    cat:'Library',   icon:'🗃', name:'The Archive',       desc:'Library reaches 100 titles',               check:(w,r,u,lib)=>lib.length>=100, progress:(w,r,u,lib)=>[lib.length,100] },
+  { id:'lib_200',    cat:'Library',   icon:'🏛', name:'The Museum',        desc:'Library reaches 200 titles',               check:(w,r,u,lib)=>lib.length>=200, progress:(w,r,u,lib)=>[lib.length,200] },
   { id:'first_comment',cat:'Library', icon:'💬', name:'Commentator',       desc:'Post your first comment',                  check:(w,r,u,lib)=>lib.some(m=>(m.comments||[]).some(c=>c.userId===CU.id)) },
-  { id:'first_tag',  cat:'Library',   icon:'🏷️', name:'Tagger',            desc:'Add a tag to any title',                   check:(w,r,u,lib)=>lib.some(m=>(m.tags||[]).length>0) },
+  { id:'first_tag',  cat:'Library',   icon:'🏷', name:'Tagger',            desc:'Add a tag to any title',                   check:(w,r,u,lib)=>lib.some(m=>(m.tags||[]).length>0) },
   { id:'director_sweep',cat:'Library',icon:'🎥', name:'Completionist',     desc:'Watch every film by one director (min 3)', check:(w,r,u,lib,me)=>{
     const dirs={};
     lib.filter(m=>m.director&&m.director!=='N/A').forEach(m=>{
