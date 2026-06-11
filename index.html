@@ -1601,27 +1601,42 @@ function renderCollections(){
 // ── RECENTLY ADDED FROM PLEX ──────────────────────────────────────────────────
 async function fetchPlexRecentlyAdded(){
   const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token){ console.log('McFlix: no Plex config for recently added'); return; }
+  if(!cfg.url||!cfg.token) return;
   try{
     const base = cfg.url.replace(/\/+$/, '');
     const tok = cfg.token;
-    // Try recentlyAdded endpoint
-    let r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20`,{
+    // Get all library sections first
+    const secR = await fetch(`${base}/library/sections?X-Plex-Token=${tok}`,{
       headers:{'Accept':'application/json','X-Plex-Token':tok}
     });
-    if(!r.ok){
-      // Fallback: try sections-based approach
-      console.warn('recentlyAdded failed:', r.status);
-      return;
+    if(!secR.ok){ console.warn('Plex sections failed:', secR.status); return; }
+    const secD = await secR.json();
+    const sections = (secD.MediaContainer?.Directory||[]).filter(s=>s.type==='movie'||s.type==='show');
+    if(!sections.length) return;
+
+    const allItems = [];
+    for(const sec of sections){
+      try{
+        const r = await fetch(`${base}/library/sections/${sec.key}/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=10`,{
+          headers:{'Accept':'application/json','X-Plex-Token':tok}
+        });
+        if(!r.ok) continue;
+        const d = await r.json();
+        const items = d.MediaContainer?.Metadata||[];
+        items.forEach(m=>allItems.push({...m, _base:base, _tok:tok}));
+      }catch(e){}
     }
-    const d = await r.json();
-    const items = (d.MediaContainer?.Metadata||[]).filter(m=>m.type==='movie'||m.type==='show');
-    if(!items.length) return;
-    // Store base/tok with each item for poster URLs
-    plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
+
+    if(!allItems.length){ console.warn('Plex recently added: no items found'); return; }
+    // Sort by addedAt, newest first, dedupe by title
+    const seen = new Set();
+    plexRecentItems = allItems
+      .sort((a,b)=>(b.addedAt||0)-(a.addedAt||0))
+      .filter(m=>{ const t=m.title?.toLowerCase(); if(seen.has(t)) return false; seen.add(t); return true; })
+      .slice(0,12);
     console.log('McFlix: Plex recently added loaded', plexRecentItems.length, 'items');
-    renderPlexNewShelf(); // render the shelf directly
-  }catch(e){ console.error('Plex recently added failed:', e.message, e); }
+    renderPlexNewShelf();
+  }catch(e){ console.error('Plex recently added failed:', e.message); }
 }
 
 function renderPlexNewShelf(){
