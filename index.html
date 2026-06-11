@@ -499,7 +499,6 @@ textarea.ffi{resize:vertical}
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
-      <button class="nb" onclick="switchTab('pwishlist',this)"><i class="ti ti-heart"></i> My Wishlist</button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
@@ -518,6 +517,10 @@ textarea.ffi{resize:vertical}
         </div>
       </div>
       <div class="stats" id="lib-stats"></div>
+      <div id="recent-shelf" style="display:none">
+        <div class="shelf-title"><i class="ti ti-clock" style="color:var(--purple)"></i> Recently Added</div>
+        <div class="shelf-scroll" id="recent-scroll" style="margin-bottom:20px"></div>
+      </div>
       <div class="shelf" id="now-shelf" style="display:none">
         <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
         <div class="shelf-scroll" id="now-scroll"></div>
@@ -565,12 +568,28 @@ textarea.ffi{resize:vertical}
 
     <!-- WISHLIST -->
     <div class="tab" id="tab-wishlist">
-      <div class="toolbar" style="margin-bottom:18px">
-        <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-wish" placeholder="Search wishlist..." oninput="renderWish()"></div>
-        <button class="ab" id="add-wish-btn" style="display:none" onclick="openAdd('wishlist')"><i class="ti ti-plus"></i> Add</button>
+      <!-- Sub-tab toggle -->
+      <div class="auth-tabs" style="margin-bottom:16px" id="wish-subtabs">
+        <button class="auth-tab active" id="wish-sub-shared" onclick="switchWishTab('shared')"><i class="ti ti-bookmark"></i> Shared Wishlist</button>
+        <button class="auth-tab" id="wish-sub-mine" onclick="switchWishTab('mine')"><i class="ti ti-heart"></i> My Wishlist</button>
       </div>
-      <div id="wish-grid"></div>
-      <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p style="font-size:14px">Nothing on the wishlist yet.</p></div>
+      <!-- Shared wishlist -->
+      <div id="wish-shared-pane">
+        <div class="toolbar" style="margin-bottom:16px">
+          <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-wish" placeholder="Search shared wishlist..." oninput="renderWish()"></div>
+          <button class="ab" id="add-wish-btn" style="display:none" onclick="openAdd('wishlist')"><i class="ti ti-plus"></i> Add</button>
+        </div>
+        <div id="wish-grid"></div>
+        <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p style="font-size:14px">Nothing on the shared wishlist yet.</p></div>
+      </div>
+      <!-- My wishlist -->
+      <div id="wish-mine-pane" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:16px">
+          <button class="ab" onclick="openAdd('pwishlist')"><i class="ti ti-plus"></i> Add Title</button>
+        </div>
+        <div id="pwish-grid"></div>
+        <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
+      </div>
     </div>
 
     <!-- LISTS -->
@@ -583,15 +602,7 @@ textarea.ffi{resize:vertical}
       <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
     </div>
 
-    <!-- PERSONAL WISHLIST -->
-    <div class="tab" id="tab-pwishlist">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
-        <div class="sl" style="flex:1;margin:0">My Wishlist</div>
-        <button class="ab" onclick="openAdd('pwishlist')"><i class="ti ti-plus"></i> Add Title</button>
-      </div>
-      <div id="pwish-grid"></div>
-      <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
-    </div>
+
 
     <!-- DIARY -->
     <div class="tab" id="tab-diary">
@@ -991,8 +1002,10 @@ function switchTab(t,el){
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
-  if(t==='wishlist') renderWish();
-  if(t==='pwishlist') renderPWishlist();
+  if(t==='wishlist'){
+    // Reset to shared tab when switching to wishlist
+    switchWishTab('shared');
+  }
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
   if(t==='watched') renderWatched();
@@ -1382,6 +1395,14 @@ function renderLib(){
   const fs=document.getElementById('fav-shelf');
   fs.style.display=favs.length?'':'none';
   if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join('');
+
+  // Recently Added shelf — last 10 movies added
+  const recent=sharedData.library.filter(m=>m.type!=='tv').sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).slice(0,10);
+  const rs=document.getElementById('recent-shelf');
+  if(rs){
+    rs.style.display=recent.length?'':'none';
+    if(recent.length) document.getElementById('recent-scroll').innerHTML=recent.map(m=>miniCard(m)).join('');
+  }
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
   if(!items.length){grid.innerHTML='';empty.style.display='';return}
   empty.style.display='none';
@@ -1411,6 +1432,15 @@ function miniCard(m){
 }
 
 // ── RENDER WISHLIST ───────────────────────────────────────────────────────────
+function switchWishTab(t){
+  document.getElementById('wish-sub-shared').classList.toggle('active', t==='shared');
+  document.getElementById('wish-sub-mine').classList.toggle('active', t==='mine');
+  document.getElementById('wish-shared-pane').style.display = t==='shared'?'':'none';
+  document.getElementById('wish-mine-pane').style.display = t==='mine'?'':'none';
+  if(t==='shared') renderWish();
+  if(t==='mine') renderPWishlist();
+}
+
 function renderWish(){
   const q=(document.getElementById('s-wish').value||'').toLowerCase();
   const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
