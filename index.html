@@ -898,6 +898,7 @@ const COLORS = ['#e8b84b','#e8354b','#2ecc71','#8a5af0','#3498db','#e67e22','#1a
 
 let CU = null;
 let plexActivity = { history:[], sessions:[], plexUsers:[], lastFetch:0 };
+let plexRecentItems = []; // cached recently added from Plex
 
 // Plex config — stored in localStorage, never in HTML source
 function getPlexCfg(){ try{ return JSON.parse(localStorage.getItem('mcflix_plex')||'{}'); }catch(e){ return {}; } }
@@ -1560,25 +1561,29 @@ async function fetchPlexRecentlyAdded(){
     const d = await r.json();
     const items = (d.MediaContainer?.Metadata||[]).filter(m=>m.type==='movie'||m.type==='show');
     if(!items.length) return;
-
-    const shelf = document.getElementById('plex-new-shelf');
-    const scroll = document.getElementById('plex-new-scroll');
-    if(!shelf||!scroll) return;
-
-    scroll.innerHTML = items.map(m=>{
-      const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
-      const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
-        : (m.thumb ? `${base}${m.thumb}?X-Plex-Token=${tok}` : '');
-      const hp = !!poster;
-      return `<div class="shcard" style="position:relative" onclick="${inLib?`openDetail('${inLib.id}','library')`:''}">
-        ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-        <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4"></i></div>
-        ${!inLib?'<div class="plex-new-badge">New</div>':''}
-        <div class="shov">${m.title}</div>
-      </div>`;
-    }).join('');
-    shelf.style.display='';
+    // Store base/tok with each item for poster URLs
+    plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
+    renderPlexNewShelf();
   }catch(e){ console.warn('Plex recently added failed:',e.message); }
+}
+
+function renderPlexNewShelf(){
+  const shelf = document.getElementById('plex-new-shelf');
+  const scroll = document.getElementById('plex-new-scroll');
+  if(!shelf||!scroll||!plexRecentItems.length) return;
+  scroll.innerHTML = plexRecentItems.map(m=>{
+    const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
+    const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
+      : (m.thumb ? `${m._base}${m.thumb}?X-Plex-Token=${m._tok}` : '');
+    const hp = !!poster;
+    return `<div class="shcard" style="position:relative" onclick="${inLib?`openDetail('${inLib.id}','library')`:''}">
+      ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div style="display:${hp?'none':'flex'};width:100%;height:100%;background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-${m.type==='show'?'device-tv':'movie'}" style="color:var(--muted);opacity:.4"></i></div>
+      ${!inLib?'<div class="plex-new-badge">New</div>':''}
+      <div class="shov">${m.title}</div>
+    </div>`;
+  }).join('');
+  shelf.style.display='';
 }
 
 // ── PLEX POSTER PULL ──────────────────────────────────────────────────────────
@@ -1679,6 +1684,8 @@ function renderLib(){
     rs.style.display=recent.length?'':'none';
     if(recent.length) document.getElementById('recent-scroll').innerHTML=recent.map(m=>miniCard(m)).join('');
   }
+  // New on Plex shelf — render from cached data
+  renderPlexNewShelf();
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
   if(!items.length){grid.innerHTML='';empty.style.display='';return}
   empty.style.display='none';
