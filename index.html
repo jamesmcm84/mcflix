@@ -882,7 +882,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '1.8.0';
+const VERSION     = '1.8';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -1304,7 +1304,7 @@ async function fetchPlexActivity(){
   if(!cfg.url || !cfg.token) return;
   if(Date.now() - plexActivity.lastFetch < 90000) return;
   try{
-    const base = cfg.url.replace(/\/$/, '');
+    const base = cfg.url.replace(/\/+$/, '');
     const tok  = cfg.token;
     const headers = { 'Accept': 'application/json', 'X-Plex-Token': tok };
 
@@ -1603,12 +1603,17 @@ async function fetchPlexRecentlyAdded(){
   const cfg = getPlexCfg();
   if(!cfg.url||!cfg.token){ console.log('McFlix: no Plex config for recently added'); return; }
   try{
-    const base = cfg.url.replace(/\/$/, '');
+    const base = cfg.url.replace(/\/+$/, '');
     const tok = cfg.token;
-    const r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20&type=1`,{
+    // Try recentlyAdded endpoint
+    let r = await fetch(`${base}/library/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=20`,{
       headers:{'Accept':'application/json','X-Plex-Token':tok}
     });
-    if(!r.ok) return;
+    if(!r.ok){
+      // Fallback: try sections-based approach
+      console.warn('recentlyAdded failed:', r.status);
+      return;
+    }
     const d = await r.json();
     const items = (d.MediaContainer?.Metadata||[]).filter(m=>m.type==='movie'||m.type==='show');
     if(!items.length) return;
@@ -1658,7 +1663,7 @@ async function pullPlexPoster(itemId){
   if(!cfg.url||!cfg.token){ toast('Connect Plex first',true); return; }
   const m = sharedData.library.find(x=>x.id===itemId);
   if(!m) return;
-  const base = cfg.url.replace(/\/$/, '');
+  const base = cfg.url.replace(/\/+$/, '');
   const tok = cfg.token;
   try{
     // Search Plex for this title
