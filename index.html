@@ -2803,6 +2803,7 @@ function renderTrophies(){
 }
 
 function renderStats(){
+  try {
   const me=myData();
   const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
   const watchedMovies=watched.filter(m=>m.type!=='tv');
@@ -2895,6 +2896,11 @@ function renderStats(){
   const dupEl = document.getElementById('dup-results');
   if(dupEl) renderDuplicates(dupEl);
 
+  } catch(e) {
+    console.error('renderStats error:', e);
+    const pg = document.getElementById('stats-page');
+    if(pg) pg.innerHTML = `<div style="color:var(--red);padding:20px;font-size:13px">Stats error: ${e.message}<br><small style="color:var(--muted)">${e.stack?.split('\n')[1]||''}</small></div>`;
+  }
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
