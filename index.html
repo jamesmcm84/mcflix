@@ -1113,9 +1113,9 @@ function initApp(){
   updateCounts();
   buildDiaryYearSelect();
   loadPlexCfg().then(()=>{
-    renderPlexNewShelf(); // show shelf immediately if items cached
-    fetchPlexActivity().then(()=>{renderLib();});
-    fetchPlexRecentlyAdded(); // run in parallel, re-renders shelf when done
+    // Fetch both in parallel, re-render lib when each completes
+    fetchPlexActivity().then(()=>renderLib());
+    fetchPlexRecentlyAdded().then(()=>renderLib());
   });
 }
 
@@ -1616,7 +1616,7 @@ async function fetchPlexRecentlyAdded(){
     plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
     console.log('McFlix: Plex recently added loaded', plexRecentItems.length, 'items');
     renderPlexNewShelf(); // render the shelf directly
-  }catch(e){ console.warn('Plex recently added failed:',e.message); }
+  }catch(e){ console.error('Plex recently added failed:', e.message, e); }
 }
 
 function renderPlexNewShelf(){
@@ -3223,7 +3223,7 @@ function openProfile(){
       <div class="ff" style="margin-bottom:10px"><label class="fl">Plex Token</label>
         <input type="password" class="ffi" id="s-plex-tok" value="${getPlexCfg().token||''}" placeholder="Your X-Plex-Token"></div>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <button class="primary-btn" onclick="savePlexCfg({url:document.getElementById('s-plex-url').value.trim(),token:document.getElementById('s-plex-tok').value.trim()}).then(()=>{plexActivity.lastFetch=0;fetchPlexActivity().then(()=>{renderLib();fetchPlexRecentlyAdded();toast('Plex connected!');closeMo('profile');})})"><i class="ti ti-plug"></i> Save & Connect</button>
+        <button class="primary-btn" onclick="savePlexCfg({url:document.getElementById('s-plex-url').value.trim(),token:document.getElementById('s-plex-tok').value.trim()}).then(()=>{plexActivity.lastFetch=0;plexRecentItems=[];Promise.all([fetchPlexActivity(),fetchPlexRecentlyAdded()]).then(()=>{renderLib();toast('Plex connected!');closeMo('profile');})})"><i class="ti ti-plug"></i> Save & Connect</button>
         ${getPlexCfg().url?`<button class="danger-btn" onclick="savePlexCfg({}).then(()=>{plexActivity={history:[],sessions:[],plexUsers:[],lastFetch:0};renderLib();toast('Plex disconnected');closeMo('profile')})"><i class="ti ti-unlink"></i> Disconnect</button>`:''}
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Cloud Status</div>
