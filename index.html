@@ -783,6 +783,7 @@ let editingId = null;
 let addTarget = 'library';
 let pendingPoster = '';
 let pendingImdb = '';
+let pendingRuntime = 0;
 let signupColor = COLORS[0];
 
 function uid(){ return 'u'+Date.now()+Math.random().toString(36).slice(2,6) }
@@ -972,9 +973,13 @@ function udataFor(userId){
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(t,el){
   document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
+  const tabEl=document.getElementById('tab-'+t);
+  if(tabEl) tabEl.classList.add('active');
+  // sync top nav
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+  if(el) el.classList.add('active');
+  // sync bottom nav
+  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
   if(t==='wishlist') renderWish();
@@ -1215,12 +1220,24 @@ async function fetchPlexActivity(){
         // Mark as watched
         if(!ud.watched) ud.watched = {};
         if(!ud.watched[item.id]){ ud.watched[item.id] = true; changed = true; }
-        // Log history date if not already logged for this timestamp
+        // Log history — use viewCount to log multiple viewings
         if(!ud.history) ud.history = {};
         if(!ud.history[item.id]) ud.history[item.id] = [];
-        const ts = h.lastViewedAt * 1000; // convert unix to ms
-        const alreadyLogged = ud.history[item.id].some(d => Math.abs(d - ts) < 86400000); // within 24h
-        if(!alreadyLogged){ ud.history[item.id].push(ts); changed = true; }
+        const ts = h.lastViewedAt * 1000; // most recent viewing timestamp
+        const viewCount = h.viewCount || 1;
+        const currentCount = ud.history[item.id].length;
+        if(currentCount < viewCount){
+          // Add the most recent viewing if not already there
+          const alreadyLogged = ud.history[item.id].some(d => Math.abs(d - ts) < 86400000);
+          if(!alreadyLogged){ ud.history[item.id].push(ts); changed = true; }
+          // Backfill missing viewings with estimated dates spaced ~30 days apart
+          const needed = viewCount - ud.history[item.id].length;
+          for(let i = 1; i <= needed; i++){
+            const estTs = ts - (i * 30 * 24 * 60 * 60 * 1000); // ~30 days back per viewing
+            const alreadyEst = ud.history[item.id].some(d => Math.abs(d - estTs) < 7 * 86400000);
+            if(!alreadyEst){ ud.history[item.id].push(estTs); changed = true; }
+          }
+        }
       });
       if(changed){ saveUsers(); console.log('McFlix Plex: synced watch history to user data'); }
     }
@@ -1723,7 +1740,7 @@ function autoSortTitle(){
 }
 
 function openAdd(target='library', typeHint='movie'){
-  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';
+  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';pendingRuntime=0;
   document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):target==='pwishlist'?'Add to My Wishlist':'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
@@ -1738,7 +1755,7 @@ function openEdit(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
   closeMo('detail');
-  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';
+  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';pendingRuntime=m.runtime||0;
   document.getElementById('add-lbl').textContent='Edit: '+m.title;
   document.getElementById('add-watched-row').style.display='none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
@@ -1792,6 +1809,7 @@ async function pickResult(imdbID){
     if(d.Response==='True'){
       pendingPoster=d.Poster&&d.Poster!=='N/A'?d.Poster:'';
       pendingImdb=d.imdbID||'';
+      pendingRuntime=parseInt((d.Runtime||'').replace(/[^0-9]/g,''))||0;
       document.getElementById('add-t').value=d.Title||'';
       document.getElementById('add-yr').value=(d.Year||'').slice(0,4);
       document.getElementById('add-gn').value=d.Genre&&d.Genre!=='N/A'?d.Genre:'';
@@ -1823,7 +1841,7 @@ function submitAdd(){
     director:document.getElementById('add-dir').value.trim(),
     actors:document.getElementById('add-act').value.trim(),
     plot:document.getElementById('add-plot').value.trim(),
-    poster,imdb:pendingImdb,tags,
+    poster,imdb:pendingImdb,tags,runtime:pendingRuntime||0,
     addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
   };
   // plot and actors kept for all items
@@ -2250,32 +2268,11 @@ function renderWatched(){
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
 function switchTabMobile(t, el){
-  // sync top nav
-  document.querySelectorAll('.nb').forEach(b => {
-    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+t+"'"))
-      b.classList.add('active');
-    else b.classList.remove('active');
-  });
-  // sync bottom nav
-  document.querySelectorAll('.bnb').forEach(b => b.classList.remove('active'));
-  if(el) el.classList.add('active');
-  // run tab
-  document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
-  const tabEl = document.getElementById('tab-'+t);
-  if(tabEl) tabEl.classList.add('active');
-  ({library:renderLib,tvshows:renderTV,wishlist:renderWish,pwishlist:renderPWishlist,
-    lists:renderLists,diary:renderDiary,watched:renderWatched,activity:renderActivity,stats:renderStats})[t]?.();
+  // Just call switchTab — it now syncs both navs
+  switchTab(t, el);
 }
 
-// Keep top and bottom nav in sync
-const _origSwitchTab = switchTab;
-function switchTab(t,el){
-  _origSwitchTab(t,el);
-  document.querySelectorAll('.bnb').forEach(b=>{
-    const id=b.id.replace('bnb-','');
-    b.classList.toggle('active',id===t);
-  });
-}
+
 
 // ── LOADING SKELETONS ─────────────────────────────────────────────────────────
 function showSkeletons(gridId, count=12){
@@ -2513,6 +2510,26 @@ function importLetterboxd(){
   });
 }
 
+async function backfillRuntimes(){
+  const missing = sharedData.library.filter(m => !m.runtime && m.imdb);
+  if(!missing.length){ toast('All titles already have runtimes!'); return; }
+  toast(`Fetching runtimes for ${missing.length} titles...`);
+  let updated = 0;
+  for(const m of missing){
+    try{
+      const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${m.imdb}`);
+      const d = await r.json();
+      if(d.Response==='True'&&d.Runtime){
+        m.runtime = parseInt(d.Runtime.replace(/[^0-9]/g,''))||0;
+        if(m.runtime) updated++;
+      }
+      await new Promise(res=>setTimeout(res,200)); // rate limit
+    }catch(e){}
+  }
+  await saveShared();
+  toast(`Updated runtimes for ${updated} titles!`);
+}
+
 function renderStats(){
   const me=myData();
   const watched=sharedData.library.filter(m=>me.watched?.[m.id]);
@@ -2687,6 +2704,7 @@ function openProfile(){
       `:''}
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Account</div>
       <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
+      ${isAdmin()?`<button class="ghost-btn" onclick="backfillRuntimes()" style="margin-bottom:8px"><i class="ti ti-clock"></i> Backfill Runtimes from OMDB</button>`:''}
       <button class="ghost-btn" onclick="signOut();closeMo('profile')"><i class="ti ti-logout"></i> Sign Out</button>
     </div>`;
   signupColor=CU.color||COLORS[0];
