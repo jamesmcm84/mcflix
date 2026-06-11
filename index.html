@@ -1559,7 +1559,8 @@ async function fetchPlexRecentlyAdded(){
     if(!items.length) return;
     // Store base/tok with each item for poster URLs
     plexRecentItems = items.map(m=>({...m, _base:base, _tok:tok}));
-    renderPlexNewShelf();
+    renderPlexNewShelf(); // render immediately wherever shelf is visible
+    renderLib();          // also re-render lib so shelf shows on mobile too
   }catch(e){ console.warn('Plex recently added failed:',e.message); }
 }
 
