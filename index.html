@@ -1269,7 +1269,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '5.1';
+const VERSION     = '5.2';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -1628,32 +1628,71 @@ async function loadFromCloud(){
   return ok;
 }
 
+// Queue to prevent concurrent saves overwriting each other
+let _saveSharedPending = false;
+let _saveSharedQueued = false;
+
 async function saveShared(){
   try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
-  // SAFETY CHECK: never let a near-empty library silently overwrite a
-  // substantially larger one in the cloud. This guards against bugs where
-  // sharedData ends up empty/default (failed load, race condition, etc.)
-  // and would otherwise wipe real data on save.
-  if(WORKER_URL&&APP_TOKEN){
-    const newCount = (sharedData.library||[]).length;
-    if(newCount < 2){
-      try{
-        const cloud = await wGet('library');
-        const cloudCount = (cloud?.library||[]).length;
-        if(cloudCount >= 5 && newCount < cloudCount){
-          console.error(`McFlix: refusing to save — local library has ${newCount} items but cloud has ${cloudCount}. This looks like data loss, not a real edit.`);
-          toast('⚠️ Save blocked: your library looks empty but the server has data. Reload the page before making changes.', true);
-          return false;
-        }
-      }catch(e){ /* if this check itself fails, fall through and save as normal */ }
+
+  // Safety check: refuse to overwrite a larger cloud library with a tiny local one
+  const newCount = (sharedData.library||[]).length;
+  if(newCount < 2 && WORKER_URL && APP_TOKEN){
+    try{
+      const cloud = await wGet('library');
+      const cloudCount = (cloud?.library||[]).length;
+      if(cloudCount >= 5 && newCount < cloudCount){
+        console.error(`McFlix: save blocked — local has ${newCount}, cloud has ${cloudCount}`);
+        toast('⚠️ Save blocked: library looks empty but server has data. Reload first.', true);
+        return false;
+      }
+    }catch(e){}
+  }
+
+  if(!WORKER_URL||!APP_TOKEN) return;
+
+  // If a save is already in flight, queue one more (debounce rapid saves)
+  if(_saveSharedPending){
+    _saveSharedQueued = true;
+    return;
+  }
+  _saveSharedPending = true;
+  try{
+    await wPut('library', sharedData);
+  }catch(e){
+    console.warn('saveShared failed:', e);
+  }finally{
+    _saveSharedPending = false;
+    if(_saveSharedQueued){
+      _saveSharedQueued = false;
+      saveShared(); // flush the queued save
     }
-    wPut('library', sharedData);
   }
 }
 
+let _saveUsersPending = false;
+let _saveUsersQueued = false;
+
 async function saveUsers(){
   try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
-  if(WORKER_URL&&APP_TOKEN) wPut('users', allUsers);
+  if(!WORKER_URL||!APP_TOKEN) return;
+
+  if(_saveUsersPending){
+    _saveUsersQueued = true;
+    return;
+  }
+  _saveUsersPending = true;
+  try{
+    await wPut('users', allUsers);
+  }catch(e){
+    console.warn('saveUsers failed:', e);
+  }finally{
+    _saveUsersPending = false;
+    if(_saveUsersQueued){
+      _saveUsersQueued = false;
+      saveUsers();
+    }
+  }
 }
 
 function loadLocal(){
