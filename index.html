@@ -785,6 +785,9 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .filmog-item .ov-title{font-size:10px}
 .filmog-item.in-lib{border-color:var(--green)}
 .filmog-item-badge{position:absolute;top:5px;right:5px;background:rgba(46,204,113,.95);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;z-index:2}
+.tmdb-wish-btn{position:absolute;bottom:28px;right:4px;background:rgba(138,90,240,.85);border:none;border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;cursor:pointer;z-index:3;opacity:0;transition:opacity .15s;padding:0}
+.filmog-item:hover .tmdb-wish-btn{opacity:1}
+.tmdb-wish-btn:hover{background:rgba(138,90,240,1)}
 
 /* FILTER PRESETS */
 .presets-msel{position:relative}
@@ -1709,7 +1712,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.6';
+const VERSION     = '7.8';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3464,12 +3467,7 @@ function renderTV(){
   let items=sharedData.library.filter(m=>{
     if(m.type!=='tv') return false;
     if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
-    if(genres.size && !(m.genre||'').split(',').map(g=>g.trim()).some(g=>genres.has(g))) return false;
-    if(selectedRatings.size && !selectedRatings.has((m.rating||'').trim())) return false;
-    if(selectedDecades.size){
-      const y=parseInt(m.year);
-      if(!y || !selectedDecades.has(Math.floor(y/10)*10)) return false;
-    }
+    if(genre&&!(m.genre||'').split(',').map(g=>g.trim()).includes(genre)) return false;
     if(watched==='watched'&&!me.watched?.[m.id]) return false;
     if(watched==='unwatched'&&me.watched?.[m.id]) return false;
     if(tvFavFilterOn&&!me.favorites?.[m.id]) return false;
@@ -5176,13 +5174,74 @@ function tmdbGridItemHTML(item, mediaType){
   const poster = item.poster_path ? TMDB_IMG+'w300'+item.poster_path : null;
   const allMovies = sharedData.library.filter(m=> mediaType==='tv' ? m.type==='tv' : m.type!=='tv');
   const match = allMovies.find(m=>m.title.toLowerCase()===title.toLowerCase() && (!year || (m.year||'').toString().slice(0,4)===year));
+  const onWish = sharedData.wishlist.find(m=>m.title.toLowerCase()===title.toLowerCase() && (!year || (m.year||'').toString().slice(0,4)===year));
   const safeTitle = title.replace(/'/g,"\\'");
+  const safePoster = (poster||'').replace(/'/g,"\\'");
+
+  const wishBtn = (!match && !onWish)
+    ? '<button class="tmdb-wish-btn" title="Add to Wishlist" onclick="event.stopPropagation();addTMDBToWishlist(\'' + safeTitle + '\',\'' + year + '\',\'' + safePoster + '\',' + item.id + ')"><i class="ti ti-bookmark-plus"></i></button>'
+    : '';
+  const wishedBadge = (!match && onWish)
+    ? '<div class="filmog-item-badge" style="background:rgba(138,90,240,.9)"><i class="ti ti-bookmark"></i></div>'
+    : '';
 
   return `<div class="filmog-item ${match?'in-lib':''}" onclick="${match?`openDetail('${match.id}','library')`:`openTMDBSimilar(${item.id},'${safeTitle}','${year}')`}">
     ${poster?`<img src="${poster}" alt="${title}" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg3)"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
     ${match?`<div class="filmog-item-badge"><i class="ti ti-check"></i></div>`:''}
+    ${wishedBadge}${wishBtn}
     <div class="ov"><div class="ov-row"><div class="ov-title">${title}</div><div class="ov-meta">${year||''}</div></div></div>
   </div>`;
+}
+
+async function addTMDBToWishlist(title, year, poster, tmdbId){
+  // Check not already there
+  const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===title.toLowerCase() && (!year||(m.year||'').slice(0,4)===year));
+  if(exists){ toast(title+' is already on the wishlist!', true); return; }
+
+  // Try to get full details from OMDB for genre/director/plot
+  let item = {
+    id: uid(), title, sortTitle:'', type:'movie', year, genre:'', rating:'',
+    director:'', actors:'', plot:'', runtime:'', poster: poster||'',
+    imdb:'', tags:[], externalRatings:[], addedAt:Date.now(), addedBy:CU.username
+  };
+
+  try{
+    const r = await fetch('https://www.omdbapi.com/?apikey='+OMDB_KEY+'&t='+encodeURIComponent(title)+(year?'&y='+year:''));
+    const d = await r.json();
+    if(d.Response==='True'){
+      item.genre   = d.Genre&&d.Genre!=='N/A'   ? d.Genre   : '';
+      item.rating  = d.Rated&&d.Rated!=='N/A'   ? d.Rated   : '';
+      item.director= d.Director&&d.Director!=='N/A'?d.Director:'';
+      item.actors  = d.Actors&&d.Actors!=='N/A' ? d.Actors  : '';
+      item.plot    = d.Plot&&d.Plot!=='N/A'      ? d.Plot    : '';
+      item.runtime = d.Runtime&&d.Runtime!=='N/A'? d.Runtime.replace(/\s*min\s*$/i,''):'';
+      item.imdb    = d.imdbID||'';
+      item.externalRatings = (d.Ratings||[]).map(rt=>({s:rt.Source,v:rt.Value}));
+      if(d.Poster&&d.Poster!=='N/A') item.poster = d.Poster;
+    }
+  }catch(e){}
+
+  sharedData.wishlist.push(item);
+  await saveShared();
+  updateCounts();
+  toast(title+' added to Wishlist!');
+  // Re-render the grid so the bookmark badge appears
+  const grid = document.getElementById('discover-grid') || document.getElementById('browse-grid');
+  if(grid){
+    grid.querySelectorAll('.filmog-item').forEach(el=>{
+      const titleEl = el.querySelector('.ov-title');
+      if(titleEl && titleEl.textContent.trim()===title){
+        const btn = el.querySelector('.tmdb-wish-btn');
+        if(btn) btn.remove();
+        // Add purple bookmark badge
+        const badge = document.createElement('div');
+        badge.className='filmog-item-badge';
+        badge.style.background='rgba(138,90,240,.9)';
+        badge.innerHTML='<i class="ti ti-bookmark"></i>';
+        el.appendChild(badge);
+      }
+    });
+  }
 }
 
 async function openTMDBCollection(collectionId, name){
