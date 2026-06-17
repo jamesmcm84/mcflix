@@ -1424,7 +1424,7 @@ textarea.ffi{resize:vertical}
       </div>
       <div class="browse-person-header" id="browse-person-header" style="display:none"></div>
       <div class="sl" id="browse-results-title" style="display:none"></div>
-      <div class="grid" id="browse-grid"></div>
+      <div class="filmog-grid" id="browse-grid"></div>
       <div class="empty" id="browse-empty"><i class="ti ti-category"></i><p style="font-size:14px">Pick a category and value to browse.</p></div>
     </div>
 
@@ -1451,7 +1451,7 @@ textarea.ffi{resize:vertical}
         <button class="primary-btn" onclick="runDiscover()"><i class="ti ti-search"></i> Discover</button>
       </div>
       <div class="sl" id="discover-results-title" style="display:none"></div>
-      <div class="grid" id="discover-grid"></div>
+      <div class="filmog-grid" id="discover-grid"></div>
       <div class="empty" id="discover-empty"><i class="ti ti-compass"></i><p style="font-size:14px">Set your filters and tap Discover to find new movies on TMDB.</p></div>
       <div style="text-align:center;padding:12px 0;display:none" id="discover-more-btn">
         <button class="fb" onclick="discoverLoadMore()">Load More</button>
@@ -1709,7 +1709,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.2';
+const VERSION     = '7.4';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -4648,6 +4648,41 @@ function createList(addId){
   me.collections.push(list);
   saveUsers().then(()=>{updateCounts();if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}else{renderLists();toast('List "'+name+'" created');}});
 }
+function buildListsSection(id, me){
+  const myLists = me.collections||[];
+  const inLists = myLists.filter(c=>(c.items||[]).includes(id));
+  const notInLists = myLists.filter(c=>!(c.items||[]).includes(id));
+  const inPills = inLists.map(function(c){
+    return '<span class="tpill active"><i class="ti ti-check" style="font-size:11px"></i> '+c.name
+      +' <i class="ti ti-x" style="font-size:11px;cursor:pointer;margin-left:2px"'
+      +' onclick="toggleInList(\'' + c.id + '\',\'' + id + '\')">'
+      +'</i></span>';
+  }).join('');
+  const opts = notInLists.map(function(c){
+    return '<option value="'+c.id+'">'+c.name+'</option>';
+  }).join('');
+  const sel = '<select class="ffi" id="list-add-select-'+id+'" style="flex:1">'
+    +'<option value="">Add to a list...</option>'+opts+'</select>';
+  const addBtn = '<button class="lk-btn" onclick="addToListFromSelect(\'' + id + '\')">'
+    +'<i class="ti ti-plus"></i> Add</button>';
+  const newBtn = '<button class="lk-btn" onclick="createList(\'' + id + '\')">'
+    +'<i class="ti ti-playlist-add"></i> New</button>';
+  const currentLists = inLists.length
+    ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+inPills+'</div>'
+    : '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Not in any lists yet.</div>';
+  return '<div class="notes-section">'
+    +'<div class="notes-lbl">My Lists</div>'
+    +currentLists
+    +'<div class="lk-row" style="gap:6px">'+sel+addBtn+newBtn+'</div>'
+    +'</div>';
+}
+
+function addToListFromSelect(mid){
+  const sel = document.getElementById('list-add-select-'+mid);
+  if(!sel || !sel.value) return;
+  toggleInList(sel.value, mid);
+}
+
 function toggleInList(listId,itemId){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=list.items||[];
@@ -4779,25 +4814,7 @@ function openDetail(id,src){
           <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
         </div>
       </div>
-      ${inLib?(()=>{
-        const myLists = me.collections||[];
-        const inLists = myLists.filter(c=>(c.items||[]).includes(id));
-        const notInLists = myLists.filter(c=>!(c.items||[]).includes(id));
-        return `<div class="notes-section">
-          <div class="notes-lbl">My Lists</div>
-          ${inLists.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-            ${inLists.map(c=>`<span class="tpill active"><i class="ti ti-check" style="font-size:11px"></i> ${c.name} <i class="ti ti-x" style="font-size:11px;cursor:pointer;margin-left:2px" onclick="toggleInList('${c.id}','${id}')"></i></span>`).join('')}
-          </div>`:'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Not in any lists yet.</div>'}
-          <div class="lk-row" style="gap:6px">
-            <select class="ffi" id="list-add-select-${id}" style="flex:1">
-              <option value="">Add to a list...</option>
-              ${notInLists.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
-            </select>
-            <button class="lk-btn" onclick="addToListFromSelect('${id}')"><i class="ti ti-plus"></i> Add</button>
-            <button class="lk-btn" onclick="createList('${id}')"><i class="ti ti-playlist-add"></i> New</button>
-          </div>
-        </div>`;
-      })():''}
+      ${inLib?buildListsSection(id,me):''}
       <div class="comments-section">
         <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Comments</div>
         <div class="comments-list" id="comments-list-${id}">
