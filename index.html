@@ -1709,7 +1709,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.4';
+const VERSION     = '7.5';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -1755,18 +1755,35 @@ function setThemeMode(mode){
 // THEATER INTRO ANIMATION
 // ══════════════════════════════════════════════════════════════════════════════
 (function(){
+  const el=document.getElementById('theater-intro');
+
+  function removeIntro(){
+    if(!el) return;
+    sessionStorage.setItem('mcflix_intro_seen','1');
+    el.classList.add('fading');
+    setTimeout(()=>{ if(el.parentNode) el.remove(); }, 650);
+  }
+
+  // Skip if already seen
   if(sessionStorage.getItem('mcflix_intro_seen')==='1'){
-    const el=document.getElementById('theater-intro');
     if(el) el.remove();
     return;
   }
 
   const canvas = document.getElementById('theater-canvas');
+  if(!canvas){ removeIntro(); return; }
   const ctx = canvas.getContext('2d');
+  if(!ctx){ removeIntro(); return; }
 
-  function resize(){ canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; }
+  function resize(){
+    canvas.width = window.innerWidth || canvas.offsetWidth || 300;
+    canvas.height = window.innerHeight || canvas.offsetHeight || 300;
+  }
   resize();
   window.addEventListener('resize', resize);
+
+  // Safety timeout — if animation never finishes, remove after 14s
+  const safetyTimer = setTimeout(removeIntro, 14000);
 
   const W=()=>canvas.width, H=()=>canvas.height;
 
@@ -1919,12 +1936,8 @@ function setThemeMode(mode){
   function finishIntro(){
     if(stopped) return;
     stopped=true;
-    sessionStorage.setItem('mcflix_intro_seen','1');
-    const el=document.getElementById('theater-intro');
-    if(el){
-      el.classList.add('fading');
-      setTimeout(()=>el.remove(), 650);
-    }
+    clearTimeout(safetyTimer);
+    removeIntro();
   }
 
   window.skipTheaterIntro = finishIntro;
