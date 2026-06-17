@@ -1446,6 +1446,7 @@ textarea.ffi{resize:vertical}
           <option value="1960">1960s</option>
         </select>
         <input type="number" class="ffi" id="discover-year" placeholder="Specific year" style="width:120px" min="1900" max="2030">
+        <input type="text" class="ffi" id="discover-actor" placeholder="Actor name..." style="flex:1;min-width:140px">
         <input type="text" class="ffi" id="discover-director" placeholder="Director name..." style="flex:1;min-width:140px">
         <button class="primary-btn" onclick="runDiscover()"><i class="ti ti-search"></i> Discover</button>
       </div>
@@ -1708,7 +1709,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.0';
+const VERSION     = '7.2';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3214,25 +3215,58 @@ function updateDiscoverGenreLabel(){
 }
 
 async function runDiscover(){
-  const grid = document.getElementById('discover-grid');
-  const empty = document.getElementById('discover-empty');
+  const grid    = document.getElementById('discover-grid');
+  const empty   = document.getElementById('discover-empty');
   const titleEl = document.getElementById('discover-results-title');
+  const moreBtn = document.getElementById('discover-more-btn');
 
-  const genreIds = [...selectedDiscoverGenres];
-  const decade = document.getElementById('discover-decade').value;
-  const year = document.getElementById('discover-year').value.trim();
-  const director = document.getElementById('discover-director').value.trim();
+  const genreIds  = [...selectedDiscoverGenres];
+  const decade    = document.getElementById('discover-decade').value;
+  const year      = document.getElementById('discover-year').value.trim();
+  const director  = document.getElementById('discover-director').value.trim();
+  const actor     = document.getElementById('discover-actor').value.trim();
 
   grid.innerHTML = '';
+  if(moreBtn) moreBtn.style.display = 'none';
   titleEl.style.display = 'none';
   empty.style.display = '';
   empty.innerHTML = '<i class="ti ti-loader"></i><p style="font-size:14px">Searching TMDB...</p>';
 
-  // Build the discover query params
+  // ── ACTOR SEARCH: use combined_credits for complete results ─────────────────
+  if(actor && !director && !genreIds.length && !decade && !year){
+    try{
+      const pr = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(actor)}`);
+      const pd = await pr.json();
+      const person = pd.results && pd.results[0];
+      if(!person){
+        empty.innerHTML = `<i class="ti ti-mood-empty"></i><p style="font-size:14px">No actor found matching "${actor}".</p>`;
+        return;
+      }
+      const cr = await fetch(`https://api.themoviedb.org/3/person/${person.id}/combined_credits?api_key=${TMDB_KEY}`);
+      const cd = await cr.json();
+      const seen = new Set();
+      const movies = (cd.cast||[])
+        .filter(k=>k.media_type==='movie' && k.poster_path && !seen.has(k.id) && seen.add(k.id))
+        .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0));
+      if(!movies.length){
+        empty.innerHTML = `<i class="ti ti-mood-empty"></i><p style="font-size:14px">No movies found for "${person.name}".</p>`;
+        return;
+      }
+      empty.style.display = 'none';
+      titleEl.style.display = '';
+      titleEl.innerHTML = `${person.name} — ${movies.length} films <span style="font-size:12px;color:var(--muted)">(all roles, sorted by popularity)</span>`;
+      grid.innerHTML = movies.map(m=>tmdbGridItemHTML(m,'movie')).join('');
+    }catch(e){
+      empty.innerHTML = '<i class="ti ti-alert-triangle"></i><p style="font-size:14px">Actor search failed.</p>';
+    }
+    return;
+  }
+
+  // ── DISCOVER FILTER SEARCH ──────────────────────────────────────────────────
   const params = new URLSearchParams();
   params.set('api_key', TMDB_KEY);
   params.set('sort_by', 'vote_average.desc');
-  params.set('vote_count.gte', '100'); // exclude obscure low-vote titles
+  params.set('vote_count.gte', '100');
   params.set('include_adult', 'false');
   if(genreIds.length) params.set('with_genres', genreIds.join(','));
   if(year){
@@ -3242,8 +3276,17 @@ async function runDiscover(){
     params.set('primary_release_date.lte', `${Number(decade)+9}-12-31`);
   }
 
-  // Director filter: TMDB discover doesn't take a name directly,
-  // so look up the person's ID first, then filter by with_crew
+  // Actor filter alongside other filters
+  if(actor){
+    try{
+      const pr = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(actor)}`);
+      const pd = await pr.json();
+      const person = pd.results && pd.results[0];
+      if(person) params.set('with_cast', person.id);
+    }catch(e){}
+  }
+
+  // Director filter
   let directorName = '';
   if(director){
     try{
@@ -3274,8 +3317,8 @@ async function runDiscover(){
     }
 
     empty.style.display = 'none';
-
     const parts = [];
+    if(actor) parts.push(actor);
     if(genreIds.length){
       const names = genreIds.map(id=>(_tmdbGenreList||[]).find(g=>g.id===id)?.name).filter(Boolean);
       parts.push(names.join(', '));
@@ -3285,25 +3328,19 @@ async function runDiscover(){
     if(directorName) parts.push(`directed by ${directorName}`);
 
     titleEl.style.display = '';
-    titleEl.innerHTML = (parts.length ? parts.join(' · ') : 'Popular Movies') + ` <span style="font-size:12px;color:var(--muted)">(${results.length} shown)</span>`;
-
+    titleEl.innerHTML = (parts.length ? parts.join(' · ') : 'Top Rated Movies') + ` <span style="font-size:12px;color:var(--muted)">(${results.length} shown)</span>`;
     grid.innerHTML = results.map(m=>tmdbGridItemHTML(m,'movie')).join('');
 
-    // Load More button if there are more pages
     if((d.total_pages||1) > 1){
       window._discoverParams = params;
       window._discoverPage = 1;
       window._discoverTotalPages = d.total_pages;
-      const moreBtn = document.getElementById('discover-more-btn');
       if(moreBtn) moreBtn.style.display = '';
-    } else {
-      const moreBtn = document.getElementById('discover-more-btn');
-      if(moreBtn) moreBtn.style.display = 'none';
     }
   }catch(e){
     empty.innerHTML = '<i class="ti ti-alert-triangle"></i><p style="font-size:14px">Discover search failed.</p>';
   }
-}
+
 
 async function discoverLoadMore(){
   if(!window._discoverParams) return;
@@ -5598,7 +5635,19 @@ function submitAdd(){
       sharedData.wishlist.push(item);
     }
   }
-  saveShared().then(()=>{closeMo('add');buildGenreFilter();if(addTarget==='library')renderLib();else renderWish();updateCounts();toast(title+(editingId?' updated!':" added!"));});
+  saveShared().then(()=>{
+    closeMo('add');
+    buildGenreFilter();
+    const isTV = item.type === 'tv';
+    if(addTarget==='library'){
+      if(isTV){ renderTV(); buildTVGenreFilter(); }
+      else { renderLib(); }
+    } else {
+      renderWish();
+    }
+    updateCounts();
+    toast(title+(editingId?' updated!':" added!"));
+  });
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
