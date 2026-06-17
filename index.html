@@ -1709,7 +1709,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.5';
+const VERSION     = '7.6';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3353,7 +3353,7 @@ async function runDiscover(){
   }catch(e){
     empty.innerHTML = '<i class="ti ti-alert-triangle"></i><p style="font-size:14px">Discover search failed.</p>';
   }
-
+}
 
 async function discoverLoadMore(){
   if(!window._discoverParams) return;
