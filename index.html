@@ -1456,8 +1456,10 @@ textarea.ffi{resize:vertical}
       <div class="sl" id="discover-results-title" style="display:none"></div>
       <div class="filmog-grid" id="discover-grid"></div>
       <div class="empty" id="discover-empty"><i class="ti ti-compass"></i><p style="font-size:14px">Set your filters and tap Discover to find new movies on TMDB.</p></div>
-      <div style="text-align:center;padding:12px 0;display:none" id="discover-more-btn">
-        <button class="fb" onclick="discoverLoadMore()">Load More</button>
+      <div style="display:none;align-items:center;justify-content:center;gap:12px;padding:12px 0" id="discover-page-bar">
+        <button class="fb" id="discover-prev-btn" onclick="discoverGoPage(-1)"><i class="ti ti-chevron-left"></i> Prev</button>
+        <div class="vntg-vcr-display" id="discover-page-display" style="font-size:18px;min-width:70px;letter-spacing:2px">1/1</div>
+        <button class="fb" id="discover-next-btn" onclick="discoverGoPage(1)">Next <i class="ti ti-chevron-right"></i></button>
       </div>
     </div>
   </div>
@@ -1712,7 +1714,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '7.8';
+const VERSION     = '8.0';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3234,7 +3236,6 @@ async function runDiscover(){
   const grid    = document.getElementById('discover-grid');
   const empty   = document.getElementById('discover-empty');
   const titleEl = document.getElementById('discover-results-title');
-  const moreBtn = document.getElementById('discover-more-btn');
 
   const genreIds  = [...selectedDiscoverGenres];
   const decade    = document.getElementById('discover-decade').value;
@@ -3243,7 +3244,6 @@ async function runDiscover(){
   const actor     = document.getElementById('discover-actor').value.trim();
 
   grid.innerHTML = '';
-  if(moreBtn) moreBtn.style.display = 'none';
   titleEl.style.display = 'none';
   empty.style.display = '';
   empty.innerHTML = '<i class="ti ti-loader"></i><p style="font-size:14px">Searching TMDB...</p>';
@@ -3343,40 +3343,65 @@ async function runDiscover(){
     else if(decade) parts.push(`${decade}s`);
     if(directorName) parts.push(`directed by ${directorName}`);
 
+    window._discoverParams = params;
+    window._discoverPage = 1;
+    window._discoverTotalPages = Math.min(d.total_pages||1, 500);
+    window._discoverLabel = parts.length ? parts.join(' · ') : 'Top Rated Movies';
+
     titleEl.style.display = '';
-    titleEl.innerHTML = (parts.length ? parts.join(' · ') : 'Top Rated Movies') + ` <span style="font-size:12px;color:var(--muted)">(${results.length} shown)</span>`;
+    titleEl.innerHTML = window._discoverLabel + ` <span style="font-size:12px;color:var(--muted)">(${results.length} per page · ${d.total_results||'?'} total)</span>`;
     grid.innerHTML = results.map(m=>tmdbGridItemHTML(m,'movie')).join('');
 
-    if((d.total_pages||1) > 1){
-      window._discoverParams = params;
-      window._discoverPage = 1;
-      window._discoverTotalPages = d.total_pages;
-      if(moreBtn) moreBtn.style.display = '';
-    }
+    discoverUpdatePageBar();
   }catch(e){
     empty.innerHTML = '<i class="ti ti-alert-triangle"></i><p style="font-size:14px">Discover search failed.</p>';
   }
 }
 
-async function discoverLoadMore(){
+function discoverUpdatePageBar(){
+  const bar = document.getElementById('discover-page-bar');
+  const display = document.getElementById('discover-page-display');
+  const prevBtn = document.getElementById('discover-prev-btn');
+  const nextBtn = document.getElementById('discover-next-btn');
+  const total = window._discoverTotalPages || 1;
+  const cur = window._discoverPage || 1;
+  if(bar) bar.style.display = total > 1 ? 'flex' : 'none';
+  if(display) display.textContent = cur + '/' + total;
+  if(prevBtn) prevBtn.disabled = cur <= 1;
+  if(nextBtn) nextBtn.disabled = cur >= total;
+}
+
+async function discoverGoPage(dir){
   if(!window._discoverParams) return;
-  window._discoverPage = (window._discoverPage||1) + 1;
+  const newPage = (window._discoverPage||1) + dir;
+  if(newPage < 1 || newPage > (window._discoverTotalPages||1)) return;
+  window._discoverPage = newPage;
+
+  const grid = document.getElementById('discover-grid');
+  const empty = document.getElementById('discover-empty');
+  const titleEl = document.getElementById('discover-results-title');
+
+  // Show loading state
+  if(grid) grid.innerHTML = '';
+  if(empty){ empty.style.display=''; empty.innerHTML='<i class="ti ti-loader"></i><p style="font-size:14px">Loading page '+newPage+'...</p>'; }
+
   const params = new URLSearchParams(window._discoverParams.toString());
-  params.set('page', window._discoverPage);
-  const btn = document.getElementById('discover-more-btn');
-  if(btn) btn.textContent = 'Loading...';
+  params.set('page', newPage);
+
   try{
-    const r = await fetch(`https://api.themoviedb.org/3/discover/movie?${params.toString()}`);
+    const r = await fetch('https://api.themoviedb.org/3/discover/movie?' + params.toString());
     const d = await r.json();
     const results = (d.results||[]).filter(m=>m.poster_path);
-    const grid = document.getElementById('discover-grid');
-    if(grid) grid.innerHTML += results.map(m=>tmdbGridItemHTML(m,'movie')).join('');
-    if(btn){
-      btn.textContent = 'Load More';
-      if(window._discoverPage >= window._discoverTotalPages) btn.style.display='none';
-    }
+    if(empty) empty.style.display = 'none';
+    if(grid) grid.innerHTML = results.map(m=>tmdbGridItemHTML(m,'movie')).join('');
+    if(titleEl) titleEl.innerHTML = (window._discoverLabel||'Results') + ' <span style="font-size:12px;color:var(--muted)">(page '+newPage+' · '+results.length+' shown)</span>';
+    discoverUpdatePageBar();
+    // Scroll back up to results
+    if(titleEl) titleEl.scrollIntoView({behavior:'smooth', block:'start'});
   }catch(e){
-    if(btn) btn.textContent = 'Load More';
+    if(empty){ empty.style.display=''; empty.innerHTML='<i class="ti ti-alert-triangle"></i><p style="font-size:14px">Failed to load page.</p>'; }
+    window._discoverPage -= dir; // revert
+    discoverUpdatePageBar();
   }
 }
 
@@ -5506,9 +5531,15 @@ function moveToLib(id){
 }
 function delItem(id,src){
   if(!confirm('Remove this title?'))return;
+  const wasTV = src==='library' && !!(sharedData.library.find(x=>x.id===id)?.type==='tv');
   if(src==='library')sharedData.library=sharedData.library.filter(x=>x.id!==id);
   else sharedData.wishlist=sharedData.wishlist.filter(x=>x.id!==id);
-  saveShared().then(()=>{closeMo('detail');if(src==='library')renderLib();else renderWish();updateCounts();});
+  saveShared().then(()=>{
+    closeMo('detail');
+    if(src==='library'){ renderLib(); renderTV(); buildGenreFilter(); buildTVGenreFilter(); }
+    else renderWish();
+    updateCounts();
+  });
 }
 
 // ── ADD / EDIT ────────────────────────────────────────────────────────────────
