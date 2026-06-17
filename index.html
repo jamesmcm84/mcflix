@@ -1066,6 +1066,111 @@ textarea.ffi{resize:vertical}
   .ff.full{grid-column:1}
   .auth-box{padding:28px 20px}
 }
+
+/* ── FEATURED LISTS ─────────────────────────────────────────── */
+.featured-list-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.featured-list-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(232,184,75,.05),transparent)}
+.featured-list-owner{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.featured-list-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;color:var(--gold);flex:1}
+.featured-check{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);transition:all .2s;white-space:nowrap}
+.featured-check:hover{border-color:rgba(232,184,75,.3);color:var(--gold)}
+.featured-check.active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold)}
+
+/* ── VHS RECEIPT ─────────────────────────────────────────────── */
+.receipt-wrap{background:#f5f0e8;color:#1a1a1a;border-radius:4px;padding:20px;font-family:'Courier New',monospace;max-width:340px;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.receipt-header{text-align:center;border-bottom:2px dashed #999;padding-bottom:12px;margin-bottom:12px}
+.receipt-logo{font-size:22px;font-weight:900;letter-spacing:4px;color:#1a1a1a}
+.receipt-sub{font-size:10px;letter-spacing:2px;color:#666;margin-top:2px}
+.receipt-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#333}
+.receipt-row.bold{font-weight:700;font-size:12px}
+.receipt-divider{border-top:1px dashed #999;margin:8px 0}
+.receipt-footer{text-align:center;font-size:9px;color:#888;margin-top:10px;line-height:1.6}
+.receipt-barcode{text-align:center;font-size:28px;letter-spacing:-2px;color:#1a1a1a;margin:8px 0 2px;opacity:.7}
+
+/* ── GHOST RATINGS ───────────────────────────────────────────── */
+.ghost-rating-wrap{margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:8px}
+.ghost-rating-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ghost-rating-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ghost-rating-label{font-size:11px;color:var(--muted);min-width:70px}
+.ghost-bar-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;position:relative}
+.ghost-bar-fill{height:4px;border-radius:2px;opacity:.35}
+.ghost-bar-fill.imdb{background:#f5c530}
+.ghost-bar-fill.rt{background:#fa320a}
+.ghost-bar-fill.mc{background:#6c0}
+.ghost-user-fill{height:4px;border-radius:2px;position:absolute;top:0;left:0;background:var(--gold);opacity:.9}
+.ghost-val{font-size:10px;color:var(--muted);min-width:32px;text-align:right}
+.ghost-delta{font-size:10px;font-weight:700;min-width:28px;text-align:right}
+.ghost-delta.above{color:var(--green)}
+.ghost-delta.below{color:var(--red)}
+
+/* ── RUNTIME CALCULATOR ──────────────────────────────────────── */
+.runtime-hero{background:linear-gradient(135deg,#0d1117,#1a1a2e);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+.runtime-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -20%,rgba(232,184,75,.08),transparent 70%)}
+.runtime-countdown{font-family:'Bebas Neue',cursive;font-size:56px;color:var(--gold);letter-spacing:3px;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.3)}
+.runtime-label{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.runtime-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.runtime-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.runtime-stat-n{font-family:'Bebas Neue',cursive;font-size:32px;color:var(--gold);line-height:1}
+.runtime-stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── HEATMAP ROOM ────────────────────────────────────────────── */
+.heatmap-wrap{position:relative;background:#000;border-radius:12px;overflow:hidden;margin-bottom:16px;cursor:crosshair}
+.heatmap-sky{position:absolute;inset:0;background:linear-gradient(180deg,#010208 0%,#020510 40%,#04091a 100%)}
+.heatmap-stars{position:absolute;inset:0}
+.heatmap-canvas{display:block;width:100%;image-rendering:pixelated}
+.heatmap-tooltip{position:absolute;background:rgba(0,0,0,.9);border:1px solid rgba(232,184,75,.3);border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:10;max-width:180px;display:none}
+.heatmap-tooltip-title{font-weight:700;color:var(--gold);margin-bottom:2px}
+.heatmap-tooltip-meta{color:var(--muted);font-size:10px}
+.heatmap-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);justify-content:center;margin-top:8px;flex-wrap:wrap}
+.heatmap-legend-item{display:flex;align-items:center;gap:5px}
+.heatmap-legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* ── CRITIC GRAVEYARD ────────────────────────────────────────── */
+.graveyard-card{background:var(--card);border:1px solid rgba(232,53,75,.2);border-radius:10px;display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.graveyard-card:hover{border-color:rgba(232,53,75,.4);transform:translateX(3px)}
+.graveyard-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3);filter:grayscale(.4)}
+.graveyard-info{flex:1;min-width:0}
+.graveyard-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.graveyard-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.graveyard-scores{display:flex;gap:8px;flex-shrink:0;align-items:center}
+.graveyard-my{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--red)}
+.graveyard-vs{font-size:10px;color:var(--muted)}
+.graveyard-imdb{font-family:'Bebas Neue',cursive;font-size:22px;color:#f5c530}
+.graveyard-rip{font-size:18px;margin-left:4px}
+
+/* ── GAUNTLET ────────────────────────────────────────────────── */
+.gauntlet-hero{background:linear-gradient(135deg,#1a0808,#2a1010);border:1px solid rgba(232,53,75,.2);border-radius:14px;padding:20px;margin-bottom:20px;text-align:center}
+.gauntlet-title{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:3px;color:var(--red);text-shadow:0 0 20px rgba(232,53,75,.3)}
+.gauntlet-day{font-family:'Bebas Neue',cursive;font-size:64px;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(232,184,75,.3)}
+.gauntlet-challenge{background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.15);border-radius:8px;padding:10px 14px;margin:12px 0;font-size:13px;color:var(--light)}
+.gauntlet-card{background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;gap:12px;padding:12px;margin-bottom:10px;align-items:center}
+.gauntlet-day-num{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--muted);min-width:36px;text-align:center;line-height:1}
+.gauntlet-day-num.done{color:var(--green)}
+.gauntlet-day-num.today{color:var(--gold)}
+.gauntlet-card.done{border-color:rgba(46,204,113,.2);background:rgba(46,204,113,.03)}
+.gauntlet-card.today-card{border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.04)}
+
+/* ── TRAILER ROOM ────────────────────────────────────────────── */
+.trailer-room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.trailer-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s}
+.trailer-card:hover{border-color:rgba(229,9,20,.4);transform:translateY(-3px);box-shadow:0 8px 24px rgba(229,9,20,.15)}
+.trailer-thumb{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.trailer-thumb img{width:100%;height:100%;object-fit:cover;opacity:.8;transition:opacity .2s}
+.trailer-card:hover .trailer-thumb img{opacity:1}
+.trailer-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.trailer-play-btn{width:48px;height:48px;background:rgba(229,9,20,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.trailer-card:hover .trailer-play-btn{transform:scale(1.1)}
+.trailer-info{padding:10px 12px}
+.trailer-movie-title{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trailer-movie-meta{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── MCU GRAPH ───────────────────────────────────────────────── */
+.mcu-canvas-wrap{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.mcu-tooltip{position:absolute;background:rgba(0,0,0,.92);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;z-index:10;display:none;max-width:200px}
+.mcu-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.mcu-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}
+.mcu-legend-item{display:flex;align-items:center;gap:5px}
+.mcu-legend-dot{width:10px;height:10px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -1139,6 +1244,14 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
+      <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
+      <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
+      <button class="nb" onclick="switchTab('trailers',this)"><i class="ti ti-brand-youtube"></i> Trailers</button>
+      <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
+      <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
+      <button class="nb" onclick="switchTab('heatmap',this)"><i class="ti ti-building-skyscraper"></i> Heatmap</button>
+      <button class="nb" onclick="switchTab('cgraveyard',this)"><i class="ti ti-tombstone"></i> Graveyard</button>
+      <button class="nb" onclick="switchTab('mcu',this)"><i class="ti ti-affiliate"></i> Universe</button>
     </div>
   </div>
 
@@ -1388,6 +1501,94 @@ textarea.ffi{resize:vertical}
       <div class="stats-page" id="stats-page"></div>
     </div>
 
+    <!-- FEATURED LISTS -->
+    <div class="tab" id="tab-featured">
+      <div class="sl" style="margin-bottom:4px">Featured Lists</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Lists curated by McFlix members. Toggle the ⭐ on any of your lists to feature it here.</div>
+      <div id="featured-lists-body"></div>
+      <div class="empty" id="featured-lists-empty" style="display:none"><i class="ti ti-star"></i><p style="font-size:14px">No featured lists yet.</p></div>
+    </div>
+
+    <!-- RECEIPT -->
+    <div class="tab" id="tab-receipt">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="sl" style="flex:1;margin:0">VHS Rental Receipt</div>
+        <select class="fb" id="receipt-month" onchange="renderReceipt()"></select>
+        <button class="ab" onclick="printReceipt()"><i class="ti ti-printer"></i> Print</button>
+      </div>
+      <div id="receipt-body"></div>
+    </div>
+
+    <!-- TRAILER ROOM -->
+    <div class="tab" id="tab-trailers">
+      <div class="sl" style="margin-bottom:4px">Trailer Room</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Trailers for your unwatched titles. Click to watch on YouTube.</div>
+      <div class="toolbar" style="margin-bottom:14px">
+        <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-trailers" placeholder="Search trailers..." oninput="renderTrailerRoom()"></div>
+        <select class="fb" id="f-trailer-genre" onchange="renderTrailerRoom()"><option value="">All Genres</option></select>
+      </div>
+      <div class="trailer-room-grid" id="trailer-grid"></div>
+      <div class="empty" id="trailer-empty" style="display:none"><i class="ti ti-brand-youtube"></i><p style="font-size:14px">No trailers found.</p></div>
+    </div>
+
+    <!-- GAUNTLET -->
+    <div class="tab" id="tab-gauntlet">
+      <div id="gauntlet-body"></div>
+    </div>
+
+    <!-- RUNTIME CALCULATOR -->
+    <div class="tab" id="tab-runtime">
+      <div id="runtime-body"></div>
+    </div>
+
+    <!-- HEATMAP ROOM -->
+    <div class="tab" id="tab-heatmap">
+      <div class="sl" style="margin-bottom:4px">The Heatmap Room</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Your library as a city at night. Building height = runtime. Brightness = your rating. Dark buildings are unwatched.</div>
+      <div class="heatmap-wrap" id="heatmap-wrap">
+        <div class="heatmap-sky"></div>
+        <canvas id="heatmap-canvas" class="heatmap-canvas" height="400"></canvas>
+        <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
+      </div>
+      <div class="heatmap-legend">
+        <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#ff6b35"></div> 9-10 rating</div>
+        <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#e8b84b"></div> 7-8 rating</div>
+        <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#3498db"></div> 5-6 rating</div>
+        <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#666"></div> Rated low / unwatched</div>
+      </div>
+    </div>
+
+    <!-- CRITIC GRAVEYARD -->
+    <div class="tab" id="tab-cgraveyard">
+      <div class="sl" style="margin-bottom:4px">The Critic Graveyard</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Movies where your rating is 3+ points below the IMDB average. These are your hills. You died on them.</div>
+      <div id="cgraveyard-body"></div>
+      <div class="empty" id="cgraveyard-empty" style="display:none"><i class="ti ti-mood-happy"></i><p style="font-size:14px">No graves yet — you agree with the critics.</p></div>
+    </div>
+
+    <!-- MCU -->
+    <div class="tab" id="tab-mcu">
+      <div class="sl" style="margin-bottom:4px">McFlix Cinematic Universe</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every connection between movies in your library. Drag nodes to explore.</div>
+      <div class="mcu-controls">
+        <select class="fb" id="mcu-filter" onchange="renderMCU()">
+          <option value="actor">Shared Actors</option>
+          <option value="director">Same Director</option>
+          <option value="year">Same Year</option>
+          <option value="genre">Same Genre</option>
+        </select>
+        <button class="fb" onclick="renderMCU()"><i class="ti ti-refresh"></i> Redraw</button>
+      </div>
+      <div class="mcu-canvas-wrap" id="mcu-wrap">
+        <canvas id="mcu-canvas" height="600" style="width:100%;display:block;cursor:grab"></canvas>
+        <div class="mcu-tooltip" id="mcu-tooltip"></div>
+      </div>
+      <div class="mcu-legend">
+        <div class="mcu-legend-item"><div class="mcu-legend-dot" style="background:var(--gold)"></div> Movie node</div>
+        <div class="mcu-legend-item"><div class="mcu-legend-dot" style="background:rgba(255,255,255,.3)"></div> Connection</div>
+      </div>
+    </div>
+
     <!-- DISCOVER -->
     <div class="tab" id="tab-discover">
       <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap">
@@ -1432,6 +1633,14 @@ textarea.ffi{resize:vertical}
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i>Stats</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('lists',this)"><i class="ti ti-list"></i>My Lists</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('featured',this)"><i class="ti ti-star"></i>Featured</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trailers',this)"><i class="ti ti-brand-youtube"></i>Trailers</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('heatmap',this)"><i class="ti ti-building-skyscraper"></i>Heatmap</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('cgraveyard',this)"><i class="ti ti-tombstone"></i>Graveyard</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('mcu',this)"><i class="ti ti-affiliate"></i>Universe</button>
   </div>
 
   <nav class="bottom-nav" id="bottom-nav">
@@ -1673,7 +1882,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '8.8';
+const VERSION     = '9.0';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2296,6 +2505,14 @@ function switchTab(t,el){
   if(t==='vintage') renderVintage();
   if(t==='stats') renderStats();
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
+  if(t==='featured') renderFeaturedLists();
+  if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
+  if(t==='trailers') renderTrailerRoom();
+  if(t==='gauntlet') renderGauntlet();
+  if(t==='runtime') renderRuntime();
+  if(t==='heatmap') renderHeatmap();
+  if(t==='cgraveyard') renderCriticGraveyard();
+  if(t==='mcu') renderMCU();
 }
 
 function updateCounts(){
@@ -4662,6 +4879,25 @@ function removeFromList(listId,itemId){
   list.items=(list.items||[]).filter(x=>x!==itemId);
   saveUsers().then(()=>renderLists());
 }
+function canFeatureList(){
+  // Admin can feature unlimited; members can feature 1 at a time
+  return isAdmin();
+}
+
+function toggleFeaturedList(listId){
+  const me = myData();
+  me.collections = me.collections||[];
+  const list = me.collections.find(c=>c.id===listId);
+  if(!list) return;
+  const wasOn = !!list.featured;
+  if(!wasOn && !isAdmin()){
+    // Unfeature any existing featured list first (1 active at a time for members)
+    me.collections.forEach(c=>{ if(c.featured) c.featured=false; });
+  }
+  list.featured = !wasOn;
+  saveUsers().then(()=>{ renderLists(); toast(list.featured?`"${list.name}" is now featured!`:`"${list.name}" removed from featured.`); });
+}
+
 function renderLists(){
   const me=myData();const cols=me.collections||[];
   const wrap=document.getElementById('lists-wrap'),empty=document.getElementById('lists-empty');
@@ -4669,6 +4905,7 @@ function renderLists(){
   empty.style.display='none';
   wrap.innerHTML=cols.map(c=>{
     const items=(c.items||[]).map(idv=>sharedData.library.find(m=>m.id===idv)).filter(Boolean);
+    const isFeatured=!!c.featured;
     const cards=items.length?`<div class="shelf-scroll">${items.map(m=>{
       const hp=m.poster&&m.poster!=='N/A';
       return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
@@ -4680,6 +4917,9 @@ function renderLists(){
     return `<div class="stat-block" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
+        <button class="featured-check ${isFeatured?'active':''}" onclick="toggleFeaturedList('${c.id}')" title="${isFeatured?'Remove from Featured':'Feature this list'}">
+          <i class="ti ti-star${isFeatured?'-filled':''}"></i> ${isFeatured?'Featured':'Feature'}
+        </button>
         <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
         <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
       </div>
@@ -4750,6 +4990,7 @@ function openDetail(id,src){
       <div id="tmdb-cast-${id}"></div>
       <div id="tmdb-review-${id}"></div>
       ${externalRatingsHTML(m)}
+      ${ghostRatingsHTML(m, me.ratings?.[id]||0)}
       <div class="info-grid">
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
@@ -6978,6 +7219,759 @@ function renderTrophies(){
     Object.values(me.periodicTrophies?.[p]||{}).forEach(e=>{ if(e.isNew){e.isNew=false;changed=true;} });
   });
   if(changed) saveUsers();
+}
+
+
+
+// ── FEATURED LISTS ────────────────────────────────────────────────────────────
+function renderFeaturedLists(){
+  const body = document.getElementById('featured-lists-body');
+  const empty = document.getElementById('featured-lists-empty');
+  if(!body) return;
+
+  // Collect featured lists from all users
+  const featured = [];
+  allUsers.accounts.forEach(u=>{
+    const ud = allUsers.personal?.[u.id];
+    if(!ud) return;
+    (ud.collections||[]).filter(c=>c.featured).forEach(c=>{
+      const items = (c.items||[]).map(id=>sharedData.library.find(m=>m.id===id)).filter(Boolean);
+      if(items.length) featured.push({list:c, user:u, items});
+    });
+  });
+
+  if(!featured.length){ body.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+
+  body.innerHTML = featured.map(({list,user,items})=>{
+    const cards = items.map(m=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      const me=myData(); const r=me.ratings?.[m.id]||0;
+      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="ov"><div class="ov-title">${m.title}</div></div>
+        ${r?`<div class="rating-badge">${r}/10</div>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="featured-list-card">
+      <div class="featured-list-hdr">
+        ${avatarEl(user,28)}
+        <div class="featured-list-title">${list.name}</div>
+        <div class="featured-list-owner">${user.username} · ${items.length} titles</div>
+      </div>
+      <div style="padding:12px"><div class="shelf-scroll">${cards}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── VHS RENTAL RECEIPT ────────────────────────────────────────────────────────
+function buildReceiptMonthSelect(){
+  const me = myData();
+  const months = new Set();
+  Object.values(me.history||{}).flat().forEach(ts=>{
+    const d=new Date(ts);
+    months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  });
+  const sel = document.getElementById('receipt-month');
+  if(!sel) return;
+  const sorted = [...months].sort((a,b)=>b.localeCompare(a));
+  const now = new Date();
+  const curKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  sel.innerHTML = sorted.map(k=>'<option value="'+k+'" '+(k===curKey?'selected':'')+'>'+new Date(k+'-01').toLocaleString('en-US',{month:'long',year:'numeric'})+'</option>').join('');
+}
+
+function renderReceipt(){
+  buildReceiptMonthSelect();
+  const sel = document.getElementById('receipt-month');
+  const key = sel?.value || '';
+  if(!key) return;
+  const [yr, mo] = key.split('-').map(Number);
+  const me = myData();
+
+  // Gather watches this month
+  const watches = [];
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m = sharedData.library.find(x=>x.id===id)||(me.diaryItems?.[id]);
+    if(!m) return;
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(d.getFullYear()===yr&&d.getMonth()===mo-1){
+        watches.push({m, ts, rating:me.ratings?.[id]||0});
+      }
+    });
+  });
+  watches.sort((a,b)=>a.ts-b.ts);
+
+  const monthName = new Date(yr,mo-1,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+  const totalRuntime = watches.reduce((s,w)=>s+(parseInt(w.m.runtime)||0),0);
+  const avgRating = watches.filter(w=>w.rating>0).length
+    ? (watches.filter(w=>w.rating>0).reduce((s,w)=>s+w.rating,0)/watches.filter(w=>w.rating>0).length).toFixed(1)
+    : 'N/A';
+  const barcode = '||| |||| || ||| |||| ||| || |||| |||';
+
+  const body = document.getElementById('receipt-body');
+  if(!body) return;
+  body.innerHTML = `<div class="receipt-wrap" id="receipt-print">
+    <div class="receipt-header">
+      <div class="receipt-logo">McFlix</div>
+      <div class="receipt-sub">VHS RENTAL · ${monthName.toUpperCase()}</div>
+      <div style="font-size:9px;color:#888;margin-top:4px">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>
+    </div>
+    <div class="receipt-row bold"><span>MEMBER</span><span>${CU.username.toUpperCase()}</span></div>
+    <div class="receipt-divider"></div>
+    ${watches.length?watches.map((w,i)=>`
+      <div class="receipt-row"><span>${String(i+1).padStart(2,'0')}. ${w.m.title.slice(0,22)}</span><span>${w.rating?w.rating+'/10':'—'}</span></div>
+      <div style="font-size:9px;color:#888;padding:0 0 4px 16px">${new Date(w.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}${w.m.runtime?' · '+w.m.runtime+'min':''}</div>
+    `).join(''):'<div style="font-size:11px;color:#888;text-align:center;padding:8px">No viewings logged this month.</div>'}
+    <div class="receipt-divider"></div>
+    <div class="receipt-row bold"><span>TOTAL TITLES</span><span>${watches.length}</span></div>
+    <div class="receipt-row"><span>TOTAL RUNTIME</span><span>${Math.floor(totalRuntime/60)}h ${totalRuntime%60}m</span></div>
+    <div class="receipt-row"><span>AVG RATING</span><span>${avgRating}</span></div>
+    <div class="receipt-divider"></div>
+    <div class="receipt-barcode">${barcode}</div>
+    <div class="receipt-footer">
+      Thank you for your rental!<br>
+      McFlix · Be kind, rewind.<br>
+      mcflix.co
+    </div>
+  </div>`;
+}
+
+function printReceipt(){
+  const el = document.getElementById('receipt-print');
+  if(!el) return;
+  const w = window.open('','_blank','width=400,height=700');
+  w.document.write('<html><head><title>McFlix Receipt</title><style>body{margin:0;background:#e8e0d0;display:flex;justify-content:center;padding:20px;font-family:Courier New,monospace}</style></head><body>'+el.outerHTML+'</body></html>');
+  w.document.close();
+  w.print();
+}
+
+// ── GHOST RATINGS ─────────────────────────────────────────────────────────────
+function ghostRatingsHTML(m, myRating){
+  const ext = m.externalRatings||[];
+  if(!ext.length) return '';
+
+  const imdb = ext.find(r=>r.s==='Internet Movie Database');
+  const rt   = ext.find(r=>r.s==='Rotten Tomatoes');
+  const mc   = ext.find(r=>r.s==='Metacritic');
+
+  const imdbScore = imdb ? parseFloat(imdb.v) : null; // out of 10
+  const rtScore   = rt   ? parseInt(rt.v)/10  : null; // convert % to /10
+  const mcScore   = mc   ? parseInt(mc.v)/10  : null; // convert /100 to /10
+
+  const rows = [];
+  if(imdbScore){
+    const delta = myRating ? myRating - imdbScore : null;
+    rows.push({label:'IMDb', score:imdbScore, cls:'imdb', delta});
+  }
+  if(rtScore){
+    const delta = myRating ? myRating - rtScore : null;
+    rows.push({label:'RT', score:rtScore, cls:'rt', delta});
+  }
+  if(mcScore){
+    const delta = myRating ? myRating - mcScore : null;
+    rows.push({label:'MC', score:mcScore, cls:'mc', delta});
+  }
+  if(!rows.length) return '';
+
+  const rowsHTML = rows.map(r=>{
+    const pct = Math.min(100,r.score/10*100);
+    const myPct = myRating ? Math.min(100,myRating/10*100) : 0;
+    const deltaStr = r.delta!=null ? (r.delta>0?'+':'')+r.delta.toFixed(1) : '';
+    const deltaCls = r.delta>0?'above':r.delta<0?'below':'';
+    return `<div class="ghost-rating-row">
+      <span class="ghost-rating-label">${r.label} ${r.score.toFixed(1)}</span>
+      <div class="ghost-bar-track">
+        <div class="ghost-bar-fill ${r.cls}" style="width:${pct}%"></div>
+        ${myRating?`<div class="ghost-user-fill" style="width:${myPct}%"></div>`:''}
+      </div>
+      <span class="ghost-val">${r.score.toFixed(1)}</span>
+      ${deltaStr?`<span class="ghost-delta ${deltaCls}">${deltaStr}</span>`:''}
+    </div>`;
+  }).join('');
+
+  return `<div class="ghost-rating-wrap">
+    <div class="ghost-rating-title"><i class="ti ti-ghost" style="font-size:12px"></i> Ghost Ratings vs Critics</div>
+    ${rowsHTML}
+    ${myRating?'<div style="font-size:10px;color:var(--muted);margin-top:6px">Gold bar = your rating · Faded bar = critic score · Delta = how far you diverge</div>':'<div style="font-size:10px;color:var(--muted);margin-top:6px">Rate this title to see how your taste compares</div>'}
+  </div>`;
+}
+
+// ── RUNTIME CALCULATOR ────────────────────────────────────────────────────────
+function renderRuntime(){
+  const me = myData();
+  const lib = sharedData.library;
+  const allMovies = lib.filter(m=>m.type!=='tv');
+
+  let watchedMins=0, unwatchedMins=0, watchedCount=0, unwatchedCount=0;
+  allMovies.forEach(m=>{
+    const mins = parseInt(m.runtime)||0;
+    if(me.watched?.[m.id]){ watchedMins+=mins; watchedCount++; }
+    else { unwatchedMins+=mins; unwatchedCount++; }
+  });
+
+  const fmtH = m => Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';
+  const fmtDays = m => (m/60/24).toFixed(1)+' days';
+
+  // Fun comparisons for unwatched
+  const greensburg2indy = 45; // minutes
+  const trips = Math.round(unwatchedMins/greensburg2indy);
+
+  const body = document.getElementById('runtime-body');
+  if(!body) return;
+  body.innerHTML = `
+    <div class="runtime-hero">
+      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Hours of Unwatched Content</div>
+      <div class="runtime-countdown">${fmtH(unwatchedMins)}</div>
+      <div class="runtime-label">${fmtDays(unwatchedMins)} of your life remaining · ${unwatchedCount} titles</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7">
+        That's <strong style="color:var(--gold)">${trips}</strong> round trips from Greensburg to Indianapolis.<br>
+        At 3 movies/week you'll finish in <strong style="color:var(--gold)">${Math.ceil(unwatchedCount/3)} weeks</strong>.
+      </div>
+    </div>
+    <div class="runtime-grid">
+      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(watchedMins)}</div><div class="runtime-stat-l">Time Watched</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${watchedCount}</div><div class="runtime-stat-l">Titles Watched</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(unwatchedMins)}</div><div class="runtime-stat-l">Time Remaining</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${unwatchedCount}</div><div class="runtime-stat-l">Titles Unwatched</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(watchedMins+unwatchedMins)}</div><div class="runtime-stat-l">Total Library Runtime</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${Math.round(watchedMins/(watchedCount||1))}m</div><div class="runtime-stat-l">Avg Movie Length</div></div>
+    </div>
+    <div class="sl" style="margin-bottom:12px">Longest Unwatched</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${allMovies.filter(m=>!me.watched?.[m.id]&&parseInt(m.runtime)>0)
+        .sort((a,b)=>parseInt(b.runtime)-parseInt(a.runtime))
+        .slice(0,8)
+        .map(m=>`<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer" onclick="openDetail('${m.id}','library')">
+          ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>'}
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:11px;color:var(--muted)">${m.year||''}</div></div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);white-space:nowrap">${fmtH(parseInt(m.runtime))}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── HEATMAP ROOM ──────────────────────────────────────────────────────────────
+function renderHeatmap(){
+  const me = myData();
+  const lib = sharedData.library.filter(m=>m.type!=='tv');
+  if(!lib.length) return;
+  const canvas = document.getElementById('heatmap-canvas');
+  const wrap = document.getElementById('heatmap-wrap');
+  if(!canvas||!wrap) return;
+
+  const W = wrap.clientWidth||800;
+  canvas.width = W;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0,0,0,400);
+  sky.addColorStop(0,'#010208');
+  sky.addColorStop(1,'#04091a');
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,W,400);
+
+  // Stars
+  for(let i=0;i<120;i++){
+    const sx=Math.random()*W, sy=Math.random()*200;
+    const sa=0.3+Math.random()*0.7;
+    ctx.fillStyle=`rgba(255,255,255,${sa})`;
+    ctx.beginPath();ctx.arc(sx,sy,0.7,0,Math.PI*2);ctx.fill();
+  }
+
+  // Ground
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,350,W,50);
+
+  // Lay out buildings
+  const cols = Math.min(lib.length, Math.floor(W/14));
+  const bw = (W - cols*2) / cols;
+  const _buildingData = [];
+
+  lib.forEach((m,i)=>{
+    const rating = me.ratings?.[m.id]||0;
+    const watched = !!me.watched?.[m.id];
+    const runtime = Math.min(parseInt(m.runtime)||90, 240);
+    const maxH = 220;
+    const minH = 20;
+    const h = minH + (runtime/240)*(maxH-minH);
+    const x = (i%cols)*(bw+2);
+    const y = 350-h;
+
+    // Color based on rating
+    let color;
+    if(!watched)       color='rgba(30,30,50,0.9)';
+    else if(rating>=9) color=`rgba(255,107,53,${0.7+Math.random()*0.3})`;
+    else if(rating>=7) color=`rgba(232,184,75,${0.6+Math.random()*0.3})`;
+    else if(rating>=5) color=`rgba(52,152,219,${0.5+Math.random()*0.3})`;
+    else if(rating>0)  color=`rgba(100,100,120,${0.4+Math.random()*0.2})`;
+    else               color='rgba(20,20,35,0.8)';
+
+    _buildingData.push({m, x, y, w:bw, h, color, rating, watched});
+
+    // Draw building
+    ctx.fillStyle=color;
+    ctx.fillRect(x,y,bw,h);
+
+    // Windows
+    if(watched && rating>=5){
+      ctx.fillStyle='rgba(255,255,200,0.6)';
+      const wRows=Math.floor(h/12), wCols=Math.max(1,Math.floor(bw/6));
+      for(let wr=0;wr<wRows;wr++){
+        for(let wc=0;wc<wCols;wc++){
+          if(Math.random()>0.35){
+            ctx.fillRect(x+2+wc*6, y+4+wr*12, 3, 4);
+          }
+        }
+      }
+    }
+
+    // Roof glow for top rated
+    if(rating>=9&&watched){
+      const grd=ctx.createRadialGradient(x+bw/2,y,0,x+bw/2,y,30);
+      grd.addColorStop(0,'rgba(255,107,53,0.4)');
+      grd.addColorStop(1,'rgba(255,107,53,0)');
+      ctx.fillStyle=grd;
+      ctx.fillRect(x-15,y-15,bw+30,30);
+    }
+  });
+
+  // Store for hover
+  canvas._buildingData = _buildingData;
+
+  // Tooltip on hover
+  const tooltip = document.getElementById('heatmap-tooltip');
+  canvas.onmousemove = (e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+    const hit=_buildingData.find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);
+    if(hit&&tooltip){
+      tooltip.style.display='block';
+      tooltip.style.left=Math.min(e.offsetX+10,wrap.clientWidth-200)+'px';
+      tooltip.style.top=Math.max(e.offsetY-60,0)+'px';
+      tooltip.innerHTML=`<div class="heatmap-tooltip-title">${hit.m.title}</div>
+        <div class="heatmap-tooltip-meta">${hit.m.year||''}${hit.m.runtime?' · '+hit.m.runtime+'min':''}${hit.rating?' · ★'+hit.rating+'/10':hit.watched?' · Watched':' · Unwatched'}</div>`;
+    } else if(tooltip) tooltip.style.display='none';
+  };
+  canvas.onmouseleave=()=>{ if(tooltip) tooltip.style.display='none'; };
+  canvas.onclick=(e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+    const hit=_buildingData.find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);
+    if(hit) openDetail(hit.m.id,'library');
+  };
+}
+
+// ── CRITIC GRAVEYARD ──────────────────────────────────────────────────────────
+function renderCriticGraveyard(){
+  const me = myData();
+  const body = document.getElementById('cgraveyard-body');
+  const empty = document.getElementById('cgraveyard-empty');
+  if(!body) return;
+
+  const graves = [];
+  sharedData.library.filter(m=>m.type!=='tv').forEach(m=>{
+    const myR = me.ratings?.[m.id]||0;
+    if(!myR) return;
+    const imdb = (m.externalRatings||[]).find(r=>r.s==='Internet Movie Database');
+    if(!imdb) return;
+    const imdbScore = parseFloat(imdb.v);
+    if(!imdbScore) return;
+    const delta = myR - imdbScore;
+    if(delta <= -3) graves.push({m, myR, imdbScore, delta});
+  });
+
+  graves.sort((a,b)=>a.delta-b.delta); // most divergent first
+
+  if(!graves.length){ body.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+
+  body.innerHTML = `<div style="font-size:13px;color:var(--muted);margin-bottom:16px">${graves.length} title${graves.length!==1?'s':''} where you rated it 3+ below IMDB</div>`
+    + graves.map(({m,myR,imdbScore,delta})=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      return `<div class="graveyard-card" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" class="graveyard-poster">`:`<div class="graveyard-poster" style="display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="graveyard-info">
+          <div class="graveyard-title">${m.title}</div>
+          <div class="graveyard-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px">You: ${myR}/10 · IMDB: ${imdbScore}/10 · Delta: ${delta.toFixed(1)}</div>
+        </div>
+        <div class="graveyard-scores">
+          <div>
+            <div class="graveyard-my">${myR}</div>
+            <div style="font-size:8px;color:var(--muted);text-align:center">YOU</div>
+          </div>
+          <div class="graveyard-vs">vs</div>
+          <div>
+            <div class="graveyard-imdb">${imdbScore}</div>
+            <div style="font-size:8px;color:var(--muted);text-align:center">IMDB</div>
+          </div>
+          <div class="graveyard-rip">🪦</div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ── THE GAUNTLET ──────────────────────────────────────────────────────────────
+const GAUNTLET_CHALLENGES = [
+  "Watch a movie from before 1980",
+  "Watch something you've been avoiding",
+  "Watch a movie with a one-word title",
+  "Watch something rated G or PG",
+  "Watch a movie from a director you've never seen",
+  "Watch something that's been on your wishlist the longest",
+  "Watch a movie over 2.5 hours long",
+  "Watch a foreign language film",
+  "Watch something rated R",
+  "Watch a movie from the 1990s",
+  "Watch something with a single actor you love",
+  "Watch a sequel or part of a franchise",
+  "Watch a movie under 90 minutes",
+  "Watch something you haven't thought about in years",
+  "Watch a documentary",
+  "Watch a movie from the 2000s",
+  "Watch something in your highest-rated genre",
+  "Watch a movie with a number in the title",
+  "Watch something set outside the USA",
+  "Watch a biographical film",
+  "Watch something from your first-ever watchlist",
+  "Watch a movie from the year you were born",
+  "Watch something recommended by another McFlix member",
+  "Watch a movie you rated low and give it another chance",
+  "Watch the highest-rated unwatched movie in your library",
+  "Watch something with a color in the title",
+  "Watch a movie released this decade",
+  "Watch something from a director with 3+ films in your library",
+  "Watch a movie with The in the title",
+  "Watch whatever you want — you made it to Day 30",
+];
+
+function startGauntlet(){
+  if(!confirm("Start The 30-Day Gauntlet? It will pick challenges from your unwatched library. Cannot restart once begun.")) return;
+  const me = myData();
+  me.gauntlet = {
+    startedAt: Date.now(),
+    completed: {},
+  };
+  saveUsers().then(()=>renderGauntlet());
+  toast('The Gauntlet begins! Good luck. 💀');
+}
+
+function completeGauntletDay(day, movieId){
+  const me = myData();
+  if(!me.gauntlet) return;
+  me.gauntlet.completed = me.gauntlet.completed||{};
+  me.gauntlet.completed[day] = {movieId, completedAt: Date.now()};
+  saveUsers().then(()=>renderGauntlet());
+  toast(`Day ${day} complete! 🏆`);
+  evaluateTrophies();
+}
+
+function renderGauntlet(){
+  const me = myData();
+  const body = document.getElementById('gauntlet-body');
+  if(!body) return;
+
+  if(!me.gauntlet){
+    body.innerHTML = `<div class="gauntlet-hero">
+      <div class="gauntlet-title">⚔️ The Gauntlet</div>
+      <div style="font-size:14px;color:var(--muted);margin:12px 0 20px;line-height:1.7">A personal 30-day cinematic challenge. Each day gets a unique mission drawn from your unwatched library. Complete them all. No mercy.</div>
+      <button class="primary-btn" style="margin:0 auto" onclick="startGauntlet()"><i class="ti ti-sword"></i> Begin the Gauntlet</button>
+    </div>`;
+    return;
+  }
+
+  const startDate = new Date(me.gauntlet.startedAt);
+  startDate.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const daysPassed = Math.floor((today-startDate)/(1000*60*60*24));
+  const currentDay = Math.min(daysPassed+1, 30);
+  const doneCount = Object.keys(me.gauntlet.completed||{}).length;
+  const unwatched = sharedData.library.filter(m=>m.type!=='tv'&&!me.watched?.[m.id]);
+
+  // Build day list
+  const days = Array.from({length:30},(_,i)=>{
+    const dayNum = i+1;
+    const isDone = !!(me.gauntlet.completed?.[dayNum]);
+    const isToday = dayNum===currentDay && daysPassed<30;
+    const isPast = dayNum<currentDay && !isDone;
+    const isFuture = dayNum>currentDay;
+    const challenge = GAUNTLET_CHALLENGES[i];
+    const doneMovie = isDone ? sharedData.library.find(m=>m.id===me.gauntlet.completed[dayNum].movieId) : null;
+    // Pick a suggested movie for this challenge from unwatched
+    const seed = me.gauntlet.startedAt + dayNum;
+    const suggested = unwatched.length ? unwatched[seed % unwatched.length] : null;
+    return {dayNum,isDone,isToday,isPast,isFuture,challenge,doneMovie,suggested};
+  });
+
+  body.innerHTML = `<div class="gauntlet-hero">
+    <div class="gauntlet-title">⚔️ The Gauntlet</div>
+    <div class="gauntlet-day">${currentDay<=30?'DAY '+currentDay:'COMPLETE'}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">${doneCount}/30 days complete · Started ${startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+    <div style="margin-top:12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),var(--gold2));width:${Math.round(doneCount/30*100)}%;border-radius:6px;transition:width .5s"></div></div>
+    ${currentDay<=30?`<div class="gauntlet-challenge">Today: <strong>${days[currentDay-1].challenge}</strong></div>`:'<div class="gauntlet-challenge">🏆 You conquered The Gauntlet!</div>'}
+    ${currentDay<=30&&days[currentDay-1].suggested?`<button class="primary-btn" style="margin:8px auto 0" onclick="completeGauntletDay(${currentDay},'${days[currentDay-1].suggested.id}');openDetail('${days[currentDay-1].suggested.id}','library')"><i class="ti ti-check"></i> Mark Day ${currentDay} Done</button>`:''}
+    ${currentDay<=30&&!me.gauntlet.completed?.[currentDay]?`<button class="ghost-btn" style="margin:8px auto 0" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> Abandon Gauntlet</button>`:''}
+  </div>
+  ${days.slice(0,currentDay).reverse().map(d=>`
+    <div class="gauntlet-card ${d.isDone?'done':d.isToday?'today-card':''}">
+      <div class="gauntlet-day-num ${d.isDone?'done':d.isToday?'today':''}">${d.isDone?'✓':d.dayNum}</div>
+      ${d.doneMovie&&d.doneMovie.poster&&d.doneMovie.poster!=='N/A'?`<img src="${d.doneMovie.poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:''}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:${d.isDone?'var(--green)':d.isToday?'var(--gold)':'var(--light)'}">${d.challenge}</div>
+        ${d.isDone&&d.doneMovie?`<div style="font-size:11px;color:var(--muted);margin-top:2px;cursor:pointer" onclick="openDetail('${d.doneMovie.id}','library')">${d.doneMovie.title} ✓</div>`:''}
+        ${d.isToday&&d.suggested&&!d.isDone?`<div style="font-size:11px;color:var(--muted);margin-top:2px">Suggested: <span style="color:var(--gold);cursor:pointer" onclick="openDetail('${d.suggested.id}','library')">${d.suggested.title}</span></div>`:''}
+      </div>
+    </div>`).join('')}`;
+}
+
+function resetGauntlet(){
+  if(!confirm("Abandon the Gauntlet? All progress will be lost.")) return;
+  const me = myData();
+  delete me.gauntlet;
+  saveUsers().then(()=>renderGauntlet());
+}
+
+// ── TRAILER ROOM ──────────────────────────────────────────────────────────────
+const _trailerCache = {};
+
+async function renderTrailerRoom(){
+  const me = myData();
+  const q = (document.getElementById('s-trailers')?.value||'').toLowerCase();
+  const genre = document.getElementById('f-trailer-genre')?.value||'';
+
+  // Build genre dropdown
+  const genres = new Set();
+  sharedData.library.filter(m=>!me.watched?.[m.id]).forEach(m=>(m.genre||'').split(',').forEach(g=>{if(g.trim())genres.add(g.trim())}));
+  const gSel = document.getElementById('f-trailer-genre');
+  if(gSel){
+    const cur=gSel.value;
+    gSel.innerHTML='<option value="">All Genres</option>'+[...genres].sort().map(g=>`<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
+  }
+
+  let items = sharedData.library.filter(m=>{
+    if(me.watched?.[m.id]) return false;
+    if(q&&!m.title.toLowerCase().includes(q)) return false;
+    if(genre&&!(m.genre||'').split(',').map(g=>g.trim()).includes(genre)) return false;
+    return true;
+  }).slice(0,24);
+
+  const grid = document.getElementById('trailer-grid');
+  const empty = document.getElementById('trailer-empty');
+  if(!grid) return;
+  if(!items.length){ grid.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+
+  // Show placeholders immediately
+  grid.innerHTML = items.map(m=>{
+    const hp=m.poster&&m.poster!=='N/A';
+    return `<div class="trailer-card" id="tc-${m.id}">
+      <div class="trailer-thumb">
+        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.5">`:'<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-loader" style="color:var(--muted)"></i></div>'}
+        <div class="trailer-play"><div class="trailer-play-btn"><i class="ti ti-player-play" style="color:#fff;font-size:18px;margin-left:3px"></i></div></div>
+      </div>
+      <div class="trailer-info"><div class="trailer-movie-title">${m.title}</div><div class="trailer-movie-meta">${m.year||''} · Loading trailer...</div></div>
+    </div>`;
+  }).join('');
+
+  // Fetch trailers for each (with caching)
+  for(const m of items){
+    if(_trailerCache[m.id]===null) continue; // known no trailer
+    let trailerKey = _trailerCache[m.id];
+    if(!trailerKey){
+      try{
+        const tm = await fetchTMDBMovie(m.title,(m.year||'').slice(0,4),m.imdb);
+        if(tm?.id){
+          const vr = await fetch(`https://api.themoviedb.org/3/movie/${tm.id}/videos?api_key=${TMDB_KEY}`);
+          const vd = await vr.json();
+          const trailer=(vd.results||[]).find(v=>v.site==='YouTube'&&(v.type==='Trailer'||v.type==='Teaser'));
+          trailerKey = trailer?.key||null;
+        }
+      }catch(e){ trailerKey=null; }
+      _trailerCache[m.id]=trailerKey;
+    }
+    const card = document.getElementById('tc-'+m.id);
+    if(!card) continue;
+    if(trailerKey){
+      const thumb=`https://img.youtube.com/vi/${trailerKey}/mqdefault.jpg`;
+      card.onclick=()=>window.open('https://www.youtube.com/watch?v='+trailerKey,'_blank');
+      card.querySelector('.trailer-thumb').innerHTML=`<img src="${thumb}" alt="" style="width:100%;height:100%;object-fit:cover"><div class="trailer-play"><div class="trailer-play-btn"><i class="ti ti-player-play" style="color:#fff;font-size:18px;margin-left:3px"></i></div></div>`;
+      card.querySelector('.trailer-movie-meta').textContent=(m.year||'')+(m.runtime?' · '+m.runtime+'min':'');
+    } else {
+      card.style.opacity='.4';
+      card.querySelector('.trailer-movie-meta').textContent='No trailer found';
+      card.onclick=()=>openDetail(m.id,'library');
+    }
+  }
+}
+
+// ── MCU GRAPH ─────────────────────────────────────────────────────────────────
+let _mcuNodes=[], _mcuEdges=[], _mcuDragging=null, _mcuAnimFrame=null;
+
+function renderMCU(){
+  const filter = document.getElementById('mcu-filter')?.value||'actor';
+  const lib = sharedData.library.filter(m=>m.type!=='tv');
+  const canvas = document.getElementById('mcu-canvas');
+  const wrap = document.getElementById('mcu-wrap');
+  if(!canvas||!wrap) return;
+
+  const W = wrap.clientWidth||800, H=600;
+  canvas.width=W; canvas.height=H;
+
+  // Build nodes
+  _mcuNodes = lib.map((m,i)=>({
+    id:m.id, label:m.title.slice(0,18), m,
+    x:Math.random()*W*0.8+W*0.1,
+    y:Math.random()*H*0.7+H*0.1,
+    vx:0, vy:0, r:20
+  }));
+
+  // Build edges based on filter
+  _mcuEdges=[];
+  const nodeMap = Object.fromEntries(_mcuNodes.map(n=>[n.id,n]));
+
+  if(filter==='actor'){
+    const actorMap={};
+    lib.forEach(m=>(m.actors||'').split(',').slice(0,3).forEach(a=>{
+      const t=a.trim(); if(!t||t==='N/A') return;
+      (actorMap[t]=actorMap[t]||[]).push(m.id);
+    }));
+    Object.values(actorMap).forEach(ids=>{
+      if(ids.length<2) return;
+      for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++)
+        _mcuEdges.push({a:ids[i],b:ids[j]});
+    });
+  } else if(filter==='director'){
+    const dirMap={};
+    lib.forEach(m=>{const d=(m.director||'').split(',')[0].trim();if(d&&d!=='N/A')(dirMap[d]=dirMap[d]||[]).push(m.id);});
+    Object.values(dirMap).forEach(ids=>{ if(ids.length<2) return; for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++) _mcuEdges.push({a:ids[i],b:ids[j]}); });
+  } else if(filter==='year'){
+    const yearMap={};
+    lib.forEach(m=>{const y=(m.year||'').slice(0,4);if(y)(yearMap[y]=yearMap[y]||[]).push(m.id);});
+    Object.values(yearMap).forEach(ids=>{ if(ids.length<2) return; for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++) _mcuEdges.push({a:ids[i],b:ids[j]}); });
+  } else if(filter==='genre'){
+    const genreMap={};
+    lib.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)(genreMap[t]=genreMap[t]||[]).push(m.id);}));
+    Object.values(genreMap).forEach(ids=>{ if(ids.length<2) return; for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++) _mcuEdges.push({a:ids[i],b:ids[j]}); });
+  }
+
+  // Dedupe edges, cap at 200
+  const edgeSet=new Set();
+  _mcuEdges=_mcuEdges.filter(e=>{const k=[e.a,e.b].sort().join('|');if(edgeSet.has(k))return false;edgeSet.add(k);return true;}).slice(0,200);
+
+  if(_mcuAnimFrame) cancelAnimationFrame(_mcuAnimFrame);
+
+  const me=myData();
+  function tick(){
+    // Force-directed layout
+    _mcuNodes.forEach(n=>{n.vx*=0.85;n.vy*=0.85;});
+    // Repel
+    for(let i=0;i<_mcuNodes.length;i++){
+      for(let j=i+1;j<_mcuNodes.length;j++){
+        const a=_mcuNodes[i],b=_mcuNodes[j];
+        const dx=b.x-a.x, dy=b.y-a.y;
+        const d=Math.sqrt(dx*dx+dy*dy)||1;
+        const f=Math.min(800,2000/(d*d));
+        a.vx-=f*dx/d; a.vy-=f*dy/d;
+        b.vx+=f*dx/d; b.vy+=f*dy/d;
+      }
+    }
+    // Attract edges
+    _mcuEdges.forEach(e=>{
+      const a=nodeMap[e.a],b=nodeMap[e.b]; if(!a||!b) return;
+      const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+      const f=(d-80)*0.02;
+      a.vx+=f*dx/d; a.vy+=f*dy/d;
+      b.vx-=f*dx/d; b.vy-=f*dy/d;
+    });
+    // Center gravity
+    _mcuNodes.forEach(n=>{n.vx+=(W/2-n.x)*0.005;n.vy+=(H/2-n.y)*0.005;});
+    // Update + clamp
+    _mcuNodes.forEach(n=>{
+      if(n===_mcuDragging) return;
+      n.x+=n.vx; n.y+=n.vy;
+      n.x=Math.max(25,Math.min(W-25,n.x));
+      n.y=Math.max(25,Math.min(H-25,n.y));
+    });
+    draw();
+    _mcuAnimFrame=requestAnimationFrame(tick);
+  }
+
+  function draw(){
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#07070d';ctx.fillRect(0,0,W,H);
+    // Edges
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+    _mcuEdges.forEach(e=>{
+      const a=nodeMap[e.a],b=nodeMap[e.b]; if(!a||!b) return;
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+    });
+    // Nodes
+    _mcuNodes.forEach(n=>{
+      const r=me.ratings?.[n.id]||0;
+      const watched=!!me.watched?.[n.id];
+      const color=r>=9?'#ff6b35':r>=7?'#e8b84b':r>=5?'#3498db':watched?'#666':'#2a2a4a';
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=color;ctx.fill();
+      // Poster if available
+      if(n.m.poster&&n.m.poster!=='N/A'&&n._img){
+        ctx.save();ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.clip();
+        ctx.drawImage(n._img,n.x-n.r,n.y-n.r,n.r*2,n.r*2);ctx.restore();
+      }
+      // Label
+      ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='7px Outfit,sans-serif';ctx.textAlign='center';
+      ctx.fillText(n.label,n.x,n.y+n.r+10);
+    });
+  }
+
+  // Preload poster images
+  _mcuNodes.forEach(n=>{
+    if(n.m.poster&&n.m.poster!=='N/A'){
+      const img=new Image();img.crossOrigin='anonymous';
+      img.onload=()=>{ n._img=img; };
+      img.src=n.m.poster;
+    }
+  });
+
+  // Drag
+  let dragOffX=0,dragOffY=0;
+  canvas.onmousedown=e=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(W/rect.width);
+    const my=(e.clientY-rect.top)*(H/rect.height);
+    _mcuDragging=_mcuNodes.find(n=>Math.hypot(mx-n.x,my-n.y)<n.r+5)||null;
+    if(_mcuDragging){dragOffX=mx-_mcuDragging.x;dragOffY=my-_mcuDragging.y;canvas.style.cursor='grabbing';}
+  };
+  canvas.onmousemove=e=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(W/rect.width);
+    const my=(e.clientY-rect.top)*(H/rect.height);
+    if(_mcuDragging){_mcuDragging.x=mx-dragOffX;_mcuDragging.y=my-dragOffY;}
+    const hit=_mcuNodes.find(n=>Math.hypot(mx-n.x,my-n.y)<n.r+5);
+    const tip=document.getElementById('mcu-tooltip');
+    if(hit&&tip){
+      tip.style.display='block';
+      tip.style.left=Math.min(e.offsetX+12,wrap.clientWidth-210)+'px';
+      tip.style.top=Math.max(e.offsetY-40,0)+'px';
+      const me2=myData();const r=me2.ratings?.[hit.id]||0;
+      tip.innerHTML=`<strong style="color:var(--gold)">${hit.m.title}</strong><br><span style="color:var(--muted)">${hit.m.year||''}${r?' · ★'+r+'/10':''}</span>`;
+    } else if(tip) tip.style.display='none';
+    canvas.style.cursor=hit?'pointer':'grab';
+  };
+  canvas.onmouseup=()=>{_mcuDragging=null;canvas.style.cursor='grab';};
+  canvas.onclick=e=>{
+    if(_mcuDragging) return;
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(W/rect.width);
+    const my=(e.clientY-rect.top)*(H/rect.height);
+    const hit=_mcuNodes.find(n=>Math.hypot(mx-n.x,my-n.y)<n.r+5);
+    if(hit) openDetail(hit.id,'library');
+  };
+
+  tick();
 }
 
 
