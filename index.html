@@ -1489,7 +1489,6 @@ textarea.ffi{resize:vertical}
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
     <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Wishlist</span></button>
     <button class="bnb" id="bnb-watched" onclick="switchTabMobile('watched',this)"><i class="ti ti-eye"></i><span>Watched</span></button>
-    <button class="bnb" id="bnb-stats" onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
     <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
 </div>
@@ -1724,7 +1723,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '8.4';
+const VERSION     = '8.5';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2074,20 +2073,34 @@ async function wGet(key){
 async function wPut(key, data){
   if(!WORKER_URL||!APP_TOKEN) return false;
   try{
+    const body = JSON.stringify(data);
+    const sizeKB = Math.round(body.length / 1024);
     const r=await fetch(`${WORKER_URL}/data/${key}`,{
       method:'PUT',
       headers:{'X-McFlix-Token':APP_TOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify(data)
+      body
     });
+    if(!r.ok){
+      const errText = await r.text().catch(()=>'');
+      console.error(`wPut failed: ${r.status} ${r.statusText} (${sizeKB}KB) — ${errText}`);
+      if(r.status===413 || sizeKB > 100){
+        toast('⚠️ Save failed: data too large ('+sizeKB+'KB). Contact James to upgrade the Worker plan.', true);
+      }
+    }
     return r.ok;
   }catch(e){ console.warn('wPut failed',e); return false; }
 }
 
 async function loadFromCloud(){
   loading(true,'Loading library...');
-  const [lib, users] = await Promise.all([wGet('library'),wGet('users')]);
+  const [lib, wish, users] = await Promise.all([wGet('library'), wGet('wishlist'), wGet('users')]);
   let ok = false;
-  if(lib){ sharedData=lib; ok=true; }
+  if(lib){
+    sharedData = lib;
+    // Merge wishlist from separate key if it exists (newer format)
+    if(wish && wish.wishlist) sharedData.wishlist = wish.wishlist;
+    ok = true;
+  }
   if(users){ allUsers=users; ok=true; }
   if(ok) cloudLoaded=true;
   try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
@@ -2126,7 +2139,23 @@ async function saveShared(){
   }
   _saveSharedPending = true;
   try{
-    await wPut('library', sharedData);
+    // Save library and wishlist as SEPARATE KV keys to avoid 100KB Worker limit
+    // Library key holds everything except wishlist
+    const libraryPayload = { library: sharedData.library };
+    // Wishlist key holds slim items (title/year/poster/id only) to minimise size
+    const wishPayload = { wishlist: (sharedData.wishlist||[]).map(m=>({
+      id:m.id, title:m.title, sortTitle:m.sortTitle||'', type:m.type||'movie',
+      year:m.year||'', genre:m.genre||'', rating:m.rating||'',
+      director:m.director||'', actors:m.actors||'', plot:m.plot||'',
+      runtime:m.runtime||'', poster:m.poster||'', imdb:m.imdb||'',
+      tags:m.tags||[], externalRatings:m.externalRatings||[],
+      priority:m.priority||false, priorityOrder:m.priorityOrder??undefined,
+      addedAt:m.addedAt||0, addedBy:m.addedBy||''
+    })) };
+    await Promise.all([
+      wPut('library', libraryPayload),
+      wPut('wishlist', wishPayload)
+    ]);
   }catch(e){
     console.warn('saveShared failed:', e);
   }finally{
