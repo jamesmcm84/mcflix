@@ -1724,7 +1724,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '8.2';
+const VERSION     = '8.4';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -5266,10 +5266,10 @@ async function openTMDBDetail(tmdbId, title, year){
       +'<div class="det-actions">'
       +(onSharedWish
         ? '<span class="act" style="background:rgba(138,90,240,.15);color:var(--purple);border-color:rgba(138,90,240,.3)"><i class="ti ti-bookmark-check"></i> On Shared Wishlist</span>'
-        : '<button class="act act-fav" id="tmdb-add-shared-btn" onclick="addTMDBToSharedWishlist(' + tmdbId + ',decodeURIComponent(\'' + encodeURIComponent(safeTitle) + '\'),\'' + releaseYear + '\',\'' + encodeURIComponent(safePoster) + '\')"><i class="ti ti-bookmark-plus"></i> Add to Shared Wishlist</button>')
+        : '<button class="act act-fav" id="tmdb-add-shared-btn" data-tmdb="' + tmdbId + '" data-title="' + encodeURIComponent(td.title) + '" data-year="' + releaseYear + '" data-poster="' + encodeURIComponent(poster||'') + '" onclick="addTMDBToSharedWishlistFromBtn(this)"><i class="ti ti-bookmark-plus"></i> Add to Shared Wishlist</button>')
       +(onPersonalWish
         ? '<span class="act" style="background:rgba(46,204,113,.12);color:var(--green);border-color:rgba(46,204,113,.3)"><i class="ti ti-heart-check"></i> On My Wishlist</span>'
-        : '<button class="act act-now" id="tmdb-add-personal-btn" onclick="addTMDBToPersonalWishlist(' + tmdbId + ',decodeURIComponent(\'' + encodeURIComponent(safeTitle) + '\'),\'' + releaseYear + '\',\'' + encodeURIComponent(safePoster) + '\')"><i class="ti ti-heart-plus"></i> Add to My Wishlist</button>')
+        : '<button class="act act-now" id="tmdb-add-personal-btn" data-tmdb="' + tmdbId + '" data-title="' + encodeURIComponent(td.title) + '" data-year="' + releaseYear + '" data-poster="' + encodeURIComponent(poster||'') + '" onclick="addTMDBToPersonalWishlistFromBtn(this)"><i class="ti ti-heart-plus"></i> Add to My Wishlist</button>')
       +(td.imdb_id?'<a href="https://www.imdb.com/title/'+td.imdb_id+'/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>':'')
       +'</div></div></div></div>'
       +'<div class="det-body">'
@@ -5292,33 +5292,46 @@ async function openTMDBDetail(tmdbId, title, year){
   }
 }
 
-async function addTMDBToSharedWishlist(tmdbId, titleRaw, year, posterRaw){
-  const title = typeof titleRaw==='string'&&titleRaw.startsWith('%')?decodeURIComponent(titleRaw):titleRaw;
-  const poster = typeof posterRaw==='string'&&posterRaw.startsWith('%')?decodeURIComponent(posterRaw):posterRaw;
+async function addTMDBToSharedWishlistFromBtn(btn){
+  const tmdbId = parseInt(btn.dataset.tmdb);
+  const title  = decodeURIComponent(btn.dataset.title||'');
+  const year   = btn.dataset.year||'';
+  const poster = decodeURIComponent(btn.dataset.poster||'');
+  if(!title) return;
   const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===title.toLowerCase());
   if(exists){ toast(title+' is already on the shared wishlist!', true); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Adding...';
   const item = await buildTMDBWishlistItem(tmdbId, title, year, poster, false);
   sharedData.wishlist.push(item);
-  await saveShared();
+  const saved = await saveShared();
   updateCounts();
+  if(saved === false){
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-bookmark-plus"></i> Add to Shared Wishlist';
+    return;
+  }
   toast(title+' added to Shared Wishlist!');
-  const btn = document.getElementById('tmdb-add-shared-btn');
-  if(btn) btn.outerHTML = '<span class="act" style="background:rgba(138,90,240,.15);color:var(--purple);border-color:rgba(138,90,240,.3)"><i class="ti ti-bookmark-check"></i> On Shared Wishlist</span>';
+  btn.outerHTML = '<span class="act" style="background:rgba(138,90,240,.15);color:var(--purple);border-color:rgba(138,90,240,.3)"><i class="ti ti-bookmark-check"></i> On Shared Wishlist</span>';
 }
 
-async function addTMDBToPersonalWishlist(tmdbId, titleRaw, year, posterRaw){
-  const title = typeof titleRaw==='string'&&titleRaw.startsWith('%')?decodeURIComponent(titleRaw):titleRaw;
-  const poster = typeof posterRaw==='string'&&posterRaw.startsWith('%')?decodeURIComponent(posterRaw):posterRaw;
+async function addTMDBToPersonalWishlistFromBtn(btn){
+  const tmdbId = parseInt(btn.dataset.tmdb);
+  const title  = decodeURIComponent(btn.dataset.title||'');
+  const year   = btn.dataset.year||'';
+  const poster = decodeURIComponent(btn.dataset.poster||'');
+  if(!title) return;
   const me = myData();
   me.personalWishlist = me.personalWishlist||[];
   const exists = me.personalWishlist.find(m=>m.title.toLowerCase()===title.toLowerCase());
   if(exists){ toast(title+' is already on your wishlist!', true); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Adding...';
   const item = await buildTMDBWishlistItem(tmdbId, title, year, poster, true);
   me.personalWishlist.push({id:item.id,title:item.title,year:item.year,poster:item.poster,type:item.type,addedAt:item.addedAt});
   await saveUsers();
   toast(title+' added to My Wishlist!');
-  const btn = document.getElementById('tmdb-add-personal-btn');
-  if(btn) btn.outerHTML = '<span class="act" style="background:rgba(46,204,113,.12);color:var(--green);border-color:rgba(46,204,113,.3)"><i class="ti ti-heart-check"></i> On My Wishlist</span>';
+  btn.outerHTML = '<span class="act" style="background:rgba(46,204,113,.12);color:var(--green);border-color:rgba(46,204,113,.3)"><i class="ti ti-heart-check"></i> On My Wishlist</span>';
 }
 
 async function buildTMDBWishlistItem(tmdbId, title, year, poster, isPersonal){
@@ -5523,8 +5536,9 @@ function togglePriority(id){
   if(!m) return;
   m.priority=!m.priority;
   if(m.priority){
-    // Assign an order value at the end of the current queue
-    const maxOrder = Math.max(0, ...sharedData.wishlist.filter(x=>x.priority&&x.priorityOrder!=null).map(x=>x.priorityOrder));
+    // Use reduce instead of Math.max(...spread) to avoid arg count limits on large wishlists
+    const queueItems = sharedData.wishlist.filter(x=>x.priority && x.priorityOrder!=null);
+    const maxOrder = queueItems.reduce((max, x) => x.priorityOrder > max ? x.priorityOrder : max, 0);
     m.priorityOrder = maxOrder + 1;
   }
   saveShared().then(()=>{openDetail(id,'wishlist');renderWish();});
