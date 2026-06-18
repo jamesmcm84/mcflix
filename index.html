@@ -1233,18 +1233,18 @@ textarea.ffi{resize:vertical}
   </div>
   <div class="nav-bar">
     <div class="nav">
+      <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
       <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('collections',this)"><i class="ti ti-layers-intersect"></i> Collections</button>
       <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
-      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Wishlist <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
-      <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
       <button class="nb" onclick="switchTab('trailers',this)"><i class="ti ti-brand-youtube"></i> Trailers</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
@@ -1283,6 +1283,7 @@ textarea.ffi{resize:vertical}
         <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
         <div class="shelf-scroll" id="fav-scroll"></div>
       </div>
+      <div class="sl" style="margin-bottom:12px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Library</div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-lib" placeholder="Search titles, actors, directors..." oninput="renderLib()"></div>
         <div class="genre-msel" id="genre-msel">
@@ -1334,6 +1335,7 @@ textarea.ffi{resize:vertical}
         <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
         <div class="shelf-scroll" id="tv-fav-scroll"></div>
       </div>
+      <div class="sl" style="margin-bottom:12px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Library</div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-tv" placeholder="Search TV shows..." oninput="renderTV()"></div>
         <select class="fb" id="f-tv-genre" onchange="renderTV()"><option value="">All Genres</option></select>
@@ -1351,7 +1353,7 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-wishlist">
       <!-- Sub-tab toggle -->
       <div class="auth-tabs" style="margin-bottom:16px" id="wish-subtabs">
-        <button class="auth-tab active" id="wish-sub-shared" onclick="switchWishTab('shared')"><i class="ti ti-bookmark"></i> Shared Wishlist</button>
+        <button class="auth-tab active" id="wish-sub-shared" onclick="switchWishTab('shared')"><i class="ti ti-brand-plex"></i> Plex Requests</button>
         <button class="auth-tab" id="wish-sub-mine" onclick="switchWishTab('mine')"><i class="ti ti-heart"></i> My Wishlist</button>
       </div>
       <!-- Shared wishlist -->
@@ -1625,6 +1627,7 @@ textarea.ffi{resize:vertical}
   <!-- BOTTOM NAV (mobile only) -->
   <!-- MORE MENU (mobile overflow) -->
   <div class="more-menu" id="more-menu">
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('watched',this)"><i class="ti ti-eye"></i>Watched</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('collections',this)"><i class="ti ti-layers-intersect"></i>Collections</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('diary',this)"><i class="ti ti-calendar"></i>Diary</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('activity',this)"><i class="ti ti-activity"></i>Activity</button>
@@ -1633,7 +1636,6 @@ textarea.ffi{resize:vertical}
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i>Stats</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('lists',this)"><i class="ti ti-list"></i>My Lists</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('featured',this)"><i class="ti ti-star"></i>Featured</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trailers',this)"><i class="ti ti-brand-youtube"></i>Trailers</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
@@ -1644,10 +1646,10 @@ textarea.ffi{resize:vertical}
   </div>
 
   <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnb" id="bnb-featured" onclick="switchTabMobile('featured',this)"><i class="ti ti-star"></i><span>Featured</span></button>
     <button class="bnb active" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Movies</span></button>
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
-    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Wishlist</span></button>
-    <button class="bnb" id="bnb-watched" onclick="switchTabMobile('watched',this)"><i class="ti ti-eye"></i><span>Watched</span></button>
+    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-brand-plex"></i><span>Requests</span></button>
     <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
 </div>
@@ -1882,7 +1884,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.0';
+const VERSION     = '9.3';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -4766,10 +4768,43 @@ function renderWish(){
   const priorityItems = items.filter(m=>m.priority).sort((a,b)=>(a.priorityOrder??1e15)-(b.priorityOrder??1e15) || a.title.localeCompare(b.title));
   const restItems = items.filter(m=>!m.priority);
 
+  // Member requests: added by non-admin users, not already in Plex queue
+  // Admin sees these as a special horizontal queue; members see them in normal list
+  const memberAccounts = allUsers.accounts.filter(a=>a.role!=='admin').map(a=>a.username);
+  const memberRequests = restItems
+    .filter(m=>m.addedBy && memberAccounts.includes(m.addedBy))
+    .sort((a,b)=>(a.addedAt||0)-(b.addedAt||0)); // oldest request first
+
+  // Card for member requests — like queueCard but with requester name + add-to-plex button
+  const memberRequestCardHTML = m => {
+    const hp = m.poster && m.poster !== 'N/A';
+    const requester = allUsers.accounts.find(a=>a.username===m.addedBy);
+    return `<div class="shelf-card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
+      <div class="ov">
+        <div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
+        ${m.addedBy?`<div style="font-size:9px;color:rgba(138,90,240,.9);margin-top:2px;font-weight:600">${m.addedBy}</div>`:''}
+      </div>
+      ${isAdmin()?`<button style="position:absolute;top:5px;right:5px;background:rgba(229,160,13,.9);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+        onclick="event.stopPropagation();addMemberRequestToPlexQueue('${m.id}')" title="Add to Plex Queue">
+        <i class="ti ti-brand-plex" style="font-size:11px;color:#000"></i>
+      </button>`:''}
+    </div>`;
+  };
+
   let html = '';
+
+  // Plex Queue (admin drag-to-reorder)
   if(priorityItems.length){
     html += `<div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Queue <span style="font-size:12px;color:var(--muted)">(${priorityItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
     <div class="shelf-scroll" id="plex-queue-shelf" style="margin-bottom:20px">${priorityItems.map(queueCardHTML).join('')}</div>`;
+  }
+
+  // Member Requests — admin only, horizontal scroll like Plex Queue
+  if(isAdmin() && memberRequests.length){
+    html += `<div class="shelf-title"><i class="ti ti-messages" style="color:var(--purple)"></i> Member Requests <span style="font-size:12px;color:var(--muted)">(${memberRequests.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— tap <i class="ti ti-brand-plex" style="color:#e5a00d"></i> to add to Plex Queue</span></div>
+    <div class="shelf-scroll" style="margin-bottom:20px">${memberRequests.map(memberRequestCardHTML).join('')}</div>`;
   }
 
   // "New from others" — items added by someone other than the current user
@@ -5451,7 +5486,7 @@ async function addTMDBToSharedWishlistFromBtn(btn){
   const poster = decodeURIComponent(btn.dataset.poster||'');
   if(!title) return;
   const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===title.toLowerCase());
-  if(exists){ toast(title+' is already on the shared wishlist!', true); return; }
+  if(exists){ toast(title+' is already on Plex Requests!', true); return; }
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Adding...';
   const item = await buildTMDBWishlistItem(tmdbId, title, year, poster, false);
@@ -5463,7 +5498,7 @@ async function addTMDBToSharedWishlistFromBtn(btn){
     btn.innerHTML = '<i class="ti ti-bookmark-plus"></i> Add to Shared Wishlist';
     return;
   }
-  toast(title+' added to Shared Wishlist!');
+  toast(title+' added to Plex Requests!');
   btn.outerHTML = '<span class="act" style="background:rgba(138,90,240,.15);color:var(--purple);border-color:rgba(138,90,240,.3)"><i class="ti ti-bookmark-check"></i> On Shared Wishlist</span>';
 }
 
@@ -5683,6 +5718,17 @@ function toggleW(id){
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast(me.watched[id]?'Marked as watched (seen before)':'Marked as unwatched');
 }
+function addMemberRequestToPlexQueue(id){
+  const m = sharedData.wishlist.find(x=>x.id===id);
+  if(!m) return;
+  if(m.priority){ toast('Already in Plex Queue!'); return; }
+  m.priority = true;
+  const queueItems = sharedData.wishlist.filter(x=>x.priority && x.priorityOrder!=null);
+  const maxOrder = queueItems.reduce((max,x)=>x.priorityOrder>max?x.priorityOrder:max, 0);
+  m.priorityOrder = maxOrder + 1;
+  saveShared().then(()=>{ renderWish(); toast(`"${m.title}" added to Plex Queue!`); });
+}
+
 function togglePriority(id){
   const m=sharedData.wishlist.find(x=>x.id===id);
   if(!m) return;
