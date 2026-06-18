@@ -1234,10 +1234,9 @@ textarea.ffi{resize:vertical}
   <div class="nav-bar">
     <div class="nav">
       <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
-      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('collections',this)"><i class="ti ti-layers-intersect"></i> Collections</button>
+      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
       <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
-      <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
@@ -1245,6 +1244,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
+      <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
       <button class="nb" onclick="switchTab('trailers',this)"><i class="ti ti-brand-youtube"></i> Trailers</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
@@ -1649,7 +1649,7 @@ textarea.ffi{resize:vertical}
     <button class="bnb" id="bnb-featured" onclick="switchTabMobile('featured',this)"><i class="ti ti-star"></i><span>Featured</span></button>
     <button class="bnb active" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Movies</span></button>
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
-    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-brand-plex"></i><span>Requests</span></button>
+    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
     <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
 </div>
@@ -1884,7 +1884,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.3';
+const VERSION     = '9.4';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
