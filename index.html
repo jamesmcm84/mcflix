@@ -816,22 +816,23 @@ select.fb option{background:var(--bg2);color:var(--text)}
 .vibe-section.open .vibe-body{display:block}
 .vibe-section.open .vibe-chevron{transform:rotate(180deg)}
 
-.vibe-slider-row{margin-bottom:14px}
-.vibe-slider-label{display:flex;justify-content:space-between;font-size:11px;color:var(--light);margin-bottom:6px}
-.vibe-slider-value{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--gold);letter-spacing:1px}
-.vibe-slider{width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--blue),var(--purple),var(--gold),var(--orange),var(--red));outline:none;-webkit-appearance:none;cursor:pointer}
-.vibe-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-.vibe-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.vibe-slider-row{margin-bottom:12px}
+.vibe-slider-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--light);margin-bottom:5px}
+.vibe-slider-name{font-size:11px;font-weight:700;color:var(--light);letter-spacing:.3px}
+.vibe-slider-value{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);letter-spacing:1px;min-width:16px;text-align:center}
+.vibe-slider{width:100%;height:5px;border-radius:3px;background:var(--bg2);outline:none;-webkit-appearance:none;cursor:pointer;border:1px solid var(--border)}
+.vibe-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.vibe-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .vibe-slider-ends{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.vibe-tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:480px){.vibe-tone-grid{grid-template-columns:1fr}}
+.vibe-tone-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
 
 .vibe-emotions-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:14px}
-.vibe-emotion-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.vibe-emotion-cat{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg2);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
-.vibe-emotion-cat.active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold)}
-.vibe-emoji-panel{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:var(--bg2);border-radius:8px;margin-bottom:8px}
-.vibe-emoji-btn{font-size:24px;padding:6px 10px;border-radius:8px;border:2px solid transparent;background:transparent;cursor:pointer;transition:all .15s}
-.vibe-emoji-btn:hover{background:var(--bg3)}
-.vibe-emoji-btn.selected{border-color:var(--gold);background:var(--gold-dim)}
+.vibe-emotion-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.vibe-emotion-pill{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg2);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;user-select:none}
+.vibe-emotion-pill:hover{border-color:rgba(232,184,75,.3);color:var(--gold)}
+.vibe-emotion-pill.selected{background:var(--gold-dim);border-color:rgba(232,184,75,.4);color:var(--gold)}
 .vibe-selected-emojis{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .vibe-selected-emoji-pill{display:flex;align-items:center;gap:4px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:16px}
 .vibe-selected-emoji-pill i{font-size:11px;color:var(--muted);cursor:pointer}
@@ -1884,7 +1885,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.4';
+const VERSION     = '9.6';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2527,16 +2528,29 @@ function updateCounts(){
 }
 
 // ── VIBE CHECK ────────────────────────────────────────────────────────────────
-const VIBE_EMOTION_CATEGORIES = {
-  'Joy':       ['😀','😂','🥳','😍','🤩','🥰'],
-  'Sad':       ['😢','😭','😔','🥺','💔','😞'],
-  'Tense':     ['😬','😰','😨','😱','🫨','😖'],
-  'Angry':     ['😠','😡','🤬','😤','👿','🙄'],
-  'Cozy':      ['🥹','😌','🤍','☕','🛋️','🌙'],
-  'Mind-blown':['🤯','😵','🫠','🧠','😯','👀'],
-  'Funny':     ['😆','🤣','😹','😏','🫣','😝'],
-  'Disgust':   ['🤢','🤮','😖','😣','🥴','😒'],
-};
+const VIBE_EMOTIONS = [
+  {id:'amused',      label:'Amused',      emoji:'😄'},
+  {id:'joy',         label:'Joy',         emoji:'🥰'},
+  {id:'surprised',   label:'Surprised',   emoji:'😲'},
+  {id:'interested',  label:'Interested',  emoji:'🤔'},
+  {id:'inspired',    label:'Inspired',    emoji:'✨'},
+  {id:'moved',       label:'Moved',       emoji:'🥹'},
+  {id:'melancholy',  label:'Melancholy',  emoji:'😔'},
+  {id:'sad',         label:'Sad',         emoji:'😢'},
+  {id:'tense',       label:'Tense',       emoji:'😬'},
+  {id:'uncomfortable',label:'Uncomfortable',emoji:'😣'},
+  {id:'disgusted',   label:'Disgusted',   emoji:'🤢'},
+  {id:'angry',       label:'Angry',       emoji:'😠'},
+  {id:'peeved',      label:'Peeved',      emoji:'🙄'},
+];
+
+// Tone slider definitions: id, name, leftLabel, rightLabel
+const VIBE_TONE_SLIDERS = [
+  {id:'sincerity', name:'Sincerity', left:'Serious',   right:'Playful'},
+  {id:'realism',   name:'Realism',   left:'Realistic', right:'Fantastical'},
+  {id:'energy',    name:'Energy',    left:'Low',       right:'High'},
+  {id:'weight',    name:'Weight',    left:'Light',     right:'Heavy'},
+];
 
 function vibeCheckHTML(id){
   const me = myData();
@@ -2596,87 +2610,30 @@ function toggleVibeSection(id){
   if(section) section.classList.toggle('open');
 }
 
-function updateVibeSliderDisplay(id, val){
-  const el = document.getElementById(`vibe-slider-val-${id}`);
+function updateVibeToneDisplay(id, sliderKey, val){
+  const el = document.getElementById('vibe-tone-val-'+id+'-'+sliderKey);
   if(el) el.textContent = val;
 }
 
-function saveVibeScore(id, val){
+function saveVibeTone(id, sliderKey, val){
   const me = myData();
   me.vibes = me.vibes || {};
-  me.vibes[id] = me.vibes[id] || {score:null, emojis:[], tags:[]};
-  me.vibes[id].score = Number(val);
+  me.vibes[id] = me.vibes[id] || {tones:{}, emotions:[], tags:[]};
+  me.vibes[id].tones = me.vibes[id].tones || {};
+  me.vibes[id].tones[sliderKey] = Number(val);
   saveUsers().then(()=>updateVibeSummary(id));
 }
 
-function toggleVibeEmotionPanel(id, cat){
-  const panel = document.getElementById(`vibe-emoji-panel-${id}`);
-  if(!panel) return;
-
-  const isShowingThisCat = panel.dataset.cat===cat && panel.style.display!=='none';
-  document.querySelectorAll(`#vibe-section-${id} .vibe-emotion-cat`).forEach(el=>el.classList.remove('active'));
-
-  if(isShowingThisCat){
-    panel.style.display = 'none';
-    panel.dataset.cat = '';
-    return;
-  }
-
-  const me = myData();
-  const vibe = me.vibes?.[id] || {emojis:[]};
-  const selectedEmojis = new Set(vibe.emojis||[]);
-
-  const emojis = VIBE_EMOTION_CATEGORIES[cat] || [];
-  panel.innerHTML = emojis.map(e=>`<button class="vibe-emoji-btn ${selectedEmojis.has(e)?'selected':''}" onclick="toggleVibeEmoji('${id}','${e}',this)">${e}</button>`).join('');
-  panel.style.display = 'flex';
-  panel.dataset.cat = cat;
-
-  const catEl = document.querySelector(`#vibe-section-${id} .vibe-emotion-cat[data-cat="${cat}"]`);
-  if(catEl) catEl.classList.add('active');
-}
-
-function toggleVibeEmoji(id, emoji, btnEl){
+function toggleVibeEmotion(id, emotionId, el){
   const me = myData();
   me.vibes = me.vibes || {};
-  me.vibes[id] = me.vibes[id] || {score:null, emojis:[], tags:[]};
-  me.vibes[id].emojis = me.vibes[id].emojis || [];
-
-  const idx = me.vibes[id].emojis.indexOf(emoji);
-  if(idx===-1){
-    me.vibes[id].emojis.push(emoji);
-    btnEl.classList.add('selected');
-  } else {
-    me.vibes[id].emojis.splice(idx,1);
-    btnEl.classList.remove('selected');
-  }
-
-  saveUsers().then(()=>{
-    renderVibeSelectedEmojis(id);
-    updateVibeSummary(id);
-  });
-}
-
-function removeVibeEmoji(id, emoji){
-  const me = myData();
-  if(!me.vibes?.[id]?.emojis) return;
-  me.vibes[id].emojis = me.vibes[id].emojis.filter(e=>e!==emoji);
-  saveUsers().then(()=>{
-    renderVibeSelectedEmojis(id);
-    updateVibeSummary(id);
-    // Update emoji panel selection state if it's open
-    const panel = document.getElementById(`vibe-emoji-panel-${id}`);
-    if(panel && panel.style.display!=='none'){
-      toggleVibeEmotionPanel(id, panel.dataset.cat); // close
-    }
-  });
-}
-
-function renderVibeSelectedEmojis(id){
-  const container = document.getElementById(`vibe-selected-emojis-${id}`);
-  if(!container) return;
-  const me = myData();
-  const emojis = me.vibes?.[id]?.emojis || [];
-  container.innerHTML = emojis.map(e=>`<span class="vibe-selected-emoji-pill">${e}<i class="ti ti-x" onclick="removeVibeEmoji('${id}','${e}')"></i></span>`).join('');
+  me.vibes[id] = me.vibes[id] || {tones:{}, emotions:[], tags:[]};
+  me.vibes[id].emotions = me.vibes[id].emotions || [];
+  const arr = me.vibes[id].emotions;
+  const idx = arr.indexOf(emotionId);
+  if(idx===-1){ arr.push(emotionId); el.classList.add('selected'); }
+  else { arr.splice(idx,1); el.classList.remove('selected'); }
+  saveUsers().then(()=>updateVibeSummary(id));
 }
 
 function addVibeTag(id){
@@ -2720,31 +2677,25 @@ function renderVibeTagPills(id){
 }
 
 function updateVibeSummary(id){
-  const section = document.getElementById(`vibe-section-${id}`);
+  const section = document.getElementById('vibe-section-'+id);
   if(!section) return;
   const me = myData();
   const vibe = me.vibes?.[id] || {};
-  const hasData = vibe.score!=null || (vibe.emojis&&vibe.emojis.length) || (vibe.tags&&vibe.tags.length);
-
-  const summaryParts = [];
-  if(vibe.score!=null) summaryParts.push(`${vibe.score}/100`);
-  if(vibe.emojis&&vibe.emojis.length) summaryParts.push(vibe.emojis.slice(0,3).join(''));
-
+  const toneSet = VIBE_TONE_SLIDERS.filter(s=>vibe.tones?.[s.id]!=null);
+  const emotionSet = (vibe.emotions||[]);
+  const hasData = toneSet.length>0 || emotionSet.length>0 || (vibe.tags||[]).length>0;
+  const summaryEmojis = emotionSet.slice(0,3).map(eid=>{
+    const e=VIBE_EMOTIONS.find(x=>x.id===eid); return e?e.emoji:'';
+  }).join('');
+  const summaryTones = toneSet.map(s=>s.name[0]+':'+vibe.tones[s.id]).join(' ');
+  const summaryText = [summaryTones, summaryEmojis].filter(Boolean).join(' · ');
   const headerRight = section.querySelector('.vibe-header > div:last-child');
   if(!headerRight) return;
   const existingSummary = headerRight.querySelector('.vibe-summary');
-  if(hasData && summaryParts.length){
-    if(existingSummary){
-      existingSummary.textContent = summaryParts.join(' · ');
-    } else {
-      const span = document.createElement('span');
-      span.className = 'vibe-summary';
-      span.textContent = summaryParts.join(' · ');
-      headerRight.insertBefore(span, headerRight.firstChild);
-    }
-  } else if(existingSummary){
-    existingSummary.remove();
-  }
+  if(hasData && summaryText){
+    if(existingSummary){ existingSummary.textContent = summaryText; }
+    else { const span=document.createElement('span'); span.className='vibe-summary'; span.textContent=summaryText; headerRight.insertBefore(span,headerRight.firstChild); }
+  } else if(existingSummary){ existingSummary.remove(); }
 }
 
 function plotHTML(plot){
@@ -5008,12 +4959,12 @@ function openDetail(id,src){
           <div class="det-actions">
             ${inLib?`<button class="act act-w ${me.watched?.[id]?'on':''}" onclick="toggleW('${id}')"><i class="ti ti-${me.watched?.[id]?'eye-off':'eye'}"></i> ${me.watched?.[id]?'Watched':'Mark Watched'}</button>`:''}
             ${inLib?`<button class="act act-fav ${me.favorites?.[id]?'on':''}" onclick="toggleFav('${id}')"><i class="ti ti-star${me.favorites?.[id]?'-filled':''}"></i></button>`:''}
-            ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')"><i class="ti ti-brand-plex"></i> ${m.priority?'On Plex Queue':'Add to Plex Queue'}</button>`:''}
             ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Watching':'Now Watching'}</button>`:''}
             ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
             ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
             ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
           </div>
+          ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Plex Queue':'Add to Plex Queue'}</button>`:``}
           <div id="trailer-btn-${id}"></div>
         </div>
       </div>
