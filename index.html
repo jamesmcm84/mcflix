@@ -2555,54 +2555,58 @@ const VIBE_TONE_SLIDERS = [
 function vibeCheckHTML(id){
   const me = myData();
   me.vibes = me.vibes || {};
-  const vibe = me.vibes[id] || {score:null, emojis:[], tags:[]};
+  const vibe = me.vibes[id] || {tones:{}, emotions:[], tags:[]};
 
-  const hasData = vibe.score!=null || (vibe.emojis&&vibe.emojis.length) || (vibe.tags&&vibe.tags.length);
-  const summaryParts = [];
-  if(vibe.score!=null) summaryParts.push(`${vibe.score}/100`);
-  if(vibe.emojis&&vibe.emojis.length) summaryParts.push(vibe.emojis.slice(0,3).join(''));
-  const summary = summaryParts.join(' · ');
+  const toneSet = VIBE_TONE_SLIDERS.filter(function(s){ return vibe.tones&&vibe.tones[s.id]!=null; });
+  const emotionSet = vibe.emotions||[];
+  const hasData = toneSet.length>0 || emotionSet.length>0 || (vibe.tags||[]).length>0;
+  const summaryEmojis = emotionSet.slice(0,3).map(function(eid){
+    const e=VIBE_EMOTIONS.find(function(x){return x.id===eid;}); return e?e.emoji:'';
+  }).join('');
+  const summaryTones = toneSet.map(function(s){ return s.name[0]+':'+(vibe.tones[s.id]); }).join(' ');
+  const summary = [summaryTones, summaryEmojis].filter(Boolean).join(' · ');
 
-  const sliderVal = vibe.score!=null ? vibe.score : 50;
+  let html = '<div class="vibe-section" id="vibe-section-'+id+'">';
+  html += '<div class="vibe-header" onclick="toggleVibeSection(\''+id+'\')"><div class="vibe-title"><i class="ti ti-mood-smile"></i> Tone Rating</div>';
+  html += '<div style="display:flex;align-items:center;gap:8px">'+(hasData?'<span class="vibe-summary">'+summary+'</span>':'')+'<i class="ti ti-chevron-down vibe-chevron"></i></div></div>';
+  html += '<div class="vibe-body">';
 
-  return `<div class="vibe-section" id="vibe-section-${id}">
-    <div class="vibe-header" onclick="toggleVibeSection('${id}')">
-      <div class="vibe-title"><i class="ti ti-mood-smile"></i> Vibe Check</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${hasData?`<span class="vibe-summary">${summary}</span>`:''}
-        <i class="ti ti-chevron-down vibe-chevron"></i>
-      </div>
-    </div>
-    <div class="vibe-body">
-      <div class="vibe-slider-row">
-        <div class="vibe-slider-label">
-          <span>How did it feel?</span>
-          <span class="vibe-slider-value" id="vibe-slider-val-${id}">${vibe.score!=null?vibe.score:'—'}</span>
-        </div>
-        <input type="range" class="vibe-slider" id="vibe-slider-${id}" min="0" max="100" value="${sliderVal}"
-          oninput="updateVibeSliderDisplay('${id}',this.value)" onchange="saveVibeScore('${id}',this.value)">
-        <div class="vibe-slider-ends"><span>Mild</span><span>Intense</span></div>
-      </div>
+  // Tone sliders
+  html += '<div class="vibe-emotions-label" style="margin-top:0">Tone Sliders</div><div class="vibe-tone-grid">';
+  VIBE_TONE_SLIDERS.forEach(function(s){
+    const val = (vibe.tones&&vibe.tones[s.id]!=null) ? vibe.tones[s.id] : 3;
+    const disp = (vibe.tones&&vibe.tones[s.id]!=null) ? vibe.tones[s.id] : '—';
+    html += '<div class="vibe-tone-block">';
+    html += '<div class="vibe-slider-label"><span class="vibe-slider-name">'+s.name+'</span><span class="vibe-slider-value" id="vibe-tone-val-'+id+'-'+s.id+'">'+disp+'</span></div>';
+    html += '<input type="range" class="vibe-slider" min="1" max="5" value="'+val+'"';
+    html += ' oninput="updateVibeToneDisplay(\''+id+'\',\''+s.id+'\',this.value)"';
+    html += ' onchange="saveVibeTone(\''+id+'\',\''+s.id+'\',this.value)">';
+    html += '<div class="vibe-slider-ends"><span>'+s.left+'</span><span>'+s.right+'</span></div>';
+    html += '</div>';
+  });
+  html += '</div>';
 
-      <div class="vibe-emotions-label">How it made you feel</div>
-      <div class="vibe-emotion-cats">
-        ${Object.keys(VIBE_EMOTION_CATEGORIES).map(cat=>`<div class="vibe-emotion-cat" data-cat="${cat}" onclick="toggleVibeEmotionPanel('${id}','${cat}')">${cat}</div>`).join('')}
-      </div>
-      <div class="vibe-emoji-panel" id="vibe-emoji-panel-${id}" style="display:none"></div>
-      <div class="vibe-selected-emojis" id="vibe-selected-emojis-${id}">
-        ${(vibe.emojis||[]).map(e=>`<span class="vibe-selected-emoji-pill">${e}<i class="ti ti-x" onclick="removeVibeEmoji('${id}','${e}')"></i></span>`).join('')}
-      </div>
+  // Emotion pills
+  html += '<div class="vibe-emotions-label">Emotions</div><div class="vibe-emotion-pills" id="vibe-emotion-pills-'+id+'">';
+  const selectedEmotions = new Set(emotionSet);
+  VIBE_EMOTIONS.forEach(function(e){
+    const sel = selectedEmotions.has(e.id);
+    html += '<div class="vibe-emotion-pill'+(sel?' selected':'')+'" onclick="toggleVibeEmotion(\''+id+'\',\''+e.id+'\',this)">'+e.emoji+' '+e.label+'</div>';
+  });
+  html += '</div>';
 
-      <div class="vibe-tags-label">Tone Tags</div>
-      <div class="vibe-tag-input-row">
-        <input type="text" class="ffi" id="vibe-tag-input-${id}" placeholder="e.g. slow burn, twisty, heartwarming..." onkeydown="if(event.key==='Enter'){event.preventDefault();addVibeTag('${id}')}">
-        <button class="fb" onclick="addVibeTag('${id}')"><i class="ti ti-plus"></i></button>
-      </div>
-      <div class="vibe-tag-pills" id="vibe-tag-pills-${id}">
-        ${(vibe.tags||[]).map(t=>`<span class="vibe-tag-pill">${t}<i class="ti ti-x" onclick="removeVibeTag('${id}','${t.replace(/'/g,"\\'")}')"></i></span>`).join('')}
-      </div>
-    </div>
-  </div>`;
+  // Tone tags
+  html += '<div class="vibe-tags-label">Tone Tags</div>';
+  html += '<div class="vibe-tag-input-row">';
+  html += '<input type="text" class="ffi" id="vibe-tag-input-'+id+'" placeholder="e.g. slow burn, twisty, heartwarming..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();addVibeTag(\''+id+'\')}">';
+  html += '<button class="fb" onclick="addVibeTag(\''+id+'\')"><i class="ti ti-plus"></i></button>';
+  html += '</div>';
+  html += '<div class="vibe-tag-pills" id="vibe-tag-pills-'+id+'">';
+  (vibe.tags||[]).forEach(function(t){
+    html += '<span class="vibe-tag-pill">'+t+'<i class="ti ti-x" onclick="removeVibeTag(\''+id+'\',\''+t.replace(/'/g,"\\'")+'\')""></i></span>';
+  });
+  html += '</div></div></div>';
+  return html;
 }
 
 function toggleVibeSection(id){
