@@ -1883,7 +1883,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.8';
+const VERSION     = '9.9';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3057,7 +3057,7 @@ async function fetchTMDBSeason(tvId, seasonNum){
 
 async function fetchTMDBDetails(tmdbId){
   try{
-    const r = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos,similar,reviews,images,watch/providers`);
+    const r = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos,similar,reviews,images,watch/providers,keywords`);
     return await r.json();
   }catch(e){
     return null;
@@ -5001,6 +5001,7 @@ function openDetail(id,src){
           <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
         </div>`:''}
       </div>
+      <div id="tmdb-keywords-${id}" style="margin-bottom:10px"></div>
       <div class="personal-tags-section">
         <div class="notes-lbl" style="margin-bottom:6px">My Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">(only you can see these)</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="personal-tags-display-${id}">
@@ -5050,13 +5051,25 @@ async function loadTMDBTVExtras(id, m, containers){
 
   let details;
   try{
-    const r = await fetch(`https://api.themoviedb.org/3/tv/${tmdbShow.id}?api_key=${TMDB_KEY}&append_to_response=credits,videos,similar,reviews,watch/providers`);
+    const r = await fetch(`https://api.themoviedb.org/3/tv/${tmdbShow.id}?api_key=${TMDB_KEY}&append_to_response=credits,videos,similar,reviews,watch/providers,keywords`);
     details = await r.json();
   }catch(e){ return; }
   if(!document.getElementById(`tmdb-cast-${id}`)) return;
   if(!details) return;
 
   _tmdbDetailsCache[id] = details;
+
+  // ── TMDB KEYWORDS (TV) ──
+  const kwContainerTV = document.getElementById(`tmdb-keywords-${id}`);
+  if(kwContainerTV){
+    const kwsTV = (details.keywords?.results||[]).slice(0,20); // TV uses .results not .keywords
+    if(kwsTV.length){
+      kwContainerTV.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">TMDB Keywords</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:5px">'
+        + kwsTV.map(k=>`<span class="tpill" style="cursor:default;font-size:10px;padding:3px 8px;background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.2);color:var(--blue)">${k.name}</span>`).join('')
+        + '</div>';
+    }
+  }
 
   // ── WATCH PROVIDERS ──
   if(providersContainer){
@@ -5236,6 +5249,18 @@ async function loadTMDBReview(id, m){
 
   // Cache for poster-picker / collection / providers use
   _tmdbDetailsCache[id] = details;
+
+  // ── TMDB KEYWORDS ──
+  const kwContainer = document.getElementById(`tmdb-keywords-${id}`);
+  if(kwContainer){
+    const kws = (details.keywords?.keywords||[]).slice(0,20);
+    if(kws.length){
+      kwContainer.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">TMDB Keywords</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:5px">'
+        + kws.map(k=>`<span class="tpill" style="cursor:default;font-size:10px;padding:3px 8px;background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.2);color:var(--blue)">${k.name}</span>`).join('')
+        + '</div>';
+    }
+  }
 
   // ── COLLECTION BANNER ──
   if(collectionContainer && details.belongs_to_collection){
