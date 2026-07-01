@@ -1194,6 +1194,64 @@ textarea.ffi{resize:vertical}
 .personal-tag-pill i{font-size:11px;cursor:pointer;opacity:.7}
 .personal-tag-pill i:hover{opacity:1;color:var(--red)}
 
+
+/* ── WATCH MODE ──────────────────────────────────────────────────────────────── */
+.wm-tab{display:flex;flex-direction:column;height:calc(100vh - 120px);min-height:500px}
+.wm-header{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.wm-poster{width:40px;height:60px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.wm-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px;color:var(--gold);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm-timer{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:3px;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 14px;cursor:pointer;flex-shrink:0;line-height:1.2;transition:all .15s}
+.wm-timer:hover{border-color:rgba(232,184,75,.3);color:var(--gold)}
+.wm-timer.synced{border-color:rgba(46,204,113,.3);color:var(--green)}
+.wm-timer.running{color:var(--gold)}
+.wm-controls{display:flex;gap:6px;flex-shrink:0}
+.wm-ctrl-btn{width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.wm-ctrl-btn:hover{color:var(--text);border-color:var(--border2)}
+.wm-ctrl-btn.active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold)}
+.wm-ctrl-btn.red{border-color:rgba(232,53,75,.25);color:var(--red)}
+.wm-ctrl-btn.green{border-color:rgba(46,204,113,.25);color:var(--green)}
+
+/* Emoji row */
+.wm-emoji-row{display:flex;gap:6px;overflow-x:auto;padding:10px 0;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.wm-emoji-row::-webkit-scrollbar{height:0}
+.wm-emoji-btn{flex-shrink:0;font-size:28px;width:52px;height:52px;border-radius:12px;border:2px solid transparent;background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative}
+.wm-emoji-btn:active{transform:scale(.88);background:var(--bg3)}
+.wm-emoji-btn.burst{animation:wm-burst .35s ease-out}
+@keyframes wm-burst{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+/* Preset pills */
+.wm-presets{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0;flex-shrink:0}
+.wm-preset{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg2);border:1px solid var(--border2);color:var(--light);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none}
+.wm-preset:active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold);transform:scale(.96)}
+
+/* Input */
+.wm-input-row{display:flex;gap:8px;padding:8px 0;flex-shrink:0}
+.wm-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border .2s}
+.wm-input:focus{border-color:rgba(232,184,75,.3)}
+.wm-input::placeholder{color:var(--muted)}
+.wm-send-btn{width:44px;height:44px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.wm-send-btn:hover{transform:translateY(-1px)}
+
+/* Feed */
+.wm-feed{flex:1;overflow-y:auto;min-height:0;padding:4px 0}
+.wm-feed::-webkit-scrollbar{width:3px}
+.wm-feed::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.wm-comment{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:var(--card);border:1px solid var(--border);transition:all .2s;cursor:pointer}
+.wm-comment:hover{border-color:var(--border2)}
+.wm-comment.highlight{border-color:rgba(232,184,75,.4);background:rgba(232,184,75,.04)}
+.wm-comment.new-pop{animation:wm-pop .4s ease-out}
+@keyframes wm-pop{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+.wm-tc{font-family:'Bebas Neue',cursive;font-size:15px;color:var(--gold);letter-spacing:1px;min-width:44px;flex-shrink:0;margin-top:2px}
+.wm-who{font-size:11px;font-weight:700;margin-bottom:2px}
+.wm-text{font-size:13px;color:var(--light);line-height:1.4}
+.wm-emoji-large{font-size:22px;line-height:1}
+.wm-del{margin-left:auto;color:var(--muted);font-size:13px;cursor:pointer;opacity:0;transition:opacity .15s;flex-shrink:0}
+.wm-comment:hover .wm-del{opacity:1}
+.wm-del:hover{color:var(--red)}
+.wm-divider{font-size:10px;color:var(--muted);text-align:center;padding:8px 0;letter-spacing:1px;text-transform:uppercase}
+.wm-plex-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;animation:wpulse .9s infinite}
+.wm-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.7}
+
 </style>
 </head>
 <body>
@@ -1267,6 +1325,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
+      <button class="nb" id="nb-watchmode" onclick="switchTab('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i> <span id="nb-watchmode-label">Watch Mode</span></button>
       <button class="nb" onclick="switchTab('tagbrowser',this)"><i class="ti ti-tags"></i> Tag Browser</button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
@@ -1591,6 +1650,11 @@ textarea.ffi{resize:vertical}
       </div>
     </div>
 
+    <!-- WATCH MODE -->
+    <div class="tab" id="tab-watchmode">
+      <div id="wm-body"></div>
+    </div>
+
     <!-- DISCOVER -->
     <div class="tab" id="tab-discover">
       <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap">
@@ -1636,6 +1700,7 @@ textarea.ffi{resize:vertical}
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i>Stats</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('lists',this)"><i class="ti ti-list"></i>My Lists</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
+    <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('tagbrowser',this)"><i class="ti ti-tags"></i>Tags</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trailers',this)"><i class="ti ti-brand-youtube"></i>Trailers</button>
@@ -1883,7 +1948,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.9';
+const VERSION     = '9.9.1';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2507,6 +2572,7 @@ function switchTab(t,el){
   if(t==='stats') renderStats();
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
   if(t==='tagbrowser') renderTagBrowser();
+  if(t==='watchmode') renderWatchMode();
   if(t==='featured') renderFeaturedLists();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='trailers') renderTrailerRoom();
@@ -5012,6 +5078,7 @@ function openDetail(id,src){
             ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Watching':'Now Watching'}</button>`:''}
             ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
             ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
+            ${inLib?`<button class="act" style="background:rgba(229,160,13,.08);border-color:rgba(229,160,13,.2);color:#e5a00d" onclick="openWatchMode('${id}')"><i class="ti ti-player-play-filled"></i> Watch Mode</button>`:''}
             ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
           </div>
           ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Plex Queue':'Add to Plex Queue'}</button>`:``}
@@ -5062,6 +5129,12 @@ function openDetail(id,src){
         </div>
       </div>
       ${inLib?buildListsSection(id,me):''}
+      ${inLib&&(m.watchComments||[]).length?`<div style="background:rgba(229,160,13,.06);border:1px solid rgba(229,160,13,.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openWatchReview('${id}')">
+        <i class="ti ti-player-play-filled" style="color:#e5a00d;font-size:18px;flex-shrink:0"></i>
+        <div><div style="font-size:12px;font-weight:700;color:#e5a00d">Watch Party Reactions</div>
+        <div style="font-size:11px;color:var(--muted)">${(m.watchComments||[]).length} reaction${(m.watchComments||[]).length!==1?'s':''} from ${[...new Set((m.watchComments||[]).map(c=>c.username))].join(', ')}</div></div>
+        <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
+      </div>`:''}
       <div class="comments-section">
         <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Comments</div>
         <div class="comments-list" id="comments-list-${id}">
@@ -8216,6 +8289,366 @@ function renderTagBrowserResults(){
       ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
     </div>`;
   }).join('');
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// WATCH MODE
+// ══════════════════════════════════════════════════════════════════════════════
+const WM_EMOJIS = [
+  {e:"😂",l:"Funny"},   {e:"😱",l:"Shocked"}, {e:"🔥",l:"Fire"},
+  {e:"😭",l:"Sad"},     {e:"🤯",l:"Mind blown"},{e:"❤️",l:"Love"},
+  {e:"😬",l:"Cringe"},  {e:"👏",l:"Bravo"},    {e:"🤔",l:"Hmm"},
+  {e:"😴",l:"Boring"},  {e:"👀",l:"Watch out"},{e:"⭐",l:"Fave"},
+  {e:"💀",l:"Dead"},    {e:"🎉",l:"Yes!"},
+];
+
+const WM_PRESETS = [
+  // Reactions
+  {t:"Called it! 🎯",   cat:"react"},
+  {t:"Didn't see that coming",  cat:"react"},
+  {t:"This is my favourite scene", cat:"react"},
+  {t:"So good",          cat:"react"},
+  {t:"Pay attention here 👇", cat:"react"},
+  {t:"This part is boring",   cat:"react"},
+  // Labels
+  {t:"Plot twist 🌀",    cat:"label"},
+  {t:"Tense moment",     cat:"label"},
+  {t:"Character moment", cat:"label"},
+  {t:"Best scene",       cat:"label"},
+  {t:"Foreshadowing 🔮", cat:"label"},
+  {t:"Quotable line",    cat:"label"},
+];
+
+let _wmMovieId  = null;
+let _wmStartTs  = null;   // wall-clock ms when timecode 0 was
+let _wmRunning  = false;
+let _wmPaused   = false;
+let _wmPauseOffset = 0;   // ms paused at
+let _wmTick     = null;   // setInterval
+let _wmPollTick = null;   // Plex session poll
+let _wmLastCommentCount = 0;
+let _wmHighlightRange = 30000; // 30s window for "now" highlights
+
+// ── Open Watch Mode ───────────────────────────────────────────────────────────
+function openWatchMode(movieId){
+  _wmMovieId = movieId;
+  // Show nav button
+  const nb = document.getElementById('nb-watchmode');
+  const nbMore = document.getElementById('bnb-watchmode-more');
+  const m = sharedData.library.find(x=>x.id===movieId);
+  if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m ? m.title.slice(0,18) : 'Watch Mode'; }
+  if(nbMore) nbMore.style.display='';
+  closeMo('detail');
+  switchTab('watchmode', document.getElementById('nb-watchmode'));
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+function renderWatchMode(){
+  const body = document.getElementById('wm-body');
+  if(!body) return;
+  if(!_wmMovieId){
+    body.innerHTML = '<div class="wm-empty"><i class="ti ti-player-play" style="font-size:48px;opacity:.2;display:block;margin-bottom:12px"></i>Open a movie detail and tap <strong>Watch Mode</strong> to start.</div>';
+    return;
+  }
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  if(!m){ body.innerHTML = '<div class="wm-empty">Movie not found.</div>'; return; }
+
+  const hp = m.poster && m.poster!=='N/A';
+  const comments = (m.watchComments||[]).slice().sort((a,b)=>a.timecode-b.timecode);
+
+  body.innerHTML = `<div class="wm-tab">
+
+    <!-- Header: poster + title + timer + controls -->
+    <div class="wm-header">
+      ${hp?`<img src="${m.poster}" class="wm-poster" alt="">`:'<div class="wm-poster"></div>'}
+      <div class="wm-title">${m.title}</div>
+      <div class="wm-timer" id="wm-timer" onclick="wmTimerClick()" title="Tap to start / sync to Plex">0:00:00</div>
+      <div class="wm-controls">
+        <button class="wm-ctrl-btn green" id="wm-play-btn" onclick="wmPlay()" title="Play / Resume"><i class="ti ti-player-play"></i></button>
+        <button class="wm-ctrl-btn" id="wm-pause-btn" onclick="wmPause()" title="Pause"><i class="ti ti-player-pause"></i></button>
+        <button class="wm-ctrl-btn red" onclick="wmReset()" title="Reset timer"><i class="ti ti-refresh"></i></button>
+        <button class="wm-ctrl-btn" id="wm-plex-btn" onclick="wmSyncPlex()" title="Sync to Plex playback"><i class="ti ti-brand-plex" style="color:#e5a00d"></i></button>
+      </div>
+    </div>
+
+    <!-- Emoji row -->
+    <div class="wm-emoji-row" id="wm-emoji-row">
+      ${WM_EMOJIS.map(e=>`<button class="wm-emoji-btn" onclick="wmPostEmoji('${e.e}','${e.l}')" title="${e.l}">${e.e}</button>`).join('')}
+    </div>
+
+    <!-- Preset pills -->
+    <div class="wm-presets" id="wm-presets">
+      ${WM_PRESETS.map(p=>`<div class="wm-preset" onclick="wmPostPreset('${p.t.replace(/'/g,"\'")}')">${p.t}</div>`).join('')}
+    </div>
+
+    <!-- Free text input -->
+    <div class="wm-input-row">
+      <input class="wm-input" id="wm-input" placeholder="Type a reaction…" onkeydown="if(event.key==='Enter'){wmPostText();event.preventDefault()}">
+      <button class="wm-send-btn" onclick="wmPostText()"><i class="ti ti-send"></i></button>
+    </div>
+
+    <!-- Feed -->
+    <div class="wm-feed" id="wm-feed">
+      ${wmBuildFeed(comments)}
+    </div>
+
+  </div>`;
+
+  // Start ticker
+  wmStartTicker();
+  // Start Plex poll
+  wmStartPlexPoll();
+  // Auto-try Plex sync
+  setTimeout(wmSyncPlex, 800);
+}
+
+// ── Feed builder ──────────────────────────────────────────────────────────────
+function wmBuildFeed(comments){
+  if(!comments.length) return '<div class="wm-empty">No reactions yet.<br>Be the first to leave a mark on this movie.</div>';
+  const me = myData();
+  const now = _wmRunning ? wmCurrentMs() : -1;
+  let html = '';
+  let lastSection = null;
+
+  comments.forEach(c=>{
+    const u = allUsers.accounts.find(a=>a.id===c.userId);
+    const tcStr = wmFmtMs(c.timecode);
+    const isNow = now>=0 && Math.abs(c.timecode-now) < _wmHighlightRange;
+    const canDel = c.userId===CU.id || isAdmin();
+    // Section divider
+    const section = Math.floor(c.timecode/600000); // 10-min chunks
+    if(section!==lastSection){
+      lastSection=section;
+      html+=`<div class="wm-divider">${wmFmtMs(section*600000)} — ${wmFmtMs(Math.min((section+1)*600000, (parseInt(m.runtime)||120)*60000))}</div>`;
+    }
+    html+=`<div class="wm-comment${isNow?' highlight':''}" id="wmc-${c.id}" onclick="wmSeekTo(${c.timecode})">
+      <div class="wm-tc">${tcStr}</div>
+      <div style="flex:1;min-width:0">
+        <div class="wm-who" style="color:${u?.color||'var(--muted)'}"> ${u?u.username:c.username}</div>
+        ${c.emoji?`<div class="wm-emoji-large">${c.emoji}</div>`:''}
+        ${c.text?`<div class="wm-text">${c.text}</div>`:''}
+      </div>
+      ${canDel?`<i class="ti ti-x wm-del" onclick="event.stopPropagation();wmDelete('${c.id}')"></i>`:''}
+    </div>`;
+  });
+  return html;
+}
+
+// ── Timer ─────────────────────────────────────────────────────────────────────
+function wmCurrentMs(){
+  if(!_wmStartTs) return 0;
+  return Date.now() - _wmStartTs;
+}
+
+function wmFmtMs(ms){
+  const totalSec = Math.max(0, Math.floor(ms/1000));
+  const h = Math.floor(totalSec/3600);
+  const m2 = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  return `${h}:${String(m2).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function wmStartTicker(){
+  if(_wmTick) clearInterval(_wmTick);
+  _wmTick = setInterval(()=>{
+    const el = document.getElementById('wm-timer');
+    if(!el) { clearInterval(_wmTick); return; }
+    if(_wmRunning){
+      el.textContent = wmFmtMs(wmCurrentMs());
+      // Highlight comments near current time
+      wmUpdateHighlights();
+    }
+  }, 1000);
+}
+
+function wmUpdateHighlights(){
+  const now = wmCurrentMs();
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  (m?.watchComments||[]).forEach(c=>{
+    const el = document.getElementById('wmc-'+c.id);
+    if(!el) return;
+    el.classList.toggle('highlight', Math.abs(c.timecode-now)<_wmHighlightRange);
+  });
+}
+
+function wmTimerClick(){
+  if(!_wmRunning) wmPlay();
+  else wmPause();
+}
+
+function wmPlay(){
+  if(_wmPaused && _wmStartTs){
+    // Resume: shift start time forward by how long we were paused
+    _wmStartTs = Date.now() - _wmPauseOffset;
+    _wmPaused = false;
+  } else if(!_wmRunning){
+    _wmStartTs = Date.now();
+  }
+  _wmRunning = true;
+  const el = document.getElementById('wm-timer');
+  if(el) el.classList.add('running');
+  const pb = document.getElementById('wm-play-btn');
+  if(pb) pb.classList.add('active');
+}
+
+function wmPause(){
+  if(!_wmRunning) return;
+  _wmPauseOffset = wmCurrentMs();
+  _wmPaused = true;
+  _wmRunning = false;
+  const el = document.getElementById('wm-timer');
+  if(el) el.classList.remove('running');
+  const pb = document.getElementById('wm-play-btn');
+  if(pb) pb.classList.remove('active');
+}
+
+function wmReset(){
+  _wmRunning=false; _wmPaused=false; _wmStartTs=null; _wmPauseOffset=0;
+  const el=document.getElementById('wm-timer');
+  if(el){el.textContent='0:00:00';el.classList.remove('running','synced');}
+  const pb=document.getElementById('wm-play-btn');
+  if(pb) pb.classList.remove('active');
+}
+
+function wmSeekTo(ms){
+  // Adjust startTs so current time = ms
+  _wmStartTs = Date.now() - ms;
+  if(!_wmRunning){ _wmRunning=true; _wmPaused=false; }
+  const el=document.getElementById('wm-timer');
+  if(el) el.classList.add('running');
+}
+
+// ── Plex sync ─────────────────────────────────────────────────────────────────
+function wmStartPlexPoll(){
+  if(_wmPollTick) clearInterval(_wmPollTick);
+  _wmPollTick = setInterval(wmPollPlex, 5000);
+}
+
+async function wmPollPlex(){
+  const updated = await wmSyncPlex(true); // silent mode
+  if(updated) wmRefreshFeed();
+}
+
+async function wmSyncPlex(silent=false){
+  const cfg = getPlexCfg();
+  if(!cfg.url||!cfg.token) return false;
+  try{
+    const base = cfg.url.replace(/\/+$/,'');
+    const r = await fetchWithTimeout(`${base}/status/sessions?X-Plex-Token=${cfg.token}`,
+      {headers:{'Accept':'application/json','X-Plex-Token':cfg.token}}, 6000);
+    if(!r.ok) return false;
+    const d = await r.json();
+    const sessions = d.MediaContainer?.Metadata||[];
+    // Find a session matching this movie
+    const m = sharedData.library.find(x=>x.id===_wmMovieId);
+    const match = sessions.find(s=>(s.title||'').toLowerCase()===((m?.title||'').toLowerCase()));
+    if(match && match.viewOffset!=null){
+      const ms = parseInt(match.viewOffset)||0;
+      const isPlaying = match.Player?.state==='playing';
+      // Sync timer
+      _wmStartTs = Date.now() - ms;
+      _wmPaused = !isPlaying;
+      _wmRunning = isPlaying;
+      const el = document.getElementById('wm-timer');
+      if(el){
+        el.textContent = wmFmtMs(ms);
+        el.className = 'wm-timer synced' + (isPlaying?' running':'');
+      }
+      const pb = document.getElementById('wm-play-btn');
+      if(pb) pb.classList.toggle('active', isPlaying);
+      const btn = document.getElementById('wm-plex-btn');
+      if(btn) btn.innerHTML = '<i class="ti ti-brand-plex" style="color:var(--green)"></i>';
+      if(!silent) toast('Synced to Plex ✓');
+      return true;
+    } else {
+      if(!silent){ toast('Not found in active Plex sessions', true); }
+      return false;
+    }
+  }catch(e){
+    if(!silent) toast('Plex sync failed', true);
+    return false;
+  }
+}
+
+// ── Post reactions ────────────────────────────────────────────────────────────
+function wmPost(text, emoji){
+  if(!_wmMovieId) return;
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  if(!m) return;
+  m.watchComments = m.watchComments||[];
+  const comment = {
+    id: uid(),
+    userId: CU.id,
+    username: CU.username,
+    timecode: _wmRunning ? wmCurrentMs() : (_wmPauseOffset||0),
+    text: text||'',
+    emoji: emoji||'',
+    ts: Date.now(),
+  };
+  m.watchComments.push(comment);
+  saveShared();
+  wmRefreshFeed();
+  // Burst animation on emoji
+  if(emoji){
+    const btns = document.querySelectorAll('.wm-emoji-btn');
+    btns.forEach(b=>{ if(b.textContent.trim()===emoji){ b.classList.remove('burst'); void b.offsetWidth; b.classList.add('burst'); }});
+  }
+}
+
+function wmPostEmoji(emoji, label){
+  wmPost('', emoji);
+}
+
+function wmPostPreset(text){
+  wmPost(text, '');
+  // Brief visual flash on the pill
+  document.querySelectorAll('.wm-preset').forEach(p=>{
+    if(p.textContent.trim()===text){ p.style.background='var(--gold-dim)'; p.style.color='var(--gold)'; setTimeout(()=>{p.style.background='';p.style.color='';},400); }
+  });
+}
+
+function wmPostText(){
+  const inp = document.getElementById('wm-input');
+  const text = (inp?.value||'').trim();
+  if(!text) return;
+  wmPost(text, '');
+  if(inp) inp.value='';
+}
+
+function wmDelete(commentId){
+  if(!_wmMovieId) return;
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  if(!m) return;
+  m.watchComments = (m.watchComments||[]).filter(c=>c.id!==commentId);
+  saveShared();
+  wmRefreshFeed();
+}
+
+function wmRefreshFeed(){
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  if(!m) return;
+  const comments = (m.watchComments||[]).slice().sort((a,b)=>a.timecode-b.timecode);
+  const feed = document.getElementById('wm-feed');
+  if(!feed) return;
+  const newCount = comments.length;
+  feed.innerHTML = wmBuildFeed(comments);
+  // Scroll to bottom if new comments appeared
+  if(newCount > _wmLastCommentCount) feed.scrollTop = feed.scrollHeight;
+  _wmLastCommentCount = newCount;
+}
+
+// ── Review mode (read past comments) ─────────────────────────────────────────
+function openWatchReview(movieId){
+  _wmMovieId = movieId;
+  const nb = document.getElementById('nb-watchmode');
+  const nbMore = document.getElementById('bnb-watchmode-more');
+  const m = sharedData.library.find(x=>x.id===movieId);
+  if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m?m.title.slice(0,18):'Watch Mode'; }
+  if(nbMore) nbMore.style.display='';
+  closeMo('detail');
+  switchTab('watchmode', document.getElementById('nb-watchmode'));
 }
 
 
