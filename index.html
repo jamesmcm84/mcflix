@@ -1260,6 +1260,12 @@ textarea.ffi{resize:vertical}
 /* Force dark background on all select dropdowns inside modals and tabs */
 .mo select, .tab select, .form-sec select{background:#1a1a2e!important;color:#eeeef5!important}
 .mo select option, .tab select option, .form-sec select option{background:#1a1a2e;color:#eeeef5}
+
+/* ── HIDDEN CARDS (admin view) ──────────────────────────────────────────────── */
+.hidden-card{opacity:.5;filter:grayscale(.6)}
+.hidden-card:hover{opacity:.8;filter:grayscale(.3)}
+.hidden-badge{position:absolute;top:5px;left:5px;background:rgba(138,90,240,.85);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;z-index:2}
+.hidden-badge i{font-size:12px;color:#fff}
 </style>
 </head>
 <body>
@@ -1956,7 +1962,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '9.9.1';
+const VERSION     = '9.9.3';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3657,6 +3663,18 @@ document.addEventListener('click',e=>{
 });
 
 function setTag(t){ activeTag=activeTag===t?'':t; buildTagBar(); renderLib(); }
+
+function toggleHidden(id){
+  const m = sharedData.library.find(x=>x.id===id);
+  if(!m || !isAdmin()) return;
+  m.hidden = !m.hidden;
+  saveShared().then(()=>{
+    closeMo('detail');
+    renderLib();
+    toast(m.hidden ? '"'+m.title+'" hidden from library' : '"'+m.title+'" is now visible');
+  });
+}
+
 function toggleFavF(el){ favFilterOn=!favFilterOn; el.classList.toggle('active',favFilterOn); renderLib(); }
 
 let tvFavFilterOn = false;
@@ -4702,6 +4720,7 @@ function renderLib(){
   const sort=document.getElementById('f-sort').value;
   let items=sharedData.library.filter(m=>{
     if(m.type==='tv') return false; // TV shows have their own tab
+    if(m.hidden && !isAdmin()) return false; // hidden films invisible to non-admin always
     if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
     if(genres.size && !(m.genre||'').split(',').map(g=>g.trim()).some(g=>genres.has(g))) return false;
     if(selectedRatings.size && !selectedRatings.has((m.rating||'').trim())) return false;
@@ -4719,12 +4738,15 @@ function renderLib(){
     return (b.addedAt||0)-(a.addedAt||0);
   });
   const allMovies=sharedData.library.filter(m=>m.type!=='tv');
-  const total=allMovies.length;
-  const wCount=allMovies.filter(m=>me.watched?.[m.id]).length;
+  const hiddenMovies=allMovies.filter(m=>m.hidden);
+  const visibleMovies=allMovies.filter(m=>!m.hidden);
+  const total=visibleMovies.length;
+  const wCount=visibleMovies.filter(m=>me.watched?.[m.id]).length;
   document.getElementById('lib-stats').innerHTML=`
     <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Movies</div></div>
     <div class="stat"><div class="stat-n">${wCount}</div><div class="stat-l">Watched</div></div>
-    <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>`;
+    <div class="stat"><div class="stat-n">${total-wCount}</div><div class="stat-l">Unwatched</div></div>
+    ${isAdmin()&&hiddenMovies.length?`<div class="stat" style="border-color:rgba(138,90,240,.2)"><div class="stat-n" style="color:var(--purple)">${hiddenMovies.length}</div><div class="stat-l">Hidden</div></div>`:''}`;
   const nw=sharedData.library.filter(m=>m.type!=='tv'&&me.nowWatching?.[m.id]);
   const ns=document.getElementById('now-shelf');
   ns.style.display=nw.length?'':'none';
@@ -5077,6 +5099,7 @@ function openDetail(id,src){
         ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
         ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
         ${inLib?`<button class="act" style="background:rgba(229,160,13,.08);border-color:rgba(229,160,13,.2);color:#e5a00d" onclick="openWatchMode('${id}')"><i class="ti ti-player-play-filled"></i> Watch Mode</button>`:''}
+        ${isAdmin()&&src==='library'&&m.type!=='tv'?`<button class="act ${m.hidden?'active':''}" onclick="toggleHidden('${id}')" title="${m.hidden?'Unhide — make visible to members':'Hide from other members'}" style="border-color:rgba(138,90,240,.3);color:var(--purple)"><i class="ti ti-eye-off"></i> ${m.hidden?'Unhide':'Hide'}</button>`:''}
         ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
       </div>
       ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Plex Queue':'Add to Plex Queue'}</button>`:``}
@@ -6184,11 +6207,90 @@ async function doLookup(){
         </button>`;
       }).join('')}</div>`;
     }else{
-      res.innerHTML=`<div class="lk-status err"><i class="ti ti-alert-circle"></i> Nothing found — try fewer or different words, or fill in below manually.</div>`;
+      // OMDB found nothing — fall back to TMDB search
+      res.innerHTML = '<div class="lk-status loading"><i class="ti ti-loader"></i> Trying TMDB...</div>';
+      try{
+        const addType = document.getElementById('add-type').value;
+        const tmdbEndpoint = addType==='tv'
+          ? 'https://api.themoviedb.org/3/search/tv?api_key='+TMDB_KEY+'&query='+encodeURIComponent(q)
+          : 'https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+encodeURIComponent(q);
+        const tr = await fetch(tmdbEndpoint);
+        const td = await tr.json();
+        const tmdbResults = (td.results||[]).filter(function(r){return r.poster_path;}).slice(0,8);
+        if(tmdbResults.length){
+          const container = document.createElement('div');
+          container.className = 'lk-results';
+          tmdbResults.forEach(function(it){
+            const title2 = it.title||it.name||'';
+            const year2 = (it.release_date||it.first_air_date||'').slice(0,4);
+            const poster2 = it.poster_path ? TMDB_IMG+'w92'+it.poster_path : null;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'lk-opt';
+            btn.dataset.tmdbId = it.id;
+            btn.dataset.title = title2;
+            btn.dataset.year = year2;
+            btn.dataset.type = addType;
+            btn.onclick = function(){ pickTMDBResult(parseInt(this.dataset.tmdbId), this.dataset.title, this.dataset.year, this.dataset.type); };
+            btn.innerHTML = (poster2 ? '<img src="'+poster2+'">' : '<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>')
+              + '<div style="flex:1;min-width:0"><div class="lk-opt-title">'+title2+'</div><div class="lk-opt-yr">'+year2+' · via TMDB</div></div>'
+              + '<i class="ti ti-chevron-right" style="color:var(--muted)"></i>';
+            container.appendChild(btn);
+          });
+          res.innerHTML = '';
+          res.appendChild(container);
+        } else {
+          res.innerHTML = '<div class="lk-status err"><i class="ti ti-alert-circle"></i> Nothing found on OMDB or TMDB — try fewer words or fill in below.</div>';
+        }
+      }catch(e){
+        res.innerHTML = '<div class="lk-status err"><i class="ti ti-alert-circle"></i> Nothing found — try fewer or different words, or fill in below manually.</div>';
+      }
     }
   }catch(e){res.innerHTML=`<div class="lk-status err">Search failed.</div>`;}
   btn.disabled=false;
 }
+
+async function pickTMDBResult(tmdbId, title, year, type){
+  const res = document.getElementById('lk-result');
+  res.innerHTML = '<div class="lk-status loading"><i class="ti ti-loader"></i> Loading details...</div>';
+  try{
+    const endpoint = type==='tv'
+      ? 'https://api.themoviedb.org/3/tv/'+tmdbId+'?api_key='+TMDB_KEY
+      : 'https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+TMDB_KEY;
+    const tr = await fetch(endpoint);
+    const td = await tr.json();
+    const imdbId = td.imdb_id||'';
+    let d = null;
+    if(imdbId){
+      try{
+        const or2 = await fetch('https://www.omdbapi.com/?apikey='+OMDB_KEY+'&i='+imdbId+'&plot=full');
+        const od = await or2.json();
+        if(od.Response==='True') d = od;
+      }catch(e2){}
+    }
+    const poster = td.poster_path ? TMDB_IMG+'w342'+td.poster_path : (d&&d.Poster&&d.Poster!=='N/A'?d.Poster:'');
+    pendingPoster = poster;
+    pendingImdb = imdbId;
+    pendingRatings = d ? (d.Ratings||[]).map(function(r){return {s:r.Source,v:r.Value};}) : [];
+    document.getElementById('add-t').value = td.title||td.name||title;
+    document.getElementById('add-yr').value = (td.release_date||td.first_air_date||year||'').slice(0,4);
+    document.getElementById('add-gn').value = (td.genres||[]).map(function(g){return g.name;}).join(', ')||(d&&d.Genre?d.Genre:'');
+    document.getElementById('add-rat').value = d&&d.Rated&&d.Rated!=='N/A'?d.Rated:'';
+    document.getElementById('add-runtime').value = td.runtime||(d&&d.Runtime?d.Runtime.replace(/\s*min\s*$/i,''):'');
+    document.getElementById('add-dir').value = d&&d.Director&&d.Director!=='N/A'?d.Director:'';
+    document.getElementById('add-act').value = d&&d.Actors&&d.Actors!=='N/A'?d.Actors:'';
+    document.getElementById('add-plot').value = td.overview||(d&&d.Plot&&d.Plot!=='N/A'?d.Plot:'')||'';
+    document.getElementById('add-poster').value = poster;
+    const displayTitle = (td.title||td.name||title) + ' (' + (td.release_date||td.first_air_date||year||'').slice(0,4) + ')';
+    res.innerHTML = '<div class="lk-preview">'
+      + (poster ? '<img src="'+poster+'" class="lk-thumb">' : '<div class="lk-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>')
+      + '<div style="flex:1"><div style="font-weight:600;font-size:13px;margin-bottom:3px">'+displayTitle+' <span style="font-weight:400;color:var(--green)">&#10003; filled in</span></div>'
+      + '<div style="font-size:11px;color:var(--muted)">via TMDB</div></div></div>';
+  }catch(e){
+    res.innerHTML = '<div class="lk-status err">Failed to load details.</div>';
+  }
+}
+
 
 async function pickResult(imdbID){
   const res=document.getElementById('lk-result');
