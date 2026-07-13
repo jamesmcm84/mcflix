@@ -768,7 +768,7 @@ select option{background:#1a1a2e;color:#eeeef5}
 .collection-banner-sub{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* TV EPISODES */
-.season-select{margin-bottom:12px}
+.season-select{margin-bottom:12px;background:#1a1a2e;color:#eeeef5;border:1px solid var(--border)}
 .episode-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .episode-row:last-child{border-bottom:none}
 .episode-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:2px;transition:all .15s}
@@ -986,6 +986,7 @@ select option{background:#1a1a2e;color:#eeeef5}
 .ff{display:flex;flex-direction:column;gap:4px}
 .ff.full{grid-column:1/-1}
 .ffi{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border .2s;width:100%}
+select.ffi{background:#1a1a2e;color:#eeeef5}
 .ffi::placeholder{color:var(--muted)}
 .ffi:focus{border-color:rgba(232,184,75,.3)}
 select.ffi option{background:#1a1a2e;color:#eeeef5}
@@ -1004,12 +1005,12 @@ textarea.ffi{resize:vertical}
 .lk-results{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;margin-bottom:8px}
 .lk-results::-webkit-scrollbar{width:3px}
 .lk-results::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-.lk-opt{display:flex;gap:10px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 9px;cursor:pointer;transition:all .15s;text-align:left}
-.lk-opt:hover{border-color:rgba(232,184,75,.3);background:var(--card)}
+.lk-opt{display:flex;gap:10px;align-items:center;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:7px 9px;cursor:pointer;transition:all .15s;text-align:left}
+.lk-opt:hover{border-color:rgba(232,184,75,.3);background:var(--bg3)}
 .lk-opt img{width:38px;height:57px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--card)}
 .lk-opt-fb{width:38px;height:57px;border-radius:4px;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.lk-opt-title{font-size:13px;font-weight:600;line-height:1.2}
-.lk-opt-yr{font-size:11px;color:var(--muted);margin-top:2px}
+.lk-opt-title{font-size:13px;font-weight:600;line-height:1.2;color:var(--text)}
+.lk-opt-yr{font-size:11px;color:var(--light);margin-top:2px}
 .primary-btn{padding:9px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--gold),#d4a43c);color:#000;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
 .primary-btn:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-1px)}
 .ghost-btn{padding:8px 14px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
@@ -1255,6 +1256,10 @@ textarea.ffi{resize:vertical}
 .wm-plex-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;animation:wpulse .9s infinite}
 .wm-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.7}
 
+
+/* Force dark background on all select dropdowns inside modals and tabs */
+.mo select, .tab select, .form-sec select{background:#1a1a2e!important;color:#eeeef5!important}
+.mo select option, .tab select option, .form-sec select option{background:#1a1a2e;color:#eeeef5}
 </style>
 </head>
 <body>
