@@ -1264,7 +1264,7 @@ textarea.ffi{resize:vertical}
 /* ── HIDDEN CARDS (admin view) ──────────────────────────────────────────────── */
 .hidden-card{opacity:.5;filter:grayscale(.6)}
 .hidden-card:hover{opacity:.8;filter:grayscale(.3)}
-.hidden-badge{position:absolute;top:5px;left:5px;background:rgba(138,90,240,.85);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;z-index:2}
+.hidden-badge{position:absolute;top:6px;left:6px;background:rgba(138,90,240,.92);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .hidden-badge i{font-size:12px;color:#fff}
 </style>
 </head>
@@ -3392,13 +3392,14 @@ function renderBrowseResults(){
   const r = me.ratings||{};
   grid.innerHTML = items.map(m=>{
     const hp=m.poster&&m.poster!=='N/A';
-    return `<div class="card" onclick="openDetail('${m.id}','library')">
+    return `<div class="card${m.hidden?' hidden-card':''}" onclick="openDetail('${m.id}','library')">
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
       ${r[m.id]?`<div class="rating-badge">${r[m.id]}/10</div>`:''}
+      ${m.hidden?`<div class="hidden-badge" title="Hidden from members"><i class="ti ti-eye-off"></i></div>`:''}
     </div>`;
   }).join('');
 }
