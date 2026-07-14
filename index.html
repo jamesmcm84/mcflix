@@ -1274,6 +1274,11 @@ textarea.ffi{resize:vertical}
 .shelf-arrow.left{left:-12px}
 .shelf-arrow.right{right:-12px}
 .shelf-arrow.hidden{opacity:0;pointer-events:none}
+
+/* ── QUEUE FRONT BUTTON ──────────────────────────────────────────────────────── */
+.queue-front-btn{position:absolute;bottom:28px;right:4px;width:26px;height:26px;border-radius:6px;border:none;background:rgba(232,184,75,.9);color:#000;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;z-index:4;padding:0}
+.queue-card:hover .queue-front-btn{opacity:1}
+.queue-front-btn:hover{background:var(--gold);transform:scale(1.1)}
 </style>
 </head>
 <body>
@@ -2563,8 +2568,10 @@ function switchTab(t,el){
   // sync bottom nav
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   closeMoreMenu();
+  // Always hide A-Z slider on tab switch — renderLib re-shows it if appropriate
+  const _azEl = document.getElementById('az-slider');
+  if(_azEl) _azEl.style.display = 'none';
   if(t==='library') renderLib();
-  else { const sl=document.getElementById('az-slider'); if(sl) sl.style.display='none'; }
   if(t==='collections') renderCollections();
   if(t==='tvshows') renderTV();
   if(t==='wishlist'){
@@ -4884,6 +4891,7 @@ function renderWish(){
   // Plex queue items get their own horizontal shelf at the very top, drag-to-reorder
   const queueCardHTML=m=>{
     const hp=m.poster&&m.poster!=='N/A';
+    const isFirst = priorityItems.length && priorityItems[0].id===m.id;
     return `<div class="shelf-card queue-card" draggable="true" data-id="${m.id}"
       ondragstart="queueDragStart(event)" ondragover="queueDragOver(event)" ondragend="queueDragEnd(event)" ondrop="queueDrop(event)"
       onclick="if(!this.classList.contains('dragging'))openDetail('${m.id}','wishlist')">
@@ -4892,6 +4900,7 @@ function renderWish(){
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
       <div class="priority-badge"><i class="ti ti-brand-plex"></i></div>
+      ${!isFirst?`<button class="queue-front-btn" onclick="event.stopPropagation();sendToFrontOfQueue('${m.id}')" title="Send to front of queue"><i class="ti ti-chevrons-left"></i></button>`:''}
     </div>`;
   };
 
@@ -5950,6 +5959,26 @@ function addMemberRequestToPlexQueue(id){
   const maxOrder = queueItems.reduce((max,x)=>x.priorityOrder>max?x.priorityOrder:max, 0);
   m.priorityOrder = maxOrder + 1;
   saveShared().then(()=>{ renderWish(); toast(`"${m.title}" added to Plex Queue!`); });
+}
+
+
+function sendToFrontOfQueue(id){
+  const m = sharedData.wishlist.find(x=>x.id===id);
+  if(!m) return;
+  // Set its priorityOrder to 0 (before everything else)
+  const others = sharedData.wishlist.filter(x=>x.priority && x.id!==id);
+  // Shift all others up by 1 to make room
+  others.forEach(x=>{ if(x.priorityOrder!=null) x.priorityOrder += 1; });
+  m.priorityOrder = 0;
+  saveShared().then(()=>{
+    renderWish();
+    // Scroll queue back to start so they can see it moved to front
+    setTimeout(()=>{
+      const qEl = document.getElementById('plex-queue-shelf');
+      if(qEl) qEl.scrollTo({left:0, behavior:'smooth'});
+    }, 50);
+  });
+  toast('"'+m.title+'" moved to front of queue!');
 }
 
 function togglePriority(id){
