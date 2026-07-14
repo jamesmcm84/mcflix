@@ -1959,6 +1959,11 @@ textarea.ffi{resize:vertical}
   <div class="md md-lg"><button class="mc" onclick="closeMo('tmdb-detail')"><i class="ti ti-x"></i></button><div id="tmdb-detail-body"></div></div>
 </div>
 
+<!-- PERSONAL WISHLIST DETAIL MODAL -->
+<div class="mo" id="mo-pwish-detail" onclick="if(event.target===this)closeMo('pwish-detail')">
+  <div class="md md-sm"><button class="mc" onclick="closeMo('pwish-detail')"><i class="ti ti-x"></i></button><div id="pwish-detail-body" style="padding:16px 20px"></div></div>
+</div>
+
 <div class="mo" id="mo-picker" onclick="if(event.target===this)closeMo('picker')">
   <div class="picker-card">
     <button class="mc" onclick="closeMo('picker')"><i class="ti ti-x"></i></button>
@@ -6541,6 +6546,77 @@ function removeFromPWishlist(id){
 
 
 
+
+function openPWishDetail(itemId){
+  const me = myData();
+  const item = (me.personalWishlist||[]).find(x=>x.id===itemId);
+  if(!item) return;
+
+  const onShared = !!sharedData.wishlist.find(m=>m.title.toLowerCase()===item.title.toLowerCase());
+  const onQueue  = !!sharedData.wishlist.find(m=>m.title.toLowerCase()===item.title.toLowerCase()&&m.priority);
+  const poster = item.poster||'';
+  const hp = poster && poster!=='N/A';
+
+  const body = document.getElementById('pwish-detail-body');
+  if(!body) return;
+
+  body.innerHTML =
+    '<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">'
+    +(hp?`<img src="${poster}" style="width:80px;height:120px;border-radius:8px;object-fit:cover;flex-shrink:0">`:'<div style="width:80px;height:120px;border-radius:8px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center"><i class="ti ti-heart" style="color:var(--muted);font-size:24px"></i></div>')
+    +'<div style="flex:1;min-width:0">'
+    +`<div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px;color:var(--gold);line-height:1.1;margin-bottom:4px">${item.title}</div>`
+    +(item.year?`<div style="font-size:13px;color:var(--muted);margin-bottom:12px">${item.year}</div>`:'')
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +(onShared
+      ? '<div style="font-size:12px;color:var(--purple);font-weight:600"><i class="ti ti-bookmark-check"></i> Already in Plex Requests</div>'
+      : `<button class="act act-fav" style="justify-content:center" onclick="pwishAddToPlexRequests('${itemId}')"><i class="ti ti-bookmark-plus"></i> Add to Plex Requests</button>`)
+    +(onQueue
+      ? '<div style="font-size:12px;color:#e5a00d;font-weight:600"><i class="ti ti-brand-plex"></i> Already in Plex Queue</div>'
+      : `<button class="act" style="justify-content:center;border-color:rgba(229,160,13,.3);color:#e5a00d" onclick="pwishAddToPlexQueue('${itemId}')"><i class="ti ti-brand-plex"></i> Add to Plex Queue</button>`)
+    +`<button class="act act-del" style="justify-content:center" onclick="removeFromPWishlist('${itemId}');closeMo('pwish-detail')"><i class="ti ti-trash"></i> Remove from My Wishlist</button>`
+    +'</div></div></div>';
+
+  openMo('pwish-detail');
+}
+
+async function pwishAddToPlexRequests(itemId){
+  const me = myData();
+  const item = (me.personalWishlist||[]).find(x=>x.id===itemId);
+  if(!item) return;
+  const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===item.title.toLowerCase());
+  if(exists){ toast(item.title+' is already in Plex Requests!', true); return; }
+  const newItem = await buildTMDBWishlistItem(0, item.title, item.year, item.poster, false);
+  sharedData.wishlist.push(newItem);
+  await saveShared();
+  updateCounts();
+  toast(item.title+' added to Plex Requests!');
+  openPWishDetail(itemId); // refresh buttons
+}
+
+async function pwishAddToPlexQueue(itemId){
+  const me = myData();
+  const item = (me.personalWishlist||[]).find(x=>x.id===itemId);
+  if(!item) return;
+  // Add to shared wishlist first if not already there
+  let wishItem = sharedData.wishlist.find(m=>m.title.toLowerCase()===item.title.toLowerCase());
+  if(!wishItem){
+    const newItem = await buildTMDBWishlistItem(0, item.title, item.year, item.poster, false);
+    sharedData.wishlist.push(newItem);
+    wishItem = newItem;
+  }
+  // Set as priority
+  if(!wishItem.priority){
+    const queueItems = sharedData.wishlist.filter(x=>x.priority&&x.priorityOrder!=null);
+    const maxOrder = queueItems.reduce((max,x)=>x.priorityOrder>max?x.priorityOrder:max, 0);
+    wishItem.priority = true;
+    wishItem.priorityOrder = maxOrder + 1;
+  }
+  await saveShared();
+  updateCounts();
+  toast(item.title+' added to Plex Queue!');
+  openPWishDetail(itemId); // refresh buttons
+}
+
 function renderPWishlist(){
   const me = myData();
   const items = me.personalWishlist || [];
@@ -6564,12 +6640,17 @@ function renderPWishlist(){
   grid.innerHTML = years.map(y => {
     const cards = groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(item => {
       const match = sharedData.library.find(m => m.title.toLowerCase() === item.title.toLowerCase());
+      const wishMatch = sharedData.wishlist.find(m => m.title.toLowerCase() === item.title.toLowerCase());
       const poster = item.poster||(match?.poster)||'';
       const hp = poster && poster !== 'N/A';
-      return `<div class="card" style="position:relative" onclick="${match?`openDetail('${match.id}','library')`:''}">
+      // Always openable — library items open full detail, others open pwish detail
+      const clickFn = match ? `openDetail('${match.id}','library')` : `openPWishDetail('${item.id}')`;
+      return `<div class="card" style="position:relative" onclick="${clickFn}">
         ${hp?`<img src="${poster}" alt="${item.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
         <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-heart"></i><span>${item.title}</span></div>
-        <div class="ov"><div class="ov-row"><div class="ov-title">${item.title}</div><div class="ov-meta">${item.year||''}</div></div>${match?'<div style="font-size:9px;color:var(--green);margin-top:2px">In Library</div>':''}</div>
+        <div class="ov"><div class="ov-row"><div class="ov-title">${item.title}</div><div class="ov-meta">${item.year||''}</div></div>
+          ${match?'<div style="font-size:9px;color:var(--green);margin-top:2px">✓ In Library</div>':wishMatch?'<div style="font-size:9px;color:var(--purple);margin-top:2px">✓ In Plex Requests</div>':''}
+        </div>
         ${match?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
         <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromPWishlist('${item.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
       </div>`;
