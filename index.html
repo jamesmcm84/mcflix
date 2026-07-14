@@ -1409,6 +1409,9 @@ textarea.ffi{resize:vertical}
         <select class="fb" id="f-watched" onchange="renderLib()"><option value="">All</option><option value="watched">Watched</option><option value="unwatched">Unwatched</option></select>
         <select class="fb" id="f-sort" onchange="renderLib()"><option value="title">A–Z</option><option value="added">Recently Added</option><option value="year">Year</option><option value="rating">My Rating</option></select>
         <button class="fb" id="f-fav" onclick="toggleFavF(this)"><i class="ti ti-star"></i> Faves</button>
+        <select class="fb" id="f-lang" onchange="renderLib()">
+          <option value="">All Languages</option>
+        </select>
         <div class="presets-msel" id="presets-msel">
           <button class="fb" onclick="togglePresetsPanel(event)"><i class="ti ti-bookmarks"></i> Presets</button>
           <div class="presets-panel" id="presets-panel"></div>
@@ -1680,6 +1683,7 @@ textarea.ffi{resize:vertical}
     <!-- WATCH MODE -->
     <div class="tab" id="tab-watchmode">
       <div id="wm-body"></div>
+      <div id="wm-sub-status" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:8px;font-size:12px;color:var(--muted)"></div>
     </div>
 
     <!-- DISCOVER -->
@@ -1849,6 +1853,7 @@ textarea.ffi{resize:vertical}
         <div class="ff"><label class="fl">Genre</label><input type="text" class="ffi" id="add-gn" placeholder="Action, Drama..."></div>
         <div class="ff"><label class="fl">Rated</label><input type="text" class="ffi" id="add-rat" placeholder="PG-13"></div>
         <div class="ff"><label class="fl">Runtime <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(minutes)</span></label><input type="text" class="ffi" id="add-runtime" placeholder="120"></div>
+        <div class="ff"><label class="fl">Language</label><input type="text" class="ffi" id="add-lang" placeholder="English, French..."></div>
         <div class="ff"><label class="fl">Director</label><input type="text" class="ffi" id="add-dir"></div>
         <div class="ff full"><label class="fl">Cast</label><input type="text" class="ffi" id="add-act" placeholder="Actor 1, Actor 2..."></div>
         <div class="ff full"><label class="fl">Plot</label><textarea class="ffi" id="add-plot" rows="2"></textarea></div>
@@ -2387,7 +2392,7 @@ async function saveShared(){
     const libraryPayload = { library: JSON.parse(JSON.stringify(sharedData.library)) };
     const wishPayload = { wishlist: (sharedData.wishlist||[]).map(m=>({
       id:m.id, title:m.title, sortTitle:m.sortTitle||'', type:m.type||'movie',
-      year:m.year||'', genre:m.genre||'', rating:m.rating||'',
+      year:m.year||'', genre:m.genre||'', rating:m.rating||'', language:m.language||'',
       director:m.director||'', actors:m.actors||'', plot:m.plot||'',
       runtime:m.runtime||'', poster:m.poster||'', imdb:m.imdb||'',
       tags:m.tags||[], externalRatings:m.externalRatings||[],
@@ -2820,6 +2825,18 @@ function formatRuntime(mins){
 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 let selectedGenres = new Set();
+function buildLanguageFilter(){
+  const sel = document.getElementById('f-lang');
+  if(!sel) return;
+  const cur = sel.value;
+  const langs = new Set();
+  sharedData.library.filter(m=>m.type!=='tv').forEach(m=>{
+    (m.language||'').split(',').forEach(l=>{ const t=l.trim(); if(t&&t!=='N/A') langs.add(t); });
+  });
+  sel.innerHTML = '<option value="">All Languages</option>'
+    + [...langs].sort().map(l=>`<option value="${l}"${l===cur?' selected':''}>${l}</option>`).join('');
+}
+
 function buildGenreFilter(){
   const genres=new Set();
   sharedData.library.filter(m=>m.type!=='tv').forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
@@ -3751,7 +3768,7 @@ function renderTV(){
 
   let items=sharedData.library.filter(m=>{
     if(m.type!=='tv') return false;
-    if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
+    if(q&&!((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')+' '+(m.language||'')).toLowerCase()).includes(q)) return false;
     if(genre&&!(m.genre||'').split(',').map(g=>g.trim()).includes(genre)) return false;
     if(watched==='watched'&&!me.watched?.[m.id]) return false;
     if(watched==='unwatched'&&me.watched?.[m.id]) return false;
@@ -4704,6 +4721,7 @@ async function bulkImportTMDBKeywords(){
   await saveShared();
   loading(false);
   buildGenreFilter();
+  buildLanguageFilter();
   buildTagBar();
   renderLib();
   toast(`Keywords imported: ${updated} updated, ${failed} no match`);
@@ -4753,6 +4771,7 @@ function renderLib(){
     if(watched==='unwatched'&&me.watched?.[m.id]) return false;
     if(favFilterOn&&!me.favorites?.[m.id]) return false;
     if(activeTag&&!(m.tags||[]).includes(activeTag)) return false;
+    if(langFilter&&!(m.language||'').split(',').map(l=>l.trim()).includes(langFilter)) return false;
     return true;
   });
   items.sort((a,b)=>{
@@ -5168,6 +5187,7 @@ function openDetail(id,src){
           <div class="det-tags">
             ${m.rating?`<span class="dtag">${m.rating}</span>`:''}
             ${(m.genre||'').split(',').slice(0,2).map(g=>`<span class="dtag">${g.trim()}</span>`).join('')}
+            ${m.language&&m.language!=='English'&&m.language!=='N/A'?`<span class="dtag" style="background:rgba(52,152,219,.12);border-color:rgba(52,152,219,.25);color:var(--blue)">${m.language.split(',')[0].trim()}</span>`:''}
           </div>
         </div>
       </div>
@@ -6193,7 +6213,7 @@ function openAdd(target='library', typeHint='movie'){
   document.getElementById('add-lbl').textContent=target==='library'?(typeHint==='tv'?'Add TV Show':'Add Movie'):target==='pwishlist'?'Add to My Wishlist':'Add to Wishlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
-  ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-runtime','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-runtime','add-lang','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   document.getElementById('add-type').value=typeHint;
   setAddType(typeHint);
   document.getElementById('add-wtch').checked=false;
@@ -6215,6 +6235,7 @@ function openEdit(id,src){
   document.getElementById('add-yr').value=m.year||'';
   document.getElementById('add-gn').value=m.genre||'';
   document.getElementById('add-rat').value=m.rating||'';
+  document.getElementById('add-lang').value=m.language||'';
   document.getElementById('add-dir').value=m.director||'';
   document.getElementById('add-act').value=m.actors||'';
   document.getElementById('add-plot').value=m.plot||'';
@@ -6368,6 +6389,7 @@ async function pickTMDBResult(tmdbId, title, year, type){
     document.getElementById('add-t').value = td.title||td.name||title;
     document.getElementById('add-yr').value = (td.release_date||td.first_air_date||year||'').slice(0,4);
     document.getElementById('add-gn').value = (td.genres||[]).map(function(g){return g.name;}).join(', ')||(d&&d.Genre?d.Genre:'');
+    document.getElementById('add-lang').value = td.original_language ? (td.original_language==='en'?'English':td.original_language) : (d&&d.Language&&d.Language!=='N/A'?d.Language.split(',')[0].trim():'');
     document.getElementById('add-rat').value = d&&d.Rated&&d.Rated!=='N/A'?d.Rated:'';
     document.getElementById('add-runtime').value = td.runtime||(d&&d.Runtime?d.Runtime.replace(/\s*min\s*$/i,''):'');
     document.getElementById('add-dir').value = d&&d.Director&&d.Director!=='N/A'?d.Director:'';
@@ -6398,6 +6420,7 @@ async function pickResult(imdbID){
       document.getElementById('add-t').value=d.Title||'';
       document.getElementById('add-yr').value=(d.Year||'').slice(0,4);
       document.getElementById('add-gn').value=d.Genre&&d.Genre!=='N/A'?d.Genre:'';
+      document.getElementById('add-lang').value=d.Language&&d.Language!=='N/A'?d.Language.split(',')[0].trim():'';
       document.getElementById('add-rat').value=d.Rated&&d.Rated!=='N/A'?d.Rated:'';
       document.getElementById('add-runtime').value=d.Runtime&&d.Runtime!=='N/A'?d.Runtime.replace(/\s*min\s*$/i,''):'';
       document.getElementById('add-dir').value=d.Director&&d.Director!=='N/A'?d.Director:'';
@@ -6424,6 +6447,7 @@ function submitAdd(){
     year:document.getElementById('add-yr').value.trim(),
     genre:document.getElementById('add-gn').value.trim(),
     rating:document.getElementById('add-rat').value.trim(),
+    language:document.getElementById('add-lang').value.trim(),
     director:document.getElementById('add-dir').value.trim(),
     actors:document.getElementById('add-act').value.trim(),
     plot:document.getElementById('add-plot').value.trim(),
@@ -8635,6 +8659,7 @@ function renderWatchMode(){
         <button class="wm-ctrl-btn" id="wm-pause-btn" onclick="wmPause()" title="Pause"><i class="ti ti-player-pause"></i></button>
         <button class="wm-ctrl-btn red" onclick="wmReset()" title="Reset timer"><i class="ti ti-refresh"></i></button>
         <button class="wm-ctrl-btn" id="wm-plex-btn" onclick="wmSyncPlex()" title="Sync to Plex playback"><i class="ti ti-brand-plex" style="color:#e5a00d"></i></button>
+        ${isAdmin()?'<button class="wm-ctrl-btn" onclick="wmShowSubInfo()" title="Subtitle file info"><i class="ti ti-subtitles"></i></button>':''}
       </div>
     </div>
 
@@ -8860,6 +8885,27 @@ function wmPost(text, emoji){
     const btns = document.querySelectorAll('.wm-emoji-btn');
     btns.forEach(b=>{ if(b.textContent.trim()===emoji){ b.classList.remove('burst'); void b.offsetWidth; b.classList.add('burst'); }});
   }
+}
+
+
+function wmShowSubInfo(){
+  const m = sharedData.library.find(x=>x.id===_wmMovieId);
+  if(!m) return;
+  const count = (m.watchComments||[]).length;
+  const users = [...new Set((m.watchComments||[]).map(c=>c.username))].join(', ');
+  const status = document.getElementById('wm-sub-status');
+  if(!status) return;
+  if(!count){
+    status.style.display = '';
+    status.innerHTML = '<i class="ti ti-subtitles"></i> No comments yet — add some reactions first, then run the subtitle generator.';
+    return;
+  }
+  status.style.display = '';
+  status.innerHTML = '<i class="ti ti-subtitles" style="color:var(--gold)"></i> '
+    + '<strong style="color:var(--gold)">' + count + ' comment' + (count!==1?'s':'') + '</strong>'
+    + ' from ' + users + ' ready for subtitle export.<br>'
+    + '<span style="font-size:11px">Run <code>python mcflix_subtitle_gen.py</code> to generate the .ass file for this movie, '
+    + 'then enable "McFlix" in the Plex subtitle selector during playback.</span>';
 }
 
 function wmPostEmoji(emoji, label){
