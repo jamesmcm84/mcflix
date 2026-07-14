@@ -5967,17 +5967,9 @@ function sendToFrontOfQueue(id){
   if(!m) return;
   // Set its priorityOrder to 0 (before everything else)
   const others = sharedData.wishlist.filter(x=>x.priority && x.id!==id);
-  // Shift all others up by 1 to make room
   others.forEach(x=>{ if(x.priorityOrder!=null) x.priorityOrder += 1; });
   m.priorityOrder = 0;
-  saveShared().then(()=>{
-    renderWish();
-    // Scroll queue back to start so they can see it moved to front
-    setTimeout(()=>{
-      const qEl = document.getElementById('plex-queue-shelf');
-      if(qEl) qEl.scrollTo({left:0, behavior:'smooth'});
-    }, 50);
-  });
+  saveShared().then(()=>renderWish()); // renderWish preserves scroll position
   toast('"'+m.title+'" moved to front of queue!');
 }
 
