@@ -1266,6 +1266,14 @@ textarea.ffi{resize:vertical}
 .hidden-card:hover{opacity:.8;filter:grayscale(.3)}
 .hidden-badge{position:absolute;top:6px;left:6px;background:rgba(138,90,240,.92);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .hidden-badge i{font-size:12px;color:#fff}
+
+/* ── SHELF ARROW SCROLL BUTTONS ──────────────────────────────────────────────── */
+.shelf-wrap{position:relative}
+.shelf-arrow{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(20,20,35,.85);border:1px solid var(--border2);color:var(--light);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:all .2s;backdrop-filter:blur(4px);flex-shrink:0}
+.shelf-arrow:hover{background:rgba(232,184,75,.15);border-color:rgba(232,184,75,.3);color:var(--gold)}
+.shelf-arrow.left{left:-12px}
+.shelf-arrow.right{right:-12px}
+.shelf-arrow.hidden{opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -4807,6 +4815,36 @@ function switchWishTab(t){
   if(t==='mine') renderPWishlist();
 }
 
+
+function shelfScroll(id, dir){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const scrollAmt = el.clientWidth * 0.75;
+  el.scrollBy({left: dir * scrollAmt, behavior: 'smooth'});
+  setTimeout(()=>updateShelfArrows(id), 350);
+}
+
+function updateShelfArrows(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const atStart = el.scrollLeft <= 4;
+  const atEnd   = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+  // Find sibling arrows
+  const wrap = el.closest('.shelf-wrap');
+  if(!wrap) return;
+  const lBtn = wrap.querySelector('.shelf-arrow.left');
+  const rBtn = wrap.querySelector('.shelf-arrow.right');
+  if(lBtn) lBtn.classList.toggle('hidden', atStart);
+  if(rBtn) rBtn.classList.toggle('hidden', atEnd);
+}
+
+function initShelfArrows(){
+  document.querySelectorAll('.shelf-wrap .shelf-scroll').forEach(el=>{
+    el.addEventListener('scroll', ()=>updateShelfArrows(el.id), {passive:true});
+    updateShelfArrows(el.id);
+  });
+}
+
 function renderWish(){
   const q=(document.getElementById('s-wish').value||'').toLowerCase();
   const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
@@ -4882,13 +4920,21 @@ function renderWish(){
   // Plex Queue (admin drag-to-reorder)
   if(priorityItems.length){
     html += `<div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Queue <span style="font-size:12px;color:var(--muted)">(${priorityItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
-    <div class="shelf-scroll" id="plex-queue-shelf" style="margin-bottom:20px">${priorityItems.map(queueCardHTML).join('')}</div>`;
+    <div class="shelf-wrap" style="margin-bottom:20px">
+      <button class="shelf-arrow left" id="plex-queue-arrow-l" onclick="shelfScroll('plex-queue-shelf',-1)" title="Scroll left"><i class="ti ti-chevron-left"></i></button>
+      <div class="shelf-scroll" id="plex-queue-shelf">${priorityItems.map(queueCardHTML).join('')}</div>
+      <button class="shelf-arrow right" id="plex-queue-arrow-r" onclick="shelfScroll('plex-queue-shelf',1)" title="Scroll right"><i class="ti ti-chevron-right"></i></button>
+    </div>`;
   }
 
   // Member Requests — admin only, horizontal scroll like Plex Queue
   if(isAdmin() && memberRequests.length){
     html += `<div class="shelf-title"><i class="ti ti-messages" style="color:var(--purple)"></i> Member Requests <span style="font-size:12px;color:var(--muted)">(${memberRequests.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— tap <i class="ti ti-brand-plex" style="color:#e5a00d"></i> to add to Plex Queue</span></div>
-    <div class="shelf-scroll" style="margin-bottom:20px">${memberRequests.map(memberRequestCardHTML).join('')}</div>`;
+    <div class="shelf-wrap" style="margin-bottom:20px">
+      <button class="shelf-arrow left" onclick="shelfScroll('member-req-shelf',-1)"><i class="ti ti-chevron-left"></i></button>
+      <div class="shelf-scroll" id="member-req-shelf">${memberRequests.map(memberRequestCardHTML).join('')}</div>
+      <button class="shelf-arrow right" onclick="shelfScroll('member-req-shelf',1)"><i class="ti ti-chevron-right"></i></button>
+    </div>`;
   }
 
   // "New from others" — items added by someone other than the current user
