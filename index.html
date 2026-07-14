@@ -2568,6 +2568,9 @@ function switchTab(t,el){
   if(t==='collections') renderCollections();
   if(t==='tvshows') renderTV();
   if(t==='wishlist'){
+    // Hide A-Z slider — it belongs to the library only
+    const azEl = document.getElementById('az-slider');
+    if(azEl) azEl.style.display = 'none';
     // Reset to shared tab when switching to wishlist
     switchWishTab('shared');
   }
@@ -4846,6 +4849,12 @@ function initShelfArrows(){
 }
 
 function renderWish(){
+  // Save queue scroll position before re-render
+  const _queueEl = document.getElementById('plex-queue-shelf');
+  const _queueScroll = _queueEl ? _queueEl.scrollLeft : 0;
+  const _reqEl = document.getElementById('member-req-shelf');
+  const _reqScroll = _reqEl ? _reqEl.scrollLeft : 0;
+
   const q=(document.getElementById('s-wish').value||'').toLowerCase();
   const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
   const wrap=document.getElementById('wish-grid'),empty=document.getElementById('wish-empty');
@@ -4960,6 +4969,17 @@ function renderWish(){
 
   wrap.innerHTML = html;
   updateCounts();
+
+  // Restore Plex Queue scroll position after re-render
+  setTimeout(()=>{
+    const qEl = document.getElementById('plex-queue-shelf');
+    if(qEl && _queueScroll) qEl.scrollLeft = _queueScroll;
+    const rEl = document.getElementById('member-req-shelf');
+    if(rEl && _reqScroll) rEl.scrollLeft = _reqScroll;
+    // Re-init shelf arrows and drag
+    initShelfArrows();
+    attachQueueDrag();
+  }, 30);
 }
 
 // ── TAGS ──────────────────────────────────────────────────────────────────────
