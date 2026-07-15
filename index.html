@@ -1704,6 +1704,28 @@ textarea.ffi{resize:vertical}
           <option value="1960">1960s</option>
         </select>
         <input type="number" class="ffi" id="discover-year" placeholder="Specific year" style="width:120px" min="1900" max="2030">
+        <select class="fb" id="discover-language">
+          <option value="">Any Language</option>
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="zh">Chinese (Mandarin)</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="hi">Hindi</option>
+          <option value="ar">Arabic</option>
+          <option value="sv">Swedish</option>
+          <option value="da">Danish</option>
+          <option value="nl">Dutch</option>
+          <option value="pl">Polish</option>
+          <option value="tr">Turkish</option>
+          <option value="fa">Persian/Farsi</option>
+          <option value="th">Thai</option>
+        </select>
         <input type="text" class="ffi" id="discover-actor" placeholder="Actor name..." style="flex:1;min-width:140px">
         <input type="text" class="ffi" id="discover-director" placeholder="Director name..." style="flex:1;min-width:140px">
         <button class="primary-btn" onclick="runDiscover()"><i class="ti ti-search"></i> Discover</button>
@@ -2388,23 +2410,28 @@ async function saveShared(){
   }
   _saveSharedPending = true;
   try{
-    // Snapshot current data at the moment we actually send — avoids stale closure
+    // Deep-copy snapshot at send time — prevents stale closure bugs
     const libraryPayload = { library: JSON.parse(JSON.stringify(sharedData.library)) };
-    const wishPayload = { wishlist: (sharedData.wishlist||[]).map(m=>({
+    const wishPayload = { wishlist: JSON.parse(JSON.stringify((sharedData.wishlist||[]).map(m=>({
       id:m.id, title:m.title, sortTitle:m.sortTitle||'', type:m.type||'movie',
       year:m.year||'', genre:m.genre||'', rating:m.rating||'', language:m.language||'',
       director:m.director||'', actors:m.actors||'', plot:m.plot||'',
       runtime:m.runtime||'', poster:m.poster||'', imdb:m.imdb||'',
       tags:m.tags||[], externalRatings:m.externalRatings||[],
-      priority:m.priority||false, priorityOrder:m.priorityOrder??undefined,
+      priority:m.priority||false, priorityOrder:m.priorityOrder!=null?m.priorityOrder:undefined,
       addedAt:m.addedAt||0, addedBy:m.addedBy||''
-    })) };
-    await Promise.all([
-      wPut('library', libraryPayload),
-      wPut('wishlist', wishPayload)
-    ]);
+    })))) };
+    // Sequential saves — wishlist first, library second
+    // so a partial failure doesn't leave library updated but wishlist stale
+    const r1 = await wPut('wishlist', wishPayload);
+    const r2 = await wPut('library', libraryPayload);
+    if(!r1 || !r2){
+      console.warn('saveShared: one or both saves failed', {wishlist:r1, library:r2});
+      toast('⚠️ Save may not have completed — check your connection', true);
+    }
   }catch(e){
     console.warn('saveShared failed:', e);
+    toast('⚠️ Save failed: '+e.message, true);
   }finally{
     _saveSharedPending = false;
     if(_saveSharedQueued){
@@ -3507,6 +3534,7 @@ async function runDiscover(){
   const year      = document.getElementById('discover-year').value.trim();
   const director  = document.getElementById('discover-director').value.trim();
   const actor     = document.getElementById('discover-actor').value.trim();
+  const language  = document.getElementById('discover-language').value;
 
   grid.innerHTML = '';
   titleEl.style.display = 'none';
@@ -3550,6 +3578,7 @@ async function runDiscover(){
   params.set('vote_count.gte', '100');
   params.set('include_adult', 'false');
   if(genreIds.length) params.set('with_genres', genreIds.join(','));
+  if(language) params.set('with_original_language', language);
   if(year){
     params.set('primary_release_year', year);
   } else if(decade){
@@ -4912,6 +4941,10 @@ function renderWish(){
     </div>`;
   };
 
+  // Declare priorityItems first so queueCardHTML can reference it
+  const priorityItems = items.filter(m=>m.priority).sort((a,b)=>(a.priorityOrder??1e15)-(b.priorityOrder??1e15) || a.title.localeCompare(b.title));
+  const restItems = items.filter(m=>!m.priority);
+
   // Plex queue items get their own horizontal shelf at the very top, drag-to-reorder
   const queueCardHTML=m=>{
     const hp=m.poster&&m.poster!=='N/A';
@@ -4928,9 +4961,7 @@ function renderWish(){
     </div>`;
   };
 
-  // Plex queue items get their own horizontal shelf at the very top
-  const priorityItems = items.filter(m=>m.priority).sort((a,b)=>(a.priorityOrder??1e15)-(b.priorityOrder??1e15) || a.title.localeCompare(b.title));
-  const restItems = items.filter(m=>!m.priority);
+  // priorityItems and restItems already declared above
 
   // Member requests: added by non-admin users, not already in Plex queue
   // Admin sees these as a special horizontal queue; members see them in normal list
