@@ -4789,6 +4789,7 @@ function renderLib(){
   const genres=selectedGenres;
   const watched=document.getElementById('f-watched').value;
   const sort=document.getElementById('f-sort').value;
+  const langFilter=(document.getElementById('f-lang')?.value||'').trim();
   let items=sharedData.library.filter(m=>{
     if(m.type==='tv') return false; // TV shows have their own tab
     if(m.hidden && !isAdmin()) return false; // hidden films invisible to non-admin always
