@@ -1475,20 +1475,34 @@ textarea.ffi{resize:vertical}
 
 
 /* ── DETAIL SECTION CARDS ──────────────────────────────────────────────────── */
-.det-section{border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--border)}
-.det-section-ratings{background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.15)}
-.det-section-tags{background:rgba(52,152,219,.04);border-color:rgba(52,152,219,.15)}
-.det-section-vibe{background:rgba(138,90,240,.04);border-color:rgba(138,90,240,.15)}
-.det-section-notes{background:rgba(255,255,255,.02);border-color:var(--border)}
-.det-section-history{background:rgba(46,204,113,.04);border-color:rgba(46,204,113,.15)}
-.det-section-comments{background:rgba(255,255,255,.02);border-color:var(--border)}
-.det-section-hd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.det-section-ratings .det-section-hd{color:rgba(232,184,75,.7)}
-.det-section-tags .det-section-hd{color:rgba(52,152,219,.7)}
-.det-section-vibe .det-section-hd{color:rgba(138,90,240,.7)}
-.det-section-notes .det-section-hd{color:var(--muted)}
-.det-section-history .det-section-hd{color:rgba(46,204,113,.7)}
-.det-section-comments .det-section-hd{color:var(--muted)}
+.det-section{border-radius:14px;padding:0;margin-bottom:12px;border:2px solid var(--border);overflow:hidden}
+.det-section-stripe{height:3px;width:100%}
+.det-section-body{padding:14px 16px}
+.det-section-ratings{border-color:rgba(232,184,75,.4);box-shadow:0 2px 12px rgba(232,184,75,.08)}
+.det-section-ratings .det-section-stripe{background:linear-gradient(to right,var(--gold),rgba(232,184,75,.2))}
+.det-section-ratings .det-section-body{background:rgba(232,184,75,.04)}
+.det-section-tags{border-color:rgba(52,152,219,.35);box-shadow:0 2px 12px rgba(52,152,219,.08)}
+.det-section-tags .det-section-stripe{background:linear-gradient(to right,var(--blue),rgba(52,152,219,.2))}
+.det-section-tags .det-section-body{background:rgba(52,152,219,.04)}
+.det-section-vibe{border-color:rgba(138,90,240,.35);box-shadow:0 2px 12px rgba(138,90,240,.08)}
+.det-section-vibe .det-section-stripe{background:linear-gradient(to right,var(--purple),rgba(138,90,240,.2))}
+.det-section-vibe .det-section-body{background:rgba(138,90,240,.04)}
+.det-section-notes{border-color:rgba(255,255,255,.12)}
+.det-section-notes .det-section-stripe{background:linear-gradient(to right,rgba(255,255,255,.15),transparent)}
+.det-section-notes .det-section-body{background:var(--card)}
+.det-section-history{border-color:rgba(46,204,113,.35);box-shadow:0 2px 12px rgba(46,204,113,.08)}
+.det-section-history .det-section-stripe{background:linear-gradient(to right,var(--green),rgba(46,204,113,.2))}
+.det-section-history .det-section-body{background:rgba(46,204,113,.04)}
+.det-section-comments{border-color:rgba(255,255,255,.12)}
+.det-section-comments .det-section-stripe{background:linear-gradient(to right,rgba(255,255,255,.15),transparent)}
+.det-section-comments .det-section-body{background:var(--card)}
+.det-section-hd{font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.det-section-ratings .det-section-hd{color:var(--gold)}
+.det-section-tags .det-section-hd{color:var(--blue)}
+.det-section-vibe .det-section-hd{color:var(--purple)}
+.det-section-notes .det-section-hd{color:var(--light)}
+.det-section-history .det-section-hd{color:var(--green)}
+.det-section-comments .det-section-hd{color:var(--light)}
 
 </style>
 </head>
@@ -5577,7 +5591,9 @@ function openDetail(id,src){
         </div>`;
       })()}
       <div class="det-section det-section-ratings">
-        <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:11px"></i> Details</div>
+        <div class="det-section-stripe"></div>
+        <div class="det-section-body">
+        <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:14px"></i> Details</div>
         <div class="info-grid">
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
@@ -5590,8 +5606,7 @@ function openDetail(id,src){
       ${seriesProgressHTML(m)}
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       ${vibeCheckHTML(id)}
-      <div class="det-section det-section-tags">
-        <div class="det-section-hd"><i class="ti ti-tags" style="font-size:11px"></i> Tags</div>
+        <div class="det-section-hd"><i class="ti ti-tags" style="font-size:14px"></i> Tags</div>
         <div class="notes-lbl" style="margin-bottom:6px">Shared <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">· visible to everyone</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
           ${(m.tags||[]).length
@@ -5603,10 +5618,14 @@ function openDetail(id,src){
           <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
         </div>`:''}
       </div>
+        </div><!-- end det-section-body tags -->
       </div><!-- end det-section-tags -->
-      <div class="det-section det-section-tags" style="margin-top:-4px" id="tmdb-kw-wrap-${id}">
-        <div class="det-section-hd"><i class="ti ti-tag" style="font-size:11px"></i> TMDB Keywords</div>
+      <div class="det-section det-section-tags" id="tmdb-kw-wrap-${id}">
+        <div class="det-section-stripe"></div>
+        <div class="det-section-body">
+        <div class="det-section-hd"><i class="ti ti-tag" style="font-size:14px"></i> TMDB Keywords</div>
         <div id="tmdb-keywords-${id}"></div>
+        </div>
       </div>
       <div class="personal-tags-section">
         <div class="notes-lbl" style="margin-bottom:6px">My Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">(only you can see these)</span></div>
@@ -5626,7 +5645,7 @@ function openDetail(id,src){
         <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
       </div>`:''}
       <div class="comments-section">
-        <div class="det-section-hd"><i class="ti ti-message-circle" style="font-size:11px"></i> Comments</div>
+        <div class="det-section-hd"><i class="ti ti-message-circle" style="font-size:14px"></i> Comments</div>
         <div class="comments-list" id="comments-list-${id}">
           ${buildComments(m,id,src)}
         </div>
