@@ -1456,6 +1456,9 @@ textarea.ffi{resize:vertical}
 .crit-star-row:hover .crit-star{color:var(--gold)}
 .crit-star-row .crit-star:hover~.crit-star{color:var(--border2)!important}
 .crit-star-val{font-family:'Bebas Neue',cursive;font-size:15px;color:var(--muted);width:14px;text-align:right;flex-shrink:0}
+.crit-info-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:0 2px;line-height:1;vertical-align:middle;opacity:.6;transition:opacity .15s;flex-shrink:0}
+.crit-info-btn:hover{opacity:1;color:var(--gold)}
+.critique-sub-lbl{font-size:11px;color:var(--muted);flex:1;min-width:0;display:flex;align-items:center;gap:3px}
 
 
 /* ── PROFILE QUESTIONNAIRE ───────────────────────────────────────────────────── */
@@ -8957,6 +8960,65 @@ const CRITIQUE_SCHEMA = [
   ]},
 ];
 
+
+const CRITIQUE_DEFS = {
+  story:          { title:'Story',          desc:'How well the film tells its narrative — the overall arc, what it means, and whether the journey feels satisfying.' },
+  performances:   { title:'Performances',   desc:'The quality of acting across the cast — whether the characters feel real, believable, and emotionally true.' },
+  visuals:        { title:'Visuals',         desc:'Everything you see on screen — how the film looks, its use of light, colour, composition, and the physical world it creates.' },
+  audio:          { title:'Audio',           desc:'Everything you hear — music, sound design, ambient noise, and how well dialogue is delivered and mixed.' },
+  emotion:        { title:'Emotion',         desc:'How deeply the film affects you — whether it moves you, stays with you, and creates a genuine emotional experience.' },
+  rewatchability: { title:'Rewatchability',  desc:'How much you want to return to this film. Does it reveal new layers on second viewing, or lose its appeal once you know the story?' },
+  originality:    { title:'Originality',     desc:'How fresh the film feels — whether it brings something new to cinema or does something familiar in a genuinely new way.' },
+  direction:      { title:'Direction',       desc:"The director's overall command of the film — their vision, tone control, and whether every choice feels intentional." },
+  ending:         { title:'Ending',          desc:'How the film concludes — whether the payoff is earned, the resolution honest, and you leave satisfied.' },
+  screenplay:     { title:'Screenplay',      desc:'The written script — dialogue, scene construction, and whether the writing feels sharp or clunky.' },
+  structure:      { title:'Structure',       desc:'How the story is assembled — its beginning, middle and end, and whether the pacing of revelation feels right.' },
+  pacing:         { title:'Pacing',          desc:'The rhythm of the film — how fast or slow it moves, whether scenes overstay their welcome, and whether momentum is maintained.' },
+  lead:           { title:'Lead Actor',      desc:'The central performance — does the lead carry the film? Do you believe them completely in every scene?' },
+  supporting:     { title:'Supporting Cast', desc:'The performances around the lead — do they feel like real people, or plot devices? Do they elevate the film?' },
+  chemistry:      { title:'Chemistry',       desc:'How convincingly the cast interact — whether relationships feel genuine and whether dynamics crackle with energy.' },
+  cinematography: { title:'Cinematography',  desc:'The art of the camera — how shots are composed, how light is used, and whether the visual language serves the story.' },
+  production:     { title:'Production Design',desc:'The physical world of the film — sets, locations, props, costumes. Does the world feel real, or constructed?' },
+  effects:        { title:'Special Effects',  desc:'Visual and practical effects — do they serve the story or distract from it? Do they hold up?' },
+  score:          { title:'Score / Soundtrack',desc:"The film's music — whether the score enhances emotion without overwhelming it, and whether licensed music is chosen with purpose." },
+  sound:          { title:'Sound Design',    desc:'The crafted soundscape — ambient noise, effects, silence. Great sound design is invisible; bad sound pulls you out.' },
+  dialogue:       { title:'Dialogue Delivery',desc:'How actors speak the words — timing, naturalism. Great delivery makes mediocre dialogue sing.' },
+  impact:         { title:'Impact',          desc:'The immediate emotional punch — did it make you feel something in the moment? Did it move you, disturb you, delight you?' },
+  resonance:      { title:'Resonance',       desc:'The lasting emotional weight — how the film sits with you after the credits. Does it grow in your mind, or fade quickly?' },
+  memorability:   { title:'Memorability',    desc:'How much of the film stays with you — scenes, images, lines, or feelings that burn themselves into memory.' },
+  rewatch:        { title:'Rewatchability',  desc:'Would you watch it again? Does it reward repeat viewings, or is the experience diminished once you know the outcome?' },
+  concept:        { title:'Concept',         desc:'How original the central idea is — the premise, the genre approach, the thematic territory. Is this territory we have not explored before?' },
+  execution:      { title:'Execution',       desc:'How well the original concept is realised — a great idea poorly executed fails; a familiar idea executed brilliantly can feel fresh.' },
+  vision:         { title:'Vision',          desc:"The director's singular perspective — do you feel a guiding intelligence behind every frame? Is there a clear point of view?" },
+  tone:           { title:'Tone Control',    desc:"Consistency of the film's emotional register — does it know what it is? Films that lose their tone fail here." },
+  payoff:         { title:'Payoff',          desc:'Whether the ending delivers on promises the film made — did the climax earn its emotional weight, or feel undeserved?' },
+  resolution:     { title:'Resolution',      desc:'How cleanly (or deliberately unclearly) the film wraps its threads — not all films need neat endings, but they should feel intentional.' },
+  satisfaction:   { title:'Satisfaction',    desc:'Your gut feeling as the credits roll — regardless of happy or sad, did the ending feel right for this particular film?' },
+};
+
+function showCritiqueDef(key){
+  const def = CRITIQUE_DEFS[key];
+  if(!def) return;
+  let el = document.getElementById('critique-def-panel');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'critique-def-panel';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:2px solid var(--gold);padding:16px 20px 32px;z-index:9000;transform:translateY(100%);transition:transform .25s ease';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">'
+    +'<div style="font-family:Bebas Neue,cursive;font-size:22px;letter-spacing:1px;color:var(--gold)">'+def.title+'</div>'
+    +'<button onclick="hideCritiqueDef()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1">&times;</button>'
+    +'</div>'
+    +'<div style="font-size:14px;color:var(--light);line-height:1.7">'+def.desc+'</div>';
+  requestAnimationFrame(function(){ el.style.transform='translateY(0)'; });
+}
+
+function hideCritiqueDef(){
+  const el = document.getElementById('critique-def-panel');
+  if(el) el.style.transform='translateY(100%)';
+}
+
 function critiqueSubAvg(saved, catKey){
   const cat = CRITIQUE_SCHEMA.find(c=>c.key===catKey);
   if(!cat||!saved) return 0;
@@ -9006,6 +9068,7 @@ function buildCritiquePanel(id, src){
       h += '<div class="critique-cat-row" onclick="this.classList.toggle(&quot;open&quot;)">'
         +'<div style="display:flex;align-items:center;gap:8px;min-width:0">'
         +'<div class="critique-lbl" style="width:auto;flex-shrink:0">'+cat.label+'</div>'
+        +'<button class="crit-info-btn" data-key="'+cat.key+'" onclick="event.stopPropagation();showCritiqueDef(this.dataset.key)" title="What is this?"><i class="ti ti-info-circle"></i></button>'
         +'<div style="flex:1;min-width:0;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">'
         +'<div style="height:4px;background:var(--gold);border-radius:2px;width:'+catPct+'%"></div>'
         +'</div>'
@@ -9016,7 +9079,7 @@ function buildCritiquePanel(id, src){
         +cat.sub.map(s=>{
           const v = saved[cat.key+'_'+s.key]||0;
           return '<div class="critique-sub-row">'
-            +'<div class="critique-sub-lbl">'+s.label+'</div>'
+            +'<div class="critique-sub-lbl">'+s.label+'<button class="crit-info-btn" data-key="'+s.key+'" onclick="event.stopPropagation();showCritiqueDef(this.dataset.key)" title="What is this?"><i class="ti ti-info-circle"></i></button></div>'
             +'<div>'+starHTML(v,5)+'</div>'
             +'<div style="font-size:12px;color:var(--muted);min-width:16px;text-align:right">'+v+'</div>'
             +'</div>';
@@ -9055,8 +9118,9 @@ function buildCritiqueWriteMode(id, saved){
   h += '<div class="critique-cat-list">';
   CRITIQUE_SCHEMA.forEach(cat=>{
     h += '<div class="critique-cat-row open">'
-      +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="this.closest(".critique-cat-row").classList.toggle("open")">'
+      +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="this.closest(&quot;.critique-cat-row&quot;).classList.toggle(&quot;open&quot;)">'
       +'<div class="critique-lbl" style="width:auto;flex:1">'+cat.label+'</div>'
+      +'<button class="crit-info-btn" data-key="'+cat.key+'" onclick="event.stopPropagation();showCritiqueDef(this.dataset.key)" title="What is this?"><i class="ti ti-info-circle"></i></button>'
       +'<i class="ti ti-chevron-down" style="color:var(--muted);font-size:12px;transition:transform .2s"></i>'
       +'</div>'
       +'<div class="critique-sub-list">'
@@ -9064,9 +9128,10 @@ function buildCritiqueWriteMode(id, saved){
         const k = cat.key+'_'+s.key;
         const v = saved&&saved[k]||0;
         return '<div class="critique-sub-row">'
-          +'<div class="critique-sub-lbl">'+s.label+'</div>'
-          +'<div class="crit-star-row" id="csr-'+id+'-'+k+'" data-key="'+k+'" data-id="'+id+'">'
-          +[1,2,3,4,5].map(n=>'<span class="crit-star'+(v>=n?' on':v>=n-0.5?' half':'')+'" data-n="'+n+'" onclick="critStarClick(this,event)">★</span>').join('')
+          +'<div class="critique-sub-lbl">'+s.label
+          +'<button class="crit-info-btn" data-key="'+s.key+'" onclick="event.stopPropagation();showCritiqueDef(this.dataset.key)" title="What is this?"><i class="ti ti-info-circle"></i></button>'
+          +'</div>'
+          +'<div class="crit-star-row" id="csr-'+id+'-'+k+'" data-key="'+k+'" data-id="'+id+'">'          +[1,2,3,4,5].map(n=>'<span class="crit-star'+(v>=n?' on':v>=n-0.5?' half':'')+'" data-n="'+n+'" onclick="critStarClick(this,event)">★</span>').join('')
           +'</div>'
           +'<div class="crit-star-val" id="csv-'+id+'-'+k+'">'+v+'</div>'
           +'</div>';
