@@ -1,3 +1,103 @@
+
+Claude finished the response
+Let me check where logWatch and the profile modal live before building:
+
+
+Find logWatch and profile modal
+Find logWatch and profile modal
+Create a critique review section in the movie details where i can review a movie from a more propper stance. 1-5 stars for Story, Action, Visuals, Audio.. can you add more ideas for this
+
+Good idea. Before I build, let me suggest a full set of criteria and you can trim or adjust:
+
+Core cinematic dimensions:
+
+Story — plot, structure, pacing, script
+Performances — acting, character work
+Visuals — cinematography, direction, look
+Audio — score, sound design, soundtrack
+Emotion — how it made you feel, impact
+Rewatchability — would you watch it again
+Optional deeper ones:
+
+Originality — fresh or formulaic
+Editing — rhythm, cuts, flow
+Writing — dialogue, wit, screenplay
+Direction — the director's hand and vision
+Q: Which criteria set feels right?
+A: Story, Performances, Visuals, Audio, Emotion, Rewatchability, Originality, Direction
+
+Q: Rating scale per category?
+A: 10-point scale per category
+
+Q: Where should the critique live in the detail view?
+A: Separate Critics Corner tab in the detail modal
+
+
+Ran 6 commands
+Ran 6 commands
+Now fix the two challenge changes and the missing critique panel anchor:
+
+
+Ran 6 commands, read a file
+Ran 6 commands, read a file
+Done. Here's what's built:
+
+Critics Corner tab — every movie detail now has two tabs: Info (everything that was already there) and Critics Corner. Tapping Critics Corner shows:
+
+Write mode — 8 sliders (0–10) for Story, Performances, Visuals, Audio, Emotion, Rewatchability, Originality, Direction, plus an optional written review text box and a Save button.
+
+Read mode — after saving, shows a big averaged Critic Score out of 10, horizontal bars for each category, and your written review. Edit and Delete buttons to revise or remove.
+
+Two challenge changes:
+
+#11 → "Watch something rated PG-13"
+#17 → "Rewatch a movie you have already seen"
+Critiques are stored per-user in me.critiques[movieId] so each household member has their own independent critique for every film.
+
+
+Index
+Code · HTML 
+does this have the profile questionaire
+
+No — I got sidetracked by the Critics Corner build and never added the questionnaire. Let me build it now:
+
+
+Ran a command, read a file
+Ran a command, read a file
+Done — here's everything that was built:
+
+Profile Questionnaire — appears automatically 1.5 seconds after first login (if not already filled in). Contains:
+
+3 favorite actors (text fields)
+3 favorite movies (text fields)
+Birth year (for the "watch a movie from your birth year" challenge)
+Favorite genre (tap to select from 16 genres)
+Genre you rarely watch (same list)
+Preferred movie length (Short / Medium / Long / No preference)
+Era you love most (Classic / 70s-80s / 90s-2000s / Modern / No preference)
+Edit from profile — "Edit Taste Profile" button in your profile opens it again anytime.
+
+Gauntlet hints — when the active challenge matches your profile, a gold lightbulb hint appears under the challenge text. For example:
+
+"Watch something with a single actor you love" → Try: a film with Tom Hanks
+"Rewatch a movie" → Try rewatching: The Dark Knight
+"Watch a movie from the year you were born" → Your year: 1988
+"Watch a genre you rarely pick" → Your rare genre: Horror
+
+Index
+Code · HTML 
+
+Want to be notified when Claude responds?
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+
+
+Index · HTML
+Syntax highlighting has been disabled due to code size.
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1429,6 +1529,40 @@ textarea.ffi{resize:vertical}
 .archive-card-body{padding:14px 16px;border-top:1px solid var(--border);display:none}
 .archive-card-body.open{display:block}
 
+
+/* ── CRITICS CORNER ──────────────────────────────────────────────────────────── */
+.det-tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:0}
+.det-tab-btn{padding:7px 14px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Outfit',sans-serif}
+.det-tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.det-tab-btn:hover{color:var(--light)}
+.det-tab-panel{display:none}.det-tab-panel.active{display:block}
+.critique-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.critique-row{display:flex;align-items:center;gap:10px}
+.critique-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;width:90px;flex-shrink:0}
+.critique-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--bg3);outline:none;cursor:pointer}
+.critique-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--bg)}
+.critique-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--bg)}
+.critique-val{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);width:24px;text-align:right;flex-shrink:0}
+.critique-score{font-family:'Bebas Neue',cursive;font-size:42px;color:var(--gold);letter-spacing:2px;text-align:center;line-height:1}
+.critique-score-lbl{font-size:10px;color:var(--muted);text-align:center;margin-top:2px;margin-bottom:16px}
+.critique-bar{height:3px;border-radius:2px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.3));margin-top:3px}
+.critique-readonly-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.critique-readonly-row:last-child{border-bottom:none}
+.critique-saved-score{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--gold);width:30px;text-align:right;flex-shrink:0}
+
+
+/* ── PROFILE QUESTIONNAIRE ───────────────────────────────────────────────────── */
+.quest-mo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px}
+.quest-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:24px 20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+.quest-title{font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.quest-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.quest-section{margin-bottom:18px}
+.quest-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.quest-inputs{display:flex;flex-direction:column;gap:6px}
+.quest-tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.quest-tag{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .15s;user-select:none}
+.quest-tag.selected{background:rgba(232,184,75,.15);border-color:rgba(232,184,75,.3);color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -2025,6 +2159,71 @@ textarea.ffi{resize:vertical}
 </div>
 
 <!-- PROFILE MODAL -->
+<!-- PROFILE QUESTIONNAIRE -->
+<div id="mo-questionnaire" class="quest-mo" style="display:none">
+  <div class="quest-card">
+    <div class="quest-title">Your Taste Profile</div>
+    <div class="quest-sub">Help McFlix personalise your Gauntlet hints and challenge detection. Takes 1 minute.</div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">3 Actors You Love</div>
+      <div class="quest-inputs">
+        <input class="ffi" id="q-actor1" placeholder="Actor 1">
+        <input class="ffi" id="q-actor2" placeholder="Actor 2">
+        <input class="ffi" id="q-actor3" placeholder="Actor 3">
+      </div>
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">3 Movies You Love</div>
+      <div class="quest-inputs">
+        <input class="ffi" id="q-movie1" placeholder="Movie 1">
+        <input class="ffi" id="q-movie2" placeholder="Movie 2">
+        <input class="ffi" id="q-movie3" placeholder="Movie 3">
+      </div>
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">Your Birth Year</div>
+      <input class="ffi" id="q-birthyear" placeholder="e.g. 1988" type="number" min="1920" max="2010">
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">Favourite Genre</div>
+      <div class="quest-tag-row" id="q-fav-genre-tags"></div>
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">Genre You Rarely Watch</div>
+      <div class="quest-tag-row" id="q-rare-genre-tags"></div>
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">Preferred Movie Length</div>
+      <div class="quest-tag-row">
+        <div class="quest-tag" data-group="length" data-val="short" onclick="selectQuestTag(this)">Short (&lt;90 min)</div>
+        <div class="quest-tag" data-group="length" data-val="medium" onclick="selectQuestTag(this)">Medium (90-120)</div>
+        <div class="quest-tag" data-group="length" data-val="long" onclick="selectQuestTag(this)">Long (2h+)</div>
+        <div class="quest-tag" data-group="length" data-val="any" onclick="selectQuestTag(this)">No preference</div>
+      </div>
+    </div>
+
+    <div class="quest-section">
+      <div class="quest-lbl">Era You Love Most</div>
+      <div class="quest-tag-row">
+        <div class="quest-tag" data-group="era" data-val="classic" onclick="selectQuestTag(this)">Classic (pre-1970)</div>
+        <div class="quest-tag" data-group="era" data-val="70s80s" onclick="selectQuestTag(this)">70s / 80s</div>
+        <div class="quest-tag" data-group="era" data-val="90s00s" onclick="selectQuestTag(this)">90s / 2000s</div>
+        <div class="quest-tag" data-group="era" data-val="modern" onclick="selectQuestTag(this)">Modern (2010s+)</div>
+        <div class="quest-tag" data-group="era" data-val="any" onclick="selectQuestTag(this)">No preference</div>
+      </div>
+    </div>
+
+    <button class="primary-btn" style="width:100%;margin-top:8px" onclick="saveQuestionnaire()"><i class="ti ti-check"></i> Save Profile</button>
+    <button class="ghost-btn" style="width:100%;margin-top:8px" onclick="document.getElementById('mo-questionnaire').style.display='none'">Skip for now</button>
+  </div>
+</div>
+
 <div class="mo" id="mo-profile" onclick="if(event.target===this)closeMo('profile')">
   <div class="md md-sm"><button class="mc" onclick="closeMo('profile')"><i class="ti ti-x"></i></button><div id="profile-body"></div></div>
 </div>
@@ -2723,6 +2922,7 @@ function initApp(){
   renderLib();
   updateCounts();
   initBackGuard();
+  checkShowQuestionnaire();
   buildDiaryYearSelect();
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
@@ -5406,6 +5606,11 @@ function openDetail(id,src){
       </div>
     </div>
     <div class="det-body">
+      <div class="det-tabs">
+        <button class="det-tab-btn active" onclick="switchDetTab('info',this)">Info</button>
+        <button class="det-tab-btn" onclick="switchDetTab('critique',this)">Critics Corner</button>
+      </div>
+      <div class="det-tab-panel active" id="det-panel-info-${id}">
       <div class="det-actions" style="margin-bottom:12px">
 
         ${inLib?`<button class="act act-fav ${me.favorites?.[id]?'on':''}" onclick="toggleFav('${id}')"><i class="ti ti-star${me.favorites?.[id]?'-filled':''}"></i></button>`:''}
@@ -5491,6 +5696,10 @@ function openDetail(id,src){
       </div>
       ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
       <div id="tmdb-similar-${id}"></div>
+      </div><!-- end det-panel-info -->
+      <div class="det-tab-panel" id="det-panel-critique-${id}">
+        ${buildCritiquePanel(id, src)}
+      </div>
     </div>`;
   openMo('detail');
   loadTMDBReview(id, m);
@@ -8249,13 +8458,13 @@ const GAUNTLET_CHALLENGES = [
   "Watch something with a single actor you love",
   "Watch a sequel or part of a franchise",
   "Watch a movie under 90 minutes",
-  "Watch a documentary",
+  "Watch something rated PG-13",
   "Watch a movie from the 2000s",
   "Watch a movie with a number in the title",
   "Watch something set outside the USA",
   "Watch a biographical film",
   "Watch a movie from the year you were born",
-  "Watch a movie you rated low and give it another chance",
+  "Rewatch a movie you have already seen",
   "Watch the highest-rated unwatched movie in your library",
   "Watch something with a color in the title",
   "Watch a movie released this decade",
@@ -8338,6 +8547,23 @@ function gauntletFail(){
   if(score>(g.highScore||0)) g.highScore=score;
   g.failed=true;
   saveUsers().then(()=>renderGauntlet());
+}
+
+function getGauntletHint(challenge){
+  const me = myData();
+  const q = me.questionnaire||{};
+  const c = challenge.toLowerCase();
+  if(c.includes('actor you love') && q.actors && q.actors.length)
+    return 'Try: a film with ' + q.actors[Math.floor(Math.random()*q.actors.length)];
+  if(c.includes('rewatch') && q.movies && q.movies.length)
+    return 'Try rewatching: ' + q.movies[Math.floor(Math.random()*q.movies.length)];
+  if(c.includes('year you were born') && q.birthYear)
+    return 'Your year: ' + q.birthYear;
+  if(c.includes('genre you rarely') && q.rareGenre)
+    return 'Your rare genre: ' + q.rareGenre;
+  if(c.includes('rated low') && q.movies && q.movies.length)
+    return 'Consider: ' + q.movies[Math.floor(Math.random()*q.movies.length)];
+  return null;
 }
 
 function checkGauntletAutoComplete(movieId){
@@ -8427,6 +8653,7 @@ function renderGauntlet(){
     +'<div class="gauntlet-day">'+(idx+1)+' / 30</div>'
     +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/30*100)+'%;border-radius:6px;transition:width .5s"></div></div>'
     +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong></div>'
+    +(function(){ const hint=getGauntletHint(currentChallenge); return hint?'<div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-bulb" style="color:var(--gold)"></i> '+hint+'</div>':''; })()
     +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:30px;color:'+heroColor+';letter-spacing:2px;margin:8px 0">'+fmtCountdown(timeLeft)+'</div>':'<div style="font-size:12px;color:var(--muted);margin:6px 0">No time limit</div>')
     +'<button class="primary-btn" style="margin:8px auto 4px" onclick="markGauntletDayDone(null)"><i class="ti ti-check"></i> Mark Complete</button>'
     +'<button class="ghost-btn" style="font-size:11px;margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-x"></i> Abandon</button>'
@@ -8742,6 +8969,201 @@ function renderPersonalTagPills(id){
 
 // ── TAG BROWSER ───────────────────────────────────────────────────────────────
 let _tagBrowserSelected = new Set();
+
+
+function switchDetTab(tab, btn){
+  // Find parent det-body
+  const body = btn.closest('.det-body');
+  if(!body) return;
+  body.querySelectorAll('.det-tab-btn').forEach(b=>b.classList.remove('active'));
+  body.querySelectorAll('.det-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  // Find panel by matching id suffix
+  const panels = body.querySelectorAll('.det-tab-panel');
+  panels.forEach(p=>{ if(p.id && p.id.startsWith('det-panel-'+tab+'-')) p.classList.add('active'); });
+}
+
+
+const CRITIQUE_CRITERIA = ['Story','Performances','Visuals','Audio','Emotion','Rewatchability','Originality','Direction'];
+
+function buildCritiquePanel(id, src){
+  const me = myData();
+  const saved = (me.critiques||{})[id];
+  const inLib = src==='library';
+
+  if(!inLib) return '<div class="empty" style="padding:20px 0"><i class="ti ti-star"></i><p style="font-size:13px">Add to library to leave a critique.</p></div>';
+
+  // READ MODE: show saved critique
+  if(saved){
+    const total = CRITIQUE_CRITERIA.reduce((s,k)=>s+(saved[k]||0),0);
+    const avg = (total/CRITIQUE_CRITERIA.length).toFixed(1);
+    return '<div style="text-align:center;padding:10px 0 6px">'
+      +'<div class="critique-score">'+avg+'</div>'
+      +'<div class="critique-score-lbl">Critic Score / 10</div>'
+      +'</div>'
+      +'<div class="critique-grid">'
+      +CRITIQUE_CRITERIA.map(k=>{
+        const v=saved[k]||0;
+        const pct=Math.round(v/10*100);
+        return '<div class="critique-readonly-row">'
+          +'<div class="critique-lbl">'+k+'</div>'
+          +'<div style="flex:1"><div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div class="critique-bar" style="width:'+pct+'%"></div></div></div>'
+          +'<div class="critique-saved-score">'+v+'</div>'
+          +'</div>';
+      }).join('')
+      +'</div>'
+      +(saved.review?'<div style="font-size:13px;color:var(--light);line-height:1.6;padding:10px 0;border-top:1px solid var(--border);margin-top:4px">'+saved.review+'</div>':'')
+      +'<div style="display:flex;gap:8px;margin-top:12px">'
+      +'<button class="ghost-btn" style="flex:1" data-id="'+id+'" onclick="editCritique(this.dataset.id)"><i class="ti ti-edit"></i> Edit</button>'
+      +'<button class="ghost-btn" style="color:var(--red);border-color:rgba(232,53,75,.2)" data-id="'+id+'" onclick="deleteCritique(this.dataset.id)"><i class="ti ti-trash"></i></button>'
+      +'</div>';
+  }
+
+  // WRITE MODE: sliders
+  return '<div id="critique-form-'+id+'">'
+    +'<div class="critique-grid">'
+    +CRITIQUE_CRITERIA.map(k=>'<div class="critique-row">'
+      +'<div class="critique-lbl">'+k+'</div>'
+      +'<input type="range" class="critique-slider" id="crit-'+id+'-'+k+'" data-val="crit-val-'+id+'-'+k+'" min="0" max="10" value="5" oninput="document.getElementById(this.dataset.val).textContent=this.value">'
+      +'<div class="critique-val" id="crit-val-'+id+'-'+k+'">5</div>'
+      +'</div>').join('')
+    +'</div>'
+    +'<div class="notes-lbl" style="margin-bottom:6px">Written Review <span style="font-weight:400;color:var(--muted);font-size:10px">(optional)</span></div>'
+    +'<textarea class="ffi" id="crit-review-'+id+'" rows="3" placeholder="Your thoughts on this film..." style="resize:vertical;line-height:1.5"></textarea>'
+    +'<button class="primary-btn" style="margin-top:10px;width:100%" data-id="'+id+'" onclick="saveCritique(this.dataset.id)"><i class="ti ti-star-filled"></i> Save Critique</button>'
+    +'</div>';
+}
+
+function saveCritique(id){
+  const me = myData();
+  me.critiques = me.critiques||{};
+  const data = {};
+  CRITIQUE_CRITERIA.forEach(k=>{
+    const el = document.getElementById('crit-'+id+'-'+k);
+    data[k] = el ? parseInt(el.value)||0 : 0;
+  });
+  const rev = document.getElementById('crit-review-'+id);
+  data.review = rev ? rev.value.trim() : '';
+  data.savedAt = Date.now();
+  me.critiques[id] = data;
+  saveUsers().then(()=>{
+    // Refresh the critique panel in place
+    const panel = document.getElementById('det-panel-critique-'+id);
+    if(panel) panel.innerHTML = buildCritiquePanel(id,'library');
+    toast('Critique saved!');
+  });
+}
+
+function editCritique(id){
+  const me = myData();
+  const saved = (me.critiques||{})[id];
+  const panel = document.getElementById('det-panel-critique-'+id);
+  if(!panel) return;
+  // Switch to write mode pre-filled with saved values
+  panel.innerHTML = '<div id="critique-form-'+id+'">'
+    +'<div class="critique-grid">'
+    +CRITIQUE_CRITERIA.map(k=>{
+      const v=saved?saved[k]||5:5;
+      return '<div class="critique-row">'
+        +'<div class="critique-lbl">'+k+'</div>'
+        +'<input type="range" class="critique-slider" id="crit-'+id+'-'+k+'" data-val="crit-val-'+id+'-'+k+'" min="0" max="10" value="'+v+'" oninput="document.getElementById(this.dataset.val).textContent=this.value">'
+        +'<div class="critique-val" id="crit-val-'+id+'-'+k+'">'+v+'</div>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div class="notes-lbl" style="margin-bottom:6px">Written Review</div>'
+    +'<textarea class="ffi" id="crit-review-'+id+'" rows="3" style="resize:vertical;line-height:1.5">'+((saved&&saved.review)||'')+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button class="primary-btn" style="flex:1" data-id="'+id+'" onclick="saveCritique(this.dataset.id)"><i class="ti ti-star-filled"></i> Save</button>'
+    +'<button class="ghost-btn" data-id="'+id+'" onclick="cancelCritiqueEdit(this.dataset.id)">Cancel</button>'
+    +'</div></div>';
+}
+
+
+function cancelCritiqueEdit(id){
+  const panel = document.getElementById('det-panel-critique-'+id);
+  if(panel) panel.innerHTML = buildCritiquePanel(id, 'library');
+}
+
+function deleteCritique(id){
+  if(!confirm('Delete this critique?')) return;
+  const me = myData();
+  if(me.critiques) delete me.critiques[id];
+  saveUsers().then(()=>{
+    const panel = document.getElementById('det-panel-critique-'+id);
+    if(panel) panel.innerHTML = buildCritiquePanel(id,'library');
+    toast('Critique deleted.');
+  });
+}
+
+
+// ── PROFILE QUESTIONNAIRE ─────────────────────────────────────────────────────
+const GENRE_OPTIONS = ['Action','Adventure','Animation','Comedy','Crime','Documentary',
+  'Drama','Fantasy','Horror','Mystery','Romance','Sci-Fi','Thriller','Western','Biography','History'];
+
+function openQuestionnaire(){
+  const me = myData();
+  const q = me.questionnaire||{};
+  // Pre-fill existing values
+  const fields = {
+    'q-actor1': q.actors?.[0]||'', 'q-actor2': q.actors?.[1]||'', 'q-actor3': q.actors?.[2]||'',
+    'q-movie1': q.movies?.[0]||'', 'q-movie2': q.movies?.[1]||'', 'q-movie3': q.movies?.[2]||'',
+    'q-birthyear': q.birthYear||''
+  };
+  Object.entries(fields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+
+  // Build genre tags
+  ['q-fav-genre-tags','q-rare-genre-tags'].forEach((containerId, i)=>{
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    const saved = i===0 ? q.favGenre : q.rareGenre;
+    container.innerHTML = GENRE_OPTIONS.map(g=>`<div class="quest-tag${g===saved?' selected':''}" data-group="${i===0?'favgenre':'raregenre'}" data-val="${g}" onclick="selectQuestTag(this)">${g}</div>`).join('');
+  });
+
+  // Pre-select saved tags
+  if(q.preferredLength){
+    const el = document.querySelector(`.quest-tag[data-group="length"][data-val="${q.preferredLength}"]`);
+    if(el) el.classList.add('selected');
+  }
+  if(q.favEra){
+    const el = document.querySelector(`.quest-tag[data-group="era"][data-val="${q.favEra}"]`);
+    if(el) el.classList.add('selected');
+  }
+
+  document.getElementById('mo-questionnaire').style.display='flex';
+}
+
+function selectQuestTag(el){
+  const group = el.dataset.group;
+  document.querySelectorAll(`.quest-tag[data-group="${group}"]`).forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveQuestionnaire(){
+  const me = myData();
+  const get = id => (document.getElementById(id)?.value||'').trim();
+  const getTag = group => document.querySelector(`.quest-tag[data-group="${group}"].selected`)?.dataset.val||'';
+
+  me.questionnaire = {
+    actors: [get('q-actor1'), get('q-actor2'), get('q-actor3')].filter(Boolean),
+    movies: [get('q-movie1'), get('q-movie2'), get('q-movie3')].filter(Boolean),
+    birthYear: parseInt(get('q-birthyear'))||0,
+    favGenre: getTag('favgenre'),
+    rareGenre: getTag('raregenre'),
+    preferredLength: getTag('length'),
+    favEra: getTag('era'),
+    completedAt: Date.now(),
+  };
+  document.getElementById('mo-questionnaire').style.display='none';
+  saveUsers().then(()=>toast('Taste profile saved!'));
+}
+
+function checkShowQuestionnaire(){
+  const me = myData();
+  if(!me.questionnaire || !me.questionnaire.completedAt){
+    setTimeout(openQuestionnaire, 1500);
+  }
+}
 
 function renderTagBrowser(){
   const pills = document.getElementById('tag-browser-pills');
@@ -9830,6 +10252,7 @@ function openProfile(){
       `:''}
       <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Account</div>
       <button class="ghost-btn" onclick="closeMo('profile');openMo('letterboxd')" style="margin-bottom:8px"><i class="ti ti-file-import"></i> Import from Letterboxd</button>
+      <button class="ghost-btn" style="margin-bottom:8px" onclick="openQuestionnaire()"><i class="ti ti-user-circle"></i> Edit Taste Profile</button>
       ${isAdmin()?`<button class="ghost-btn" onclick="reconcileDiary()" style="margin-bottom:8px"><i class="ti ti-tool"></i> Reconcile Diary (fix watch counts)</button>
       <button class="ghost-btn" onclick="backfillOMDBRatings()" style="margin-bottom:8px"><i class="ti ti-star"></i> Backfill Ratings from OMDB</button>
       <button class="ghost-btn" onclick="bulkImportTMDBKeywords()" style="margin-bottom:8px"><i class="ti ti-tags"></i> Import TMDB Keywords to All Tags</button>`:''}
@@ -10018,3 +10441,22 @@ function secretAddClick(){
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
