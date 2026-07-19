@@ -1097,11 +1097,11 @@ textarea.ffi{resize:vertical}
 .ghost-rating-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .ghost-rating-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
 .ghost-rating-label{font-size:11px;color:var(--muted);min-width:70px}
-.ghost-bar-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;position:relative}
+.ghost-bar-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;position:relative;overflow:hidden}
 .ghost-bar-fill{height:4px;border-radius:2px;opacity:.35}
 .ghost-bar-fill.imdb{background:#f5c530}
 .ghost-bar-fill.rt{background:#fa320a}
-.ghost-bar-fill.mc{background:#6c0}
+.ghost-bar-fill.mc{background:#8a5af0}
 .ghost-user-fill{height:4px;border-radius:2px;position:absolute;top:0;left:0;background:var(--gold);opacity:.9}
 .ghost-val{font-size:10px;color:var(--muted);min-width:32px;text-align:right}
 .ghost-delta{font-size:10px;font-weight:700;min-width:28px;text-align:right}
@@ -5596,8 +5596,8 @@ function openDetail(id,src){
       </div>
       ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
       <div id="tmdb-similar-${id}"></div>
-      </div><!-- end det-panel-info -->
-      <div class="det-tab-panel" id="det-panel-critique-${id}">
+      </div>
+      <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
         ${buildCritiquePanel(id, src)}
       </div>
     </div>`;
@@ -8872,15 +8872,17 @@ let _tagBrowserSelected = new Set();
 
 
 function switchDetTab(tab, btn){
-  // Find parent det-body
   const body = btn.closest('.det-body');
   if(!body) return;
   body.querySelectorAll('.det-tab-btn').forEach(b=>b.classList.remove('active'));
-  body.querySelectorAll('.det-tab-panel').forEach(p=>p.classList.remove('active'));
+  body.querySelectorAll('.det-tab-panel').forEach(p=>{ p.classList.remove('active'); p.style.display='none'; });
   btn.classList.add('active');
-  // Find panel by matching id suffix
-  const panels = body.querySelectorAll('.det-tab-panel');
-  panels.forEach(p=>{ if(p.id && p.id.startsWith('det-panel-'+tab+'-')) p.classList.add('active'); });
+  body.querySelectorAll('.det-tab-panel').forEach(p=>{
+    if(p.id && p.id.startsWith('det-panel-'+tab+'-')){
+      p.classList.add('active');
+      p.style.display='block';
+    }
+  });
 }
 
 
