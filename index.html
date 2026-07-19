@@ -1475,27 +1475,13 @@ textarea.ffi{resize:vertical}
 
 
 /* ── DETAIL SECTION CARDS ──────────────────────────────────────────────────── */
-.det-section{border-radius:14px;padding:0;margin-bottom:12px;border:2px solid var(--border);overflow:hidden}
-.det-section-stripe{height:3px;width:100%}
-.det-section-body{padding:14px 16px}
-.det-section-ratings{border-color:rgba(232,184,75,.4);box-shadow:0 2px 12px rgba(232,184,75,.08)}
-.det-section-ratings .det-section-stripe{background:linear-gradient(to right,var(--gold),rgba(232,184,75,.2))}
-.det-section-ratings .det-section-body{background:rgba(232,184,75,.04)}
-.det-section-tags{border-color:rgba(52,152,219,.35);box-shadow:0 2px 12px rgba(52,152,219,.08)}
-.det-section-tags .det-section-stripe{background:linear-gradient(to right,var(--blue),rgba(52,152,219,.2))}
-.det-section-tags .det-section-body{background:rgba(52,152,219,.04)}
-.det-section-vibe{border-color:rgba(138,90,240,.35);box-shadow:0 2px 12px rgba(138,90,240,.08)}
-.det-section-vibe .det-section-stripe{background:linear-gradient(to right,var(--purple),rgba(138,90,240,.2))}
-.det-section-vibe .det-section-body{background:rgba(138,90,240,.04)}
-.det-section-notes{border-color:rgba(255,255,255,.12)}
-.det-section-notes .det-section-stripe{background:linear-gradient(to right,rgba(255,255,255,.15),transparent)}
-.det-section-notes .det-section-body{background:var(--card)}
-.det-section-history{border-color:rgba(46,204,113,.35);box-shadow:0 2px 12px rgba(46,204,113,.08)}
-.det-section-history .det-section-stripe{background:linear-gradient(to right,var(--green),rgba(46,204,113,.2))}
-.det-section-history .det-section-body{background:rgba(46,204,113,.04)}
-.det-section-comments{border-color:rgba(255,255,255,.12)}
-.det-section-comments .det-section-stripe{background:linear-gradient(to right,rgba(255,255,255,.15),transparent)}
-.det-section-comments .det-section-body{background:var(--card)}
+.det-section{border-radius:14px;padding:14px 16px;margin-bottom:12px;border:2px solid var(--border);border-top-width:4px}
+.det-section-ratings{border-color:var(--gold);background:rgba(232,184,75,.04)}
+.det-section-tags{border-color:var(--blue);background:rgba(52,152,219,.04)}
+.det-section-vibe{border-color:var(--purple);background:rgba(138,90,240,.04)}
+.det-section-notes{border-color:rgba(255,255,255,.15);background:var(--card)}
+.det-section-history{border-color:var(--green);background:rgba(46,204,113,.04)}
+.det-section-comments{border-color:rgba(255,255,255,.15);background:var(--card)}
 .det-section-hd{font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .det-section-ratings .det-section-hd{color:var(--gold)}
 .det-section-tags .det-section-hd{color:var(--blue)}
@@ -5591,8 +5577,6 @@ function openDetail(id,src){
         </div>`;
       })()}
       <div class="det-section det-section-ratings">
-        <div class="det-section-stripe"></div>
-        <div class="det-section-body">
         <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:14px"></i> Details</div>
         <div class="info-grid">
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
@@ -5605,7 +5589,9 @@ function openDetail(id,src){
       </div>
       ${seriesProgressHTML(m)}
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
-      ${vibeCheckHTML(id)}
+      </div>
+      ${vibeCheckHTML(id)?`<div class="det-section det-section-vibe"><div class="det-section-hd"><i class="ti ti-mood-happy" style="font-size:14px"></i> Vibe Check</div>${vibeCheckHTML(id)}</div>`:''}
+      <div class="det-section det-section-tags">
         <div class="det-section-hd"><i class="ti ti-tags" style="font-size:14px"></i> Tags</div>
         <div class="notes-lbl" style="margin-bottom:6px">Shared <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">· visible to everyone</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
@@ -5618,11 +5604,7 @@ function openDetail(id,src){
           <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
         </div>`:''}
       </div>
-        </div><!-- end det-section-body tags -->
-      </div><!-- end det-section-tags -->
       <div class="det-section det-section-tags" id="tmdb-kw-wrap-${id}">
-        <div class="det-section-stripe"></div>
-        <div class="det-section-body">
         <div class="det-section-hd"><i class="ti ti-tag" style="font-size:14px"></i> TMDB Keywords</div>
         <div id="tmdb-keywords-${id}"></div>
         </div>
@@ -5644,7 +5626,7 @@ function openDetail(id,src){
         <div style="font-size:11px;color:var(--muted)">${(m.watchComments||[]).length} reaction${(m.watchComments||[]).length!==1?'s':''} from ${[...new Set((m.watchComments||[]).map(c=>c.username))].join(', ')}</div></div>
         <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
       </div>`:''}
-      <div class="comments-section">
+      <div class="det-section det-section-comments">
         <div class="det-section-hd"><i class="ti ti-message-circle" style="font-size:14px"></i> Comments</div>
         <div class="comments-list" id="comments-list-${id}">
           ${buildComments(m,id,src)}
@@ -5653,13 +5635,13 @@ function openDetail(id,src){
           <textarea class="ffi comment-input-wrap" id="comment-input-${id}" placeholder="Leave a comment..." rows="2" style="flex:1;resize:none"></textarea>
           <button class="comment-submit" onclick="addComment('${id}','${src}')"><i class="ti ti-send"></i> Post</button>
         </div>
-      </div>
-      <div class="notes-section">
-        <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Plex Activity</div>
+      <div class="det-section det-section-notes">
+        <div class="det-section-hd"><i class="ti ti-brand-plex" style="font-size:14px;color:#e5a00d"></i> Plex Activity</div>
         <div id="plex-act-${id}">${buildActivitySection(m)}</div>
       </div>
-      <div class="notes-section">
-        <div class="notes-lbl">Watch History</div>
+      <div class="det-section det-section-history">
+        <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
+        <div class="notes-lbl" style="display:none">Watch History</div>
         ${histHTML}
         <div class="lk-row">
           <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
@@ -5668,7 +5650,7 @@ function openDetail(id,src){
       </div>
       ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
       <div id="tmdb-similar-${id}"></div>
-      </div>
+      </div><!-- det-panel-info -->
       <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
         ${buildCritiquePanel(id, src)}
       </div>
@@ -9062,6 +9044,19 @@ function hideCritiqueDef(){
   if(el) el.style.transform='translateY(100%)';
 }
 
+
+const STAR_MEANINGS = {
+  1: 'Actively bad — distracting, incompetent, works against the film',
+  2: 'Flawed — noticeable problems that pull you out',
+  3: 'Competent — invisible, does its job, neither helps nor hurts',
+  4: 'Genuinely good — moments that impressed you, above average',
+  5: 'Exceptional — you would point to this specifically as a highlight',
+};
+
+function starMeaningTooltip(n){
+  return STAR_MEANINGS[n]||'';
+}
+
 function critiqueSubAvg(saved, catKey){
   const cat = CRITIQUE_SCHEMA.find(c=>c.key===catKey);
   if(!cat||!saved) return 0;
@@ -9157,6 +9152,16 @@ function buildCritiqueWriteMode(id, saved){
   h += '<div class="notes-lbl" style="margin-bottom:4px">Headline <span style="font-size:10px;color:var(--muted);font-weight:400">(optional one-liner)</span></div>'
     +'<input class="ffi" id="crit-headline-'+id+'" placeholder="e.g. A relentless masterpiece of tension" style="margin-bottom:12px" value="'+(saved&&saved.headline?saved.headline:'')+'">';
 
+  // Star legend
+  h += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px;margin-bottom:12px;border:1px solid var(--border)">'
+    +'<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Star Guide</div>'
+    +'<div style="display:flex;flex-direction:column;gap:3px">'
+    +[1,2,3,4,5].map(n=>'<div style="display:flex;align-items:baseline;gap:6px">'
+      +'<span style="color:var(--gold);font-size:13px;flex-shrink:0">'+Array(n+1).join('★')+'</span>'
+      +'<span style="font-size:11px;color:var(--muted)">'+STAR_MEANINGS[n]+'</span>'
+      +'</div>').join('')
+    +'</div></div>';
+
   // Category + sub-criteria
   h += '<div class="critique-cat-list">';
   CRITIQUE_SCHEMA.forEach(cat=>{
@@ -9174,7 +9179,7 @@ function buildCritiqueWriteMode(id, saved){
           +'<div class="critique-sub-lbl">'+s.label
           +'<button class="crit-info-btn" data-key="'+s.key+'" onclick="event.stopPropagation();showCritiqueDef(this.dataset.key)" title="What is this?"><i class="ti ti-info-circle"></i></button>'
           +'</div>'
-          +'<div class="crit-star-row" id="csr-'+id+'-'+k+'" data-key="'+k+'" data-id="'+id+'">'          +[1,2,3,4,5].map(n=>'<span class="crit-star'+(v>=n?' on':v>=n-0.5?' half':'')+'" data-n="'+n+'" onclick="critStarClick(this,event)">★</span>').join('')
+          +'<div class="crit-star-row" id="csr-'+id+'-'+k+'" data-key="'+k+'" data-id="'+id+'">'          +[1,2,3,4,5].map(n=>'<span class="crit-star'+(v>=n?' on':v>=n-0.5?' half':'')+'" data-n="'+n+'" onclick="critStarClick(this,event)" title="'+n+' — '+STAR_MEANINGS[n]+'">★</span>').join('')
           +'</div>'
           +'<div class="crit-star-val" id="csv-'+id+'-'+k+'">'+v+'</div>'
           +'</div>';
