@@ -1473,6 +1473,23 @@ textarea.ffi{resize:vertical}
 .quest-tag{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .15s;user-select:none}
 .quest-tag.selected{background:rgba(232,184,75,.15);border-color:rgba(232,184,75,.3);color:var(--gold)}
 
+
+/* ── DETAIL SECTION CARDS ──────────────────────────────────────────────────── */
+.det-section{border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--border)}
+.det-section-ratings{background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.15)}
+.det-section-tags{background:rgba(52,152,219,.04);border-color:rgba(52,152,219,.15)}
+.det-section-vibe{background:rgba(138,90,240,.04);border-color:rgba(138,90,240,.15)}
+.det-section-notes{background:rgba(255,255,255,.02);border-color:var(--border)}
+.det-section-history{background:rgba(46,204,113,.04);border-color:rgba(46,204,113,.15)}
+.det-section-comments{background:rgba(255,255,255,.02);border-color:var(--border)}
+.det-section-hd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.det-section-ratings .det-section-hd{color:rgba(232,184,75,.7)}
+.det-section-tags .det-section-hd{color:rgba(52,152,219,.7)}
+.det-section-vibe .det-section-hd{color:rgba(138,90,240,.7)}
+.det-section-notes .det-section-hd{color:var(--muted)}
+.det-section-history .det-section-hd{color:rgba(46,204,113,.7)}
+.det-section-comments .det-section-hd{color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -5559,7 +5576,9 @@ function openDetail(id,src){
           <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
         </div>`;
       })()}
-      <div class="info-grid">
+      <div class="det-section det-section-ratings">
+        <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:11px"></i> Details</div>
+        <div class="info-grid">
         ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
         ${m.runtime?`<div class="info-item"><div class="info-lbl">Runtime</div><div class="info-val">${formatRuntime(m.runtime)}</div></div>`:''}
@@ -5571,8 +5590,9 @@ function openDetail(id,src){
       ${seriesProgressHTML(m)}
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       ${vibeCheckHTML(id)}
-      <div class="notes-section">
-        <div class="notes-lbl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(shared · visible to everyone)</span></div>
+      <div class="det-section det-section-tags">
+        <div class="det-section-hd"><i class="ti ti-tags" style="font-size:11px"></i> Tags</div>
+        <div class="notes-lbl" style="margin-bottom:6px">Shared <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">· visible to everyone</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
           ${(m.tags||[]).length
             ? (m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t}${isAdmin()?` <i class="ti ti-x" style="font-size:11px;cursor:pointer" onclick="removeTag('${id}','${src}','${t.replace(/'/g,"\\'")}')" title="Remove tag"></i>`:''}</span>`).join('')
@@ -5583,7 +5603,11 @@ function openDetail(id,src){
           <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
         </div>`:''}
       </div>
-      <div id="tmdb-keywords-${id}" style="margin-bottom:10px"></div>
+      </div><!-- end det-section-tags -->
+      <div class="det-section det-section-tags" style="margin-top:-4px" id="tmdb-kw-wrap-${id}">
+        <div class="det-section-hd"><i class="ti ti-tag" style="font-size:11px"></i> TMDB Keywords</div>
+        <div id="tmdb-keywords-${id}"></div>
+      </div>
       <div class="personal-tags-section">
         <div class="notes-lbl" style="margin-bottom:6px">My Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">(only you can see these)</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="personal-tags-display-${id}">
@@ -5602,7 +5626,7 @@ function openDetail(id,src){
         <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
       </div>`:''}
       <div class="comments-section">
-        <div class="notes-lbl" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Comments</div>
+        <div class="det-section-hd"><i class="ti ti-message-circle" style="font-size:11px"></i> Comments</div>
         <div class="comments-list" id="comments-list-${id}">
           ${buildComments(m,id,src)}
         </div>
@@ -10127,6 +10151,37 @@ function renderCinema(){
 
   // ── BUILD HTML ─────────────────────────────────────────────────────────────
   let html = '';
+
+  // ── TOP 25 BY CRITIC SCORE (shown first if any critiques exist) ──────────
+  const _critiques = me.critiques||{};
+  const _critMovies = sharedData.library
+    .filter(m=>m.type!=='tv' && _critiques[m.id] && _critiques[m.id]._v2)
+    .map(m=>({m, score:critiqueOverallScore(_critiques[m.id])}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,25);
+
+  if(_critMovies.length){
+    html += '<div class="cinema-section cinema-alltime">'
+      +'<div class="cinema-section-stripe"></div>'
+      +'<div class="cinema-section-inner">'
+      +'<div class="cinema-section-hd"><i class="ti ti-star-filled" style="font-size:18px;color:var(--gold)"></i> Top '+_critMovies.length+' by Critic Score</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px">';
+    _critMovies.forEach(function(x,i){
+      const m2=x.m, score=x.score;
+      const pct=Math.round(score/10*100);
+      html += '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0" onclick="openDetail(\''+m2.id+'\',\'library\')">'
+        +'<div style="font-family:Bebas Neue,cursive;font-size:14px;color:var(--muted);width:20px;flex-shrink:0;text-align:right">'+(i+1)+'</div>'
+        +(m2.poster&&m2.poster!=='N/A'?'<img src="'+m2.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">':'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>')
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m2.title+'</div>'
+        +'<div style="height:3px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:3px;background:var(--gold);border-radius:2px;width:'+pct+'%"></div></div>'
+        +'</div>'
+        +'<div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);flex-shrink:0">'+score.toFixed(1)+'</div>'
+        +'</div>';
+    });
+    html += '</div></div></div>';
+  }
 
   // ── MONTHLY ──
   html += '<div class="cinema-section cinema-monthly">'
