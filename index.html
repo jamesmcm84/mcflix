@@ -5543,7 +5543,7 @@ function openDetail(id,src){
         <button class="det-tab-btn active" onclick="switchDetTab('info',this)">Info</button>
         <button class="det-tab-btn" onclick="switchDetTab('critique',this)">Critics Corner</button>
       </div>
-      <div class="det-tab-panel active" id="det-panel-info-${id}">
+      <div class="det-tab-panel active" id="det-panel-info-${id}" style="display:block">
       <div class="det-actions" style="margin-bottom:12px">
 
         ${inLib?`<button class="act act-fav ${me.favorites?.[id]?'on':''}" onclick="toggleFav('${id}')"><i class="ti ti-star${me.favorites?.[id]?'-filled':''}"></i></button>`:''}
@@ -5567,7 +5567,7 @@ function openDetail(id,src){
         const crit=(me.critiques||{})[id];
         const cs=crit&&crit._v2?critiqueOverallScore(crit):0;
         if(!cs) return '';
-        return `<div style="display:flex;align-items:center;gap:10px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer" onclick="switchDetTab('critique',document.querySelector('.det-tab-btn:last-child'))">
+        return `<div style="display:flex;align-items:center;gap:10px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer" onclick="(function(el){var btns=el.closest('.det-body').querySelectorAll('.det-tab-btn');switchDetTab('critique',btns[btns.length-1]);})(this)">
           <div style="font-family:Bebas Neue,cursive;font-size:36px;color:var(--gold);line-height:1">${cs.toFixed(1)}</div>
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px">Your Critic Score</div>
@@ -8928,13 +8928,24 @@ let _tagBrowserSelected = new Set();
 function switchDetTab(tab, btn){
   const body = btn.closest('.det-body');
   if(!body) return;
+  // Hide all tab buttons and panels
   body.querySelectorAll('.det-tab-btn').forEach(b=>b.classList.remove('active'));
-  body.querySelectorAll('.det-tab-panel').forEach(p=>{ p.classList.remove('active'); p.style.display='none'; });
+  body.querySelectorAll('.det-tab-panel').forEach(p=>{
+    p.classList.remove('active');
+    p.style.display='none';
+    p.style.visibility='hidden';
+    p.style.height='0';
+    p.style.overflow='hidden';
+  });
+  // Show target panel
   btn.classList.add('active');
   body.querySelectorAll('.det-tab-panel').forEach(p=>{
     if(p.id && p.id.startsWith('det-panel-'+tab+'-')){
       p.classList.add('active');
       p.style.display='block';
+      p.style.visibility='visible';
+      p.style.height='';
+      p.style.overflow='';
     }
   });
 }
