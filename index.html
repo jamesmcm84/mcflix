@@ -2242,6 +2242,12 @@ textarea.ffi{resize:vertical}
 </div>
 
 <!-- PERSONAL WISHLIST DETAIL MODAL -->
+<!-- DIRECTOR FILMOGRAPHY MODAL -->
+<div class="mo" id="mo-director" onclick="if(event.target===this)closeMo('director')">
+  <div class="md md-sm"><button class="mc" onclick="closeMo('director')"><i class="ti ti-x"></i></button>
+  <div id="director-body" style="padding:16px 20px;max-height:80vh;overflow-y:auto"></div></div>
+</div>
+
 <div class="mo" id="mo-pwish-detail" onclick="if(event.target===this)closeMo('pwish-detail')">
   <div class="md md-sm"><button class="mc" onclick="closeMo('pwish-detail')"><i class="ti ti-x"></i></button><div id="pwish-detail-body" style="padding:16px 20px"></div></div>
 </div>
@@ -5563,6 +5569,7 @@ function openDetail(id,src){
       <div id="trailer-btn-${id}"></div>
       <div id="tmdb-collection-${id}"></div>
       ${m.plot&&m.plot!=='N/A'?plotHTML(m.plot):''}
+      <div id="tmdb-awards-${id}"></div>
       <div id="tmdb-providers-${id}"></div>
       <div id="tmdb-cast-${id}"></div>
       <div id="tmdb-review-${id}"></div>
@@ -5584,7 +5591,7 @@ function openDetail(id,src){
       <div class="det-section det-section-ratings">
         <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:14px"></i> Details</div>
         <div class="info-grid">
-        ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val">${m.director}</div></div>`:''}
+        ${m.director&&m.director!=='N/A'?`<div class="info-item"><div class="info-lbl">Director</div><div class="info-val" style="cursor:pointer;color:var(--gold);text-decoration:underline;text-decoration-color:rgba(232,184,75,.3)" onclick="openDirectorPage('${m.director.split(',')[0].trim()}')">${m.director}</div></div>`:''}
         ${m.year?`<div class="info-item"><div class="info-lbl">Year</div><div class="info-val">${m.year}</div></div>`:''}
         ${m.runtime?`<div class="info-item"><div class="info-lbl">Runtime</div><div class="info-val">${formatRuntime(m.runtime)}</div></div>`:''}
         ${m.rating&&m.rating!=='N/A'?`<div class="info-item"><div class="info-lbl">Rated</div><div class="info-val">${m.rating}</div></div>`:''}
@@ -5710,20 +5717,31 @@ async function loadTMDBTVExtras(id, m, containers){
   if(providersContainer){
     const region = 'US';
     const provData = details['watch/providers']?.results?.[region];
-    const flatrate = provData?.flatrate || [];
-    const rent = provData?.rent || [];
-    const buy = provData?.buy || [];
-    const all = [...flatrate, ...rent.slice(0,2), ...buy.slice(0,2)];
-    const seen = new Set();
-    const unique = all.filter(p=>{ if(seen.has(p.provider_id)) return false; seen.add(p.provider_id); return true; }).slice(0,6);
-    if(unique.length){
-      providersContainer.innerHTML = `<div class="providers-row">
-        <span class="providers-label">Watch on</span>
-        ${unique.map(p=>`<img src="${TMDB_IMG}w92${p.logo_path}" class="provider-icon" alt="${p.provider_name}" title="${p.provider_name}">`).join('')}
+    const flatrate = (provData?.flatrate||[]).slice(0,6);
+    const rent = (provData?.rent||[]).slice(0,4);
+    const buy = (provData?.buy||[]).slice(0,3);
+    const link = provData?.link||'https://www.justwatch.com/';
+    if(flatrate.length||rent.length||buy.length){
+      const logo = p=>`<div title="${p.provider_name}" style="width:32px;height:32px;border-radius:8px;overflow:hidden;flex-shrink:0">
+        <img src="https://image.tmdb.org/t/p/original${p.logo_path}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
       </div>`;
+      let phtml = '<div class="det-section det-section-notes" style="margin-bottom:10px"><div class="det-section-hd" style="font-size:15px"><i class="ti ti-device-tv" style="font-size:13px"></i> Where to Watch</div>';
+      if(flatrate.length){
+        phtml += '<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:700">Stream</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap">'+flatrate.map(logo).join('')+'</div></div>';
+      }
+      if(rent.length){
+        phtml += '<div style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:700">Rent</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap">'+rent.map(logo).join('')+'</div></div>';
+      }
+      if(buy.length){
+        phtml += '<div style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:700">Buy</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap">'+buy.map(logo).join('')+'</div></div>';
+      }
+      phtml += '<div style="font-size:10px;color:var(--muted);margin-top:4px">US availability · <a href="'+link+'" target="_blank" style="color:var(--blue)">JustWatch</a></div></div>';
+      if(document.getElementById(`tmdb-providers-${id}`)) providersContainer.innerHTML = phtml;
     }
   }
-
   // ── TRAILER BUTTON ──
   if(trailerContainer){
     const trailer = (details.videos?.results||[]).find(v=>v.site==='YouTube' && (v.type==='Trailer'||v.type==='Teaser'));
@@ -5884,6 +5902,41 @@ async function loadTMDBReview(id, m){
 
   // Cache for poster-picker / collection / providers use
   _tmdbDetailsCache[id] = details;
+
+  // ── ACADEMY AWARDS (from OMDB) ──
+  const awardsContainer = document.getElementById(`tmdb-awards-${id}`);
+  if(awardsContainer && m.imdb && m.imdb!=='N/A'){
+    try{
+      const omdbR = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${m.imdb}&plot=short`);
+      const omdbD = await omdbR.json();
+      if(omdbD.Response==='True' && omdbD.Awards && omdbD.Awards!=='N/A'){
+        const awardText = omdbD.Awards;
+        // Parse Oscar wins
+        const oscWin = awardText.match(/Won\s+(\d+)\s+Oscar/i);
+        const oscNom = awardText.match(/Nominated for\s+(\d+)\s+Oscar/i);
+        const wins   = awardText.match(/(\d+)\s+win/i);
+        const noms   = awardText.match(/(\d+)\s+nomination/i);
+        let html = '<div class="det-section det-section-ratings" style="margin-bottom:10px">'
+          +'<div class="det-section-hd" style="font-size:15px"><i class="ti ti-award" style="font-size:14px;color:var(--gold)"></i> Awards</div>';
+        if(oscWin||oscNom){
+          html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:8px 12px;background:rgba(232,184,75,.08);border-radius:8px;border:1px solid rgba(232,184,75,.2)">'
+            +'<div style="font-size:28px;line-height:1">🏆</div>'
+            +'<div>'
+            +(oscWin?`<div style="font-size:14px;font-weight:700;color:var(--gold)">Won ${oscWin[1]} Oscar${oscWin[1]!=='1'?'s':''}</div>`:'')
+            +(oscNom?`<div style="font-size:12px;color:var(--muted)">Nominated for ${oscNom[1]} Oscar${oscNom[1]!=='1'?'s':''}</div>`:'')
+            +'</div></div>';
+        }
+        if(wins||noms){
+          html += '<div style="font-size:11px;color:var(--muted)">'
+            +(wins?`<span style="color:var(--light)">${wins[1]} win${wins[1]!=='1'?'s':''}</span> ` :'')
+            +(noms?`<span>· ${noms[1]} nomination${noms[1]!=='1'?'s':''} total</span>`:'')
+            +'</div>';
+        }
+        html += '</div>';
+        if(document.getElementById(`tmdb-awards-${id}`)) awardsContainer.innerHTML = html;
+      }
+    }catch(e){}
+  }
 
   // ── TMDB KEYWORDS ──
   const kwContainer = document.getElementById(`tmdb-keywords-${id}`);
@@ -9524,6 +9577,158 @@ function checkShowQuestionnaire(){
   if(!me.questionnaire || !me.questionnaire.completedAt){
     setTimeout(openQuestionnaire, 1500);
   }
+}
+
+
+// ── DIRECTOR FILMOGRAPHY ──────────────────────────────────────────────────────
+async 
+function dirOpenFilm(el){
+  const mid = el.closest('[data-mid]').dataset.mid;
+  closeMo('director');
+  openDetail(mid,'library');
+}
+
+async function openDirectorPage(directorName){
+  const modal = document.getElementById('mo-director');
+  const body = document.getElementById('director-body');
+  if(!modal||!body) return;
+  body.innerHTML = '<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i><p>Loading filmography...</p></div>';
+  openMo('director');
+
+  try{
+    // Search TMDB for the director
+    const searchR = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(directorName)}&include_adult=false`);
+    const searchD = await searchR.json();
+    const person = (searchD.results||[]).find(p=>p.known_for_department==='Directing')||(searchD.results||[])[0];
+    if(!person){ body.innerHTML='<div class="empty">Director not found on TMDB.</div>'; return; }
+
+    // Get full credits
+    const credR = await fetch(`https://api.themoviedb.org/3/person/${person.id}?api_key=${TMDB_KEY}&append_to_response=movie_credits`);
+    const credD = await credR.json();
+    const directed = (credD.movie_credits?.crew||[])
+      .filter(f=>f.job==='Director' && f.release_date)
+      .sort((a,b)=>b.release_date.localeCompare(a.release_date));
+
+    const me = myData();
+    const r = me.ratings||{};
+
+    // Build filmography
+    let h = '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
+      +(person.profile_path?`<img src="https://image.tmdb.org/t/p/w92${person.profile_path}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0">`:'')
+      +'<div><div style="font-family:Bebas Neue,cursive;font-size:24px;letter-spacing:1px;color:var(--gold)">'+directorName+'</div>'
+      +'<div style="font-size:12px;color:var(--muted)">'+directed.length+' films as director</div></div>'
+      +'</div>';
+
+    // Library matches
+    const inLib = directed.filter(f=>sharedData.library.find(m=>m.title.toLowerCase()===f.title.toLowerCase()));
+    if(inLib.length){
+      h += '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">In Your Library</div>';
+      h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">';
+      inLib.forEach(f=>{
+        const libM = sharedData.library.find(m=>m.title.toLowerCase()===f.title.toLowerCase());
+        const rating = libM?r[libM.id]:0;
+        const watched = libM&&me.watched?.[libM.id];
+        h += '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)" data-mid="'+libM.id+'" onclick="dirOpenFilm(this)">'
+          +(f.poster_path?`<img src="https://image.tmdb.org/t/p/w92${f.poster_path}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:'')
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:13px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.title+'</div>'
+          +'<div style="font-size:11px;color:var(--muted)">'+f.release_date.slice(0,4)+'</div>'
+          +'</div>'
+          +(watched?'<i class="ti ti-check" style="color:var(--green);font-size:14px"></i>':'')
+          +(rating?`<span style="font-family:Bebas Neue,cursive;font-size:16px;color:var(--gold)">${rating}</span>`:'')
+          +'</div>';
+      });
+      h += '</div>';
+    }
+
+    // Not in library
+    const notInLib = directed.filter(f=>!sharedData.library.find(m=>m.title.toLowerCase()===f.title.toLowerCase())).slice(0,20);
+    if(notInLib.length){
+      h += '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Other Films</div>';
+      h += '<div style="display:flex;flex-direction:column;gap:4px">';
+      notInLib.forEach(f=>{
+        h += '<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px">'
+          +(f.poster_path?`<img src="https://image.tmdb.org/t/p/w92${f.poster_path}" style="width:24px;height:36px;border-radius:3px;object-fit:cover;flex-shrink:0">`:'<div style="width:24px;height:36px;background:var(--bg3);border-radius:3px;flex-shrink:0"></div>')
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.title+'</div>'
+          +'</div>'
+          +'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+f.release_date.slice(0,4)+'</span>'
+          +'</div>';
+      });
+      h += '</div>';
+    }
+
+    body.innerHTML = h;
+  }catch(e){
+    body.innerHTML = '<div class="empty">Failed to load filmography.</div>';
+  }
+}
+
+// ── DIRECTOR STATS ────────────────────────────────────────────────────────────
+function buildDirectorStats(me){
+  const r = me.ratings||{};
+  const watched = me.watched||{};
+  const dirs = {};
+  sharedData.library.filter(m=>m.type!=='tv'&&m.director&&m.director!=='N/A').forEach(m=>{
+    m.director.split(',').map(d=>d.trim()).forEach(d=>{
+      if(!dirs[d]) dirs[d]={name:d,films:[],watched:0,totalRating:0,ratedCount:0};
+      dirs[d].films.push(m);
+      if(watched[m.id]) dirs[d].watched++;
+      if(r[m.id]){ dirs[d].totalRating+=r[m.id]; dirs[d].ratedCount++; }
+    });
+  });
+  const list = Object.values(dirs).filter(d=>d.films.length>=2).sort((a,b)=>b.films.length-a.films.length).slice(0,15);
+  if(!list.length) return '';
+  return '<div class="cinema-section cinema-alltime" style="margin-bottom:12px">'
+    +'<div class="cinema-section-stripe"></div>'
+    +'<div style="padding:14px 16px">'
+    +'<div class="cinema-section-hd">Director Stats</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">'
+    +list.map(d=>{
+      const avg = d.ratedCount ? (d.totalRating/d.ratedCount).toFixed(1) : null;
+      return '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border)" data-dname="'+d.name+'" onclick="openDirectorPage(this.dataset.dname)">'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:13px;font-weight:600;color:var(--light)">'+d.name+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+d.films.length+' films · '+d.watched+' watched</div>'
+        +'</div>'
+        +(avg?`<span style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold)">${avg}</span>`:'')
+        +'<i class="ti ti-chevron-right" style="color:var(--muted);font-size:13px"></i>'
+        +'</div>';
+    }).join('')
+    +'</div></div></div>';
+}
+
+// ── ACTOR STATS ───────────────────────────────────────────────────────────────
+function buildActorStats(me){
+  const r = me.ratings||{};
+  const watched = me.watched||{};
+  const actors = {};
+  sharedData.library.filter(m=>m.type!=='tv'&&m.actors&&m.actors!=='N/A').forEach(m=>{
+    m.actors.split(',').map(a=>a.trim()).filter(Boolean).slice(0,4).forEach(a=>{
+      if(!actors[a]) actors[a]={name:a,films:[],watched:0,totalRating:0,ratedCount:0};
+      actors[a].films.push(m);
+      if(watched[m.id]) actors[a].watched++;
+      if(r[m.id]){ actors[a].totalRating+=r[m.id]; actors[a].ratedCount++; }
+    });
+  });
+  const list = Object.values(actors).filter(a=>a.films.length>=2).sort((a,b)=>b.films.length-a.films.length).slice(0,15);
+  if(!list.length) return '';
+  return '<div class="cinema-section cinema-alltime" style="margin-bottom:12px">'
+    +'<div class="cinema-section-stripe"></div>'
+    +'<div style="padding:14px 16px">'
+    +'<div class="cinema-section-hd">Actor Stats</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">'
+    +list.map(a=>{
+      const avg = a.ratedCount ? (a.totalRating/a.ratedCount).toFixed(1) : null;
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:13px;font-weight:600;color:var(--light)">'+a.name+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+a.films.length+' films · '+a.watched+' watched</div>'
+        +'</div>'
+        +(avg?`<span style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold)">${avg}</span>`:'')
+        +'</div>';
+    }).join('')
+    +'</div></div></div>';
 }
 
 function renderTagBrowser(){
