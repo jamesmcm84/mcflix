@@ -7216,7 +7216,10 @@ function buildDiaryYearSelect(){
   const me = myData();
   const years = new Set();
   Object.values(me.history||{}).forEach(dates => {
-    dates.forEach(ts => years.add(new Date(ts).getFullYear()));
+    dates.forEach(ts => {
+      const y = new Date(ts).getFullYear();
+      if(y >= MIN_TRACKING_YEAR) years.add(y);
+    });
   });
   if(!years.size) return;
   const sel = document.getElementById('diary-year');
@@ -10063,12 +10066,17 @@ const MONTHLY_MILESTONES = [5,10,15,20,25,30,35,40,45,50];
 const DECADE_MILESTONES_ANNUAL  = [3,5,7,10];
 const DECADE_MILESTONES_MONTHLY = [3,5,8,10];
 
+const MIN_TRACKING_YEAR = 2026; // Only count activity from this year onwards
+
 function getWatchedThisYear(me){
   // Returns a Set of unique movie IDs watched this year (for decade/genre tracking)
   const yr = new Date().getFullYear();
   const ids = new Set();
   Object.entries(me.history||{}).forEach(([id,dates])=>{
-    dates.forEach(ts=>{ if(new Date(ts).getFullYear()===yr) ids.add(id); });
+    dates.forEach(ts=>{
+      const d = new Date(ts);
+      if(d.getFullYear()===yr && d.getFullYear()>=MIN_TRACKING_YEAR) ids.add(id);
+    });
   });
   return ids;
 }
@@ -10078,17 +10086,22 @@ function countWatchLogsThisYear(me){
   let count = 0;
   Object.entries(me.history||{}).forEach(([id,dates])=>{
     if(!Array.isArray(dates)) return;
-    dates.forEach(ts=>{ if(new Date(ts).getFullYear()===yr) count++; });
+    dates.forEach(ts=>{
+      const d = new Date(ts);
+      if(d.getFullYear()===yr && d.getFullYear()>=MIN_TRACKING_YEAR) count++;
+    });
   });
   return count;
 }
 
 function countWatchLogsThisMonth(me){
-  // Count total watch logs this month including rewatches
   const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
   let count = 0;
   Object.values(me.history||{}).forEach(dates=>{
-    dates.forEach(ts=>{ const d=new Date(ts); if(d.getFullYear()===yr&&d.getMonth()===mo) count++; });
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(d.getFullYear()===yr && d.getMonth()===mo && d.getFullYear()>=MIN_TRACKING_YEAR) count++;
+    });
   });
   return count;
 }
@@ -10097,7 +10110,10 @@ function getWatchedThisMonth(me){
   const now = new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
   const ids = new Set();
   Object.entries(me.history||{}).forEach(([id,dates])=>{
-    dates.forEach(ts=>{ const d=new Date(ts); if(d.getFullYear()===yr&&d.getMonth()===mo) ids.add(id); });
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(d.getFullYear()===yr && d.getMonth()===mo && d.getFullYear()>=MIN_TRACKING_YEAR) ids.add(id);
+    });
   });
   return ids;
 }
@@ -10106,6 +10122,7 @@ function getPersonalBestMonth(me){
   const counts = {};
   Object.values(me.history||{}).flat().forEach(ts=>{
     const d=new Date(ts);
+    if(d.getFullYear()<MIN_TRACKING_YEAR) return; // ignore pre-2026
     const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
     counts[k]=(counts[k]||0)+1;
   });
@@ -10431,6 +10448,7 @@ function renderCinema(){
   const seenKeys = new Set();
   allTimestamps.forEach(ts=>{
     const d=new Date(ts);
+    if(d.getFullYear()<MIN_TRACKING_YEAR) return; // ignore pre-2026
     const k=d.getFullYear()+'-'+d.getMonth();
     if(!seenKeys.has(k)&&!(d.getFullYear()===yr&&d.getMonth()===mo)){
       seenKeys.add(k); archiveMonths.push({yr:d.getFullYear(),mo:d.getMonth()});
