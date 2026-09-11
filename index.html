@@ -1653,10 +1653,10 @@ textarea.ffi{resize:vertical}
   </div>
   <div class="nav-bar">
     <div class="nav">
-      <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
-      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb active" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-tournament"></i> Gauntlet</button>
+      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Rank</button>
@@ -1665,7 +1665,7 @@ textarea.ffi{resize:vertical}
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
-      <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
+      
     </div>
   </div>
 
@@ -1760,28 +1760,7 @@ textarea.ffi{resize:vertical}
 
     <!-- WISHLIST -->
     <div class="tab" id="tab-wishlist">
-      <!-- Sub-tab toggle -->
-      <div class="auth-tabs" style="margin-bottom:16px" id="wish-subtabs">
-        <button class="auth-tab active" id="wish-sub-shared" onclick="switchWishTab('shared')"><i class="ti ti-brand-plex"></i> Plex Requests</button>
-        <button class="auth-tab" id="wish-sub-mine" onclick="switchWishTab('mine')"><i class="ti ti-heart"></i> My Wishlist</button>
-      </div>
-      <!-- Shared wishlist -->
-      <div id="wish-shared-pane">
-        <div class="toolbar" style="margin-bottom:16px">
-          <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-wish" placeholder="Search shared wishlist..." oninput="renderWish()"></div>
-          <button class="ab" id="add-wish-btn" style="display:none" onclick="openAdd('wishlist')"><i class="ti ti-plus"></i> Add</button>
-        </div>
-        <div id="wish-grid"></div>
-        <div class="empty" id="wish-empty" style="display:none"><i class="ti ti-bookmark"></i><p style="font-size:14px">Nothing on the shared wishlist yet.</p></div>
-      </div>
-      <!-- My wishlist -->
-      <div id="wish-mine-pane" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:16px">
-          <button class="ab" onclick="openAdd('pwishlist')"><i class="ti ti-plus"></i> Add Title</button>
-        </div>
-        <div id="pwish-grid"></div>
-        <div class="empty" id="pwish-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Your personal wishlist is empty.<br><span style="font-size:12px">Only you can see this.</span></p></div>
-      </div>
+      <div id="wish-wrap"></div>
     </div>
 
     <!-- LISTS -->
@@ -1895,14 +1874,6 @@ textarea.ffi{resize:vertical}
     <!-- STATS -->
     <div class="tab" id="tab-stats">
       <div id="cst-body"></div>
-    </div>
-
-    <!-- FEATURED LISTS -->
-    <div class="tab" id="tab-featured">
-      <div class="sl" style="margin-bottom:4px">Featured Lists</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Lists curated by McFlix members. Toggle the ⭐ on any of your lists to feature it here.</div>
-      <div id="featured-lists-body"></div>
-      <div class="empty" id="featured-lists-empty" style="display:none"><i class="ti ti-star"></i><p style="font-size:14px">No featured lists yet.</p></div>
     </div>
 
     <!-- RECEIPT -->
@@ -2027,7 +1998,6 @@ textarea.ffi{resize:vertical}
   </div>
 
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bnb" id="bnb-featured" onclick="switchTabMobile('featured',this)"><i class="ti ti-star"></i><span>Featured</span></button>
     <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
     <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
@@ -2351,7 +2321,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.6';
+const VERSION     = '10.1.7';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3014,7 +2984,6 @@ function switchTab(t,el){
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
-  if(t==='featured') renderFeaturedLists();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='gauntlet') renderGauntlet();
   if(t==='runtime') renderRuntime();
@@ -3024,9 +2993,9 @@ function switchTab(t,el){
 function updateCounts(){
   const movies=sharedData.library.filter(m=>m.type==='movie'||!m.type);
   const tvshows=sharedData.library.filter(m=>m.type==='tv');
-  document.getElementById('lib-count').textContent=movies.length;
-  document.getElementById('tv-count').textContent=tvshows.length;
-  document.getElementById('wish-count').textContent=sharedData.wishlist.length;
+  const _lc=document.getElementById('lib-count'); if(_lc) _lc.textContent=movies.length;
+  const _tc=document.getElementById('tv-count'); if(_tc) _tc.textContent=tvshows.length;
+  const _wc=document.getElementById('wish-count'); if(_wc) _wc.textContent=sharedData.wishlist.length;
   if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
 }
 
@@ -5397,164 +5366,108 @@ async function openWishTrailer(btn, movieId, movieTitle, movieYear){
 }
 
 function renderWish(){
-  // Save queue scroll position before re-render
-  const _queueEl = document.getElementById('plex-queue-shelf');
-  const _queueScroll = _queueEl ? _queueEl.scrollLeft : 0;
-  const _reqEl = document.getElementById('member-req-shelf');
-  const _reqScroll = _reqEl ? _reqEl.scrollLeft : 0;
+  const me = myData();
+  const wrap = document.getElementById('wish-wrap');
+  if(!wrap) return;
 
-  const q=(document.getElementById('s-wish').value||'').toLowerCase();
-  const items=sharedData.wishlist.filter(m=>!q||m.title.toLowerCase().includes(q));
-  const wrap=document.getElementById('wish-grid'),empty=document.getElementById('wish-empty');
-  if(!items.length){wrap.innerHTML='';empty.style.display='';updateCounts();return}
-  empty.style.display='none';
-
-  const cardHTML=m=>{
-    const hp=m.poster&&m.poster!=='N/A';
-    const safeTitle=m.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
-      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-      ${m.priority?`<div class="priority-badge"><i class="ti ti-brand-plex"></i></div>`:''}
-      <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-        onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','wishlist')" title="Add to a list">
-        <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
-      </button>
-      <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-        onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Watch trailer">
-        <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
-      </button>
-    </div>`;
-  };
-
-  const shelfCardHTML=m=>{
-    const hp=m.poster&&m.poster!=='N/A';
-    return `<div class="shelf-card" onclick="openDetail('${m.id}','wishlist')">
-      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>${m.addedBy?`<div style="font-size:9px;color:rgba(255,255,255,.7);margin-top:2px">${m.addedBy}</div>`:''}</div>
-      ${m.priority?`<div class="priority-badge"><i class="ti ti-brand-plex"></i></div>`:''}
-    </div>`;
-  };
-
-  // Declare priorityItems first so queueCardHTML can reference it
-  const priorityItems = items.filter(m=>m.priority).sort((a,b)=>(a.priorityOrder??1e15)-(b.priorityOrder??1e15) || a.title.localeCompare(b.title));
-  const restItems = items.filter(m=>!m.priority);
-
-  // Plex queue items get their own horizontal shelf at the very top, drag-to-reorder
-  const queueCardHTML=m=>{
-    const hp=m.poster&&m.poster!=='N/A';
-    const isFirst = priorityItems.length && priorityItems[0].id===m.id;
-    return `<div class="shelf-card queue-card" draggable="true" data-id="${m.id}"
-      ondragstart="queueDragStart(event)" ondragover="queueDragOver(event)" ondragend="queueDragEnd(event)" ondrop="queueDrop(event)"
-      onclick="if(!this.classList.contains('dragging'))openDetail('${m.id}','wishlist')">
-      <div class="queue-drag-handle"><i class="ti ti-grip-vertical"></i></div>
-      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-      <div class="priority-badge"><i class="ti ti-brand-plex"></i></div>
-      ${!isFirst?`<button class="queue-front-btn" onclick="event.stopPropagation();sendToFrontOfQueue('${m.id}')" title="Send to front of queue"><i class="ti ti-chevrons-left"></i></button>`:''}
-      <button style="position:absolute;bottom:5px;right:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-        onclick="event.stopPropagation();openAddToListModal('${m.id}','${m.title.replace(/'/g,"\\'")}','wishlist')" title="Add to a list">
-        <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
-      </button>
-    </div>`;
-  };
-
-  // priorityItems and restItems already declared above
-
-  // Member requests: added by non-admin users, not already in Plex queue
-  // Admin sees these as a special horizontal queue; members see them in normal list
-  const memberAccounts = allUsers.accounts.filter(a=>a.role!=='admin').map(a=>a.username);
-  const memberRequests = restItems
-    .filter(m=>m.addedBy && memberAccounts.includes(m.addedBy))
-    .sort((a,b)=>(a.addedAt||0)-(b.addedAt||0)); // oldest request first
-
-  // Card for member requests — like queueCard but with requester name + add-to-plex button
-  const memberRequestCardHTML = m => {
-    const hp = m.poster && m.poster !== 'N/A';
-    const requester = allUsers.accounts.find(a=>a.username===m.addedBy);
-    return `<div class="shelf-card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
-      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-      <div class="ov">
-        <div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div>
-        ${m.addedBy?`<div style="font-size:9px;color:rgba(138,90,240,.9);margin-top:2px;font-weight:600">${m.addedBy}</div>`:''}
-      </div>
-      ${isAdmin()?`<button style="position:absolute;top:5px;right:5px;background:rgba(229,160,13,.9);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-        onclick="event.stopPropagation();addMemberRequestToPlexQueue('${m.id}')" title="Add to Plex Queue">
-        <i class="ti ti-brand-plex" style="font-size:11px;color:#000"></i>
-      </button>`:''}
-    </div>`;
-  };
+  const queueItems = (sharedData.wishlist||[]).filter(m=>m.priority).sort((a,b)=>(a.priorityOrder||0)-(b.priorityOrder||0));
+  const myLists = me.collections||[];
 
   let html = '';
 
-  // Plex Queue (admin drag-to-reorder)
-  if(priorityItems.length){
-    html += `<div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Queue <span style="font-size:12px;color:var(--muted)">(${priorityItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
-    <div class="shelf-wrap" style="margin-bottom:20px">
-      <button class="shelf-arrow left" id="plex-queue-arrow-l" onclick="shelfScroll('plex-queue-shelf',-1)" title="Scroll left"><i class="ti ti-chevron-left"></i></button>
-      <div class="shelf-scroll" id="plex-queue-shelf">${priorityItems.map(queueCardHTML).join('')}</div>
-      <button class="shelf-arrow right" id="plex-queue-arrow-r" onclick="shelfScroll('plex-queue-shelf',1)" title="Scroll right"><i class="ti ti-chevron-right"></i></button>
+  // ── QUEUE ─────────────────────────────────────────────────────────────────
+  if(queueItems.length){
+    const queueCardHTML = m => {
+      const hp = m.poster && m.poster !== 'N/A';
+      const isFirst = queueItems[0]?.id === m.id;
+      return `<div class="shelf-card queue-card" draggable="true" data-id="${m.id}"
+        ondragstart="queueDragStart(event)" ondragover="queueDragOver(event)"
+        ondrop="queueDrop(event)" ondragend="queueDragEnd(event)"
+        onclick="openDetail('${m.id}','wishlist')">
+        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:``}
+        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div></div></div>
+        <div class="priority-badge"><i class="ti ti-brand-plex"></i></div>
+        ${!isFirst?`<button class="queue-front-btn" onclick="event.stopPropagation();sendToFrontOfQueue('${m.id}')" title="Send to front"><i class="ti ti-chevrons-left"></i></button>`:''}
+        <button style="position:absolute;bottom:5px;right:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+          onclick="event.stopPropagation();openAddToListModal('${m.id}','${m.title.replace(/'/g,"\'")}','wishlist')" title="Add to a list">
+          <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
+        </button>
+      </div>`;
+    };
+
+    html += `<div class="sl" style="margin-bottom:8px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Queue <span style="font-size:12px;color:var(--muted)">(${queueItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
+    <div style="position:relative;margin-bottom:24px">
+      <button class="shelf-arrow left" id="queue-arrow-l" onclick="shelfScroll('queue-shelf',-1)"><i class="ti ti-chevron-left"></i></button>
+      <div class="shelf-scroll" id="queue-shelf">${queueItems.map(queueCardHTML).join('')}</div>
+      <button class="shelf-arrow right" id="queue-arrow-r" onclick="shelfScroll('queue-shelf',1)"><i class="ti ti-chevron-right"></i></button>
     </div>`;
   }
 
-  // Member Requests — admin only, horizontal scroll like Plex Queue
-  if(isAdmin() && memberRequests.length){
-    html += `<div class="shelf-title"><i class="ti ti-messages" style="color:var(--purple)"></i> Member Requests <span style="font-size:12px;color:var(--muted)">(${memberRequests.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— tap <i class="ti ti-brand-plex" style="color:#e5a00d"></i> to add to Plex Queue</span></div>
-    <div class="shelf-wrap" style="margin-bottom:20px">
-      <button class="shelf-arrow left" onclick="shelfScroll('member-req-shelf',-1)"><i class="ti ti-chevron-left"></i></button>
-      <div class="shelf-scroll" id="member-req-shelf">${memberRequests.map(memberRequestCardHTML).join('')}</div>
-      <button class="shelf-arrow right" onclick="shelfScroll('member-req-shelf',1)"><i class="ti ti-chevron-right"></i></button>
-    </div>`;
+  // ── USER LISTS ────────────────────────────────────────────────────────────
+  if(myLists.length){
+    myLists.forEach(function(list){
+      const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
+      if(!items.length) return;
+
+      // Group by year
+      const groups = {};
+      items.forEach(function(m){
+        const y = (m.year||'Unknown').toString().slice(0,4);
+        (groups[y]=groups[y]||[]).push(m);
+      });
+      const years = Object.keys(groups).sort((a,b)=>{
+        if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+        return Number(b)-Number(a);
+      });
+
+      const cardHTML = m => {
+        const hp = m.poster && m.poster !== 'N/A';
+        const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
+        const safeTitle = m.title.replace(/'/g,"\'");
+        return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
+          ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+          <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+          <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+          <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+            onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+            <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
+          </button>
+        </div>`;
+      };
+
+      // Year jump dropdown
+      const dropdown = years.length > 2
+        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>
+            <select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">
+              <option value="">— Year —</option>
+              ${years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')}
+            </select></div>`
+        : '';
+
+      html += `<div style="margin-bottom:28px">
+        <div class="sl" style="margin-bottom:4px">${list.name} <span style="font-size:12px;color:var(--muted)">(${items.length})</span></div>
+        ${dropdown}
+        ${years.map(y=>`
+          <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
+          <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('')}</div>
+        `).join('')}
+      </div>`;
+    });
+  } else if(!queueItems.length){
+    html += `<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">No lists yet. Create one from the Lists tab and add movies to see them here.</p></div>`;
   }
-
-  // "New from others" — items added by someone other than the current user
-  // within the last 14 days, not already in the Plex queue
-  const TWO_WEEKS = 14*24*60*60*1000;
-  const now = Date.now();
-  const newFromOthers = restItems
-    .filter(m=>m.addedBy && m.addedBy!==CU.username && m.addedAt && (now-m.addedAt)<TWO_WEEKS)
-    .sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
-
-  if(newFromOthers.length){
-    html += `<div class="shelf-title"><i class="ti ti-users" style="color:var(--blue,#3498db)"></i> New from Others <span style="font-size:12px;color:var(--muted)">(${newFromOthers.length})</span></div>
-    <div class="shelf-scroll" style="margin-bottom:20px">${newFromOthers.map(shelfCardHTML).join('')}</div>`;
-  }
-
-  const groups={};
-  restItems.forEach(m=>{const y=(m.year||'').toString().slice(0,4);const key=y||'Unknown';(groups[key]=groups[key]||[]).push(m);});
-  const years=Object.keys(groups).sort((a,b)=>{if(a==='Unknown')return 1;if(b==='Unknown')return -1;return Number(b)-Number(a);});
-
-  // Year jump dropdown
-  const yearDropdown = '<div style="display:flex;align-items:center;gap:8px;margin:12px 0 4px">'
-    +'<label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to year</label>'
-    +'<select class="fb" onchange="wishJumpYear(this.value)">'
-    +'<option value="">— Select —</option>'
-    +years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')
-    +'</select></div>';
-  html += yearDropdown;
-
-  html += years.map(y=>`
-    <div id="wish-year-${y}" class="sl" style="margin-top:18px;scroll-margin-top:60px">${y} <span style="font-size:12px;color:var(--muted)">(${groups[y].length})</span></div>
-    <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('')}</div>`).join('');
 
   wrap.innerHTML = html;
   updateCounts();
 
-  // Restore Plex Queue scroll position after re-render
-  setTimeout(()=>{
-    const qEl = document.getElementById('plex-queue-shelf');
-    if(qEl && _queueScroll) qEl.scrollLeft = _queueScroll;
-    const rEl = document.getElementById('member-req-shelf');
-    if(rEl && _reqScroll) rEl.scrollLeft = _reqScroll;
-    // Re-init shelf arrows and drag
-    initShelfArrows();
-    attachQueueDrag();
-  }, 30);
+  // Restore queue scroll
+  setTimeout(function(){
+    const qs = document.getElementById('queue-shelf');
+    if(qs) qs.scrollLeft = 0;
+  }, 50);
 }
+
 
 // ── TAGS ──────────────────────────────────────────────────────────────────────
 function findItem(id,src){ return(src==='wishlist'?sharedData.wishlist:sharedData.library).find(x=>x.id===id); }
@@ -5750,7 +5663,7 @@ function openDetail(id,src){
         ${isAdmin()&&src==='library'&&m.type!=='tv'?`<button class="act ${m.hidden?'active':''}" onclick="toggleHidden('${id}')" title="${m.hidden?'Unhide — make visible to members':'Hide from other members'}" style="border-color:rgba(138,90,240,.3);color:var(--purple)"><i class="ti ti-eye-off"></i> ${m.hidden?'Unhide':'Hide'}</button>`:''}
         ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
       </div>
-      ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Plex Queue':'Add to Plex Queue'}</button>`:``}
+      ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Queue':'Add to Queue'}</button>`:``}
       <div id="trailer-btn-${id}"></div>
       <div id="tmdb-collection-${id}"></div>
       ${m.plot&&m.plot!=='N/A'?plotHTML(m.plot):''}
@@ -6364,7 +6277,7 @@ async function addTMDBToSharedWishlistFromBtn(btn){
   const poster = decodeURIComponent(btn.dataset.poster||'');
   if(!title) return;
   const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===title.toLowerCase());
-  if(exists){ toast(title+' is already on Plex Requests!', true); return; }
+  if(exists){ toast(title+' is already on Watchlist!', true); return; }
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Adding...';
   const item = await buildTMDBWishlistItem(tmdbId, title, year, poster, false);
@@ -6376,7 +6289,7 @@ async function addTMDBToSharedWishlistFromBtn(btn){
     btn.innerHTML = '<i class="ti ti-bookmark-plus"></i> Add to Shared Wishlist';
     return;
   }
-  toast(title+' added to Plex Requests!');
+  toast(title+' added to Watchlist!');
   btn.outerHTML = '<span class="act" style="background:rgba(138,90,240,.15);color:var(--purple);border-color:rgba(138,90,240,.3)"><i class="ti ti-bookmark-check"></i> On Shared Wishlist</span>';
 }
 
@@ -6596,15 +6509,15 @@ function toggleW(id){
   saveUsers().then(()=>{openDetail(id,'library');renderLib();});
   toast(me.watched[id]?'Watched (diary logged)':'Removed from watched');
 }
-function addMemberRequestToPlexQueue(id){
+function addMemberRequestToQueue(id){
   const m = sharedData.wishlist.find(x=>x.id===id);
   if(!m) return;
-  if(m.priority){ toast('Already in Plex Queue!'); return; }
+  if(m.priority){ toast('Already in Queue!'); return; }
   m.priority = true;
   const queueItems = sharedData.wishlist.filter(x=>x.priority && x.priorityOrder!=null);
   const maxOrder = queueItems.reduce((max,x)=>x.priorityOrder>max?x.priorityOrder:max, 0);
   m.priorityOrder = maxOrder + 1;
-  saveShared().then(()=>{ renderWish(); toast(`"${m.title}" added to Plex Queue!`); });
+  saveShared().then(()=>{ renderWish(); toast(`"${m.title}" added to Queue!`); });
 }
 
 
@@ -6660,7 +6573,7 @@ function queueDrop(e){
   const targetId = targetCard.dataset.id;
   if(!_queueDragId || _queueDragId===targetId) return;
 
-  const shelf = document.getElementById('plex-queue-shelf');
+  const shelf = document.getElementById('queue-shelf-shelf');
   const cards = [...shelf.querySelectorAll('.queue-card')];
   const ids = cards.map(c=>c.dataset.id);
 
@@ -7244,11 +7157,11 @@ function openPWishDetail(itemId){
     +(item.year?`<div style="font-size:13px;color:var(--muted);margin-bottom:12px">${item.year}</div>`:'')
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +(onShared
-      ? '<div style="font-size:12px;color:var(--purple);font-weight:600"><i class="ti ti-bookmark-check"></i> Already in Plex Requests</div>'
-      : `<button class="act act-fav" style="justify-content:center" onclick="pwishAddToPlexRequests('${itemId}')"><i class="ti ti-bookmark-plus"></i> Add to Plex Requests</button>`)
+      ? '<div style="font-size:12px;color:var(--purple);font-weight:600"><i class="ti ti-bookmark-check"></i> Already in Watchlist</div>'
+      : `<button class="act act-fav" style="justify-content:center" onclick="pwishAddToPlexRequests('${itemId}')"><i class="ti ti-bookmark-plus"></i> Add to Watchlist</button>`)
     +(onQueue
-      ? '<div style="font-size:12px;color:#e5a00d;font-weight:600"><i class="ti ti-brand-plex"></i> Already in Plex Queue</div>'
-      : `<button class="act" style="justify-content:center;border-color:rgba(229,160,13,.3);color:#e5a00d" onclick="pwishAddToPlexQueue('${itemId}')"><i class="ti ti-brand-plex"></i> Add to Plex Queue</button>`)
+      ? '<div style="font-size:12px;color:#e5a00d;font-weight:600"><i class="ti ti-brand-plex"></i> Already in Queue</div>'
+      : `<button class="act" style="justify-content:center;border-color:rgba(229,160,13,.3);color:#e5a00d" onclick="pwishAddToPlexQueue('${itemId}')"><i class="ti ti-brand-plex"></i> Add to Queue</button>`)
     +`<button class="act act-del" style="justify-content:center" onclick="removeFromPWishlist('${itemId}');closeMo('pwish-detail')"><i class="ti ti-trash"></i> Remove from My Wishlist</button>`
     +'</div></div></div>';
 
@@ -7260,12 +7173,12 @@ async function pwishAddToPlexRequests(itemId){
   const item = (me.personalWishlist||[]).find(x=>x.id===itemId);
   if(!item) return;
   const exists = sharedData.wishlist.find(m=>m.title.toLowerCase()===item.title.toLowerCase());
-  if(exists){ toast(item.title+' is already in Plex Requests!', true); return; }
+  if(exists){ toast(item.title+' is already in Watchlist!', true); return; }
   const newItem = await buildTMDBWishlistItem(0, item.title, item.year, item.poster, false);
   sharedData.wishlist.push(newItem);
   await saveShared();
   updateCounts();
-  toast(item.title+' added to Plex Requests!');
+  toast(item.title+' added to Watchlist!');
   openPWishDetail(itemId); // refresh buttons
 }
 
@@ -7289,7 +7202,7 @@ async function pwishAddToPlexQueue(itemId){
   }
   await saveShared();
   updateCounts();
-  toast(item.title+' added to Plex Queue!');
+  toast(item.title+' added to Queue!');
   openPWishDetail(itemId); // refresh buttons
 }
 
@@ -7325,7 +7238,7 @@ function renderPWishlist(){
         ${hp?`<img src="${poster}" alt="${item.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
         <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-heart"></i><span>${item.title}</span></div>
         <div class="ov"><div class="ov-row"><div class="ov-title">${item.title}</div><div class="ov-meta">${item.year||''}</div></div>
-          ${match?'<div style="font-size:9px;color:var(--green);margin-top:2px">✓ In Library</div>':wishMatch?'<div style="font-size:9px;color:var(--purple);margin-top:2px">✓ In Plex Requests</div>':''}
+          ${match?'<div style="font-size:9px;color:var(--green);margin-top:2px">✓ In Library</div>':wishMatch?'<div style="font-size:9px;color:var(--purple);margin-top:2px">✓ In Watchlist</div>':''}
         </div>
         ${match?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
         <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromPWishlist('${item.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
