@@ -2046,6 +2046,7 @@ textarea.ffi{resize:vertical}
 
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnb" id="bnb-featured" onclick="switchTabMobile('featured',this)"><i class="ti ti-star"></i><span>Featured</span></button>
+    <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
     <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
     <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
@@ -2368,7 +2369,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.0';
+const VERSION     = '10.1.2';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2971,8 +2972,12 @@ function initApp(){
   checkShowQuestionnaire();
   buildDiaryYearSelect();
   renderDiary();
-  // Switch to diary as the home tab
-  switchTab('diary', document.querySelector('.nb[onclick*="diary"]'));
+  // Switch to diary as home tab after a tick so DOM is ready
+  setTimeout(function(){
+    const diaryBtn = document.querySelector('.nb[onclick*=\'diary\']');
+    switchTab('diary', diaryBtn);
+    renderDiary();
+  }, 50);
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
     fetchPlexActivity().then(()=>renderLib());
