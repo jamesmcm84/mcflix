@@ -1656,7 +1656,6 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb active" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-tournament"></i> Gauntlet</button>
-      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
       <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
       <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Rank</button>
@@ -1664,8 +1663,6 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
-      <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
-      
     </div>
   </div>
 
@@ -1988,19 +1985,15 @@ textarea.ffi{resize:vertical}
     <button class="more-menu-btn" style="color:#ff6ec7" onclick="closeMoreMenu();switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i>Retro</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i>Stats</button>
 
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('canonical',this)"><i class="ti ti-list-numbers"></i>Canonical</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
     <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('cgraveyard',this)"><i class="ti ti-tombstone"></i>Graveyard</button>
   </div>
 
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
-    <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
-    <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
     <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
     <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
@@ -2971,8 +2964,7 @@ function switchTab(t,el){
     // Hide A-Z slider — it belongs to the library only
     const azEl = document.getElementById('az-slider');
     if(azEl) azEl.style.display = 'none';
-    // Reset to shared tab when switching to wishlist
-    switchWishTab('shared');
+    renderWish();
   }
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
@@ -10360,7 +10352,7 @@ function getRankPool(me){
   const yr = now.getFullYear();
   const mo = now.getMonth();
   const hist = me.history||{};
-  return sharedData.library.filter(function(m){
+  const strict = sharedData.library.filter(function(m){
     if(m.type==='tv') return false;
     const dates = hist[m.id]||[];
     return dates.some(function(ts){
@@ -10368,6 +10360,11 @@ function getRankPool(me){
       if(_rankMode==='month') return d.getFullYear()===yr && d.getMonth()===mo;
       return d.getFullYear()===yr;
     });
+  });
+  if(strict.length>=2) return strict;
+  // Fallback: not enough diary entries for this period — rank everything watched instead
+  return sharedData.library.filter(function(m){
+    return m.type!=='tv' && !!(me.watched && me.watched[m.id]);
   });
 }
 
@@ -11597,12 +11594,6 @@ function renderTrophies(){
 }
 
 
-
-function renderTrophies(){ renderCinema(); }
-
-
-// renderStats merged into renderCinema
-function renderStats(){ renderCinema(); }
 
 function setupYIRLongPress(){
   if(_yirBound) return;
