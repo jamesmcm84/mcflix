@@ -1638,7 +1638,7 @@ textarea.ffi{resize:vertical}
     <div class="nav">
       <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
-      <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
+      <button class="nb active" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Stats & Trophies</button>
@@ -2368,7 +2368,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.0.9';
+const VERSION     = '10.1.0';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -7586,8 +7586,10 @@ function buildStubHTML(e, tktNum, col){
 
 function renderDiary(){
   const me = myData();
+  buildDiaryYearSelect(); // ensure selector is populated
   const sel = document.getElementById('diary-year');
-  const filterYear = sel ? parseInt(sel.value) : new Date().getFullYear();
+  const rawYear = sel ? parseInt(sel.value) : NaN;
+  const filterYear = isNaN(rawYear) ? new Date().getFullYear() : rawYear;
   const body = document.getElementById('diary-body');
   const empty = document.getElementById('diary-empty');
   if(!body) return;
