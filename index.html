@@ -2046,7 +2046,7 @@ textarea.ffi{resize:vertical}
 
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnb" id="bnb-featured" onclick="switchTabMobile('featured',this)"><i class="ti ti-star"></i><span>Featured</span></button>
-    <button class="bnb active" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
+    <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
     <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
     <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
     <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
@@ -2970,6 +2970,9 @@ function initApp(){
   initBackGuard();
   checkShowQuestionnaire();
   buildDiaryYearSelect();
+  renderDiary();
+  // Switch to diary as the home tab
+  switchTab('diary', document.querySelector('.nb[onclick*="diary"]'));
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
     fetchPlexActivity().then(()=>renderLib());
