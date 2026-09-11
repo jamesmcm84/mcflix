@@ -865,18 +865,6 @@ select option{background:#1a1a2e;color:#eeeef5}
 .genre-msel-opt input{accent-color:var(--gold)}
 .genre-msel-count{background:var(--gold);color:#000;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;line-height:1.4}
 
-/* A-Z SLIDER */
-.az-slider{position:fixed;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:60;background:rgba(14,14,24,.55);border:1px solid var(--border);border-radius:10px;padding:6px 3px;backdrop-filter:blur(8px)}
-.az-slider-item{font-size:9px;font-weight:600;color:var(--muted);text-align:center;width:16px;line-height:1.5;cursor:pointer;border-radius:3px;transition:all .1s;user-select:none}
-.az-slider-item:hover,.az-slider-item.active{color:var(--gold);background:var(--gold-dim)}
-.az-bubble{position:fixed;right:32px;top:50%;transform:translateY(-50%) scale(0);background:var(--gold);color:#000;font-family:Bebas Neue,cursive;font-size:28px;font-weight:700;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:61;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .12s ease-out;pointer-events:none}
-.az-bubble.show{transform:translateY(-50%) scale(1)}
-@media(max-width:600px){
-  .az-slider{right:0;padding:4px 2px;border-radius:8px 0 0 8px;border-right:none}
-  .az-slider-item{width:13px;font-size:8px;padding:0 1px}
-  .az-bubble{right:20px;width:40px;height:40px;font-size:20px}
-}
-
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -1071,15 +1059,6 @@ textarea.ffi{resize:vertical}
   .ff.full{grid-column:1}
   .auth-box{padding:28px 20px}
 }
-
-/* ── FEATURED LISTS ─────────────────────────────────────────── */
-.featured-list-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
-.featured-list-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(232,184,75,.05),transparent)}
-.featured-list-owner{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
-.featured-list-title{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold);flex:1}
-.featured-check{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);transition:all .2s;white-space:nowrap}
-.featured-check:hover{border-color:rgba(232,184,75,.3);color:var(--gold)}
-.featured-check.active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold)}
 
 /* ── VHS RECEIPT ─────────────────────────────────────────────── */
 .receipt-wrap{background:#f5f0e8;color:#1a1a1a;border-radius:4px;padding:20px;font-family:'Courier New',monospace;max-width:340px;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -1727,8 +1706,6 @@ textarea.ffi{resize:vertical}
       <div class="grid" id="lib-grid"></div>
       <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
     </div>
-    <div class="az-bubble" id="az-bubble"></div>
-    <div class="az-slider" id="az-slider" style="display:none"></div>
 
     <!-- TV SHOWS -->
     <div class="tab" id="tab-tvshows">
@@ -1759,18 +1736,6 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-wishlist">
       <div id="wish-wrap"></div>
     </div>
-
-    <!-- LISTS -->
-    <div class="tab" id="tab-lists">
-      <div class="toolbar" style="margin-bottom:18px">
-        <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
-        <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> New List</button>
-      </div>
-      <div id="lists-wrap"></div>
-      <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
-    </div>
-
-
 
     <!-- DIARY -->
     <div class="tab" id="tab-diary">
@@ -2285,6 +2250,22 @@ textarea.ffi{resize:vertical}
   <div class="md md-sm">
     <button class="mc" onclick="closeMo('addtolist')"><i class="ti ti-x"></i></button>
     <div id="addtolist-body" style="padding:16px 20px"></div>
+  </div>
+</div>
+
+<!-- MY LIST DETAIL MODAL -->
+<div class="mo" id="mo-userlist" onclick="if(event.target===this)closeMo('userlist')">
+  <div class="md md-lg">
+    <button class="mc" onclick="closeMo('userlist')"><i class="ti ti-x"></i></button>
+    <div class="form-sec">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div class="form-title" id="userlist-title" style="margin-bottom:0;flex:1">List</div>
+        <button class="act" onclick="renameUserListFromModal()" title="Rename list"><i class="ti ti-edit"></i></button>
+        <button class="act act-del" onclick="deleteUserListFromModal()" title="Delete list"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="grid" id="userlist-grid"></div>
+      <div class="empty" id="userlist-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:13px">This list is empty — open a title and add it from there.</p></div>
+    </div>
   </div>
 </div>
 
@@ -2909,7 +2890,6 @@ function initApp(){
   if(document.getElementById('diary-reconcile-btn')) document.getElementById('diary-reconcile-btn').style.display=isAdmin()?'':'none';
   if(document.getElementById('bulk-add-btn')) document.getElementById('bulk-add-btn').style.display=isAdmin()?'':'none';
   if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
-  document.getElementById('add-wish-btn').style.display='';
   buildGenreFilter();
   renderLib();
   updateCounts();
@@ -2955,18 +2935,9 @@ function switchTab(t,el){
   // sync bottom nav
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   closeMoreMenu();
-  // Always hide A-Z slider on tab switch — renderLib re-shows it if appropriate
-  const _azEl = document.getElementById('az-slider');
-  if(_azEl) _azEl.style.display = 'none';
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
-  if(t==='wishlist'){
-    // Hide A-Z slider — it belongs to the library only
-    const azEl = document.getElementById('az-slider');
-    if(azEl) azEl.style.display = 'none';
-    renderWish();
-  }
-  if(t==='lists') renderLists();
+  if(t==='wishlist') renderWish();
   if(t==='diary') renderDiary();
   if(t==='activity') renderActivity();
   // trophies rendered via renderCombinedStats below
@@ -2988,7 +2959,6 @@ function updateCounts(){
   const _lc=document.getElementById('lib-count'); if(_lc) _lc.textContent=movies.length;
   const _tc=document.getElementById('tv-count'); if(_tc) _tc.textContent=tvshows.length;
   const _wc=document.getElementById('wish-count'); if(_wc) _wc.textContent=sharedData.wishlist.length;
-  if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
 }
 
 // ── VIBE CHECK ────────────────────────────────────────────────────────────────
@@ -4573,130 +4543,6 @@ function deletePreset(i){
   saveUsers().then(()=>renderPresetsPanel());
 }
 
-// ── A-Z SLIDER ────────────────────────────────────────────────────────────────
-function renderAZSlider(items, gridId){
-  const slider = document.getElementById('az-slider');
-  if(!slider) return;
-  // Only show on the library tab when sorted A-Z
-  const sortEl = document.getElementById('f-sort');
-  const isLibrary = gridId === 'lib-grid';
-  if(!isLibrary || !sortEl || sortEl.value !== 'title' || items.length < 12){
-    slider.style.display = 'none';
-    return;
-  }
-
-  // Build set of letters actually present (first char of sortTitle/title)
-  const present = new Set();
-  items.forEach(m=>{
-    const t = (m.sortTitle||m.title||'').trim().toUpperCase();
-    const c = t.charCodeAt(0);
-    if(c>=48&&c<=57) present.add('#'); // digit
-    else if(c>=65&&c<=90) present.add(t[0]);
-    else present.add('#');
-  });
-
-  const alphabet = ['#','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-  slider.innerHTML = alphabet.map(l=>{
-    const has = present.has(l);
-    return `<div class="az-slider-item" data-letter="${l}" style="opacity:${has?1:0.25};cursor:${has?'pointer':'default'}" ${has?`onclick="jumpToLetter('${l}','${gridId}')"`:''}>${l}</div>`;
-  }).join('');
-  slider.style.display = '';
-
-  setupAZDrag(slider, items, gridId, present);
-}
-
-function jumpToLetter(letter, gridId){
-  const grid = document.getElementById(gridId);
-  if(!grid) return;
-  const cards = grid.querySelectorAll('.card');
-  for(const card of cards){
-    let t = (card.dataset.sort || '').trim().toUpperCase();
-    if(!t){
-      const titleEl = card.querySelector('.ov-title');
-      if(!titleEl) continue;
-      t = titleEl.textContent.trim().toUpperCase();
-    }
-    const c = t.charCodeAt(0);
-    const cardLetter = (c>=65&&c<=90) ? t[0] : '#';
-    if(cardLetter === letter){
-      card.scrollIntoView({behavior:'smooth', block:'start'});
-      break;
-    }
-  }
-}
-
-let _azDragBound = new WeakSet();
-function setupAZDrag(slider, items, gridId, present){
-  if(_azDragBound.has(slider)) return;
-  _azDragBound.add(slider);
-
-  const bubble = document.getElementById('az-bubble');
-  let dragging = false;
-
-  function letterFromY(clientY){
-    const itemEls = slider.querySelectorAll('.az-slider-item');
-    for(const el of itemEls){
-      const r = el.getBoundingClientRect();
-      if(clientY >= r.top && clientY <= r.bottom) return el.dataset.letter;
-    }
-    // clamp to first/last
-    const first = itemEls[0].getBoundingClientRect();
-    const last = itemEls[itemEls.length-1].getBoundingClientRect();
-    if(clientY < first.top) return itemEls[0].dataset.letter;
-    if(clientY > last.bottom) return itemEls[itemEls.length-1].dataset.letter;
-    return null;
-  }
-
-  function showBubble(letter){
-    bubble.textContent = letter;
-    bubble.classList.add('show');
-  }
-  function hideBubble(){ bubble.classList.remove('show'); }
-
-  function handleMove(clientY){
-    const letter = letterFromY(clientY);
-    if(!letter) return;
-    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.toggle('active', el.dataset.letter===letter));
-    if(present.has(letter)){
-      showBubble(letter);
-      jumpToLetter(letter, gridId);
-    } else {
-      showBubble(letter);
-    }
-  }
-
-  slider.addEventListener('touchstart', e=>{
-    dragging = true;
-    handleMove(e.touches[0].clientY);
-    e.preventDefault();
-  }, {passive:false});
-  slider.addEventListener('touchmove', e=>{
-    if(!dragging) return;
-    handleMove(e.touches[0].clientY);
-    e.preventDefault();
-  }, {passive:false});
-  slider.addEventListener('touchend', ()=>{
-    dragging = false;
-    hideBubble();
-    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.remove('active'));
-  });
-
-  slider.addEventListener('mousedown', e=>{
-    dragging = true;
-    handleMove(e.clientY);
-  });
-  document.addEventListener('mousemove', e=>{
-    if(!dragging) return;
-    handleMove(e.clientY);
-  });
-  document.addEventListener('mouseup', ()=>{
-    if(!dragging) return;
-    dragging = false;
-    hideBubble();
-    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.remove('active'));
-  });
-}
-
 // ── AUTO-COLLECTIONS ─────────────────────────────────────────────────────────
 function buildCollections(){
   const lib = sharedData.library;
@@ -5242,7 +5088,6 @@ function renderLib(){
     grid.innerHTML='';
       empty.style.display='';
     updateCounts();
-    const azSlider0=document.getElementById('az-slider'); if(azSlider0) azSlider0.style.display='none';
     return;
   }
   empty.style.display='none';
@@ -5261,7 +5106,6 @@ function renderLib(){
     </div>`;
   }).join('');
   updateCounts();
-  renderAZSlider(items, 'lib-grid');
 }
 
 function miniCard(m){
@@ -5273,16 +5117,6 @@ function miniCard(m){
 }
 
 // ── RENDER WISHLIST ───────────────────────────────────────────────────────────
-function switchWishTab(t){
-  document.getElementById('wish-sub-shared').classList.toggle('active', t==='shared');
-  document.getElementById('wish-sub-mine').classList.toggle('active', t==='mine');
-  document.getElementById('wish-shared-pane').style.display = t==='shared'?'':'none';
-  document.getElementById('wish-mine-pane').style.display = t==='mine'?'':'none';
-  if(t==='shared') renderWish();
-  if(t==='mine') renderPWishlist();
-}
-
-
 function shelfScroll(id, dir){
   const el = document.getElementById(id);
   if(!el) return;
@@ -5303,58 +5137,6 @@ function updateShelfArrows(id){
   const rBtn = wrap.querySelector('.shelf-arrow.right');
   if(lBtn) lBtn.classList.toggle('hidden', atStart);
   if(rBtn) rBtn.classList.toggle('hidden', atEnd);
-}
-
-function initShelfArrows(){
-  document.querySelectorAll('.shelf-wrap .shelf-scroll').forEach(el=>{
-    el.addEventListener('scroll', ()=>updateShelfArrows(el.id), {passive:true});
-    updateShelfArrows(el.id);
-  });
-}
-
-
-function wishJumpYear(yr){
-  if(!yr) return;
-  const el = document.getElementById('wish-year-'+yr);
-  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-}
-
-
-async function openWishTrailer(btn, movieId, movieTitle, movieYear){
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>';
-
-  try{
-    // Try to find TMDB id from wishlist item first
-    const wishItem = sharedData.wishlist.find(function(m){ return m.id===movieId; });
-    let tmdbId = wishItem && wishItem.tmdbId;
-
-    if(!tmdbId){
-      // Search TMDB by title+year
-      const q = encodeURIComponent(movieTitle);
-      const yr = movieYear ? '&year='+movieYear : '';
-      const sr = await fetch('https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+q+yr+'&include_adult=false');
-      const sd = await sr.json();
-      if(sd.results && sd.results.length) tmdbId = sd.results[0].id;
-    }
-
-    if(!tmdbId){ toast('No trailer found.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-youtube"></i>'; return; }
-
-    const vr = await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'/videos?api_key='+TMDB_KEY);
-    const vd = await vr.json();
-    const trailer = (vd.results||[]).find(function(v){ return v.type==='Trailer' && v.site==='YouTube'; })
-                 || (vd.results||[]).find(function(v){ return v.site==='YouTube'; });
-
-    if(!trailer){ toast('No trailer found.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-youtube"></i>'; return; }
-
-    window.open('https://www.youtube.com/watch?v='+trailer.key, '_blank');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-brand-youtube"></i>';
-  } catch(e){
-    toast('Trailer unavailable.');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-brand-youtube"></i>';
-  }
 }
 
 function renderWish(){
@@ -5395,59 +5177,25 @@ function renderWish(){
     </div>`;
   }
 
-  // ── USER LISTS ────────────────────────────────────────────────────────────
+  // ── MY LISTS ─────────────────────────────────────────────────────────────
+  html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
+    <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> Create List</button>
+  </div>`;
   if(myLists.length){
-    myLists.forEach(function(list){
-      const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
-      if(!items.length) return;
-
-      // Group by year
-      const groups = {};
-      items.forEach(function(m){
-        const y = (m.year||'Unknown').toString().slice(0,4);
-        (groups[y]=groups[y]||[]).push(m);
-      });
-      const years = Object.keys(groups).sort((a,b)=>{
-        if(a==='Unknown') return 1; if(b==='Unknown') return -1;
-        return Number(b)-Number(a);
-      });
-
-      const cardHTML = m => {
-        const hp = m.poster && m.poster !== 'N/A';
-        const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
-        const safeTitle = m.title.replace(/'/g,"\'");
-        return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
-          ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-          <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
-          <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-          <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-            onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
-            <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
-          </button>
-        </div>`;
-      };
-
-      // Year jump dropdown
-      const dropdown = years.length > 2
-        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>
-            <select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">
-              <option value="">— Year —</option>
-              ${years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')}
-            </select></div>`
-        : '';
-
-      html += `<div style="margin-bottom:28px">
-        <div class="sl" style="margin-bottom:4px">${list.name} <span style="font-size:12px;color:var(--muted)">(${items.length})</span></div>
-        ${dropdown}
-        ${years.map(y=>`
-          <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
-          <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('')}</div>
-        `).join('')}
-      </div>`;
-    });
-  } else if(!queueItems.length){
-    html += `<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">No lists yet. Create one from the Lists tab and add movies to see them here.</p></div>`;
+    html += `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">`
+      + myLists.map(list=>{
+          const count = (list.items||[]).length;
+          return `<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:border-color .2s" onclick="openUserList('${list.id}')">
+            <i class="ti ti-list" style="color:var(--gold);flex-shrink:0"></i>
+            <div style="flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${list.name}</div>
+            <div style="font-size:11px;color:var(--muted);flex-shrink:0">${count} title${count!==1?'s':''}</div>
+            <i class="ti ti-chevron-right" style="color:var(--muted);flex-shrink:0"></i>
+          </div>`;
+        }).join('')
+      + `</div>`;
+  } else {
+    html += `<div class="empty" style="padding:30px 0"><i class="ti ti-list"></i><p style="font-size:13px">No lists yet. Create one to start grouping titles.</p></div>`;
   }
 
   wrap.innerHTML = html;
@@ -5484,7 +5232,7 @@ function createList(addId){
   const me=myData();me.collections=me.collections||[];
   const list={id:uid(),name,items:addId?[addId]:[]};
   me.collections.push(list);
-  saveUsers().then(()=>{updateCounts();if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}else{renderLists();toast('List "'+name+'" created');}});
+  saveUsers().then(()=>{updateCounts();if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}else{renderWish();toast('List "'+name+'" created');}});
 }
 function buildListsSection(id, me){
   const myLists = me.collections||[];
@@ -5531,66 +5279,69 @@ function toggleInList(listId,itemId){
 function renameList(listId){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   const name=(prompt('Rename list:',list.name)||'').trim();if(!name)return;
-  list.name=name;saveUsers().then(()=>renderLists());
+  list.name=name;
+  saveUsers().then(()=>{
+    renderWish();
+    const titleEl=document.getElementById('userlist-title');
+    if(titleEl && _activeUserListId===listId) titleEl.textContent=name;
+  });
 }
 function deleteList(listId){
   if(!confirm('Delete this list? (Your titles stay in the library.)'))return;
   const me=myData();me.collections=(me.collections||[]).filter(c=>c.id!==listId);
-  saveUsers().then(()=>{renderLists();updateCounts();});
+  saveUsers().then(()=>{
+    closeMo('userlist');
+    renderWish();
+    updateCounts();
+    toast('List deleted');
+  });
 }
 function removeFromList(listId,itemId){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=(list.items||[]).filter(x=>x!==itemId);
-  saveUsers().then(()=>renderLists());
-}
-function canFeatureList(){
-  // Admin can feature unlimited; members can feature 1 at a time
-  return isAdmin();
+  saveUsers().then(()=>{
+    renderWish();
+    if(_activeUserListId===listId) openUserList(listId);
+  });
 }
 
-function toggleFeaturedList(listId){
+// ── MY LIST DETAIL MODAL ────────────────────────────────────────────────────────
+let _activeUserListId = null;
+
+function openUserList(listId){
   const me = myData();
-  me.collections = me.collections||[];
-  const list = me.collections.find(c=>c.id===listId);
+  const list = (me.collections||[]).find(c=>c.id===listId);
   if(!list) return;
-  const wasOn = !!list.featured;
-  if(!wasOn && !isAdmin()){
-    // Unfeature any existing featured list first (1 active at a time for members)
-    me.collections.forEach(c=>{ if(c.featured) c.featured=false; });
+  _activeUserListId = listId;
+  document.getElementById('userlist-title').textContent = list.name;
+  const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
+  const grid = document.getElementById('userlist-grid');
+  const empty = document.getElementById('userlist-empty');
+  if(!items.length){
+    grid.innerHTML='';
+    empty.style.display='';
+  } else {
+    empty.style.display='none';
+    grid.innerHTML = items.map(m=>{
+      const hp = m.poster && m.poster !== 'N/A';
+      const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
+      return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
+        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromList('${listId}','${m.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
+      </div>`;
+    }).join('');
   }
-  list.featured = !wasOn;
-  saveUsers().then(()=>{ renderLists(); toast(list.featured?`"${list.name}" is now featured!`:`"${list.name}" removed from featured.`); });
+  openMo('userlist');
 }
 
-function renderLists(){
-  const me=myData();const cols=me.collections||[];
-  const wrap=document.getElementById('lists-wrap'),empty=document.getElementById('lists-empty');
-  if(!cols.length){wrap.innerHTML='';empty.style.display='';updateCounts();return}
-  empty.style.display='none';
-  wrap.innerHTML=cols.map(c=>{
-    const items=(c.items||[]).map(idv=>sharedData.library.find(m=>m.id===idv)).filter(Boolean);
-    const isFeatured=!!c.featured;
-    const cards=items.length?`<div class="shelf-scroll">${items.map(m=>{
-      const hp=m.poster&&m.poster!=='N/A';
-      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
-        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
-        <div class="ov">${m.title}</div>
-        <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.8);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')"><i class="ti ti-x" style="font-size:13px;color:#fff"></i></div>
-      </div>`;
-    }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open a title and add it to this list.</div>';
-    return `<div class="stat-block" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
-        <button class="featured-check ${isFeatured?'active':''}" onclick="toggleFeaturedList('${c.id}')" title="${isFeatured?'Remove from Featured':'Feature this list'}">
-          <i class="ti ti-star${isFeatured?'-filled':''}"></i> ${isFeatured?'Featured':'Feature'}
-        </button>
-        <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
-        <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
-      </div>
-      ${cards}
-    </div>`;
-  }).join('');
-  updateCounts();
+function renameUserListFromModal(){
+  if(_activeUserListId) renameList(_activeUserListId);
+}
+
+function deleteUserListFromModal(){
+  if(_activeUserListId) deleteList(_activeUserListId);
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────────────────
@@ -8247,68 +7998,6 @@ function evaluateTrophies(){
   return me.trophies;
 }
 
-function trophyRowHTML(t, e, isEarned, prog, w, rated, u, lib, me, extraClass, periodLabel){
-  const pct = prog ? Math.min(100, Math.round(prog[0]/prog[1]*100)) : 0;
-  const badgeIcon = isEarned ? '✓' : '○';
-  return '<div class="trophy '+(isEarned?'earned':'locked')+' '+(extraClass||'')+'">'
-    +(e?.isNew?'<div class="trophy-new">NEW</div>':'')
-    +'<div class="trophy-icon">'+t.icon+'</div>'
-    +'<div class="trophy-info">'
-    +'<div class="trophy-name">'+t.name+(periodLabel?' &nbsp;<span class="trophy-period-badge '+periodLabel.toLowerCase()+'-badge">'+periodLabel+'</span>':'')+'</div>'
-    +'<div class="trophy-desc">'+t.desc+'</div>'
-    +(isEarned&&e.earnedAt?'<div class="trophy-date">Earned '+new Date(e.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>':'')
-    +(!isEarned&&prog?'<div class="trophy-progress-wrap"><div class="trophy-progress"><div class="trophy-progress-fill" style="width:'+pct+'%"></div></div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+prog[0]+' / '+prog[1]+'</div></div>':'')
-    +'</div>'
-    +'<div class="trophy-badge">'+badgeIcon+'</div>'
-    +'</div>';
-}
-
-function renderTrophies(){ renderCinema(); }
-
-
-
-
-// ── FEATURED LISTS ────────────────────────────────────────────────────────────
-function renderFeaturedLists(){
-  const body = document.getElementById('featured-lists-body');
-  const empty = document.getElementById('featured-lists-empty');
-  if(!body) return;
-
-  // Collect featured lists from all users
-  const featured = [];
-  allUsers.accounts.forEach(u=>{
-    const ud = allUsers.personal?.[u.id];
-    if(!ud) return;
-    (ud.collections||[]).filter(c=>c.featured).forEach(c=>{
-      const items = (c.items||[]).map(id=>sharedData.library.find(m=>m.id===id)).filter(Boolean);
-      if(items.length) featured.push({list:c, user:u, items});
-    });
-  });
-
-  if(!featured.length){ body.innerHTML=''; empty.style.display=''; return; }
-  empty.style.display='none';
-
-  body.innerHTML = featured.map(({list,user,items})=>{
-    const cards = items.map(m=>{
-      const hp=m.poster&&m.poster!=='N/A';
-      const me=myData(); const r=me.ratings?.[m.id]||0;
-      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
-        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
-        <div class="ov"><div class="ov-title">${m.title}</div></div>
-        ${r?`<div class="rating-badge">${r}/10</div>`:''}
-      </div>`;
-    }).join('');
-    return `<div class="featured-list-card">
-      <div class="featured-list-hdr">
-        ${avatarEl(user,28)}
-        <div class="featured-list-title">${list.name}</div>
-        <div class="featured-list-owner">${user.username} · ${items.length} titles</div>
-      </div>
-      <div style="padding:12px"><div class="shelf-scroll">${cards}</div></div>
-    </div>`;
-  }).join('');
-}
-
 // ── VHS RENTAL RECEIPT ────────────────────────────────────────────────────────
 function buildReceiptMonthSelect(){
   const me = myData();
@@ -10333,7 +10022,7 @@ function toggleListFromModal(btn, adding){
     const titleEl = document.getElementById('addtolist-body')?.querySelector('div:nth-child(2)');
     const title = titleEl ? titleEl.textContent : movieId;
     openAddToListModal(movieId, title, src);
-    renderLists();
+    renderWish();
     toast(adding ? 'Added to '+list.name : 'Removed from '+list.name);
   });
 }
