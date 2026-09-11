@@ -1559,6 +1559,21 @@ textarea.ffi{resize:vertical}
 .stub-perf{width:5px;height:5px;border-radius:50%;background:#e0e0e0;flex-shrink:0}
 .stub-month-hd{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--muted);margin:18px 0 10px}
 
+
+/* ── COMPARE / FAVORITES ─────────────────────────────────────────────────────── */
+.cmp-arena{display:flex;gap:10px;margin-bottom:16px;align-items:stretch}
+.cmp-card{flex:1;background:var(--bg2);border:2px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;align-items:center;padding:14px 10px 12px}
+.cmp-card:hover{border-color:var(--gold);transform:scale(1.01)}
+.cmp-card:active{transform:scale(.98)}
+.cmp-poster{width:90px;height:134px;border-radius:8px;object-fit:cover;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.cmp-title{font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:1px;text-align:center;color:var(--light);line-height:1.2;margin-bottom:3px}
+.cmp-meta{font-size:10px;color:var(--muted);text-align:center}
+.cmp-vs{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--muted);letter-spacing:2px;display:flex;align-items:center;flex-shrink:0}
+.cmp-progress{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.cmp-progress-fill{height:4px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));border-radius:2px;transition:width .4s}
+.cmp-top-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.cmp-top-row:last-child{border-bottom:none}
+
 </style>
 </head>
 <body>
@@ -1622,17 +1637,14 @@ textarea.ffi{resize:vertical}
   <div class="nav-bar">
     <div class="nav">
       <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
-      <button class="nb active" onclick="switchTab('library',this)"><i class="ti ti-movie"></i> Movies <span class="bdg" id="lib-count">0</span></button>
-      <button class="nb" onclick="switchTab('tvshows',this)"><i class="ti ti-device-tv"></i> TV Shows <span class="bdg" id="tv-count">0</span></button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
-      <button class="nb" onclick="switchTab('lists',this)"><i class="ti ti-list"></i> My Lists <span class="bdg" id="list-count">0</span></button>
       <button class="nb" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
       <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
       <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
       <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Stats & Trophies</button>
 
+      <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Compare</button>
       <button class="nb" onclick="switchTab('canonical',this)"><i class="ti ti-list-numbers"></i> Lists</button>
-      <button class="nb" onclick="switchTab('charts',this)"><i class="ti ti-chart-bar"></i> Charts</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
       <button class="nb" id="nb-watchmode" onclick="switchTab('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i> <span id="nb-watchmode-label">Watch Mode</span></button>
       <button class="nb" onclick="switchTab('tagbrowser',this)"><i class="ti ti-tags"></i> Tag Browser</button>
@@ -1640,7 +1652,6 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
       <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
-      <button class="nb" onclick="switchTab('cgraveyard',this)"><i class="ti ti-tombstone"></i> Graveyard</button>
     </div>
   </div>
 
@@ -1944,6 +1955,11 @@ textarea.ffi{resize:vertical}
       <div id="wm-sub-status" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:8px;font-size:12px;color:var(--muted)"></div>
     </div>
 
+    <!-- COMPARE -->
+    <div class="tab" id="tab-compare">
+      <div id="compare-body" style="padding:4px 0"></div>
+    </div>
+
     <!-- CANONICAL LISTS -->
     <div class="tab" id="tab-canonical">
       <div id="canonical-body"></div>
@@ -2020,7 +2036,6 @@ textarea.ffi{resize:vertical}
 
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('lists',this)"><i class="ti ti-list"></i>My Lists</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('canonical',this)"><i class="ti ti-list-numbers"></i>Lists</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('charts',this)"><i class="ti ti-chart-bar"></i>Charts</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
     <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('tagbrowser',this)"><i class="ti ti-tags"></i>Tags</button>
@@ -2354,7 +2369,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.0.6';
+const VERSION     = '10.0.8';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3010,6 +3025,7 @@ function switchTab(t,el){
   if(t==='tagbrowser') renderTagBrowser();
   if(t==='charts') renderCharts();
   if(t==='canonical') renderCanonicalLists();
+  if(t==='compare') renderCompare();
   if(t==='watchmode') renderWatchMode();
   if(t==='featured') renderFeaturedLists();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
@@ -8524,52 +8540,69 @@ function renderRuntime(){
   const me = myData();
   const lib = sharedData.library;
   const allMovies = lib.filter(m=>m.type!=='tv');
+  const watched = allMovies.filter(m=>me.watched?.[m.id]);
 
-  let watchedMins=0, unwatchedMins=0, watchedCount=0, unwatchedCount=0;
-  allMovies.forEach(m=>{
-    const mins = parseInt(m.runtime)||0;
-    if(me.watched?.[m.id]){ watchedMins+=mins; watchedCount++; }
-    else { unwatchedMins+=mins; unwatchedCount++; }
-  });
+  let watchedMins=0, watchedCount=0;
+  watched.forEach(m=>{ const mins=parseInt(m.runtime)||0; watchedMins+=mins; watchedCount++; });
 
   const fmtH = m => Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';
   const fmtDays = m => (m/60/24).toFixed(1)+' days';
 
-  // Fun comparisons for unwatched
-  const indy2chicago = 180; // minutes (~3 hours each way, so round trip = 360)
-  const trips = Math.round(unwatchedMins/(indy2chicago*2));
+  // Location-based comparisons using DRIVE_LOCATION setting
+  const loc = me.driveLocation||'Chicago';
+  const DRIVE_TIMES = {
+    'Chicago':        {mins:165,  label:'Chicago'},
+    'Crawfordsville': {mins:70,   label:'Crawfordsville'},
+    'Los Angeles':    {mins:2760, label:'Los Angeles'},
+    'New York City':  {mins:780,  label:'New York City'},
+    'Miami':          {mins:1200, label:'Miami'},
+    'Cleveland':      {mins:330,  label:'Cleveland'},
+    'Denver':         {mins:1260, label:'Denver'},
+  };
+  const drive = DRIVE_TIMES[loc]||DRIVE_TIMES['Chicago'];
+  const trips = Math.round(watchedMins/drive.mins);
 
   const body = document.getElementById('runtime-body');
   if(!body) return;
   body.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Drive to</div>
+      <select class="fb" id="drive-loc-sel" onchange="saveRuntimeLocation(this.value)">
+        ${Object.keys(DRIVE_TIMES).map(k=>`<option value="${k}"${k===loc?' selected':''}>${k}</option>`).join('')}
+      </select>
+    </div>
     <div class="runtime-hero">
-      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Hours of Unwatched Content</div>
-      <div class="runtime-countdown">${fmtH(unwatchedMins)}</div>
-      <div class="runtime-label">${fmtDays(unwatchedMins)} of your life remaining · ${unwatchedCount} titles</div>
+      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Time Watched</div>
+      <div class="runtime-countdown">${fmtH(watchedMins)}</div>
+      <div class="runtime-label">${fmtDays(watchedMins)} of cinema · ${watchedCount} films</div>
       <div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7">
-        That's <strong style="color:var(--gold)">${trips}</strong> round trips from Indianapolis to Chicago.<br>
-        At 3 movies/week you'll finish in <strong style="color:var(--gold)">${Math.ceil(unwatchedCount/3)} weeks</strong>.
+        That's <strong style="color:var(--gold)">${trips}</strong> round trips from Greensburg to ${drive.label}.<br>
+        You average <strong style="color:var(--gold)">${Math.round(watchedMins/(watchedCount||1))}</strong> minutes per film.
       </div>
     </div>
     <div class="runtime-grid">
-      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(watchedMins)}</div><div class="runtime-stat-l">Time Watched</div></div>
-      <div class="runtime-stat"><div class="runtime-stat-n">${watchedCount}</div><div class="runtime-stat-l">Titles Watched</div></div>
-      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(unwatchedMins)}</div><div class="runtime-stat-l">Time Remaining</div></div>
-      <div class="runtime-stat"><div class="runtime-stat-n">${unwatchedCount}</div><div class="runtime-stat-l">Titles Unwatched</div></div>
-      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(watchedMins+unwatchedMins)}</div><div class="runtime-stat-l">Total Library Runtime</div></div>
-      <div class="runtime-stat"><div class="runtime-stat-n">${Math.round(watchedMins/(watchedCount||1))}m</div><div class="runtime-stat-l">Avg Movie Length</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${fmtH(watchedMins)}</div><div class="runtime-stat-l">Total Watched</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${watchedCount}</div><div class="runtime-stat-l">Films Watched</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${Math.round(watchedMins/(watchedCount||1))}m</div><div class="runtime-stat-l">Avg Runtime</div></div>
+      <div class="runtime-stat"><div class="runtime-stat-n">${trips}</div><div class="runtime-stat-l">Trips to ${drive.label}</div></div>
     </div>
-    <div class="sl" style="margin-bottom:12px">Longest Unwatched</div>
+    <div class="sl" style="margin-bottom:12px">Longest Films Watched</div>
     <div style="display:flex;flex-direction:column;gap:6px">
-      ${allMovies.filter(m=>!me.watched?.[m.id]&&parseInt(m.runtime)>0)
+      ${watched.filter(m=>parseInt(m.runtime)>0)
         .sort((a,b)=>parseInt(b.runtime)-parseInt(a.runtime))
-        .slice(0,8)
+        .slice(0,10)
         .map(m=>`<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer" onclick="openDetail('${m.id}','library')">
           ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>'}
           <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:11px;color:var(--muted)">${m.year||''}</div></div>
           <div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);white-space:nowrap">${fmtH(parseInt(m.runtime))}</div>
         </div>`).join('')}
     </div>`;
+}
+
+function saveRuntimeLocation(val){
+  const me = myData();
+  me.driveLocation = val || 'Chicago';
+  saveUsers().then(()=>renderRuntime());
 }
 
 // ── HEATMAP ROOM ──────────────────────────────────────────────────────────────
@@ -10394,6 +10427,189 @@ function toggleListFromModal(btn, adding){
     openAddToListModal(movieId, title, src);
     renderLists();
     toast(adding ? 'Added to '+list.name : 'Removed from '+list.name);
+  });
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMPARE & TOP 100
+// ══════════════════════════════════════════════════════════════════════════════
+
+function getComparePool(me){
+  // All watched movies, excluding TV
+  return sharedData.library.filter(function(m){
+    return m.type!=='tv' && me.watched && me.watched[m.id];
+  });
+}
+
+function getCompareQueue(me){
+  // Build a shuffled list of matchups not yet compared
+  const wins = me.compareWins||{};
+  const pool = getComparePool(me);
+  // Generate all unique pairs
+  const pairs = [];
+  for(let i=0;i<pool.length;i++){
+    for(let j=i+1;j<pool.length;j++){
+      const key = pool[i].id+'|'+pool[j].id;
+      const key2 = pool[j].id+'|'+pool[i].id;
+      if(!wins[key]&&!wins[key2]) pairs.push([pool[i],pool[j]]);
+    }
+  }
+  // Shuffle
+  for(let i=pairs.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pairs[i],pairs[j]]=[pairs[j],pairs[i]];
+  }
+  return pairs;
+}
+
+function buildTop100(me){
+  // Calculate win rate for each film
+  const wins = me.compareWins||{};
+  const pool = getComparePool(me);
+  const scores = {};
+  pool.forEach(function(m){ scores[m.id]={wins:0,losses:0,id:m.id}; });
+
+  Object.entries(wins).forEach(function([key, winnerId]){
+    const [a,b] = key.split('|');
+    if(scores[winnerId]) scores[winnerId].wins++;
+    const loserId = winnerId===a ? b : a;
+    if(scores[loserId]) scores[loserId].losses++;
+  });
+
+  return pool
+    .filter(function(m){ const s=scores[m.id]; return s&&(s.wins+s.losses)>0; })
+    .sort(function(a,b){
+      const sa=scores[a.id], sb=scores[b.id];
+      const rateA = sa.wins/(sa.wins+sa.losses);
+      const rateB = sb.wins/(sb.wins+sb.losses);
+      if(rateB!==rateA) return rateB-rateA;
+      return sb.wins-sa.wins;
+    })
+    .slice(0,100);
+}
+
+var _compareQueue = [];
+var _compareSession = null;
+
+function renderCompare(){
+  const body = document.getElementById('compare-body');
+  if(!body) return;
+  const me = myData();
+  const pool = getComparePool(me);
+  const wins = me.compareWins||{};
+  const totalComparisons = Object.keys(wins).length;
+  const totalPossible = pool.length*(pool.length-1)/2;
+  const pct = totalPossible>0 ? Math.round(totalComparisons/totalPossible*100) : 0;
+
+  // Build current pair if needed
+  if(!_compareSession||_compareSession.length===0){
+    _compareSession = getCompareQueue(me);
+  }
+
+  const top100 = buildTop100(me);
+  const isDone = _compareSession.length===0 && totalComparisons>0;
+
+  let h = '<div style="font-family:Bebas Neue,cursive;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:4px">Compare Films</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:12px">Pick the one you prefer. After all matchups, your Top 100 is revealed.</div>';
+
+  if(pool.length<2){
+    h += '<div class="empty"><i class="ti ti-movie"></i><p style="font-size:13px">Watch at least 2 films to start comparing.</p></div>';
+    body.innerHTML = h; return;
+  }
+
+  // Progress
+  h += '<div class="cmp-progress"><div class="cmp-progress-fill" style="width:'+pct+'%"></div></div>'
+    +'<div style="font-size:10px;color:var(--muted);margin-bottom:16px">'+totalComparisons+' of '+totalPossible+' matchups complete · '+pct+'%</div>';
+
+  if(_compareSession.length>0){
+    const [a,b] = _compareSession[0];
+    const rA = me.ratings?.[a.id]||0;
+    const rB = me.ratings?.[b.id]||0;
+    h += '<div class="cmp-arena">'
+      +'<div class="cmp-card" data-id="'+a.id+'" data-opp="'+b.id+'" onclick="pickWinner(this.dataset.id,this.dataset.opp)">'
+      +(a.poster&&a.poster!=='N/A'?'<img class="cmp-poster" src="'+a.poster+'" loading="lazy">':'<div class="cmp-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:32px;color:var(--muted)"></i></div>')
+      +'<div class="cmp-title">'+a.title+'</div>'
+      +'<div class="cmp-meta">'+a.year+(rA?' · '+rA+'/10':'')+'</div>'
+      +'</div>'
+      +'<div class="cmp-vs">VS</div>'
+      +'<div class="cmp-card" data-id="'+b.id+'" data-opp="'+a.id+'" onclick="pickWinner(this.dataset.id,this.dataset.opp)">'
+      +(b.poster&&b.poster!=='N/A'?'<img class="cmp-poster" src="'+b.poster+'" loading="lazy">':'<div class="cmp-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:32px;color:var(--muted)"></i></div>')
+      +'<div class="cmp-title">'+b.title+'</div>'
+      +'<div class="cmp-meta">'+b.year+(rB?' · '+rB+'/10':'')+'</div>'
+      +'</div></div>'
+      +'<div style="text-align:center;margin-bottom:20px">'
+      +'<button class="ghost-btn" style="font-size:11px" onclick="skipCompare()">Skip this matchup</button>'
+      +'</div>';
+  } else if(isDone){
+    h += '<div style="text-align:center;padding:16px 0;margin-bottom:16px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:12px">'
+      +'<div style="font-family:Bebas Neue,cursive;font-size:22px;color:var(--gold)">All Matchups Complete!</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:4px">Your Top 100 is ready below.</div>'
+      +'<button class="ghost-btn" style="margin:12px auto 0;font-size:11px" onclick="resetCompare()"><i class="ti ti-refresh"></i> Start Over</button>'
+      +'</div>';
+  }
+
+  // Top 100 so far
+  if(top100.length){
+    const savedDate = me.compareTop100SavedAt ? new Date(me.compareTop100SavedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : null;
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+      +'<div style="font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold)">Top '+Math.min(top100.length,100)+' So Far</div>'
+      +(isDone?'<button class="primary-btn" style="padding:5px 14px;font-size:11px" onclick="saveTop100()"><i class="ti ti-bookmark"></i> Save List</button>':'')
+      +'</div>'
+      +(savedDate?'<div style="font-size:10px;color:var(--muted);margin-bottom:8px">Last saved: '+savedDate+'</div>':'')
+      +'<div>';
+    top100.slice(0,100).forEach(function(m,i){
+      const s = (me.compareWins&&me.compareWins)||{};
+      h += '<div class="cmp-top-row" data-mid="'+m.id+'" onclick="openDetail(this.dataset.mid,\'library\')">'
+        +'<div style="font-family:Bebas Neue,cursive;font-size:15px;color:var(--muted);width:28px;flex-shrink:0;text-align:right">'+(i+1)+'</div>'
+        +(m.poster&&m.poster!=='N/A'?'<img src="'+m.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0;" loading="lazy">':'<div style="width:28px;height:42px;background:var(--bg3);border-radius:4px;flex-shrink:0"></div>')
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div>'
+        +'<div style="font-size:10px;color:var(--muted)">'+m.year+'</div>'
+        +'</div></div>';
+    });
+    h += '</div>';
+  }
+
+  if(totalComparisons>0){
+    h += '<button class="ghost-btn" style="margin-top:12px;font-size:11px;color:var(--red);border-color:rgba(232,53,75,.2)" onclick="resetCompare()"><i class="ti ti-trash"></i> Reset All Comparisons</button>';
+  }
+
+  body.innerHTML = h;
+}
+
+function pickWinner(winnerId, loserId){
+  const me = myData();
+  me.compareWins = me.compareWins||{};
+  const key = winnerId+'|'+loserId;
+  me.compareWins[key] = winnerId;
+  // Advance queue
+  if(_compareSession.length>0) _compareSession.shift();
+  saveUsers().then(function(){ renderCompare(); });
+}
+
+function skipCompare(){
+  if(_compareSession.length>0) _compareSession.shift();
+  renderCompare();
+}
+
+function resetCompare(){
+  if(!confirm('Reset all comparisons? Your Top 100 will be cleared.')) return;
+  const me = myData();
+  delete me.compareWins;
+  delete me.compareTop100SavedAt;
+  _compareSession = null;
+  saveUsers().then(function(){ renderCompare(); });
+}
+
+function saveTop100(){
+  const me = myData();
+  me.compareTop100SavedAt = Date.now();
+  const top = buildTop100(me);
+  me.compareTop100 = top.map(function(m){ return m.id; });
+  saveUsers().then(function(){
+    toast('Top '+top.length+' saved! ⭐');
+    renderCompare();
   });
 }
 
