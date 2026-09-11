@@ -128,6 +128,7 @@ select option{background:#1a1a2e;color:#eeeef5}
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;width:100%}
+#userlist-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
 .card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .25s;aspect-ratio:2/3}
 .card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(232,184,75,0.2);box-shadow:0 16px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(232,184,75,0.08)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
@@ -234,32 +235,16 @@ select option{background:#1a1a2e;color:#eeeef5}
 .skel-text.short{width:60%}
 
 /* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
-.bottom-nav .bnb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px;flex-wrap:wrap}
+.bottom-nav .bnb{flex:1 1 19%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 1px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:8px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative;white-space:nowrap}
 .bottom-nav .bnb.active{color:var(--gold)}
-.bottom-nav .bnb i{font-size:18px}
-.bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
-.more-menu{display:none;position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:102;background:var(--bg2);border-top:1px solid var(--border2);padding:8px;box-shadow:0 -8px 24px rgba(0,0,0,.4)}
-.more-menu.open{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.more-menu-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 16px;border:none;border-radius:10px;background:var(--bg3);color:var(--muted);font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;cursor:pointer;min-width:80px}
-.more-menu-btn:active{background:var(--gold-dim);color:var(--gold)}
-.more-menu-btn i{font-size:20px}
+.bottom-nav .bnb i{font-size:16px}
+.bottom-nav .bnb .bdg{position:absolute;top:3px;right:8px;min-width:14px;padding:0 4px;font-size:9px}
 @media(max-width:600px){
   .bottom-nav{display:flex}
   .nav-bar{display:none}
-  .main{padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
+  .main{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important}
 }
-
-/* ACTIVITY FEED */
-.feed-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.feed-item:last-child{border:none}
-.feed-poster{width:32px;height:48px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
-.feed-content{flex:1;min-width:0}
-.feed-who{font-size:12px;font-weight:600;color:var(--light)}
-.feed-action{font-size:12px;color:var(--muted)}
-.feed-title{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;cursor:pointer}
-.feed-title:hover{color:var(--gold)}
-.feed-when{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* SERIES PROGRESS */
 .series-progress{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px}
@@ -1060,17 +1045,6 @@ textarea.ffi{resize:vertical}
   .auth-box{padding:28px 20px}
 }
 
-/* ── VHS RECEIPT ─────────────────────────────────────────────── */
-.receipt-wrap{background:#f5f0e8;color:#1a1a1a;border-radius:4px;padding:20px;font-family:'Courier New',monospace;max-width:340px;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.receipt-header{text-align:center;border-bottom:2px dashed #999;padding-bottom:12px;margin-bottom:12px}
-.receipt-logo{font-size:22px;font-weight:900;letter-spacing:4px;color:#1a1a1a}
-.receipt-sub{font-size:10px;letter-spacing:2px;color:#666;margin-top:2px}
-.receipt-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#333}
-.receipt-row.bold{font-weight:700;font-size:12px}
-.receipt-divider{border-top:1px dashed #999;margin:8px 0}
-.receipt-footer{text-align:center;font-size:9px;color:#888;margin-top:10px;line-height:1.6}
-.receipt-barcode{text-align:center;font-size:28px;letter-spacing:-2px;color:#1a1a1a;margin:8px 0 2px;opacity:.7}
-
 /* ── GHOST RATINGS ───────────────────────────────────────────── */
 .ghost-rating-wrap{margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:8px}
 .ghost-rating-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
@@ -1641,7 +1615,6 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
-      <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
     </div>
   </div>
 
@@ -1749,14 +1722,6 @@ textarea.ffi{resize:vertical}
       <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
     </div>
 
-    <div class="tab" id="tab-activity">
-      <div class="sl" style="margin-bottom:16px">Recent Activity</div>
-      <div id="activity-feed-body"></div>
-      <div class="empty" id="activity-empty" style="display:none"><i class="ti ti-activity"></i><p style="font-size:14px">No activity yet.</p></div>
-    </div>
-
-
-
     <!-- CURSED QUEUE -->
     <!-- VINTAGE — full page overlay -->
     <div class="tab" id="tab-vintage">
@@ -1836,16 +1801,6 @@ textarea.ffi{resize:vertical}
     <!-- STATS -->
     <div class="tab" id="tab-stats">
       <div id="cst-body"></div>
-    </div>
-
-    <!-- RECEIPT -->
-    <div class="tab" id="tab-receipt">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-        <div class="sl" style="flex:1;margin:0">VHS Rental Receipt</div>
-        <select class="fb" id="receipt-month" onchange="renderReceipt()"></select>
-        <button class="ab" onclick="printReceipt()"><i class="ti ti-printer"></i> Print</button>
-      </div>
-      <div id="receipt-body"></div>
     </div>
 
     <!-- GAUNTLET -->
@@ -1942,25 +1897,18 @@ textarea.ffi{resize:vertical}
     </div>
   </div>
 
-  <!-- BOTTOM NAV (mobile only) -->
-  <!-- MORE MENU (mobile overflow) -->
-  <div class="more-menu" id="more-menu">
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('diary',this)"><i class="ti ti-calendar"></i>Diary</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('activity',this)"><i class="ti ti-activity"></i>Activity</button>
-    <button class="more-menu-btn" style="color:#ff6ec7" onclick="closeMoreMenu();switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i>Retro</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i>Stats</button>
-
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
-    <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
-  </div>
-
+  <!-- BOTTOM NAV (mobile only) — every tab lives here directly, no "More" menu -->
   <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Watchlist</span></button>
     <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
-    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
-    <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
+    <button class="bnb" id="bnb-gauntlet" onclick="switchTabMobile('gauntlet',this)"><i class="ti ti-tournament"></i><span>Gauntlet</span></button>
+    <button class="bnb" id="bnb-stats" onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
+    <button class="bnb" id="bnb-trophies" onclick="switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i><span>Trophies</span></button>
+    <button class="bnb" id="bnb-compare" onclick="switchTabMobile('compare',this)"><i class="ti ti-vs"></i><span>Rank</span></button>
+    <button class="bnb" id="bnb-runtime" onclick="switchTabMobile('runtime',this)"><i class="ti ti-clock"></i><span>Runtime</span></button>
+    <button class="bnb" id="bnb-discover" onclick="switchTabMobile('discover',this)"><i class="ti ti-compass"></i><span>Discover</span></button>
+    <button class="bnb" id="bnb-vintage" style="color:#ff6ec7" onclick="switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i><span>Retro</span></button>
+    <button class="bnb" id="bnb-watchmode" onclick="switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i><span>Watch</span></button>
   </nav>
 </div>
 
@@ -2845,7 +2793,11 @@ function signOut(){
 // ── APP INIT ──────────────────────────────────────────────────────────────────
 
 // ── BACK BUTTON / PAGE LEAVE PROTECTION ──────────────────────────────────────
+let _backGuardInstalled = false;
 function initBackGuard(){
+  if(_backGuardInstalled) return; // avoid stacking duplicate listeners on repeat initApp() calls
+  _backGuardInstalled = true;
+
   // Push a dummy state so the first back button press hits our handler
   history.pushState({mcflix:true}, '', window.location.href);
 
@@ -2853,14 +2805,16 @@ function initBackGuard(){
     // Only intercept when app is loaded (not on login screen)
     const authScreen = document.getElementById('auth-screen');
     if(authScreen && authScreen.classList.contains('active')) return;
-    const stay = !confirm('Leave McFlix?');
+    const stay = !confirm('Leave McFlix? Unsaved changes may be lost.');
     if(stay){
       history.pushState({mcflix:true}, '', window.location.href);
     }
   });
 
-  // Desktop tab/window close protection
+  // Reload / close-tab protection — browsers show their own native confirmation dialog
   window.addEventListener('beforeunload', function(e){
+    const authScreen = document.getElementById('auth-screen');
+    if(authScreen && authScreen.classList.contains('active')) return;
     e.preventDefault();
     e.returnValue = '';
   });
@@ -2934,12 +2888,10 @@ function switchTab(t,el){
   if(el) el.classList.add('active');
   // sync bottom nav
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
-  closeMoreMenu();
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
   if(t==='wishlist') renderWish();
   if(t==='diary') renderDiary();
-  if(t==='activity') renderActivity();
   // trophies rendered via renderCombinedStats below
   if(t==='vintage') renderVintage();
   if(t==='stats') renderStats();
@@ -2947,7 +2899,6 @@ function switchTab(t,el){
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
-  if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='gauntlet') renderGauntlet();
   if(t==='runtime') renderRuntime();
   if(t==='cgraveyard') renderCriticGraveyard();
@@ -5329,7 +5280,7 @@ function openUserList(listId){
         ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
         <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
         <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromList('${listId}','${m.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
+        <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromList('${listId}','${m.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
       </div>`;
     }).join('');
   }
@@ -7457,28 +7408,6 @@ function removeFromWatched(id, isDiary){
 }
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
-function toggleMoreMenu(el){
-  const menu = document.getElementById('more-menu');
-  const isOpen = menu.classList.toggle('open');
-  el.classList.toggle('active', isOpen);
-  // Close when tapping outside
-  if(isOpen){
-    setTimeout(()=>{
-      document.addEventListener('click', function handler(e){
-        if(!e.target.closest('#more-menu')&&!e.target.closest('#bnb-more')){
-          closeMoreMenu();
-          document.removeEventListener('click', handler);
-        }
-      });
-    }, 10);
-  }
-}
-
-function closeMoreMenu(){
-  document.getElementById('more-menu')?.classList.remove('open');
-  document.getElementById('bnb-more')?.classList.remove('active');
-}
-
 function switchTabMobile(t, el){
   // Just call switchTab — it now syncs both navs
   switchTab(t, el);
@@ -7539,60 +7468,6 @@ function seriesProgressHTML(m){
       ${p.season?`<span style="font-size:11px;color:var(--muted)">S${p.season}${p.episode?' E'+p.episode:''}</span>`:''}
     </div>
   </div>`;
-}
-
-// ── ACTIVITY FEED ─────────────────────────────────────────────────────────────
-function buildActivityFeed(){
-  const events = [];
-  allUsers.accounts.forEach(u => {
-    const ud = allUsers.personal?.[u.id];
-    if(!ud) return;
-    // Watch history events
-    Object.entries(ud.history||{}).forEach(([itemId, dates]) => {
-      const m = sharedData.library.find(x=>x.id===itemId)||(ud.diaryItems?.[itemId]);
-      if(!m) return;
-      dates.forEach(ts => events.push({type:'watched', user:u, m, ts}));
-    });
-    // Rating events — approximate ts from addedAt (we don't store rating ts)
-    Object.entries(ud.ratings||{}).forEach(([itemId, rating]) => {
-      if(!rating) return;
-      const m = sharedData.library.find(x=>x.id===itemId);
-      if(!m) return;
-      events.push({type:'rated', user:u, m, rating, ts: m.addedAt||0});
-    });
-    // Comment events
-    sharedData.library.forEach(m => {
-      (m.comments||[]).filter(c=>c.userId===u.id).forEach(c => {
-        events.push({type:'commented', user:u, m, comment:c.text, ts:c.ts});
-      });
-    });
-  });
-  return events.sort((a,b)=>b.ts-a.ts).slice(0,60);
-}
-
-function renderActivity(){
-  const events = buildActivityFeed();
-  const body = document.getElementById('activity-feed-body');
-  const empty = document.getElementById('activity-empty');
-  if(!body) return;
-  if(!events.length){ body.innerHTML=''; if(empty)empty.style.display=''; return; }
-  if(empty) empty.style.display='none';
-  body.innerHTML = events.map(e => {
-    const hp = e.m.poster && e.m.poster !== 'N/A';
-    let action='', detail='';
-    if(e.type==='watched') action='watched';
-    else if(e.type==='rated'){ action='rated'; detail=` <strong style="color:var(--gold)">${e.rating}/10</strong>`; }
-    else if(e.type==='commented'){ action='commented on'; detail=` <span style="color:var(--muted)">· "${e.comment.slice(0,40)}${e.comment.length>40?'…':''}"</span>`; }
-    return `<div class="feed-item">
-      ${avatarEl(e.user,32)}
-      <div style="flex:1;min-width:0">
-        <div><span class="feed-who">${e.user.username}</span> <span class="feed-action">${action}${detail}</span></div>
-        <div class="feed-title" onclick="openDetail('${e.m.id}','library')">${e.m.title}</div>
-        <div class="feed-when">${formatAgo(e.ts)}</div>
-      </div>
-      ${hp?`<img src="${e.m.poster}" class="feed-poster" onerror="this.style.display='none'">`:''}
-    </div>`;
-  }).join('');
 }
 
 // ── YOU MIGHT LIKE ────────────────────────────────────────────────────────────
@@ -7996,88 +7871,6 @@ function evaluateTrophies(){
   evaluatePeriodicTrophies(me, MONTHLY_TROPHIES, 'monthly');
   evaluatePeriodicTrophies(me, ANNUAL_TROPHIES,  'annual');
   return me.trophies;
-}
-
-// ── VHS RENTAL RECEIPT ────────────────────────────────────────────────────────
-function buildReceiptMonthSelect(){
-  const me = myData();
-  const months = new Set();
-  Object.values(me.history||{}).flat().forEach(ts=>{
-    const d=new Date(ts);
-    months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
-  });
-  const sel = document.getElementById('receipt-month');
-  if(!sel) return;
-  const sorted = [...months].sort((a,b)=>b.localeCompare(a));
-  const now = new Date();
-  const curKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  sel.innerHTML = sorted.map(k=>'<option value="'+k+'" '+(k===curKey?'selected':'')+'>'+new Date(k+'-01').toLocaleString('en-US',{month:'long',year:'numeric'})+'</option>').join('');
-}
-
-function renderReceipt(){
-  buildReceiptMonthSelect();
-  const sel = document.getElementById('receipt-month');
-  const key = sel?.value || '';
-  if(!key) return;
-  const [yr, mo] = key.split('-').map(Number);
-  const me = myData();
-
-  // Gather watches this month
-  const watches = [];
-  Object.entries(me.history||{}).forEach(([id,dates])=>{
-    const m = sharedData.library.find(x=>x.id===id)||(me.diaryItems?.[id]);
-    if(!m) return;
-    dates.forEach(ts=>{
-      const d=new Date(ts);
-      if(d.getFullYear()===yr&&d.getMonth()===mo-1){
-        watches.push({m, ts, rating:me.ratings?.[id]||0});
-      }
-    });
-  });
-  watches.sort((a,b)=>a.ts-b.ts);
-
-  const monthName = new Date(yr,mo-1,1).toLocaleString('en-US',{month:'long',year:'numeric'});
-  const totalRuntime = watches.reduce((s,w)=>s+(parseInt(w.m.runtime)||0),0);
-  const avgRating = watches.filter(w=>w.rating>0).length
-    ? (watches.filter(w=>w.rating>0).reduce((s,w)=>s+w.rating,0)/watches.filter(w=>w.rating>0).length).toFixed(1)
-    : 'N/A';
-  const barcode = '||| |||| || ||| |||| ||| || |||| |||';
-
-  const body = document.getElementById('receipt-body');
-  if(!body) return;
-  body.innerHTML = `<div class="receipt-wrap" id="receipt-print">
-    <div class="receipt-header">
-      <div class="receipt-logo">McFlix</div>
-      <div class="receipt-sub">VHS RENTAL · ${monthName.toUpperCase()}</div>
-      <div style="font-size:9px;color:#888;margin-top:4px">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>
-    </div>
-    <div class="receipt-row bold"><span>MEMBER</span><span>${CU.username.toUpperCase()}</span></div>
-    <div class="receipt-divider"></div>
-    ${watches.length?watches.map((w,i)=>`
-      <div class="receipt-row"><span>${String(i+1).padStart(2,'0')}. ${w.m.title.slice(0,22)}</span><span>${w.rating?w.rating+'/10':'—'}</span></div>
-      <div style="font-size:9px;color:#888;padding:0 0 4px 16px">${new Date(w.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}${w.m.runtime?' · '+w.m.runtime+'min':''}</div>
-    `).join(''):'<div style="font-size:11px;color:#888;text-align:center;padding:8px">No viewings logged this month.</div>'}
-    <div class="receipt-divider"></div>
-    <div class="receipt-row bold"><span>TOTAL TITLES</span><span>${watches.length}</span></div>
-    <div class="receipt-row"><span>TOTAL RUNTIME</span><span>${Math.floor(totalRuntime/60)}h ${totalRuntime%60}m</span></div>
-    <div class="receipt-row"><span>AVG RATING</span><span>${avgRating}</span></div>
-    <div class="receipt-divider"></div>
-    <div class="receipt-barcode">${barcode}</div>
-    <div class="receipt-footer">
-      Thank you for your rental!<br>
-      McFlix · Be kind, rewind.<br>
-      mcflix.co
-    </div>
-  </div>`;
-}
-
-function printReceipt(){
-  const el = document.getElementById('receipt-print');
-  if(!el) return;
-  const w = window.open('','_blank','width=400,height=700');
-  w.document.write('<html><head><title>McFlix Receipt</title><style>body{margin:0;background:#e8e0d0;display:flex;justify-content:center;padding:20px;font-family:Courier New,monospace}</style></head><body>'+el.outerHTML+'</body></html>');
-  w.document.close();
-  w.print();
 }
 
 // ── GHOST RATINGS ─────────────────────────────────────────────────────────────
@@ -10444,10 +10237,10 @@ function openWatchMode(movieId){
   _wmMovieId = movieId;
   // Show nav button
   const nb = document.getElementById('nb-watchmode');
-  const nbMore = document.getElementById('bnb-watchmode-more');
+  const nbMobile = document.getElementById('bnb-watchmode');
   const m = sharedData.library.find(x=>x.id===movieId);
   if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m ? m.title.slice(0,18) : 'Watch Mode'; }
-  if(nbMore) nbMore.style.display='';
+  if(nbMobile) nbMobile.style.display='';
   closeMo('detail');
   switchTab('watchmode', document.getElementById('nb-watchmode'));
 }
@@ -10773,10 +10566,10 @@ function wmRefreshFeed(){
 function openWatchReview(movieId){
   _wmMovieId = movieId;
   const nb = document.getElementById('nb-watchmode');
-  const nbMore = document.getElementById('bnb-watchmode-more');
+  const nbMobile = document.getElementById('bnb-watchmode');
   const m = sharedData.library.find(x=>x.id===movieId);
   if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m?m.title.slice(0,18):'Watch Mode'; }
-  if(nbMore) nbMore.style.display='';
+  if(nbMobile) nbMobile.style.display='';
   closeMo('detail');
   switchTab('watchmode', document.getElementById('nb-watchmode'));
 }
