@@ -2369,7 +2369,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.2';
+const VERSION     = '10.1.3';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2971,13 +2971,15 @@ function initApp(){
   initBackGuard();
   checkShowQuestionnaire();
   buildDiaryYearSelect();
+  // Activate diary tab directly
+  document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
+  const diaryTab = document.getElementById('tab-diary');
+  if(diaryTab) diaryTab.classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const diaryBtn = document.querySelector('.nb[onclick*="diary"]');
+  if(diaryBtn) diaryBtn.classList.add('active');
+  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
   renderDiary();
-  // Switch to diary as home tab after a tick so DOM is ready
-  setTimeout(function(){
-    const diaryBtn = document.querySelector('.nb[onclick*=\'diary\']');
-    switchTab('diary', diaryBtn);
-    renderDiary();
-  }, 50);
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
     fetchPlexActivity().then(()=>renderLib());
