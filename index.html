@@ -1574,6 +1574,23 @@ textarea.ffi{resize:vertical}
 .cmp-top-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .cmp-top-row:last-child{border-bottom:none}
 
+
+/* ── RANKING ENGINE ──────────────────────────────────────────────────────────── */
+.rank-card{flex:1;display:flex;flex-direction:column;align-items:center;background:var(--bg2);border:2px solid var(--border);border-radius:16px;padding:20px 12px 18px;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;user-select:none}
+.rank-card:hover{border-color:var(--gold);transform:scale(1.02);box-shadow:0 8px 32px rgba(232,184,75,.2)}
+.rank-card:active{transform:scale(.97)}
+.rank-poster{width:90px;height:134px;object-fit:cover;border-radius:8px;margin-bottom:14px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.rank-poster-ph{width:90px;height:134px;border-radius:8px;background:var(--bg3);margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.rank-title{font-family:'Bebas Neue',cursive;font-size:19px;letter-spacing:1px;color:var(--light);text-align:center;line-height:1.2;margin-bottom:4px}
+.rank-year{font-size:10px;color:var(--muted);text-align:center}
+.rank-prefer-btn{margin-top:14px;padding:7px 20px;border-radius:8px;background:rgba(232,184,75,.1);border:1px solid rgba(232,184,75,.25);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;pointer-events:none}
+.rank-result-row{display:flex;align-items:center;gap:10px;border-radius:10px;padding:10px 14px;margin-bottom:8px;border:1px solid var(--border)}
+.rank-result-row.top3{background:rgba(232,184,75,.06);border-color:rgba(232,184,75,.2)}
+.rank-num{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--muted);width:26px;text-align:right;flex-shrink:0}
+.rank-num.gold{color:#e8b84b}
+.rank-num.silver{color:#c0c0c0}
+.rank-num.bronze{color:#cd7f32}
+
 </style>
 </head>
 <body>
@@ -1639,15 +1656,12 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('featured',this)"><i class="ti ti-star"></i> Featured</button>
       <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-brand-plex"></i> Plex Requests <span class="bdg" id="wish-count">0</span></button>
       <button class="nb active" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
-      <button class="nb" onclick="switchTab('watched',this)"><i class="ti ti-eye"></i> Watched</button>
-      <button class="nb" onclick="switchTab('activity',this)"><i class="ti ti-activity"></i> Activity</button>
-      <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Stats & Trophies</button>
-
-      <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Compare</button>
-      <button class="nb" onclick="switchTab('canonical',this)"><i class="ti ti-list-numbers"></i> Canonical</button>
+      <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-tournament"></i> Gauntlet</button>
+      <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
+      <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
+      <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Rank</button>
+      <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
-      <button class="nb" id="nb-watchmode" onclick="switchTab('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i> <span id="nb-watchmode-label">Watch Mode</span></button>
-      <button class="nb" onclick="switchTab('tagbrowser',this)"><i class="ti ti-tags"></i> Tag Browser</button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
       <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
       <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-sword"></i> Gauntlet</button>
@@ -1794,18 +1808,6 @@ textarea.ffi{resize:vertical}
       <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
     </div>
 
-    <!-- WATCHED -->
-    <div class="tab active" id="tab-watched">
-      <div class="toolbar" style="margin-bottom:12px">
-        <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-watched" placeholder="Search watched titles..." oninput="renderWatched()"></div>
-        <button class="primary-btn" onclick="openDiaryAdd()" style="white-space:nowrap"><i class="ti ti-plus"></i> Add Watched</button>
-      </div>
-      <div class="stats" id="watched-stats" style="cursor:pointer;margin-bottom:16px"></div>
-      <div class="grid" id="watched-grid"></div>
-      <div class="empty" id="watched-empty" style="display:none"><i class="ti ti-eye"></i><p style="font-size:14px">Nothing watched yet.</p></div>
-    </div>
-
-    <!-- ACTIVITY FEED -->
     <div class="tab" id="tab-activity">
       <div class="sl" style="margin-bottom:16px">Recent Activity</div>
       <div id="activity-feed-body"></div>
@@ -1887,12 +1889,12 @@ textarea.ffi{resize:vertical}
 
     <!-- TROPHIES -->
     <div class="tab" id="tab-trophies">
-      <div id="cst-body"></div>
+      <div id="trophies-body"></div>
     </div>
 
     <!-- STATS -->
-    <div class="tab" id="tab-stats" style="display:none"><!-- merged into tab-trophies -->
-      <div id="stats-page"></div>
+    <div class="tab" id="tab-stats">
+      <div id="cst-body"></div>
     </div>
 
     <!-- FEATURED LISTS -->
@@ -1932,24 +1934,6 @@ textarea.ffi{resize:vertical}
     </div>
 
     <!-- TAG BROWSER -->
-    <div class="tab" id="tab-tagbrowser">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
-        <div class="sl" style="flex:1;margin:0">Tag Browser</div>
-        <div style="font-size:11px;color:var(--muted)" id="tag-browser-status"></div>
-        <button class="fb" onclick="clearTagBrowserSelection()"><i class="ti ti-x"></i> Clear</button>
-      </div>
-      <div class="tag-browser-wrap">
-        <div class="tag-browser-top" id="tag-browser-pills-wrap">
-          <div class="tag-browser-pills" id="tag-browser-pills"></div>
-        </div>
-        <div class="tag-browser-bottom">
-          <div class="grid" id="tag-browser-grid"></div>
-          <div class="empty" id="tag-browser-empty"><i class="ti ti-tag"></i><p style="font-size:14px">Select tags above to find matching movies.</p></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WATCH MODE -->
     <div class="tab" id="tab-watchmode">
       <div id="wm-body"></div>
       <div id="wm-sub-status" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:8px;font-size:12px;color:var(--muted)"></div>
@@ -2028,7 +2012,6 @@ textarea.ffi{resize:vertical}
   <!-- BOTTOM NAV (mobile only) -->
   <!-- MORE MENU (mobile overflow) -->
   <div class="more-menu" id="more-menu">
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('watched',this)"><i class="ti ti-eye"></i>Watched</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('diary',this)"><i class="ti ti-calendar"></i>Diary</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('activity',this)"><i class="ti ti-activity"></i>Activity</button>
     <button class="more-menu-btn" style="color:#ff6ec7" onclick="closeMoreMenu();switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i>Retro</button>
@@ -2037,7 +2020,6 @@ textarea.ffi{resize:vertical}
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('canonical',this)"><i class="ti ti-list-numbers"></i>Canonical</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
     <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('tagbrowser',this)"><i class="ti ti-tags"></i>Tags</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
     <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
@@ -2369,7 +2351,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.3';
+const VERSION     = '10.1.6';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -3024,18 +3006,14 @@ function switchTab(t,el){
   }
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
-  if(t==='watched') renderWatched();
   if(t==='activity') renderActivity();
   // trophies rendered via renderCombinedStats below
   if(t==='vintage') renderVintage();
-  if(t==='trophies') renderCinema();
-  if(t==='stats'){ switchTab('trophies', document.querySelector('.nb')); return; }
+  if(t==='stats') renderStats();
+  if(t==='trophies') renderTrophies();
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
-  if(t==='tagbrowser') renderTagBrowser();
-  if(t==='charts') renderCharts();
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
-  if(t==='watchmode') renderWatchMode();
   if(t==='featured') renderFeaturedLists();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='gauntlet') renderGauntlet();
@@ -10457,12 +10435,14 @@ function toggleListFromModal(btn, adding){
 
 
 // ══════════════════════════════════════════════════════════════════════════════
-// COMPARE & TOP 100
+// RANKING ENGINE (merge-sort tournament)
 // ══════════════════════════════════════════════════════════════════════════════
 
-var _compareMode = 'year'; // 'year' or 'month'
+var _rankMode = 'year'; // 'year' or 'month'
+var _rankEngine = null;
+var _rankTick = 0;
 
-function getComparePool(me){
+function getRankPool(me){
   const now = new Date();
   const yr = now.getFullYear();
   const mo = now.getMonth();
@@ -10472,198 +10452,264 @@ function getComparePool(me){
     const dates = hist[m.id]||[];
     return dates.some(function(ts){
       const d = new Date(ts);
-      if(_compareMode==='month') return d.getFullYear()===yr && d.getMonth()===mo;
-      return d.getFullYear()===yr; // year mode
+      if(_rankMode==='month') return d.getFullYear()===yr && d.getMonth()===mo;
+      return d.getFullYear()===yr;
     });
   });
 }
 
-function getCompareQueue(me){
-  // Build a shuffled list of matchups not yet compared
-  const wins = me.compareWins||{};
-  const pool = getComparePool(me);
-  // Generate all unique pairs
-  const pairs = [];
-  for(let i=0;i<pool.length;i++){
-    for(let j=i+1;j<pool.length;j++){
-      const key = pool[i].id+'|'+pool[j].id;
-      const key2 = pool[j].id+'|'+pool[i].id;
-      if(!wins[key]&&!wins[key2]) pairs.push([pool[i],pool[j]]);
+// ── Merge-sort engine ─────────────────────────────────────────────────────────
+function RankEngine(items){
+  this.items = items.slice();
+  this.sublists = items.map(function(item){ return [item]; });
+  this.roundSublists = null;
+  this.currentMerge = null;
+  this.currentPair = null;
+  this.comparisons = 0;
+  this._advance();
+}
+
+RankEngine.prototype._advance = function(){
+  if(this.currentMerge){
+    var left = this.currentMerge.left;
+    var right = this.currentMerge.right;
+    if(left.length>0 && right.length>0){
+      this.currentPair = [left[0], right[0]];
+      return;
+    } else {
+      this.currentMerge.merged = this.currentMerge.merged.concat(left).concat(right);
+      this._finishMerge();
+      return;
     }
   }
-  // Shuffle
-  for(let i=pairs.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [pairs[i],pairs[j]]=[pairs[j],pairs[i]];
+  if(this.sublists.length<=1 && !this.roundSublists){
+    this.currentPair = null;
+    return;
   }
-  return pairs;
+  if(!this.roundSublists){
+    this.roundSublists = this.sublists.slice();
+    this.sublists = [];
+  }
+  if(this.roundSublists.length>=2){
+    var left2 = this.roundSublists.shift();
+    var right2 = this.roundSublists.shift();
+    this.currentMerge = {left:left2.slice(), right:right2.slice(), merged:[]};
+    this._advance();
+  } else if(this.roundSublists.length===1){
+    this.sublists.push(this.roundSublists.shift());
+    this.roundSublists = null;
+    this._advance();
+  } else {
+    this.roundSublists = null;
+    this._advance();
+  }
+};
+
+RankEngine.prototype._finishMerge = function(){
+  this.sublists.push(this.currentMerge.merged);
+  this.currentMerge = null;
+  if(this.roundSublists && this.roundSublists.length===0) this.roundSublists = null;
+  this._advance();
+};
+
+RankEngine.prototype.pick = function(winnerId){
+  if(!this.currentMerge || !this.currentPair) return;
+  var left = this.currentMerge.left;
+  var right = this.currentMerge.right;
+  var a = this.currentPair[0];
+  var b = this.currentPair[1];
+  this.comparisons++;
+  if(winnerId===a.id){
+    this.currentMerge.merged = this.currentMerge.merged.concat([a]);
+    this.currentMerge.left = left.slice(1);
+  } else {
+    this.currentMerge.merged = this.currentMerge.merged.concat([b]);
+    this.currentMerge.right = right.slice(1);
+  }
+  this._advance();
+};
+
+RankEngine.prototype.isDone = function(){
+  return this.currentPair===null;
+};
+
+RankEngine.prototype.ranked = function(){
+  return this.sublists[0]||[];
+};
+
+RankEngine.prototype.progressPct = function(){
+  var n = this.items.length;
+  if(n<2) return 100;
+  var total = Math.ceil(n * Math.log2(n));
+  return Math.min(99, Math.round((this.comparisons/total)*100));
+};
+
+RankEngine.prototype.estimatedTotal = function(){
+  var n = this.items.length;
+  return Math.ceil(n * Math.log2(n));
+};
+
+// ── Render functions ──────────────────────────────────────────────────────────
+function setCompareMode(mode){
+  _rankMode = mode;
+  _rankEngine = null;
+  renderCompare();
 }
 
-function buildTop100(me){
-  // Calculate win rate for each film
-  const wins = me.compareWins||{};
-  const pool = getComparePool(me);
-  const scores = {};
-  pool.forEach(function(m){ scores[m.id]={wins:0,losses:0,id:m.id}; });
+function startRanking(){
+  var me = myData();
+  var pool = getRankPool(me);
+  if(pool.length<2){ toast('Watch at least 2 films this period to rank.'); return; }
+  _rankEngine = new RankEngine(pool);
+  renderCompare();
+}
 
-  Object.entries(wins).forEach(function([key, winnerId]){
-    const [a,b] = key.split('|');
-    if(scores[winnerId]) scores[winnerId].wins++;
-    const loserId = winnerId===a ? b : a;
-    if(scores[loserId]) scores[loserId].losses++;
+function pickRankWinner(winnerId){
+  if(!_rankEngine) return;
+  _rankEngine.pick(winnerId);
+  renderCompare();
+}
+
+function cancelRanking(){
+  _rankEngine = null;
+  renderCompare();
+}
+
+function saveRanking(){
+  var me = myData();
+  var ranked = _rankEngine ? _rankEngine.ranked() : [];
+  me.compareTop100 = ranked.map(function(m){ return m.id; });
+  me.compareTop100SavedAt = Date.now();
+  me.compareTop100Mode = _rankMode;
+  saveUsers().then(function(){
+    toast('Rankings saved! ⭐');
+    renderCompare();
   });
-
-  return pool
-    .filter(function(m){ const s=scores[m.id]; return s&&(s.wins+s.losses)>0; })
-    .sort(function(a,b){
-      const sa=scores[a.id], sb=scores[b.id];
-      const rateA = sa.wins/(sa.wins+sa.losses);
-      const rateB = sb.wins/(sb.wins+sb.losses);
-      if(rateB!==rateA) return rateB-rateA;
-      return sb.wins-sa.wins;
-    })
-    .slice(0,100);
 }
-
-var _compareQueue = [];
-var _compareSession = null;
 
 function renderCompare(){
-  const body = document.getElementById('compare-body');
+  var body = document.getElementById('compare-body');
   if(!body) return;
-  const me = myData();
-  const pool = getComparePool(me);
-  const wins = me.compareWins||{};
-  const totalComparisons = Object.keys(wins).length;
-  const totalPossible = pool.length*(pool.length-1)/2;
-  const pct = totalPossible>0 ? Math.round(totalComparisons/totalPossible*100) : 0;
+  var me = myData();
+  var now = new Date();
+  var yr = now.getFullYear();
+  var mo = now.getMonth();
+  var modeLabel = _rankMode==='month'
+    ? now.toLocaleString('en-US',{month:'long',year:'numeric'})
+    : String(yr);
 
-  // Build current pair if needed
-  if(!_compareSession||_compareSession.length===0){
-    _compareSession = getCompareQueue(me);
+  var h = '<div style="font-family:Bebas Neue,cursive;font-size:24px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">Ranking Engine</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px">'
+    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+(_rankMode==='year'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;year&quot;)">This Year</button>'
+    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+(_rankMode==='month'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;month&quot;)">This Month</button>'
+    +'</div>';
+
+  // ── START SCREEN ──
+  if(!_rankEngine){
+    var pool = getRankPool(me);
+    var est = pool.length>1 ? Math.ceil(pool.length*Math.log2(pool.length)) : 0;
+    h += '<div style="text-align:center;padding:24px 0">'
+      +'<div style="font-size:48px;margin-bottom:12px">🎬</div>'
+      +'<div style="font-family:Bebas Neue,cursive;font-size:20px;color:var(--light);margin-bottom:6px;letter-spacing:1px">Rank Films from '+modeLabel+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.7">'+pool.length+' films in the pool.</div>';
+    if(pool.length>1){
+      h += '<div style="font-size:11px;color:var(--muted);margin-bottom:20px">Pick between two at a time. Uses tournament sorting — only ~'+est+' comparisons needed.</div>'
+        +'<button class="primary-btn" style="margin:0 auto" onclick="startRanking()"><i class="ti ti-tournament"></i> Start Ranking</button>';
+    } else {
+      h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Watch at least 2 films this period to rank.</div>';
+    }
+    h += '</div>';
+
+    // Show saved ranking if exists
+    if(me.compareTop100 && me.compareTop100.length){
+      var savedDate = new Date(me.compareTop100SavedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      var savedMode = me.compareTop100Mode||'year';
+      h += '<div style="margin-top:8px"><div style="font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold);margin-bottom:4px">Last Saved Rankings</div>'
+        +'<div style="font-size:10px;color:var(--muted);margin-bottom:10px">'+savedDate+'</div>';
+      me.compareTop100.slice(0,20).forEach(function(id, i){
+        var m2 = sharedData.library.find(function(x){ return x.id===id; });
+        if(!m2) return;
+        var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        h += '<div class="rank-result-row '+(i<3?'top3':'')+'" data-mid="'+id+'" onclick="openDetail(this.dataset.mid,\'library\')" style="cursor:pointer">'
+          +'<div class="rank-num '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'">'+(i+1)+'</div>'
+          +(m2.poster&&m2.poster!=='N/A'?'<img src="'+m2.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0" loading="lazy">':'')
+          +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m2.title+'</div>'
+          +'<div style="font-size:10px;color:var(--muted)">'+m2.year+'</div></div>'
+          +(medal?'<span style="font-size:16px">'+medal+'</span>':'')
+          +'</div>';
+      });
+      if(me.compareTop100.length>20){
+        h += '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">...and '+(me.compareTop100.length-20)+' more</div>';
+      }
+      h += '</div>';
+    }
+
+    body.innerHTML = h;
+    return;
   }
 
-  const top100 = buildTop100(me);
-  const isDone = _compareSession.length===0 && totalComparisons>0;
+  // ── RANKING IN PROGRESS ──
+  if(!_rankEngine.isDone()){
+    var pair = _rankEngine.currentPair;
+    var pct = _rankEngine.progressPct();
+    var comp = _rankEngine.comparisons;
+    var est2 = _rankEngine.estimatedTotal();
 
-  // Reset session if mode changed or pool changed
-  const now2 = new Date();
-  const modeLabel = _compareMode==='month'
-    ? now2.toLocaleString('en-US',{month:'long',year:'numeric'})
-    : String(now2.getFullYear());
-
-  let h = '<div style="font-family:Bebas Neue,cursive;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:4px">Compare Films</div>'
-    +'<div style="display:flex;gap:6px;margin-bottom:10px">'
-    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+ (_compareMode==='year'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;year&quot;)">This Year</button>'
-    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+(_compareMode==='month'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;month&quot;)">This Month</button>'
-    +'</div>'
-    +'<div style="font-size:11px;color:var(--muted);margin-bottom:12px">Comparing films watched in <strong style="color:var(--light)">'+modeLabel+'</strong>. Pick the one you prefer.</div>';
-
-  if(pool.length<2){
-    h += '<div class="empty"><i class="ti ti-movie"></i><p style="font-size:13px">Watch at least 2 films to start comparing.</p></div>';
-    body.innerHTML = h; return;
-  }
-
-  // Progress
-  h += '<div class="cmp-progress"><div class="cmp-progress-fill" style="width:'+pct+'%"></div></div>'
-    +'<div style="font-size:10px;color:var(--muted);margin-bottom:16px">'+totalComparisons+' of '+totalPossible+' matchups complete · '+pct+'%</div>';
-
-  if(_compareSession.length>0){
-    const [a,b] = _compareSession[0];
-    const rA = me.ratings?.[a.id]||0;
-    const rB = me.ratings?.[b.id]||0;
-    h += '<div class="cmp-arena">'
-      +'<div class="cmp-card" data-id="'+a.id+'" data-opp="'+b.id+'" onclick="pickWinner(this.dataset.id,this.dataset.opp)">'
-      +(a.poster&&a.poster!=='N/A'?'<img class="cmp-poster" src="'+a.poster+'" loading="lazy">':'<div class="cmp-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:32px;color:var(--muted)"></i></div>')
-      +'<div class="cmp-title">'+a.title+'</div>'
-      +'<div class="cmp-meta">'+a.year+(rA?' · '+rA+'/10':'')+'</div>'
+    h += '<div style="margin-bottom:16px">'
+      +'<div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:6px">'
+      +'<div style="height:4px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));border-radius:2px;width:'+pct+'%;transition:width .4s ease"></div>'
       +'</div>'
-      +'<div class="cmp-vs">VS</div>'
-      +'<div class="cmp-card" data-id="'+b.id+'" data-opp="'+a.id+'" onclick="pickWinner(this.dataset.id,this.dataset.opp)">'
-      +(b.poster&&b.poster!=='N/A'?'<img class="cmp-poster" src="'+b.poster+'" loading="lazy">':'<div class="cmp-poster" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:32px;color:var(--muted)"></i></div>')
-      +'<div class="cmp-title">'+b.title+'</div>'
-      +'<div class="cmp-meta">'+b.year+(rB?' · '+rB+'/10':'')+'</div>'
-      +'</div></div>'
-      +'<div style="text-align:center;margin-bottom:20px">'
-      +'<button class="ghost-btn" style="font-size:11px" onclick="skipCompare()">Skip this matchup</button>'
+      +'<div style="font-size:10px;color:var(--muted);text-align:center">'+comp+' of ~'+est2+' comparisons · '+pct+'% done</div>'
       +'</div>';
-  } else if(isDone){
-    h += '<div style="text-align:center;padding:16px 0;margin-bottom:16px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:12px">'
-      +'<div style="font-family:Bebas Neue,cursive;font-size:22px;color:var(--gold)">All Matchups Complete!</div>'
-      +'<div style="font-size:11px;color:var(--muted);margin-top:4px">Your Top 100 is ready below.</div>'
-      +'<button class="ghost-btn" style="margin:12px auto 0;font-size:11px" onclick="resetCompare()"><i class="ti ti-refresh"></i> Start Over</button>'
-      +'</div>';
-  }
 
-  // Top 100 so far
-  if(top100.length){
-    const savedDate = me.compareTop100SavedAt ? new Date(me.compareTop100SavedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : null;
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-      +'<div style="font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold)">Top '+Math.min(top100.length,100)+' So Far</div>'
-      +(isDone?'<button class="primary-btn" style="padding:5px 14px;font-size:11px" onclick="saveTop100()"><i class="ti ti-bookmark"></i> Save List</button>':'')
-      +'</div>'
-      +(savedDate?'<div style="font-size:10px;color:var(--muted);margin-bottom:8px">Last saved: '+savedDate+'</div>':'')
-      +'<div>';
-    top100.slice(0,100).forEach(function(m,i){
-      const s = (me.compareWins&&me.compareWins)||{};
-      h += '<div class="cmp-top-row" data-mid="'+m.id+'" onclick="openDetail(this.dataset.mid,\'library\')">'
-        +'<div style="font-family:Bebas Neue,cursive;font-size:15px;color:var(--muted);width:28px;flex-shrink:0;text-align:right">'+(i+1)+'</div>'
-        +(m.poster&&m.poster!=='N/A'?'<img src="'+m.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0;" loading="lazy">':'<div style="width:28px;height:42px;background:var(--bg3);border-radius:4px;flex-shrink:0"></div>')
-        +'<div style="flex:1;min-width:0">'
-        +'<div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div>'
-        +'<div style="font-size:10px;color:var(--muted)">'+m.year+'</div>'
-        +'</div></div>';
+    h += '<div style="font-family:Bebas Neue,cursive;font-size:13px;letter-spacing:2px;color:var(--muted);text-align:center;margin-bottom:14px;text-transform:uppercase">Which do you prefer?</div>';
+
+    h += '<div style="display:flex;gap:10px;align-items:stretch;margin-bottom:16px">';
+    [pair[0], pair[1]].forEach(function(film, idx){
+      h += '<div class="rank-card" data-mid="'+film.id+'" onclick="pickRankWinner(this.dataset.mid)">'
+        +(film.poster&&film.poster!=='N/A'?'<img class="rank-poster" src="'+film.poster+'" loading="lazy">':'<div class="rank-poster-ph">🎬</div>')
+        +'<div class="rank-title">'+film.title+'</div>'
+        +'<div class="rank-year">'+film.year+'</div>'
+        +'<div class="rank-prefer-btn">I Prefer This</div>'
+        +'</div>';
+      if(idx===0) h += '<div style="display:flex;align-items:center;font-family:Bebas Neue,cursive;font-size:22px;color:var(--muted);flex-shrink:0;letter-spacing:2px">VS</div>';
     });
     h += '</div>';
+
+    h += '<div style="text-align:center">'
+      +'<button class="ghost-btn" style="font-size:11px" onclick="cancelRanking()"><i class="ti ti-x"></i> Cancel</button>'
+      +'</div>';
+
+    body.innerHTML = h;
+    return;
   }
 
-  if(totalComparisons>0){
-    h += '<button class="ghost-btn" style="margin-top:12px;font-size:11px;color:var(--red);border-color:rgba(232,53,75,.2)" onclick="resetCompare()"><i class="ti ti-trash"></i> Reset All Comparisons</button>';
-  }
+  // ── RESULTS ──
+  var ranked = _rankEngine.ranked();
+  h += '<div style="text-align:center;margin-bottom:20px">'
+    +'<div style="font-family:Bebas Neue,cursive;font-size:28px;color:var(--gold);letter-spacing:2px">Your Rankings</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:4px">'+ranked.length+' films · '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div>'
+    +'</div>';
+
+  ranked.forEach(function(m, i){
+    var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    h += '<div class="rank-result-row '+(i<3?'top3':'')+'" data-mid="'+m.id+'" onclick="openDetail(this.dataset.mid,\'library\')" style="cursor:pointer">'
+      +'<div class="rank-num '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'">'+(i+1)+'</div>'
+      +(m.poster&&m.poster!=='N/A'?'<img src="'+m.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0" loading="lazy">':'')
+      +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div>'
+      +'<div style="font-size:10px;color:var(--muted)">'+m.year+'</div></div>'
+      +(medal?'<span style="font-size:16px">'+medal+'</span>':'')
+      +'</div>';
+  });
+
+  h += '<div style="display:flex;gap:8px;margin-top:16px">'
+    +'<button class="primary-btn" style="flex:1" onclick="saveRanking()"><i class="ti ti-bookmark"></i> Save Rankings</button>'
+    +'<button class="ghost-btn" onclick="cancelRanking()"><i class="ti ti-refresh"></i> Rank Again</button>'
+    +'</div>';
 
   body.innerHTML = h;
 }
 
-function setCompareMode(mode){
-  _compareMode = mode;
-  _compareSession = null;
-  renderCompare();
-}
-
-function pickWinner(winnerId, loserId){
-  const me = myData();
-  me.compareWins = me.compareWins||{};
-  const key = winnerId+'|'+loserId;
-  me.compareWins[key] = winnerId;
-  // Advance queue
-  if(_compareSession.length>0) _compareSession.shift();
-  saveUsers().then(function(){ renderCompare(); });
-}
-
-function skipCompare(){
-  if(_compareSession.length>0) _compareSession.shift();
-  renderCompare();
-}
-
-function resetCompare(){
-  if(!confirm('Reset all comparisons? Your Top 100 will be cleared.')) return;
-  const me = myData();
-  delete me.compareWins;
-  delete me.compareTop100SavedAt;
-  _compareSession = null;
-  saveUsers().then(function(){ renderCompare(); });
-}
-
-function saveTop100(){
-  const me = myData();
-  me.compareTop100SavedAt = Date.now();
-  const top = buildTop100(me);
-  me.compareTop100 = top.map(function(m){ return m.id; });
-  saveUsers().then(function(){
-    toast('Top '+top.length+' saved! ⭐');
-    renderCompare();
-  });
-}
 
 function renderTagBrowser(){
   const pills = document.getElementById('tag-browser-pills');
@@ -11142,7 +11188,8 @@ function openWatchReview(movieId){
 // COMBINED STATS + TROPHIES PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 
-function renderCombinedPage(){ renderCinema(); }
+function renderCombinedPage(){ renderStats(); }
+function renderCinema(){ renderStats(); }
 
 
 function archSelectMonth(monthKey, el){
@@ -11406,7 +11453,7 @@ function showSecretMilestone(){
   document.body.appendChild(overlay);
 }
 
-function renderCinema(){
+function renderStats(){
   const body = document.getElementById('cst-body');
   if(!body) return;
 
@@ -11507,38 +11554,7 @@ function renderCinema(){
   // ── BUILD HTML ─────────────────────────────────────────────────────────────
   let html = '';
 
-  // ── TOP 25 BY CRITIC SCORE (shown first if any critiques exist) ──────────
-  const _critiques = me.critiques||{};
-  const _critMovies = sharedData.library
-    .filter(m=>m.type!=='tv' && _critiques[m.id] && _critiques[m.id]._v2)
-    .map(m=>({m, score:critiqueOverallScore(_critiques[m.id])}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>b.score-a.score)
-    .slice(0,25);
-
-  if(_critMovies.length){
-    html += '<div class="cinema-section cinema-alltime">'
-      +'<div class="cinema-section-stripe"></div>'
-      +'<div class="cinema-section-inner">'
-      +'<div class="cinema-section-hd"><i class="ti ti-star-filled" style="font-size:18px;color:var(--gold)"></i> Top '+_critMovies.length+' by Critic Score</div>'
-      +'<div style="display:flex;flex-direction:column;gap:6px">';
-    _critMovies.forEach(function(x,i){
-      const m2=x.m, score=x.score;
-      const pct=Math.round(score/10*100);
-      html += '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0" onclick="openDetail(\''+m2.id+'\',\'library\')">'
-        +'<div style="font-family:Bebas Neue,cursive;font-size:14px;color:var(--muted);width:20px;flex-shrink:0;text-align:right">'+(i+1)+'</div>'
-        +(m2.poster&&m2.poster!=='N/A'?'<img src="'+m2.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">':'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>')
-        +'<div style="flex:1;min-width:0">'
-        +'<div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m2.title+'</div>'
-        +'<div style="height:3px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:3px;background:var(--gold);border-radius:2px;width:'+pct+'%"></div></div>'
-        +'</div>'
-        +'<div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);flex-shrink:0">'+score.toFixed(1)+'</div>'
-        +'</div>';
-    });
-    html += '</div></div></div>';
-  }
-
-  // ── MONTHLY ──
+    // ── MONTHLY ──
   html += '<div class="cinema-section cinema-monthly">'
     +'<div class="cinema-section-stripe"></div>'
     +'<div class="cinema-section-inner">'
@@ -11594,24 +11610,80 @@ function renderCinema(){
       +'</div>';
   }
 
-  // ── ANNUAL TROPHIES ──
-  html += '<div class="cinema-section cinema-trophy cinema-trophy-annual">'
-    +'<div class="cinema-section-stripe"></div>'
-    +'<div class="cinema-section-inner">'
-    +'<div class="cinema-section-hd">🏅 Annual Trophies <span class="cinema-sub">'+yr+' · resets Jan 1</span></div>'
-    +'<div class="trophy-row-wrap">'+annualTrophyDefs.map(t=>trophyMiniHTML(t,false)).join('')+'</div>'
-    +'</div></div>';
-
-  // ── MONTHLY TROPHIES ──
-  html += '<div class="cinema-section cinema-trophy cinema-trophy-monthly">'
-    +'<div class="cinema-section-stripe"></div>'
-    +'<div class="cinema-section-inner">'
-    +'<div class="cinema-section-hd">📅 Monthly Trophies <span class="cinema-sub">'+monthName+' · resets 1st</span></div>'
-    +'<div class="trophy-row-wrap">'+monthlyTrophyDefs.map(t=>trophyMiniHTML(t,true)).join('')+'</div>'
-    +'</div></div>';
-
   body.innerHTML = html;
 }
+function renderTrophies(){
+  const body = document.getElementById('trophies-body');
+  if(!body) return;
+  const me = myData();
+  const now = new Date();
+  const yr = now.getFullYear();
+  const mo = now.getMonth();
+  const monthName = now.toLocaleString('en-US',{month:'long'});
+
+  evaluatePeriodicTrophies(me, MONTHLY_TROPHIES, 'monthly');
+  evaluatePeriodicTrophies(me, ANNUAL_TROPHIES,  'annual');
+
+  const monthStore = (me.periodicTrophies&&me.periodicTrophies.monthly)||{};
+  const yearStore  = (me.periodicTrophies&&me.periodicTrophies.annual)||{};
+
+  function fmtDate(ts){
+    if(!ts) return '';
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+
+  function trophyDetailHTML(t, store){
+    const earned = t.earned;
+    const data = store[t.id]||{};
+    const earnedDate = data.earnedAt ? fmtDate(data.earnedAt) : (earned ? 'Earned' : '');
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:'+(earned?'rgba(232,184,75,.07)':'var(--bg2)')+';border:1px solid '+(earned?'rgba(232,184,75,.25)':'var(--border)')+';border-radius:12px;margin-bottom:8px;opacity:'+(earned?'1':'.5')+'">'
+      +'<div style="font-size:28px;flex-shrink:0;line-height:1;margin-top:2px">'+t.icon+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:13px;font-weight:700;color:'+(earned?'var(--gold)':'var(--muted)')+'">'+t.name+'</div>'
+      +(t.desc?'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4">'+t.desc+'</div>':'')
+      +(earnedDate?'<div style="font-size:10px;color:'+(earned?'rgba(232,184,75,.6)':'var(--muted)')+';margin-top:4px;font-weight:600">'+( earned?'✓ Earned ':'')+''+earnedDate+'</div>':'')
+      +'</div>'
+      +'<div style="font-size:18px;flex-shrink:0">'+( earned?'✅':'🔒')+'</div>'
+      +'</div>';
+  }
+
+  // Monthly trophy defs (same as cinema)
+  const monthlyTrophyDefs = MONTHLY_TROPHIES.map(function(t){
+    const data = monthStore[t.id]||{};
+    return Object.assign({}, t, {earned: data.earned||false});
+  });
+
+  const annualTrophyDefs = ANNUAL_TROPHIES.map(function(t){
+    const data = yearStore[t.id]||{};
+    return Object.assign({}, t, {earned: data.earned||false});
+  });
+
+  const monthEarned = monthlyTrophyDefs.filter(function(t){return t.earned;}).length;
+  const yearEarned  = annualTrophyDefs.filter(function(t){return t.earned;}).length;
+
+  let h = '';
+
+  // ── MONTHLY TROPHIES (top) ────────────────────────────────────────────────
+  h += '<div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-bottom:4px">📅 Monthly Trophies</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">'+monthName+' '+yr+' &nbsp;·&nbsp; '+monthEarned+' of '+monthlyTrophyDefs.length+' earned &nbsp;·&nbsp; resets 1st of month</div>';
+
+  monthlyTrophyDefs.forEach(function(t){
+    h += trophyDetailHTML(t, monthStore);
+  });
+
+  // ── ANNUAL TROPHIES (below) ───────────────────────────────────────────────
+  h += '<div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-top:24px;margin-bottom:4px">🏅 Annual Trophies</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">'+yr+' &nbsp;·&nbsp; '+yearEarned+' of '+annualTrophyDefs.length+' earned &nbsp;·&nbsp; resets Jan 1</div>';
+
+  annualTrophyDefs.forEach(function(t){
+    h += trophyDetailHTML(t, yearStore);
+  });
+
+  body.innerHTML = h;
+}
+
+
 
 function renderTrophies(){ renderCinema(); }
 
