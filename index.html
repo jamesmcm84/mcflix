@@ -128,7 +128,6 @@ select option{background:#1a1a2e;color:#eeeef5}
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;width:100%}
-#userlist-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
 .card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .25s;aspect-ratio:2/3}
 .card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(232,184,75,0.2);box-shadow:0 16px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(232,184,75,0.08)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
@@ -235,16 +234,32 @@ select option{background:#1a1a2e;color:#eeeef5}
 .skel-text.short{width:60%}
 
 /* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px;flex-wrap:wrap}
-.bottom-nav .bnb{flex:1 1 19%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 1px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:8px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative;white-space:nowrap}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
+.bottom-nav .bnb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
 .bottom-nav .bnb.active{color:var(--gold)}
-.bottom-nav .bnb i{font-size:16px}
-.bottom-nav .bnb .bdg{position:absolute;top:3px;right:8px;min-width:14px;padding:0 4px;font-size:9px}
+.bottom-nav .bnb i{font-size:18px}
+.bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
+.more-menu{display:none;position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:102;background:var(--bg2);border-top:1px solid var(--border2);padding:8px;box-shadow:0 -8px 24px rgba(0,0,0,.4)}
+.more-menu.open{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.more-menu-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 16px;border:none;border-radius:10px;background:var(--bg3);color:var(--muted);font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;cursor:pointer;min-width:80px}
+.more-menu-btn:active{background:var(--gold-dim);color:var(--gold)}
+.more-menu-btn i{font-size:20px}
 @media(max-width:600px){
   .bottom-nav{display:flex}
   .nav-bar{display:none}
-  .main{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important}
+  .main{padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
 }
+
+/* ACTIVITY FEED */
+.feed-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border:none}
+.feed-poster{width:32px;height:48px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.feed-content{flex:1;min-width:0}
+.feed-who{font-size:12px;font-weight:600;color:var(--light)}
+.feed-action{font-size:12px;color:var(--muted)}
+.feed-title{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;cursor:pointer}
+.feed-title:hover{color:var(--gold)}
+.feed-when{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* SERIES PROGRESS */
 .series-progress{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px}
@@ -850,6 +865,18 @@ select option{background:#1a1a2e;color:#eeeef5}
 .genre-msel-opt input{accent-color:var(--gold)}
 .genre-msel-count{background:var(--gold);color:#000;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;line-height:1.4}
 
+/* A-Z SLIDER */
+.az-slider{position:fixed;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:60;background:rgba(14,14,24,.55);border:1px solid var(--border);border-radius:10px;padding:6px 3px;backdrop-filter:blur(8px)}
+.az-slider-item{font-size:9px;font-weight:600;color:var(--muted);text-align:center;width:16px;line-height:1.5;cursor:pointer;border-radius:3px;transition:all .1s;user-select:none}
+.az-slider-item:hover,.az-slider-item.active{color:var(--gold);background:var(--gold-dim)}
+.az-bubble{position:fixed;right:32px;top:50%;transform:translateY(-50%) scale(0);background:var(--gold);color:#000;font-family:Bebas Neue,cursive;font-size:28px;font-weight:700;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:61;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .12s ease-out;pointer-events:none}
+.az-bubble.show{transform:translateY(-50%) scale(1)}
+@media(max-width:600px){
+  .az-slider{right:0;padding:4px 2px;border-radius:8px 0 0 8px;border-right:none}
+  .az-slider-item{width:13px;font-size:8px;padding:0 1px}
+  .az-bubble{right:20px;width:40px;height:40px;font-size:20px}
+}
+
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -1044,6 +1071,26 @@ textarea.ffi{resize:vertical}
   .ff.full{grid-column:1}
   .auth-box{padding:28px 20px}
 }
+
+/* ── FEATURED LISTS ─────────────────────────────────────────── */
+.featured-list-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.featured-list-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(232,184,75,.05),transparent)}
+.featured-list-owner{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.featured-list-title{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold);flex:1}
+.featured-check{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);transition:all .2s;white-space:nowrap}
+.featured-check:hover{border-color:rgba(232,184,75,.3);color:var(--gold)}
+.featured-check.active{background:var(--gold-dim);border-color:rgba(232,184,75,.3);color:var(--gold)}
+
+/* ── VHS RECEIPT ─────────────────────────────────────────────── */
+.receipt-wrap{background:#f5f0e8;color:#1a1a1a;border-radius:4px;padding:20px;font-family:'Courier New',monospace;max-width:340px;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.receipt-header{text-align:center;border-bottom:2px dashed #999;padding-bottom:12px;margin-bottom:12px}
+.receipt-logo{font-size:22px;font-weight:900;letter-spacing:4px;color:#1a1a1a}
+.receipt-sub{font-size:10px;letter-spacing:2px;color:#666;margin-top:2px}
+.receipt-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#333}
+.receipt-row.bold{font-weight:700;font-size:12px}
+.receipt-divider{border-top:1px dashed #999;margin:8px 0}
+.receipt-footer{text-align:center;font-size:9px;color:#888;margin-top:10px;line-height:1.6}
+.receipt-barcode{text-align:center;font-size:28px;letter-spacing:-2px;color:#1a1a1a;margin:8px 0 2px;opacity:.7}
 
 /* ── GHOST RATINGS ───────────────────────────────────────────── */
 .ghost-rating-wrap{margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:8px}
@@ -1615,6 +1662,8 @@ textarea.ffi{resize:vertical}
       <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
       <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
       <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
+      <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
+      
     </div>
   </div>
 
@@ -1679,6 +1728,8 @@ textarea.ffi{resize:vertical}
       <div class="grid" id="lib-grid"></div>
       <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
     </div>
+    <div class="az-bubble" id="az-bubble"></div>
+    <div class="az-slider" id="az-slider" style="display:none"></div>
 
     <!-- TV SHOWS -->
     <div class="tab" id="tab-tvshows">
@@ -1710,6 +1761,18 @@ textarea.ffi{resize:vertical}
       <div id="wish-wrap"></div>
     </div>
 
+    <!-- LISTS -->
+    <div class="tab" id="tab-lists">
+      <div class="toolbar" style="margin-bottom:18px">
+        <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
+        <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> New List</button>
+      </div>
+      <div id="lists-wrap"></div>
+      <div class="empty" id="lists-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:14px">No lists yet. Create one to start grouping titles.</p></div>
+    </div>
+
+
+
     <!-- DIARY -->
     <div class="tab" id="tab-diary">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
@@ -1721,6 +1784,14 @@ textarea.ffi{resize:vertical}
       <div id="diary-body"></div>
       <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
     </div>
+
+    <div class="tab" id="tab-activity">
+      <div class="sl" style="margin-bottom:16px">Recent Activity</div>
+      <div id="activity-feed-body"></div>
+      <div class="empty" id="activity-empty" style="display:none"><i class="ti ti-activity"></i><p style="font-size:14px">No activity yet.</p></div>
+    </div>
+
+
 
     <!-- CURSED QUEUE -->
     <!-- VINTAGE — full page overlay -->
@@ -1801,6 +1872,16 @@ textarea.ffi{resize:vertical}
     <!-- STATS -->
     <div class="tab" id="tab-stats">
       <div id="cst-body"></div>
+    </div>
+
+    <!-- RECEIPT -->
+    <div class="tab" id="tab-receipt">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="sl" style="flex:1;margin:0">VHS Rental Receipt</div>
+        <select class="fb" id="receipt-month" onchange="renderReceipt()"></select>
+        <button class="ab" onclick="printReceipt()"><i class="ti ti-printer"></i> Print</button>
+      </div>
+      <div id="receipt-body"></div>
     </div>
 
     <!-- GAUNTLET -->
@@ -1897,18 +1978,29 @@ textarea.ffi{resize:vertical}
     </div>
   </div>
 
-  <!-- BOTTOM NAV (mobile only) — every tab lives here directly, no "More" menu -->
+  <!-- BOTTOM NAV (mobile only) -->
+  <!-- MORE MENU (mobile overflow) -->
+  <div class="more-menu" id="more-menu">
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('diary',this)"><i class="ti ti-calendar"></i>Diary</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('activity',this)"><i class="ti ti-activity"></i>Activity</button>
+    <button class="more-menu-btn" style="color:#ff6ec7" onclick="closeMoreMenu();switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i>Retro</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i>Stats</button>
+
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('canonical',this)"><i class="ti ti-list-numbers"></i>Canonical</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
+    <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
+    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('cgraveyard',this)"><i class="ti ti-tombstone"></i>Graveyard</button>
+  </div>
+
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Watchlist</span></button>
     <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
-    <button class="bnb" id="bnb-gauntlet" onclick="switchTabMobile('gauntlet',this)"><i class="ti ti-tournament"></i><span>Gauntlet</span></button>
-    <button class="bnb" id="bnb-stats" onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
-    <button class="bnb" id="bnb-trophies" onclick="switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i><span>Trophies</span></button>
-    <button class="bnb" id="bnb-compare" onclick="switchTabMobile('compare',this)"><i class="ti ti-vs"></i><span>Rank</span></button>
-    <button class="bnb" id="bnb-runtime" onclick="switchTabMobile('runtime',this)"><i class="ti ti-clock"></i><span>Runtime</span></button>
-    <button class="bnb" id="bnb-discover" onclick="switchTabMobile('discover',this)"><i class="ti ti-compass"></i><span>Discover</span></button>
-    <button class="bnb" id="bnb-vintage" style="color:#ff6ec7" onclick="switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i><span>Retro</span></button>
-    <button class="bnb" id="bnb-watchmode" onclick="switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i><span>Watch</span></button>
+    <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
+    <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
+    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
+    <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
 </div>
 
@@ -2201,22 +2293,6 @@ textarea.ffi{resize:vertical}
   </div>
 </div>
 
-<!-- MY LIST DETAIL MODAL -->
-<div class="mo" id="mo-userlist" onclick="if(event.target===this)closeMo('userlist')">
-  <div class="md md-lg">
-    <button class="mc" onclick="closeMo('userlist')"><i class="ti ti-x"></i></button>
-    <div class="form-sec">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <div class="form-title" id="userlist-title" style="margin-bottom:0;flex:1">List</div>
-        <button class="act" onclick="renameUserListFromModal()" title="Rename list"><i class="ti ti-edit"></i></button>
-        <button class="act act-del" onclick="deleteUserListFromModal()" title="Delete list"><i class="ti ti-trash"></i></button>
-      </div>
-      <div class="grid" id="userlist-grid"></div>
-      <div class="empty" id="userlist-empty" style="display:none"><i class="ti ti-list"></i><p style="font-size:13px">This list is empty — open a title and add it from there.</p></div>
-    </div>
-  </div>
-</div>
-
 <!-- DIRECTOR FILMOGRAPHY MODAL -->
 <div class="mo" id="mo-director" onclick="if(event.target===this)closeMo('director')">
   <div class="md md-sm"><button class="mc" onclick="closeMo('director')"><i class="ti ti-x"></i></button>
@@ -2243,7 +2319,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.7';
+const VERSION     = '10.1.9';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2793,11 +2869,7 @@ function signOut(){
 // ── APP INIT ──────────────────────────────────────────────────────────────────
 
 // ── BACK BUTTON / PAGE LEAVE PROTECTION ──────────────────────────────────────
-let _backGuardInstalled = false;
 function initBackGuard(){
-  if(_backGuardInstalled) return; // avoid stacking duplicate listeners on repeat initApp() calls
-  _backGuardInstalled = true;
-
   // Push a dummy state so the first back button press hits our handler
   history.pushState({mcflix:true}, '', window.location.href);
 
@@ -2805,16 +2877,14 @@ function initBackGuard(){
     // Only intercept when app is loaded (not on login screen)
     const authScreen = document.getElementById('auth-screen');
     if(authScreen && authScreen.classList.contains('active')) return;
-    const stay = !confirm('Leave McFlix? Unsaved changes may be lost.');
+    const stay = !confirm('Leave McFlix?');
     if(stay){
       history.pushState({mcflix:true}, '', window.location.href);
     }
   });
 
-  // Reload / close-tab protection — browsers show their own native confirmation dialog
+  // Desktop tab/window close protection
   window.addEventListener('beforeunload', function(e){
-    const authScreen = document.getElementById('auth-screen');
-    if(authScreen && authScreen.classList.contains('active')) return;
     e.preventDefault();
     e.returnValue = '';
   });
@@ -2844,6 +2914,7 @@ function initApp(){
   if(document.getElementById('diary-reconcile-btn')) document.getElementById('diary-reconcile-btn').style.display=isAdmin()?'':'none';
   if(document.getElementById('bulk-add-btn')) document.getElementById('bulk-add-btn').style.display=isAdmin()?'':'none';
   if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
+  document.getElementById('add-wish-btn').style.display='';
   buildGenreFilter();
   renderLib();
   updateCounts();
@@ -2888,10 +2959,22 @@ function switchTab(t,el){
   if(el) el.classList.add('active');
   // sync bottom nav
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
+  closeMoreMenu();
+  // Always hide A-Z slider on tab switch — renderLib re-shows it if appropriate
+  const _azEl = document.getElementById('az-slider');
+  if(_azEl) _azEl.style.display = 'none';
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
-  if(t==='wishlist') renderWish();
+  if(t==='wishlist'){
+    // Hide A-Z slider — it belongs to the library only
+    const azEl = document.getElementById('az-slider');
+    if(azEl) azEl.style.display = 'none';
+    // Reset to shared tab when switching to wishlist
+    switchWishTab('shared');
+  }
+  if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
+  if(t==='activity') renderActivity();
   // trophies rendered via renderCombinedStats below
   if(t==='vintage') renderVintage();
   if(t==='stats') renderStats();
@@ -2899,6 +2982,7 @@ function switchTab(t,el){
   if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
+  if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='gauntlet') renderGauntlet();
   if(t==='runtime') renderRuntime();
   if(t==='cgraveyard') renderCriticGraveyard();
@@ -2910,6 +2994,7 @@ function updateCounts(){
   const _lc=document.getElementById('lib-count'); if(_lc) _lc.textContent=movies.length;
   const _tc=document.getElementById('tv-count'); if(_tc) _tc.textContent=tvshows.length;
   const _wc=document.getElementById('wish-count'); if(_wc) _wc.textContent=sharedData.wishlist.length;
+  if(CU){ const lc=document.getElementById('list-count'); if(lc) lc.textContent=(myData().collections||[]).length; }
 }
 
 // ── VIBE CHECK ────────────────────────────────────────────────────────────────
@@ -4494,6 +4579,130 @@ function deletePreset(i){
   saveUsers().then(()=>renderPresetsPanel());
 }
 
+// ── A-Z SLIDER ────────────────────────────────────────────────────────────────
+function renderAZSlider(items, gridId){
+  const slider = document.getElementById('az-slider');
+  if(!slider) return;
+  // Only show on the library tab when sorted A-Z
+  const sortEl = document.getElementById('f-sort');
+  const isLibrary = gridId === 'lib-grid';
+  if(!isLibrary || !sortEl || sortEl.value !== 'title' || items.length < 12){
+    slider.style.display = 'none';
+    return;
+  }
+
+  // Build set of letters actually present (first char of sortTitle/title)
+  const present = new Set();
+  items.forEach(m=>{
+    const t = (m.sortTitle||m.title||'').trim().toUpperCase();
+    const c = t.charCodeAt(0);
+    if(c>=48&&c<=57) present.add('#'); // digit
+    else if(c>=65&&c<=90) present.add(t[0]);
+    else present.add('#');
+  });
+
+  const alphabet = ['#','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  slider.innerHTML = alphabet.map(l=>{
+    const has = present.has(l);
+    return `<div class="az-slider-item" data-letter="${l}" style="opacity:${has?1:0.25};cursor:${has?'pointer':'default'}" ${has?`onclick="jumpToLetter('${l}','${gridId}')"`:''}>${l}</div>`;
+  }).join('');
+  slider.style.display = '';
+
+  setupAZDrag(slider, items, gridId, present);
+}
+
+function jumpToLetter(letter, gridId){
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  const cards = grid.querySelectorAll('.card');
+  for(const card of cards){
+    let t = (card.dataset.sort || '').trim().toUpperCase();
+    if(!t){
+      const titleEl = card.querySelector('.ov-title');
+      if(!titleEl) continue;
+      t = titleEl.textContent.trim().toUpperCase();
+    }
+    const c = t.charCodeAt(0);
+    const cardLetter = (c>=65&&c<=90) ? t[0] : '#';
+    if(cardLetter === letter){
+      card.scrollIntoView({behavior:'smooth', block:'start'});
+      break;
+    }
+  }
+}
+
+let _azDragBound = new WeakSet();
+function setupAZDrag(slider, items, gridId, present){
+  if(_azDragBound.has(slider)) return;
+  _azDragBound.add(slider);
+
+  const bubble = document.getElementById('az-bubble');
+  let dragging = false;
+
+  function letterFromY(clientY){
+    const itemEls = slider.querySelectorAll('.az-slider-item');
+    for(const el of itemEls){
+      const r = el.getBoundingClientRect();
+      if(clientY >= r.top && clientY <= r.bottom) return el.dataset.letter;
+    }
+    // clamp to first/last
+    const first = itemEls[0].getBoundingClientRect();
+    const last = itemEls[itemEls.length-1].getBoundingClientRect();
+    if(clientY < first.top) return itemEls[0].dataset.letter;
+    if(clientY > last.bottom) return itemEls[itemEls.length-1].dataset.letter;
+    return null;
+  }
+
+  function showBubble(letter){
+    bubble.textContent = letter;
+    bubble.classList.add('show');
+  }
+  function hideBubble(){ bubble.classList.remove('show'); }
+
+  function handleMove(clientY){
+    const letter = letterFromY(clientY);
+    if(!letter) return;
+    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.toggle('active', el.dataset.letter===letter));
+    if(present.has(letter)){
+      showBubble(letter);
+      jumpToLetter(letter, gridId);
+    } else {
+      showBubble(letter);
+    }
+  }
+
+  slider.addEventListener('touchstart', e=>{
+    dragging = true;
+    handleMove(e.touches[0].clientY);
+    e.preventDefault();
+  }, {passive:false});
+  slider.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    handleMove(e.touches[0].clientY);
+    e.preventDefault();
+  }, {passive:false});
+  slider.addEventListener('touchend', ()=>{
+    dragging = false;
+    hideBubble();
+    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.remove('active'));
+  });
+
+  slider.addEventListener('mousedown', e=>{
+    dragging = true;
+    handleMove(e.clientY);
+  });
+  document.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    handleMove(e.clientY);
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!dragging) return;
+    dragging = false;
+    hideBubble();
+    slider.querySelectorAll('.az-slider-item').forEach(el=>el.classList.remove('active'));
+  });
+}
+
 // ── AUTO-COLLECTIONS ─────────────────────────────────────────────────────────
 function buildCollections(){
   const lib = sharedData.library;
@@ -5039,6 +5248,7 @@ function renderLib(){
     grid.innerHTML='';
       empty.style.display='';
     updateCounts();
+    const azSlider0=document.getElementById('az-slider'); if(azSlider0) azSlider0.style.display='none';
     return;
   }
   empty.style.display='none';
@@ -5057,6 +5267,7 @@ function renderLib(){
     </div>`;
   }).join('');
   updateCounts();
+  renderAZSlider(items, 'lib-grid');
 }
 
 function miniCard(m){
@@ -5068,6 +5279,16 @@ function miniCard(m){
 }
 
 // ── RENDER WISHLIST ───────────────────────────────────────────────────────────
+function switchWishTab(t){
+  document.getElementById('wish-sub-shared').classList.toggle('active', t==='shared');
+  document.getElementById('wish-sub-mine').classList.toggle('active', t==='mine');
+  document.getElementById('wish-shared-pane').style.display = t==='shared'?'':'none';
+  document.getElementById('wish-mine-pane').style.display = t==='mine'?'':'none';
+  if(t==='shared') renderWish();
+  if(t==='mine') renderPWishlist();
+}
+
+
 function shelfScroll(id, dir){
   const el = document.getElementById(id);
   if(!el) return;
@@ -5088,6 +5309,58 @@ function updateShelfArrows(id){
   const rBtn = wrap.querySelector('.shelf-arrow.right');
   if(lBtn) lBtn.classList.toggle('hidden', atStart);
   if(rBtn) rBtn.classList.toggle('hidden', atEnd);
+}
+
+function initShelfArrows(){
+  document.querySelectorAll('.shelf-wrap .shelf-scroll').forEach(el=>{
+    el.addEventListener('scroll', ()=>updateShelfArrows(el.id), {passive:true});
+    updateShelfArrows(el.id);
+  });
+}
+
+
+function wishJumpYear(yr){
+  if(!yr) return;
+  const el = document.getElementById('wish-year-'+yr);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+
+async function openWishTrailer(btn, movieId, movieTitle, movieYear){
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>';
+
+  try{
+    // Try to find TMDB id from wishlist item first
+    const wishItem = sharedData.wishlist.find(function(m){ return m.id===movieId; });
+    let tmdbId = wishItem && wishItem.tmdbId;
+
+    if(!tmdbId){
+      // Search TMDB by title+year
+      const q = encodeURIComponent(movieTitle);
+      const yr = movieYear ? '&year='+movieYear : '';
+      const sr = await fetch('https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+q+yr+'&include_adult=false');
+      const sd = await sr.json();
+      if(sd.results && sd.results.length) tmdbId = sd.results[0].id;
+    }
+
+    if(!tmdbId){ toast('No trailer found.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-youtube"></i>'; return; }
+
+    const vr = await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'/videos?api_key='+TMDB_KEY);
+    const vd = await vr.json();
+    const trailer = (vd.results||[]).find(function(v){ return v.type==='Trailer' && v.site==='YouTube'; })
+                 || (vd.results||[]).find(function(v){ return v.site==='YouTube'; });
+
+    if(!trailer){ toast('No trailer found.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-youtube"></i>'; return; }
+
+    window.open('https://www.youtube.com/watch?v='+trailer.key, '_blank');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-brand-youtube"></i>';
+  } catch(e){
+    toast('Trailer unavailable.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-brand-youtube"></i>';
+  }
 }
 
 function renderWish(){
@@ -5128,25 +5401,106 @@ function renderWish(){
     </div>`;
   }
 
-  // ── MY LISTS ─────────────────────────────────────────────────────────────
-  html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-    <div class="sl" style="flex:1;margin-bottom:0">My Lists</div>
-    <button class="ab" onclick="createList()"><i class="ti ti-plus"></i> Create List</button>
-  </div>`;
+  // ── USER LISTS ────────────────────────────────────────────────────────────
   if(myLists.length){
-    html += `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">`
-      + myLists.map(list=>{
-          const count = (list.items||[]).length;
-          return `<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:border-color .2s" onclick="openUserList('${list.id}')">
-            <i class="ti ti-list" style="color:var(--gold);flex-shrink:0"></i>
-            <div style="flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${list.name}</div>
-            <div style="font-size:11px;color:var(--muted);flex-shrink:0">${count} title${count!==1?'s':''}</div>
-            <i class="ti ti-chevron-right" style="color:var(--muted);flex-shrink:0"></i>
-          </div>`;
-        }).join('')
-      + `</div>`;
-  } else {
-    html += `<div class="empty" style="padding:30px 0"><i class="ti ti-list"></i><p style="font-size:13px">No lists yet. Create one to start grouping titles.</p></div>`;
+    myLists.forEach(function(list){
+      const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
+      if(!items.length) return;
+
+      // Group by year
+      const groups = {};
+      items.forEach(function(m){
+        const y = (m.year||'Unknown').toString().slice(0,4);
+        (groups[y]=groups[y]||[]).push(m);
+      });
+      const years = Object.keys(groups).sort((a,b)=>{
+        if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+        return Number(b)-Number(a);
+      });
+
+      const cardHTML = m => {
+        const hp = m.poster && m.poster !== 'N/A';
+        const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
+        const safeTitle = m.title.replace(/'/g,"\'");
+        return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
+          ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+          <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+          <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+          <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+            onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+            <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
+          </button>
+        </div>`;
+      };
+
+      // Year jump dropdown
+      const dropdown = years.length > 2
+        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>
+            <select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">
+              <option value="">— Year —</option>
+              ${years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')}
+            </select></div>`
+        : '';
+
+      html += `<div style="margin-bottom:28px">
+        <div class="sl" style="margin-bottom:4px">${list.name} <span style="font-size:12px;color:var(--muted)">(${items.length})</span></div>
+        ${dropdown}
+        ${years.map(y=>`
+          <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
+          <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('')}</div>
+        `).join('')}
+      </div>`;
+    });
+  }
+
+  // ── REQUESTS (non-queue wishlist items) ──────────────────────────────────
+  const requestItems = (sharedData.wishlist||[]).filter(m=>!m.priority);
+  if(requestItems.length){
+    const groups = {};
+    requestItems.forEach(function(m){
+      const y=(m.year||'Unknown').toString().slice(0,4);
+      (groups[y]=groups[y]||[]).push(m);
+    });
+    const years = Object.keys(groups).sort((a,b)=>{
+      if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+      return Number(b)-Number(a);
+    });
+    const yearDropdown = years.length>2
+      ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+        +'<label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>'
+        +'<select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">'
+        +'<option value="">— Year —</option>'
+        +years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')
+        +'</select></div>'
+      : '';
+    const reqCardHTML = m => {
+      const hp=m.poster&&m.poster!=='N/A';
+      const safeTitle=m.title.replace(/'/g,"\'");
+      return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
+        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
+        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+        <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+          onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','wishlist')" title="Add to list">
+          <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
+        </button>
+        <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+          onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+          <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
+        </button>
+      </div>`;
+    };
+    html += `<div class="sl" style="margin-bottom:8px;margin-top:${queueItems.length||myLists.length?'24px':'0'}">Requests <span style="font-size:12px;color:var(--muted)">(${requestItems.length})</span></div>`;
+    html += yearDropdown;
+    html += years.map(y=>`
+      <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
+      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(reqCardHTML).join('')}</div>
+    `).join('');
+  }
+
+  if(!queueItems.length && !myLists.length && !(sharedData.wishlist||[]).length){
+    html += '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">Nothing on the watchlist yet.</p></div>';
   }
 
   wrap.innerHTML = html;
@@ -5183,7 +5537,7 @@ function createList(addId){
   const me=myData();me.collections=me.collections||[];
   const list={id:uid(),name,items:addId?[addId]:[]};
   me.collections.push(list);
-  saveUsers().then(()=>{updateCounts();if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}else{renderWish();toast('List "'+name+'" created');}});
+  saveUsers().then(()=>{updateCounts();if(addId){openDetail(addId,'library');toast('Added to "'+name+'"');}else{renderLists();toast('List "'+name+'" created');}});
 }
 function buildListsSection(id, me){
   const myLists = me.collections||[];
@@ -5230,69 +5584,69 @@ function toggleInList(listId,itemId){
 function renameList(listId){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   const name=(prompt('Rename list:',list.name)||'').trim();if(!name)return;
-  list.name=name;
-  saveUsers().then(()=>{
-    renderWish();
-    const titleEl=document.getElementById('userlist-title');
-    if(titleEl && _activeUserListId===listId) titleEl.textContent=name;
-  });
+  list.name=name;saveUsers().then(()=>renderLists());
 }
 function deleteList(listId){
   if(!confirm('Delete this list? (Your titles stay in the library.)'))return;
   const me=myData();me.collections=(me.collections||[]).filter(c=>c.id!==listId);
-  saveUsers().then(()=>{
-    closeMo('userlist');
-    renderWish();
-    updateCounts();
-    toast('List deleted');
-  });
+  saveUsers().then(()=>{renderLists();updateCounts();});
 }
 function removeFromList(listId,itemId){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=(list.items||[]).filter(x=>x!==itemId);
-  saveUsers().then(()=>{
-    renderWish();
-    if(_activeUserListId===listId) openUserList(listId);
-  });
+  saveUsers().then(()=>renderLists());
+}
+function canFeatureList(){
+  // Admin can feature unlimited; members can feature 1 at a time
+  return isAdmin();
 }
 
-// ── MY LIST DETAIL MODAL ────────────────────────────────────────────────────────
-let _activeUserListId = null;
-
-function openUserList(listId){
+function toggleFeaturedList(listId){
   const me = myData();
-  const list = (me.collections||[]).find(c=>c.id===listId);
+  me.collections = me.collections||[];
+  const list = me.collections.find(c=>c.id===listId);
   if(!list) return;
-  _activeUserListId = listId;
-  document.getElementById('userlist-title').textContent = list.name;
-  const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
-  const grid = document.getElementById('userlist-grid');
-  const empty = document.getElementById('userlist-empty');
-  if(!items.length){
-    grid.innerHTML='';
-    empty.style.display='';
-  } else {
-    empty.style.display='none';
-    grid.innerHTML = items.map(m=>{
-      const hp = m.poster && m.poster !== 'N/A';
-      const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
-      return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
-        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
-        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-        <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.75);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2" onclick="event.stopPropagation();removeFromList('${listId}','${m.id}')"><i class="ti ti-x" style="font-size:12px;color:#fff"></i></div>
-      </div>`;
-    }).join('');
+  const wasOn = !!list.featured;
+  if(!wasOn && !isAdmin()){
+    // Unfeature any existing featured list first (1 active at a time for members)
+    me.collections.forEach(c=>{ if(c.featured) c.featured=false; });
   }
-  openMo('userlist');
+  list.featured = !wasOn;
+  saveUsers().then(()=>{ renderLists(); toast(list.featured?`"${list.name}" is now featured!`:`"${list.name}" removed from featured.`); });
 }
 
-function renameUserListFromModal(){
-  if(_activeUserListId) renameList(_activeUserListId);
-}
-
-function deleteUserListFromModal(){
-  if(_activeUserListId) deleteList(_activeUserListId);
+function renderLists(){
+  const me=myData();const cols=me.collections||[];
+  const wrap=document.getElementById('lists-wrap'),empty=document.getElementById('lists-empty');
+  if(!cols.length){wrap.innerHTML='';empty.style.display='';updateCounts();return}
+  empty.style.display='none';
+  wrap.innerHTML=cols.map(c=>{
+    const items=(c.items||[]).map(idv=>sharedData.library.find(m=>m.id===idv)).filter(Boolean);
+    const isFeatured=!!c.featured;
+    const safeName = c.name.replace(/'/g,'&#39;');
+    const addMovieBtn = '<button class="ghost-btn" style="padding:4px 10px;font-size:11px" data-lid="'+c.id+'" data-lname="'+safeName+'" onclick="openListSearch(this.dataset.lid,this.dataset.lname)"><i class="ti ti-search"></i> Add Movies</button>';
+    const cards=items.length?`<div class="shelf-scroll">${items.map(m=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="ov">${m.title}</div>
+        <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.8);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')"><i class="ti ti-x" style="font-size:13px;color:#fff"></i></div>
+      </div>`;
+    }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open a title and add it to this list.</div>';
+    return `<div class="stat-block" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
+        ${addMovieBtn}
+        <button class="featured-check ${isFeatured?'active':''}" onclick="toggleFeaturedList('${c.id}')" title="${isFeatured?'Remove from Featured':'Feature this list'}">
+          <i class="ti ti-star${isFeatured?'-filled':''}"></i> ${isFeatured?'Featured':'Feature'}
+        </button>
+        <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
+        <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+      ${cards}
+    </div>`;
+  }).join('');
+  updateCounts();
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────────────────
@@ -7408,6 +7762,28 @@ function removeFromWatched(id, isDiary){
 }
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
+function toggleMoreMenu(el){
+  const menu = document.getElementById('more-menu');
+  const isOpen = menu.classList.toggle('open');
+  el.classList.toggle('active', isOpen);
+  // Close when tapping outside
+  if(isOpen){
+    setTimeout(()=>{
+      document.addEventListener('click', function handler(e){
+        if(!e.target.closest('#more-menu')&&!e.target.closest('#bnb-more')){
+          closeMoreMenu();
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 10);
+  }
+}
+
+function closeMoreMenu(){
+  document.getElementById('more-menu')?.classList.remove('open');
+  document.getElementById('bnb-more')?.classList.remove('active');
+}
+
 function switchTabMobile(t, el){
   // Just call switchTab — it now syncs both navs
   switchTab(t, el);
@@ -7468,6 +7844,60 @@ function seriesProgressHTML(m){
       ${p.season?`<span style="font-size:11px;color:var(--muted)">S${p.season}${p.episode?' E'+p.episode:''}</span>`:''}
     </div>
   </div>`;
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────────────────────
+function buildActivityFeed(){
+  const events = [];
+  allUsers.accounts.forEach(u => {
+    const ud = allUsers.personal?.[u.id];
+    if(!ud) return;
+    // Watch history events
+    Object.entries(ud.history||{}).forEach(([itemId, dates]) => {
+      const m = sharedData.library.find(x=>x.id===itemId)||(ud.diaryItems?.[itemId]);
+      if(!m) return;
+      dates.forEach(ts => events.push({type:'watched', user:u, m, ts}));
+    });
+    // Rating events — approximate ts from addedAt (we don't store rating ts)
+    Object.entries(ud.ratings||{}).forEach(([itemId, rating]) => {
+      if(!rating) return;
+      const m = sharedData.library.find(x=>x.id===itemId);
+      if(!m) return;
+      events.push({type:'rated', user:u, m, rating, ts: m.addedAt||0});
+    });
+    // Comment events
+    sharedData.library.forEach(m => {
+      (m.comments||[]).filter(c=>c.userId===u.id).forEach(c => {
+        events.push({type:'commented', user:u, m, comment:c.text, ts:c.ts});
+      });
+    });
+  });
+  return events.sort((a,b)=>b.ts-a.ts).slice(0,60);
+}
+
+function renderActivity(){
+  const events = buildActivityFeed();
+  const body = document.getElementById('activity-feed-body');
+  const empty = document.getElementById('activity-empty');
+  if(!body) return;
+  if(!events.length){ body.innerHTML=''; if(empty)empty.style.display=''; return; }
+  if(empty) empty.style.display='none';
+  body.innerHTML = events.map(e => {
+    const hp = e.m.poster && e.m.poster !== 'N/A';
+    let action='', detail='';
+    if(e.type==='watched') action='watched';
+    else if(e.type==='rated'){ action='rated'; detail=` <strong style="color:var(--gold)">${e.rating}/10</strong>`; }
+    else if(e.type==='commented'){ action='commented on'; detail=` <span style="color:var(--muted)">· "${e.comment.slice(0,40)}${e.comment.length>40?'…':''}"</span>`; }
+    return `<div class="feed-item">
+      ${avatarEl(e.user,32)}
+      <div style="flex:1;min-width:0">
+        <div><span class="feed-who">${e.user.username}</span> <span class="feed-action">${action}${detail}</span></div>
+        <div class="feed-title" onclick="openDetail('${e.m.id}','library')">${e.m.title}</div>
+        <div class="feed-when">${formatAgo(e.ts)}</div>
+      </div>
+      ${hp?`<img src="${e.m.poster}" class="feed-poster" onerror="this.style.display='none'">`:''}
+    </div>`;
+  }).join('');
 }
 
 // ── YOU MIGHT LIKE ────────────────────────────────────────────────────────────
@@ -7871,6 +8301,150 @@ function evaluateTrophies(){
   evaluatePeriodicTrophies(me, MONTHLY_TROPHIES, 'monthly');
   evaluatePeriodicTrophies(me, ANNUAL_TROPHIES,  'annual');
   return me.trophies;
+}
+
+function trophyRowHTML(t, e, isEarned, prog, w, rated, u, lib, me, extraClass, periodLabel){
+  const pct = prog ? Math.min(100, Math.round(prog[0]/prog[1]*100)) : 0;
+  const badgeIcon = isEarned ? '✓' : '○';
+  return '<div class="trophy '+(isEarned?'earned':'locked')+' '+(extraClass||'')+'">'
+    +(e?.isNew?'<div class="trophy-new">NEW</div>':'')
+    +'<div class="trophy-icon">'+t.icon+'</div>'
+    +'<div class="trophy-info">'
+    +'<div class="trophy-name">'+t.name+(periodLabel?' &nbsp;<span class="trophy-period-badge '+periodLabel.toLowerCase()+'-badge">'+periodLabel+'</span>':'')+'</div>'
+    +'<div class="trophy-desc">'+t.desc+'</div>'
+    +(isEarned&&e.earnedAt?'<div class="trophy-date">Earned '+new Date(e.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>':'')
+    +(!isEarned&&prog?'<div class="trophy-progress-wrap"><div class="trophy-progress"><div class="trophy-progress-fill" style="width:'+pct+'%"></div></div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+prog[0]+' / '+prog[1]+'</div></div>':'')
+    +'</div>'
+    +'<div class="trophy-badge">'+badgeIcon+'</div>'
+    +'</div>';
+}
+
+function renderTrophies(){ renderCinema(); }
+
+
+
+
+// ── FEATURED LISTS ────────────────────────────────────────────────────────────
+function renderFeaturedLists(){
+  const body = document.getElementById('featured-lists-body');
+  const empty = document.getElementById('featured-lists-empty');
+  if(!body) return;
+
+  // Collect featured lists from all users
+  const featured = [];
+  allUsers.accounts.forEach(u=>{
+    const ud = allUsers.personal?.[u.id];
+    if(!ud) return;
+    (ud.collections||[]).filter(c=>c.featured).forEach(c=>{
+      const items = (c.items||[]).map(id=>sharedData.library.find(m=>m.id===id)).filter(Boolean);
+      if(items.length) featured.push({list:c, user:u, items});
+    });
+  });
+
+  if(!featured.length){ body.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+
+  body.innerHTML = featured.map(({list,user,items})=>{
+    const cards = items.map(m=>{
+      const hp=m.poster&&m.poster!=='N/A';
+      const me=myData(); const r=me.ratings?.[m.id]||0;
+      return `<div class="shelf-card" onclick="openDetail('${m.id}','library')">
+        ${hp?`<img src="${m.poster}" loading="lazy">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>`}
+        <div class="ov"><div class="ov-title">${m.title}</div></div>
+        ${r?`<div class="rating-badge">${r}/10</div>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="featured-list-card">
+      <div class="featured-list-hdr">
+        ${avatarEl(user,28)}
+        <div class="featured-list-title">${list.name}</div>
+        <div class="featured-list-owner">${user.username} · ${items.length} titles</div>
+      </div>
+      <div style="padding:12px"><div class="shelf-scroll">${cards}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── VHS RENTAL RECEIPT ────────────────────────────────────────────────────────
+function buildReceiptMonthSelect(){
+  const me = myData();
+  const months = new Set();
+  Object.values(me.history||{}).flat().forEach(ts=>{
+    const d=new Date(ts);
+    months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  });
+  const sel = document.getElementById('receipt-month');
+  if(!sel) return;
+  const sorted = [...months].sort((a,b)=>b.localeCompare(a));
+  const now = new Date();
+  const curKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  sel.innerHTML = sorted.map(k=>'<option value="'+k+'" '+(k===curKey?'selected':'')+'>'+new Date(k+'-01').toLocaleString('en-US',{month:'long',year:'numeric'})+'</option>').join('');
+}
+
+function renderReceipt(){
+  buildReceiptMonthSelect();
+  const sel = document.getElementById('receipt-month');
+  const key = sel?.value || '';
+  if(!key) return;
+  const [yr, mo] = key.split('-').map(Number);
+  const me = myData();
+
+  // Gather watches this month
+  const watches = [];
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m = sharedData.library.find(x=>x.id===id)||(me.diaryItems?.[id]);
+    if(!m) return;
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(d.getFullYear()===yr&&d.getMonth()===mo-1){
+        watches.push({m, ts, rating:me.ratings?.[id]||0});
+      }
+    });
+  });
+  watches.sort((a,b)=>a.ts-b.ts);
+
+  const monthName = new Date(yr,mo-1,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+  const totalRuntime = watches.reduce((s,w)=>s+(parseInt(w.m.runtime)||0),0);
+  const avgRating = watches.filter(w=>w.rating>0).length
+    ? (watches.filter(w=>w.rating>0).reduce((s,w)=>s+w.rating,0)/watches.filter(w=>w.rating>0).length).toFixed(1)
+    : 'N/A';
+  const barcode = '||| |||| || ||| |||| ||| || |||| |||';
+
+  const body = document.getElementById('receipt-body');
+  if(!body) return;
+  body.innerHTML = `<div class="receipt-wrap" id="receipt-print">
+    <div class="receipt-header">
+      <div class="receipt-logo">McFlix</div>
+      <div class="receipt-sub">VHS RENTAL · ${monthName.toUpperCase()}</div>
+      <div style="font-size:9px;color:#888;margin-top:4px">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>
+    </div>
+    <div class="receipt-row bold"><span>MEMBER</span><span>${CU.username.toUpperCase()}</span></div>
+    <div class="receipt-divider"></div>
+    ${watches.length?watches.map((w,i)=>`
+      <div class="receipt-row"><span>${String(i+1).padStart(2,'0')}. ${w.m.title.slice(0,22)}</span><span>${w.rating?w.rating+'/10':'—'}</span></div>
+      <div style="font-size:9px;color:#888;padding:0 0 4px 16px">${new Date(w.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}${w.m.runtime?' · '+w.m.runtime+'min':''}</div>
+    `).join(''):'<div style="font-size:11px;color:#888;text-align:center;padding:8px">No viewings logged this month.</div>'}
+    <div class="receipt-divider"></div>
+    <div class="receipt-row bold"><span>TOTAL TITLES</span><span>${watches.length}</span></div>
+    <div class="receipt-row"><span>TOTAL RUNTIME</span><span>${Math.floor(totalRuntime/60)}h ${totalRuntime%60}m</span></div>
+    <div class="receipt-row"><span>AVG RATING</span><span>${avgRating}</span></div>
+    <div class="receipt-divider"></div>
+    <div class="receipt-barcode">${barcode}</div>
+    <div class="receipt-footer">
+      Thank you for your rental!<br>
+      McFlix · Be kind, rewind.<br>
+      mcflix.co
+    </div>
+  </div>`;
+}
+
+function printReceipt(){
+  const el = document.getElementById('receipt-print');
+  if(!el) return;
+  const w = window.open('','_blank','width=400,height=700');
+  w.document.write('<html><head><title>McFlix Receipt</title><style>body{margin:0;background:#e8e0d0;display:flex;justify-content:center;padding:20px;font-family:Courier New,monospace}</style></head><body>'+el.outerHTML+'</body></html>');
+  w.document.close();
+  w.print();
 }
 
 // ── GHOST RATINGS ─────────────────────────────────────────────────────────────
@@ -9815,7 +10389,7 @@ function toggleListFromModal(btn, adding){
     const titleEl = document.getElementById('addtolist-body')?.querySelector('div:nth-child(2)');
     const title = titleEl ? titleEl.textContent : movieId;
     openAddToListModal(movieId, title, src);
-    renderWish();
+    renderLists();
     toast(adding ? 'Added to '+list.name : 'Removed from '+list.name);
   });
 }
@@ -9834,7 +10408,7 @@ function getRankPool(me){
   const yr = now.getFullYear();
   const mo = now.getMonth();
   const hist = me.history||{};
-  const strict = sharedData.library.filter(function(m){
+  return sharedData.library.filter(function(m){
     if(m.type==='tv') return false;
     const dates = hist[m.id]||[];
     return dates.some(function(ts){
@@ -9842,11 +10416,6 @@ function getRankPool(me){
       if(_rankMode==='month') return d.getFullYear()===yr && d.getMonth()===mo;
       return d.getFullYear()===yr;
     });
-  });
-  if(strict.length>=2) return strict;
-  // Fallback: not enough diary entries for this period — rank everything watched instead
-  return sharedData.library.filter(function(m){
-    return m.type!=='tv' && !!(me.watched && me.watched[m.id]);
   });
 }
 
@@ -9951,7 +10520,10 @@ function setCompareMode(mode){
 function startRanking(){
   var me = myData();
   var pool = getRankPool(me);
-  if(pool.length<2){ toast('Watch at least 2 films this period to rank.'); return; }
+  if(pool.length<2){
+    toast('Need at least 2 watched films. Pool: '+pool.length+'. Library: '+sharedData.library.length);
+    return;
+  }
   _rankEngine = new RankEngine(pool);
   renderCompare();
 }
@@ -10103,6 +10675,147 @@ function renderCompare(){
 }
 
 
+
+// ── LIST MOVIE SEARCH ─────────────────────────────────────────────────────────
+var _listSearchTarget = null; // {id, name}
+
+function openListSearch(listId, listName){
+  _listSearchTarget = {id: listId, name: listName};
+  const body = document.getElementById('listsearch-body');
+  if(!body) return;
+  body.innerHTML =
+    '<div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:4px">Add to: '+listName+'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">Search any movie — from your library or the full database.</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:14px">'
+    +'<input id="listsearch-q" class="sw" style="flex:1;font-size:13px" placeholder="Search movies..." oninput="listSearchQuery()" autofocus>'
+    +'</div>'
+    +'<div id="listsearch-results" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto"></div>';
+  openMo('listsearch');
+  setTimeout(function(){ const el=document.getElementById('listsearch-q'); if(el) el.focus(); }, 150);
+}
+
+var _listSearchTimer = null;
+function listSearchQuery(){
+  clearTimeout(_listSearchTimer);
+  _listSearchTimer = setTimeout(function(){ _doListSearch(); }, 350);
+}
+
+async function _doListSearch(){
+  const q = (document.getElementById('listsearch-q')?.value||'').trim();
+  const res = document.getElementById('listsearch-results');
+  if(!res) return;
+  if(q.length < 2){ res.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:12px">Type to search...</div>'; return; }
+
+  res.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:12px"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Searching...</div>';
+
+  const me = myData();
+  const list = (me.collections||[]).find(function(c){ return c.id===(_listSearchTarget&&_listSearchTarget.id); });
+  const inListIds = new Set(list ? list.items||[] : []);
+
+  // 1. Search local library first
+  const localResults = sharedData.library
+    .filter(function(m){ return m.type!=='tv' && m.title.toLowerCase().includes(q.toLowerCase()); })
+    .slice(0, 5);
+
+  // 2. Search TMDB
+  let tmdbResults = [];
+  try{
+    const r = await fetch('https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+encodeURIComponent(q)+'&include_adult=false');
+    const d = await r.json();
+    tmdbResults = (d.results||[]).slice(0, 8).map(function(t){
+      return {
+        id: 'tmdb_'+t.id,
+        tmdbId: t.id,
+        title: t.title,
+        year: t.release_date ? t.release_date.slice(0,4) : '',
+        poster: t.poster_path ? 'https://image.tmdb.org/t/p/w92'+t.poster_path : null,
+        fromTMDB: true,
+      };
+    });
+  } catch(e){ console.warn('TMDB search failed:', e); }
+
+  // Merge - prefer library versions, dedupe by title+year
+  const seen = new Set(localResults.map(function(m){ return m.title.toLowerCase()+m.year; }));
+  const merged = localResults.concat(tmdbResults.filter(function(t){
+    return !seen.has(t.title.toLowerCase()+t.year);
+  }));
+
+  if(!merged.length){
+    res.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:12px">No results found.</div>';
+    return;
+  }
+
+  res.innerHTML = merged.map(function(m){
+    const inList = inListIds.has(m.id) || (m.fromTMDB && false); // tmdb items get new IDs on add
+    const libM = sharedData.library.find(function(x){ return x.id===m.id; });
+    const inLib = !!libM;
+    const hp = m.poster && m.poster !== 'N/A';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px">'
+      +(hp?'<img src="'+m.poster+'" style="width:34px;height:50px;border-radius:4px;object-fit:cover;flex-shrink:0">':'<div style="width:34px;height:50px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>')
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div>'
+      +'<div style="font-size:10px;color:var(--muted)">'+m.year+(inLib?' · <span style="color:var(--green)">In Library</span>':'')+'</div>'
+      +'</div>'
+      +(inList
+        ? '<span style="font-size:11px;color:var(--green);flex-shrink:0"><i class="ti ti-check"></i> Added</span>'
+        : '<button class="primary-btn" style="padding:4px 12px;font-size:11px;flex-shrink:0" '
+          +'data-mid="'+m.id+'" data-title="'+m.title.replace(/"/g,'&quot;')+'" data-year="'+m.year+'" data-poster="'+(m.poster||'')+'" data-fromtmdb="'+(m.fromTMDB?'1':'0')+'" data-tmdbid="'+(m.tmdbId||'')+'"'
+          +' onclick="addMovieToListFromSearch(this)">Add</button>'
+      )
+      +'</div>';
+  }).join('');
+}
+
+async function addMovieToListFromSearch(btn){
+  btn.disabled = true;
+  btn.textContent = '...';
+  const me = myData();
+  const listId = _listSearchTarget && _listSearchTarget.id;
+  const list = (me.collections||[]).find(function(c){ return c.id===listId; });
+  if(!list){ btn.disabled=false; btn.textContent='Add'; return; }
+
+  const mid = btn.dataset.mid;
+  const fromTMDB = btn.dataset.fromtmdb === '1';
+  const title = btn.dataset.title;
+  const year = btn.dataset.year;
+  const poster = btn.dataset.poster;
+  const tmdbId = btn.dataset.tmdbid;
+
+  // If it's a TMDB result not in library, add it to the wishlist first then to the list
+  let finalId = mid;
+  if(fromTMDB){
+    // Check if it's already in wishlist
+    const existingWish = sharedData.wishlist.find(function(m){ return m.title===title && m.year===year; });
+    if(existingWish){
+      finalId = existingWish.id;
+    } else {
+      // Add to wishlist as a non-priority item
+      finalId = 'w_'+Date.now();
+      const newItem = {id:finalId, title:title, year:year, poster:poster, tmdbId:tmdbId, addedAt:Date.now(), addedBy:CU&&CU.username};
+      sharedData.wishlist.push(newItem);
+      await saveShared();
+    }
+  }
+
+  // Add to list
+  if(!list.items) list.items = [];
+  if(!list.items.includes(finalId)){
+    list.items.push(finalId);
+    await saveUsers();
+  }
+
+  // Update button
+  btn.textContent = '✓';
+  btn.style.background = 'rgba(46,204,113,.2)';
+  btn.style.color = 'var(--green)';
+  btn.style.borderColor = 'rgba(46,204,113,.3)';
+  btn.disabled = true;
+
+  // Update inListIds in the results
+  renderLists();
+  toast(title+' added to '+(_listSearchTarget&&_listSearchTarget.name||'list'));
+}
+
 function renderTagBrowser(){
   const pills = document.getElementById('tag-browser-pills');
   if(!pills) return;
@@ -10237,10 +10950,10 @@ function openWatchMode(movieId){
   _wmMovieId = movieId;
   // Show nav button
   const nb = document.getElementById('nb-watchmode');
-  const nbMobile = document.getElementById('bnb-watchmode');
+  const nbMore = document.getElementById('bnb-watchmode-more');
   const m = sharedData.library.find(x=>x.id===movieId);
   if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m ? m.title.slice(0,18) : 'Watch Mode'; }
-  if(nbMobile) nbMobile.style.display='';
+  if(nbMore) nbMore.style.display='';
   closeMo('detail');
   switchTab('watchmode', document.getElementById('nb-watchmode'));
 }
@@ -10566,10 +11279,10 @@ function wmRefreshFeed(){
 function openWatchReview(movieId){
   _wmMovieId = movieId;
   const nb = document.getElementById('nb-watchmode');
-  const nbMobile = document.getElementById('bnb-watchmode');
+  const nbMore = document.getElementById('bnb-watchmode-more');
   const m = sharedData.library.find(x=>x.id===movieId);
   if(nb){ nb.style.display=''; document.getElementById('nb-watchmode-label').textContent = m?m.title.slice(0,18):'Watch Mode'; }
-  if(nbMobile) nbMobile.style.display='';
+  if(nbMore) nbMore.style.display='';
   closeMo('detail');
   switchTab('watchmode', document.getElementById('nb-watchmode'));
 }
@@ -10847,8 +11560,7 @@ function showSecretMilestone(){
 
 function renderStats(){
   const body = document.getElementById('cst-body');
-  if(!body) return;
-
+  if(!body){ console.error('cst-body not found'); return; }
   const me = myData();
   const now = new Date();
   const yr = now.getFullYear();
@@ -11006,7 +11718,7 @@ function renderStats(){
 }
 function renderTrophies(){
   const body = document.getElementById('trophies-body');
-  if(!body) return;
+  if(!body){ console.error('trophies-body not found'); return; }
   const me = myData();
   const now = new Date();
   const yr = now.getFullYear();
@@ -11076,6 +11788,12 @@ function renderTrophies(){
 }
 
 
+
+function renderTrophies(){ renderCinema(); }
+
+
+// renderStats merged into renderCinema
+function renderStats(){ renderCinema(); }
 
 function setupYIRLongPress(){
   if(_yirBound) return;
