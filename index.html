@@ -1938,7 +1938,45 @@ textarea.ffi{resize:vertical}
 
     <!-- COMPARE -->
     <div class="tab" id="tab-compare">
-      <div id="compare-body" style="padding:4px 0"></div>
+      <div class="auth-tabs" style="max-width:460px">
+        <button class="auth-tab active" id="rank-subtab-liked" onclick="switchRankSubtab('liked')">Liked</button>
+        <button class="auth-tab" id="rank-subtab-rankings" onclick="switchRankSubtab('rankings')">Top Rankings</button>
+        <button class="auth-tab" id="rank-subtab-top100" onclick="switchRankSubtab('top100')">Top 100</button>
+      </div>
+
+      <!-- LIKED -->
+      <div id="rank-liked-pane">
+        <div class="toolbar" style="margin-bottom:14px">
+          <div class="sw"><i class="ti ti-search"></i><input type="text" id="rank-liked-search" placeholder="Search liked movies..." oninput="renderRankLiked()"></div>
+          <select class="fb" id="rank-liked-sort" onchange="renderRankLiked()">
+            <option value="title">A–Z</option>
+            <option value="year">Year</option>
+          </select>
+        </div>
+        <div class="grid" id="rank-liked-grid"></div>
+        <div class="empty" id="rank-liked-empty" style="display:none"><i class="ti ti-heart"></i><p style="font-size:14px">Like movies from your Library to see them here.</p></div>
+      </div>
+
+      <!-- TOP RANKINGS (tournament engine, liked movies only) -->
+      <div id="rank-rankings-pane" style="display:none">
+        <div id="compare-body" style="padding:4px 0"></div>
+      </div>
+
+      <!-- TOP 100 -->
+      <div id="rank-top100-pane" style="display:none">
+        <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap">
+          <div class="sw"><i class="ti ti-search"></i><input type="text" id="rank100-search" placeholder="Search your Top 100..." oninput="renderRankTop100()"></div>
+          <div class="genre-msel" id="rank100-genre-msel">
+            <button class="fb genre-msel-btn" onclick="toggleGenrePanel(event,'rank100-genre-panel')"><i class="ti ti-tag"></i> <span id="rank100-genre-label">All Genres</span></button>
+            <div class="genre-msel-panel" id="rank100-genre-panel"></div>
+          </div>
+          <input type="text" class="ffi" id="rank100-director" placeholder="Director..." style="min-width:120px" oninput="renderRankTop100()">
+          <input type="text" class="ffi" id="rank100-actor" placeholder="Actor..." style="min-width:120px" oninput="renderRankTop100()">
+        </div>
+        <div class="tag-bar" id="rank100-tag-bar"></div>
+        <div id="rank100-list"></div>
+        <div class="empty" id="rank100-empty" style="display:none"><i class="ti ti-list-numbers"></i><p style="font-size:14px">Rank your liked movies in Top Rankings to build your Top 100.</p></div>
+      </div>
     </div>
 
     <!-- CANONICAL LISTS -->
@@ -3018,7 +3056,7 @@ function switchTab(t,el){
   if(t==='trophies') renderTrophies();
   if(t==='discover'){ if(!_tmdbGenreList) buildDiscoverGenrePanel(); renderQueueShelf(); renderDiscoverRequests(); }
   if(t==='canonical') renderCanonicalLists();
-  if(t==='compare') renderCompare();
+  if(t==='compare') switchRankSubtab(_rankSubtab||'liked');
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
   if(t==='gauntlet') renderGauntlet();
   if(t==='runtime') renderRuntime();
@@ -10372,24 +10410,173 @@ function toggleListFromModal(btn, adding){
 // RANKING ENGINE (merge-sort tournament)
 // ══════════════════════════════════════════════════════════════════════════════
 
-var _rankMode = 'year'; // 'year' or 'month'
 var _rankEngine = null;
 var _rankTick = 0;
+var _rankSubtab = 'liked';
 
 function getRankPool(me){
-  const now = new Date();
-  const yr = now.getFullYear();
-  const mo = now.getMonth();
-  const hist = me.history||{};
   return sharedData.library.filter(function(m){
     if(m.type==='tv') return false;
-    const dates = hist[m.id]||[];
-    return dates.some(function(ts){
-      const d = new Date(ts);
-      if(_rankMode==='month') return d.getFullYear()===yr && d.getMonth()===mo;
-      return d.getFullYear()===yr;
-    });
+    return !!(me.favorites && me.favorites[m.id]);
   });
+}
+
+// ── Sub-tab switching ──────────────────────────────────────────────────────────
+function switchRankSubtab(t){
+  _rankSubtab = t;
+  document.querySelectorAll('#tab-compare .auth-tab').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('rank-subtab-'+t);
+  if(btn) btn.classList.add('active');
+  const panes = {liked:'rank-liked-pane', rankings:'rank-rankings-pane', top100:'rank-top100-pane'};
+  Object.keys(panes).forEach(function(k){
+    const el = document.getElementById(panes[k]);
+    if(el) el.style.display = (k===t) ? '' : 'none';
+  });
+  if(t==='liked') renderRankLiked();
+  if(t==='rankings') renderCompare();
+  if(t==='top100') renderRankTop100();
+}
+
+// ── LIKED pane ───────────────────────────────────────────────────────────────
+function rankToggleLike(id){
+  const me = myData(); me.favorites = me.favorites||{};
+  me.favorites[id] = !me.favorites[id];
+  const isFav = me.favorites[id];
+  saveUsers().then(function(){ renderRankLiked(); toast(isFav?'Liked!':'Removed from Liked'); });
+}
+
+function renderRankLiked(){
+  const me = myData();
+  const grid = document.getElementById('rank-liked-grid');
+  const empty = document.getElementById('rank-liked-empty');
+  if(!grid) return;
+  const q = (document.getElementById('rank-liked-search')?.value||'').toLowerCase();
+  const sort = document.getElementById('rank-liked-sort')?.value||'title';
+  let items = sharedData.library.filter(m=>m.type!=='tv' && me.favorites?.[m.id]);
+  if(q) items = items.filter(m=>(m.title||'').toLowerCase().includes(q));
+  items = items.slice().sort((a,b)=>{
+    if(sort==='year') return (b.year||0)-(a.year||0);
+    return (a.sortTitle||a.title||'').localeCompare(b.sortTitle||b.title||'');
+  });
+  if(!items.length){
+    grid.innerHTML='';
+    if(empty) empty.style.display='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  grid.innerHTML = items.map(m=>{
+    const hp = m.poster && m.poster!=='N/A';
+    return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','library')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+      <div class="fav-star">★</div>
+      <button style="position:absolute;top:5px;right:5px;background:rgba(232,53,75,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+        onclick="event.stopPropagation();rankToggleLike('${m.id}')" title="Unlike">
+        <i class="ti ti-heart-off" style="font-size:11px;color:#fff;pointer-events:none"></i>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ── TOP 100 pane ─────────────────────────────────────────────────────────────
+let rank100SelectedGenres = new Set();
+let _rank100ActiveTag = '';
+
+function getTop100Pool(){
+  const me = myData();
+  const ids = (me.compareTop100||[]).slice(0,100);
+  return ids.map(id=>sharedData.library.find(m=>m.id===id)).filter(Boolean);
+}
+
+function buildRank100GenreFilter(pool){
+  const genres = new Set();
+  pool.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
+  [...rank100SelectedGenres].forEach(g=>{if(!genres.has(g))rank100SelectedGenres.delete(g)});
+  const panel = document.getElementById('rank100-genre-panel');
+  if(panel){
+    panel.innerHTML = [...genres].sort().map(g=>`
+      <label class="genre-msel-opt"><input type="checkbox" value="${g}" ${rank100SelectedGenres.has(g)?'checked':''} onchange="rank100ToggleGenre('${g.replace(/'/g,"\\'")}',this.checked)"> ${g}</label>
+    `).join('') || '<div style="font-size:11px;color:var(--muted);padding:6px">No genres yet.</div>';
+  }
+  const label = document.getElementById('rank100-genre-label');
+  if(label) label.textContent = rank100SelectedGenres.size===0 ? 'All Genres' : (rank100SelectedGenres.size===1?[...rank100SelectedGenres][0]:rank100SelectedGenres.size+' Genres');
+}
+function rank100ToggleGenre(g, checked){
+  if(checked) rank100SelectedGenres.add(g); else rank100SelectedGenres.delete(g);
+  renderRankTop100();
+}
+
+function buildRank100TagBar(pool){
+  const tags = new Set();
+  pool.forEach(m=>(m.tags||[]).forEach(t=>{if(t)tags.add(t)}));
+  const bar = document.getElementById('rank100-tag-bar');
+  if(!bar) return;
+  if(!tags.size){ bar.innerHTML=''; return; }
+  const sorted = [...tags].sort();
+  bar.innerHTML = `
+    <button class="tag-toggle-btn ${_rank100ActiveTag?'has-active':''}" onclick="toggleTagDropdown('rank100-tags')">
+      <i class="ti ti-tag" style="font-size:12px"></i>
+      ${_rank100ActiveTag?`Tag: ${_rank100ActiveTag}`:'Filter by Tag'}
+      <i class="ti ti-chevron-down" style="font-size:11px"></i>
+    </button>
+    <div class="tag-dropdown" id="rank100-tags">
+      ${_rank100ActiveTag?`<span class="tpill active" onclick="setRank100Tag('${_rank100ActiveTag}');toggleTagDropdown('rank100-tags')"><i class="ti ti-x" style="font-size:10px"></i> Clear</span>`:''}
+      ${sorted.map(t=>`<span class="tpill ${_rank100ActiveTag===t?'active':''}" onclick="setRank100Tag('${t}');toggleTagDropdown('rank100-tags')"><i class="ti ti-tag" style="font-size:10px"></i> ${t}</span>`).join('')}
+    </div>`;
+}
+function setRank100Tag(t){
+  _rank100ActiveTag = _rank100ActiveTag===t ? '' : t;
+  renderRankTop100();
+}
+
+function renderRankTop100(){
+  const list = document.getElementById('rank100-list');
+  const empty = document.getElementById('rank100-empty');
+  if(!list) return;
+  const pool = getTop100Pool();
+
+  buildRank100GenreFilter(pool);
+  buildRank100TagBar(pool);
+
+  if(!pool.length){
+    list.innerHTML='';
+    if(empty) empty.style.display='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  const q = (document.getElementById('rank100-search')?.value||'').toLowerCase();
+  const directorVal = (document.getElementById('rank100-director')?.value||'').toLowerCase().trim();
+  const actorVal = (document.getElementById('rank100-actor')?.value||'').toLowerCase().trim();
+
+  let items = pool.map((m,i)=>({m, rank:i+1}));
+  items = items.filter(function(row){
+    const m = row.m;
+    if(q && !((m.title+' '+(m.actors||'')+' '+(m.director||'')).toLowerCase()).includes(q)) return false;
+    if(rank100SelectedGenres.size && !(m.genre||'').split(',').map(g=>g.trim()).some(g=>rank100SelectedGenres.has(g))) return false;
+    if(_rank100ActiveTag && !(m.tags||[]).includes(_rank100ActiveTag)) return false;
+    if(directorVal && !(m.director||'').toLowerCase().includes(directorVal)) return false;
+    if(actorVal && !(m.actors||'').toLowerCase().includes(actorVal)) return false;
+    return true;
+  });
+
+  if(!items.length){
+    list.innerHTML = '<div class="empty"><i class="ti ti-filter"></i><p style="font-size:13px">No movies match these filters.</p></div>';
+    return;
+  }
+
+  list.innerHTML = items.map(function(row){
+    const m = row.m, rank = row.rank;
+    const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    return `<div class="rank-result-row ${rank<=3?'top3':''}" data-mid="${m.id}" onclick="openDetail(this.dataset.mid,'library')" style="cursor:pointer">
+      <div class="rank-num ${rank===1?'gold':rank===2?'silver':rank===3?'bronze':''}">${rank}</div>
+      ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0" loading="lazy">`:''}
+      <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
+      <div style="font-size:10px;color:var(--muted)">${m.year||''}</div></div>
+      ${medal?`<span style="font-size:16px">${medal}</span>`:''}
+    </div>`;
+  }).join('');
 }
 
 // ── Merge-sort engine ─────────────────────────────────────────────────────────
@@ -10484,18 +10671,11 @@ RankEngine.prototype.estimatedTotal = function(){
 };
 
 // ── Render functions ──────────────────────────────────────────────────────────
-function setCompareMode(mode){
-  _rankMode = mode;
-  _rankEngine = null;
-  renderCompare();
-}
-
 function startRanking(){
   var me = myData();
   var pool = getRankPool(me);
-  console.log('startRanking pool:', pool.length, 'library:', sharedData.library.length);
   if(pool.length<2){
-    toast('Need at least 2 watched films to rank. Pool size: '+pool.length);
+    toast('Need at least 2 liked films to rank. Pool size: '+pool.length);
     return;
   }
   _rankEngine = new RankEngine(pool);
@@ -10518,10 +10698,10 @@ function saveRanking(){
   var ranked = _rankEngine ? _rankEngine.ranked() : [];
   me.compareTop100 = ranked.map(function(m){ return m.id; });
   me.compareTop100SavedAt = Date.now();
-  me.compareTop100Mode = _rankMode;
   saveUsers().then(function(){
     toast('Rankings saved! ⭐');
     renderCompare();
+    if(document.getElementById('rank-top100-pane')) renderRankTop100();
   });
 }
 
@@ -10529,18 +10709,8 @@ function renderCompare(){
   var body = document.getElementById('compare-body');
   if(!body) return;
   var me = myData();
-  var now = new Date();
-  var yr = now.getFullYear();
-  var mo = now.getMonth();
-  var modeLabel = _rankMode==='month'
-    ? now.toLocaleString('en-US',{month:'long',year:'numeric'})
-    : String(yr);
 
-  var h = '<div style="font-family:Bebas Neue,cursive;font-size:24px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">Ranking Engine</div>'
-    +'<div style="display:flex;gap:6px;margin-bottom:12px">'
-    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+(_rankMode==='year'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;year&quot;)">This Year</button>'
-    +'<button class="ghost-btn" style="font-size:11px;padding:4px 12px;'+(_rankMode==='month'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setCompareMode(&quot;month&quot;)">This Month</button>'
-    +'</div>';
+  var h = '<div style="font-family:Bebas Neue,cursive;font-size:24px;letter-spacing:2px;color:var(--gold);margin-bottom:12px">Top Rankings</div>';
 
   // ── START SCREEN ──
   if(!_rankEngine){
@@ -10548,38 +10718,22 @@ function renderCompare(){
     var est = pool.length>1 ? Math.ceil(pool.length*Math.log2(pool.length)) : 0;
     h += '<div style="text-align:center;padding:24px 0">'
       +'<div style="font-size:48px;margin-bottom:12px">🎬</div>'
-      +'<div style="font-family:Bebas Neue,cursive;font-size:20px;color:var(--light);margin-bottom:6px;letter-spacing:1px">Rank Films from '+modeLabel+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.7">'+pool.length+' films in the pool.</div>';
+      +'<div style="font-family:Bebas Neue,cursive;font-size:20px;color:var(--light);margin-bottom:6px;letter-spacing:1px">Rank Your Liked Movies</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.7">'+pool.length+' liked films in the pool.</div>';
     if(pool.length>1){
       h += '<div style="font-size:11px;color:var(--muted);margin-bottom:20px">Pick between two at a time. Uses tournament sorting — only ~'+est+' comparisons needed.</div>'
         +'<button class="primary-btn" style="margin:0 auto" onclick="startRanking()"><i class="ti ti-tournament"></i> Start Ranking</button>';
     } else {
-      h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Watch at least 2 films this period to rank.</div>';
+      h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Like at least 2 films (from the Library or Liked tab) to rank them.</div>';
     }
     h += '</div>';
 
-    // Show saved ranking if exists
     if(me.compareTop100 && me.compareTop100.length){
       var savedDate = new Date(me.compareTop100SavedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-      var savedMode = me.compareTop100Mode||'year';
-      h += '<div style="margin-top:8px"><div style="font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:var(--gold);margin-bottom:4px">Last Saved Rankings</div>'
-        +'<div style="font-size:10px;color:var(--muted);margin-bottom:10px">'+savedDate+'</div>';
-      me.compareTop100.slice(0,20).forEach(function(id, i){
-        var m2 = sharedData.library.find(function(x){ return x.id===id; });
-        if(!m2) return;
-        var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-        h += '<div class="rank-result-row '+(i<3?'top3':'')+'" data-mid="'+id+'" onclick="openDetail(this.dataset.mid,\'library\')" style="cursor:pointer">'
-          +'<div class="rank-num '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'">'+(i+1)+'</div>'
-          +(m2.poster&&m2.poster!=='N/A'?'<img src="'+m2.poster+'" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0" loading="lazy">':'')
-          +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m2.title+'</div>'
-          +'<div style="font-size:10px;color:var(--muted)">'+m2.year+'</div></div>'
-          +(medal?'<span style="font-size:16px">'+medal+'</span>':'')
-          +'</div>';
-      });
-      if(me.compareTop100.length>20){
-        h += '<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">...and '+(me.compareTop100.length-20)+' more</div>';
-      }
-      h += '</div>';
+      h += '<div style="text-align:center;margin-top:8px">'
+        +'<div style="font-size:11px;color:var(--muted);margin-bottom:8px">You last saved rankings on '+savedDate+'.</div>'
+        +'<button class="ghost-btn" onclick="switchRankSubtab(&quot;top100&quot;)"><i class="ti ti-list-numbers"></i> View Top 100</button>'
+        +'</div>';
     }
 
     body.innerHTML = h;
