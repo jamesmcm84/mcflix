@@ -2270,14 +2270,14 @@ textarea.ffi{resize:vertical}
 
 <!-- PERSONAL WISHLIST DETAIL MODAL -->
 <!-- LEAVE CONFIRM MODAL -->
-<div class="mo" id="mo-leave" style="z-index:99999">
+<div id="mo-leave" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;align-items:center;justify-content:center;padding:20px">
   <div class="md md-sm" style="text-align:center;padding:32px 28px;max-width:320px">
     <div style="font-size:40px;margin-bottom:12px">🎬</div>
     <div style="font-family:Bebas Neue,cursive;font-size:26px;letter-spacing:2px;color:var(--gold);margin-bottom:8px">Leave McFlix?</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5">You'll lose any unsaved changes.</div>
     <div style="display:flex;gap:10px;justify-content:center">
       <button class="ghost-btn" style="flex:1;padding:12px;font-size:14px" onclick="leaveConfirmed()">Leave</button>
-      <button class="primary-btn" style="flex:1;padding:12px;font-size:14px" onclick="closeMo('leave')">Stay</button>
+      <button class="primary-btn" style="flex:1;padding:12px;font-size:14px" onclick="closeLeaveModal()">Stay</button>
     </div>
   </div>
 </div>
@@ -2316,7 +2316,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.2.5';
+const VERSION     = '10.2.6';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2869,29 +2869,30 @@ function signOut(){
 var _leaveConfirmedFlag = false;
 
 function initBackGuard(){
-  // Always keep a guard state pushed
+  // Push guard state
   history.pushState({mcflix:true}, '');
 
   window.addEventListener('popstate', function(){
-    if(_leaveConfirmedFlag){
-      _leaveConfirmedFlag = false;
-      return;
-    }
-    // Push back immediately to prevent navigation
+    if(_leaveConfirmedFlag){ _leaveConfirmedFlag = false; return; }
+    // Push back immediately
     history.pushState({mcflix:true}, '');
-    // Show in-app confirmation modal
-    openMo('leave');
+    // Show modal — force it visible directly without relying on class toggle
+    var mo = document.getElementById('mo-leave');
+    if(mo){ mo.style.display='flex'; mo.style.zIndex='999999'; }
   });
 }
 
 function leaveConfirmed(){
-  closeMo('leave');
+  var mo = document.getElementById('mo-leave');
+  if(mo) mo.style.display='none';
   _leaveConfirmedFlag = true;
   history.back();
-  // If history.back() has nowhere to go, redirect to about:blank fallback
-  setTimeout(function(){
-    window.location.href = 'about:blank';
-  }, 300);
+  setTimeout(function(){ window.location.href = 'about:blank'; }, 300);
+}
+
+function closeLeaveModal(){
+  var mo = document.getElementById('mo-leave');
+  if(mo) mo.style.display='none';
 }
 
 function initApp(){
@@ -12125,6 +12126,28 @@ function secretAddClick(){
   });
   observer.observe(document.body, {childList:true, subtree:true});
 })();
+</script>
+
+<script>
+// ── EXIT / RELOAD CONFIRMATION ──────────────────────────────────────────────
+// Browsers will not let a site show a custom message here — every modern
+// browser displays its own generic "Leave site? Changes you made may not be
+// saved" text, and there is no way to tell a back-button press apart from a
+// reload or a closed tab. All three trigger the same 'beforeunload' event.
+//
+// Set this to `true` any time you want the prompt to appear (e.g. only
+// while a video is playing, or only if there's unsaved local state).
+// Right now it's wired to always prompt — change the condition inside
+// shouldConfirmExit() if you only want it in certain situations.
+function shouldConfirmExit(){
+  return true; // <-- change this to your own condition
+}
+
+window.addEventListener('beforeunload', function(e){
+  if(!shouldConfirmExit()) return;
+  e.preventDefault();
+  e.returnValue = ''; // required for Chrome; text itself is ignored by all browsers
+});
 </script>
 </body>
 </html>
