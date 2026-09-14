@@ -1733,10 +1733,10 @@ textarea.ffi{resize:vertical}
 
     <!-- DIARY -->
     <div class="tab" id="tab-diary">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-        <div class="sl" style="flex:1;margin:0;font-size:26px">Watch Diary</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;background:var(--gold);padding:14px 18px;border-radius:0">
+        <div class="sl" style="flex:1;margin:0;font-size:28px;color:#000;text-shadow:none">Watch Diary</div>
         <button class="fb" id="diary-reconcile-btn" onclick="reconcileDiary()" title="Remove diary entries for deleted movies" style="display:none"><i class="ti ti-tool"></i> Reconcile</button>
-        <button class="ab" onclick="openDiaryAdd()"><i class="ti ti-plus"></i> Log a Watch</button>
+        <button class="ab" onclick="openDiaryAdd()" style="background:#000;color:var(--gold);box-shadow:none"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
       <div id="diary-body"></div>
       <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
