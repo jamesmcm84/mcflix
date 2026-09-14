@@ -2926,15 +2926,22 @@ function initApp(){
   initBackGuard();
   checkShowQuestionnaire();
   buildDiaryYearSelect();
-  // Activate diary tab directly
-  document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
-  const diaryTab = document.getElementById('tab-diary');
-  if(diaryTab) diaryTab.classList.add('active');
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  const diaryBtn = document.getElementById('nb-diary');
-  if(diaryBtn) diaryBtn.classList.add('active');
-  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
-  renderDiary();
+  // Activate diary tab directly.
+  // Deferred to the next tick (setTimeout 0) so it runs *after* the browser
+  // has painted the newly-visible app screen — same as a manual click on the
+  // Diary nav button, which is a fresh event that always fires after paint.
+  // Without this, renderDiary() can run before the tab's layout has settled
+  // and end up rendering into a container the browser hasn't sized/shown yet.
+  setTimeout(()=>{
+    document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
+    const diaryTab = document.getElementById('tab-diary');
+    if(diaryTab) diaryTab.classList.add('active');
+    document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+    const diaryBtn = document.getElementById('nb-diary');
+    if(diaryBtn) diaryBtn.classList.add('active');
+    document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
+    renderDiary();
+  }, 0);
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
     fetchPlexActivity().then(()=>renderLib());
