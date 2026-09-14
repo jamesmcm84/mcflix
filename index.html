@@ -2010,7 +2010,6 @@ textarea.ffi{resize:vertical}
         <div class="hs-inner">
           <div class="hs-title">HIGH SCORES</div>
           <div class="hs-subtitle">★ GAUNTLET LEADERBOARD ★</div>
-          <div class="hs-mode-tabs" id="hs-mode-tabs"></div>
           <div class="hs-header-row">
             <span class="hs-rank">RK</span>
             <span class="hs-name">NAME</span>
@@ -9531,22 +9530,14 @@ function renderWeeklyChallenges(){
 }
 
 // ── HIGH SCORES (retro arcade leaderboard, includes other household members) ───
-let _hsMode = '24hr';
-function switchHSMode(m){ _hsMode = m; renderHighScores(); }
+const GAUNTLET_MODE_TAG = {'24hr':'24HR','48hr':'48HR','30days':'30DAY'};
 
 function renderHighScores(){
-  const tabsWrap = document.getElementById('hs-mode-tabs');
-  const modes = [['24hr','24 HR · 3PT'],['48hr','48 HR · 2PT'],['30days','30 DAY · 1PT']];
-  if(tabsWrap){
-    tabsWrap.innerHTML = modes.map(function(m){
-      return '<button class="hs-mode-tab '+(_hsMode===m[0]?'active':'')+'" onclick="switchHSMode(\''+m[0]+'\')">'+m[1]+'</button>';
-    }).join('');
-  }
   const list = document.getElementById('hs-list');
   const empty = document.getElementById('hs-empty');
   if(!list) return;
   const scores = (sharedData.gauntletScores||[])
-    .filter(function(s){ return s.mode===_hsMode; })
+    .filter(function(s){ return s.mode!=='freestyle'; }) // Free Style never scores
     .slice()
     .sort(function(a,b){ return (b.points||0)-(a.points||0) || (b.date||0)-(a.date||0); })
     .slice(0,25);
@@ -9559,7 +9550,8 @@ function renderHighScores(){
   list.innerHTML = scores.map(function(s,i){
     const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const dateStr = new Date(s.date).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'2-digit'});
-    const name = ((s.username||'???')+(s.customName?' · '+s.customName:'')).toUpperCase();
+    const tag = GAUNTLET_MODE_TAG[s.mode]||s.mode;
+    const name = ((s.username||'???')+' · '+tag+(s.customName?' · '+s.customName:'')).toUpperCase();
     return '<div class="hs-row '+rankClass+'">'
       +'<span class="hs-rank">'+String(i+1).padStart(2,'0')+'</span>'
       +'<span class="hs-name">'+name+'</span>'
