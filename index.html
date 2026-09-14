@@ -169,15 +169,15 @@ select option{background:#1a1a2e;color:#eeeef5}
 .diary-month{margin-bottom:28px}
 .diary-month-hd{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:2px;color:var(--light);display:flex;align-items:center;gap:10px;margin-bottom:12px;text-transform:uppercase}
 .diary-month-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
-.diary-entries{display:flex;flex-direction:column;gap:6px}
-.diary-entry{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s}
+.diary-entries{display:flex;flex-direction:column;gap:10px}
+.diary-entry{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s}
 .diary-entry:hover{border-color:var(--border2);transform:translateX(3px)}
 .diary-date{font-family:Bebas Neue,cursive;font-size:22px;color:var(--gold);min-width:42px;text-align:center;line-height:1}
 .diary-date-month{font-size:9px;color:var(--muted);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
-.diary-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.diary-poster{width:64px;height:96px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
 .diary-info{flex:1;min-width:0}
-.diary-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.diary-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diary-meta{font-size:12px;color:var(--muted);margin-top:3px}
 .diary-rating{font-family:Bebas Neue,cursive;font-size:20px;color:var(--gold)}
 
 /* YEAR IN REVIEW */
@@ -221,12 +221,13 @@ select option{background:#1a1a2e;color:#eeeef5}
 
 /* BOTTOM NAV (mobile) */
 .bottom-nav{display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
-.bottom-nav .bnb{min-width:60px;flex-shrink:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
-.bottom-nav .bnb.active{color:var(--gold)}
-.bottom-nav .bnb i{font-size:18px}
+.bottom-nav .bnb,.more-menu .bnb{min-width:60px;flex-shrink:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
+.bottom-nav .bnb.active,.more-menu .bnb.active{color:var(--gold)}
+.bottom-nav .bnb i,.more-menu .bnb i{font-size:18px}
 .bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
 .more-menu{display:none;position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:102;background:var(--bg2);border-top:1px solid var(--border2);padding:8px;box-shadow:0 -8px 24px rgba(0,0,0,.4)}
 .more-menu.open{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.more-menu .bnb{flex:0 1 70px}
 @media(max-width:600px){
   .bottom-nav{display:flex}
   .nav-bar{display:none}
@@ -1728,7 +1729,6 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-diary">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
         <div class="sl" style="flex:1;margin:0">Watch Diary</div>
-        <select class="fb" id="diary-year" onchange="renderDiary()" style="min-width:90px"></select>
         <button class="fb" id="diary-reconcile-btn" onclick="reconcileDiary()" title="Remove diary entries for deleted movies" style="display:none"><i class="ti ti-tool"></i> Reconcile</button>
         <button class="ab" onclick="openDiaryAdd()"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
@@ -1931,16 +1931,19 @@ textarea.ffi{resize:vertical}
 
   <!-- BOTTOM NAV (mobile only) -->
   <!-- MORE MENU (mobile overflow) -->
+  <div class="more-menu" id="more-menu">
+    <button class="bnb" id="bnb-trophies"         onclick="switchTabMobile('trophies',this);closeMoreMenu()"><i class="ti ti-trophy"></i><span>Trophies</span></button>
+    <button class="bnb" id="bnb-compare"          onclick="switchTabMobile('compare',this);closeMoreMenu()"><i class="ti ti-vs"></i><span>Rank</span></button>
+    <button class="bnb" id="bnb-runtime"          onclick="switchTabMobile('runtime',this);closeMoreMenu()"><i class="ti ti-clock"></i><span>Runtime</span></button>
+    <button class="bnb nb-retro" id="bnb-vintage" onclick="switchTabMobile('vintage',this);closeMoreMenu()"><i class="ti ti-device-tv-old"></i><span>Retro</span></button>
+  </div>
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnb active" id="bnb-diary"   onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
     <button class="bnb" id="bnb-gauntlet"        onclick="switchTabMobile('gauntlet',this)"><i class="ti ti-tournament"></i><span>Gauntlet</span></button>
     <button class="bnb" id="bnb-wishlist"         onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Watchlist</span></button>
     <button class="bnb" id="bnb-stats"            onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
-    <button class="bnb" id="bnb-trophies"         onclick="switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i><span>Trophies</span></button>
-    <button class="bnb" id="bnb-compare"          onclick="switchTabMobile('compare',this)"><i class="ti ti-vs"></i><span>Rank</span></button>
-    <button class="bnb" id="bnb-runtime"          onclick="switchTabMobile('runtime',this)"><i class="ti ti-clock"></i><span>Runtime</span></button>
     <button class="bnb" id="bnb-discover"         onclick="switchTabMobile('discover',this)"><i class="ti ti-compass"></i><span>Discover</span></button>
-    <button class="bnb" id="bnb-vintage"          onclick="switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old"></i><span>Retro</span></button>
+    <button class="bnb" id="bnb-more"             onclick="toggleMoreMenu(event)"><i class="ti ti-dots"></i><span>More</span></button>
   </nav>
 </div>
 
@@ -2828,7 +2831,6 @@ function initApp(){
     const diaryBtn = document.getElementById('nb-diary');
     if(diaryBtn) diaryBtn.classList.add('active');
     document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
-    buildDiaryYearSelect();
     renderDiary();
   }catch(e){ console.error('initApp: diary activation failed', e); }
 
@@ -2895,7 +2897,10 @@ function switchTab(t,el){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const _nb=document.getElementById('nb-'+t); if(_nb) _nb.classList.add('active'); else if(el) el.classList.add('active');
   // sync bottom nav
+  const _moreTabs = ['trophies','compare','runtime','vintage'];
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
+  const _bnbMore = document.getElementById('bnb-more');
+  if(_bnbMore) _bnbMore.classList.toggle('active', _moreTabs.includes(t));
   // Always hide A-Z slider on tab switch — renderLib re-shows it if appropriate
   const _azEl = document.getElementById('az-slider');
   if(_azEl) _azEl.style.display = 'none';
@@ -3253,12 +3258,20 @@ let _vintageTotal   = 0;
 let _vintagePages   = []; // array of {label, movies} one per page (genre groupings)
 
 function getVintageAllMovies(){
-  // Only pre-2000 titles
-  return sharedData.library.filter(m=>{
-    if(m.type==='tv') return false;
+  // Only movies logged in the Diary, year 1990 or earlier
+  const me = myData();
+  const seen = new Set();
+  const out = [];
+  Object.keys(me.history||{}).forEach(itemId=>{
+    if(seen.has(itemId)) return;
+    const m = (me.diaryItems&&me.diaryItems[itemId]) || sharedData.library.find(x=>x.id===itemId);
+    if(!m || m.type==='tv') return;
     const y = parseInt(m.year);
-    return y > 0 && y < 2000;
+    if(!(y>0 && y<=1990)) return;
+    seen.add(itemId);
+    out.push(m);
   });
+  return out;
 }
 
 function buildVintagePages(){
@@ -5232,10 +5245,11 @@ function renderLists(){
 // ── DETAIL MODAL ──────────────────────────────────────────────────────────────
 function openDetail(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
-  const m=list.find(x=>x.id===id);if(!m)return;
   const me=myData();
+  const m=list.find(x=>x.id===id) || (me.diaryItems&&me.diaryItems[id]);
+  if(!m)return;
   const hp=m.poster&&m.poster!=='N/A';
-  const inLib=src==='library';
+  const inLib=src==='library' && sharedData.library.some(x=>x.id===id);
   const ratingsHTML=allUsers.accounts.map(u=>{
     const ud=udataFor(u.id);
     const r=ud.ratings?.[id]||0;
@@ -6885,45 +6899,35 @@ function openDiaryAdd(){
 let diarySelectedItem = null;
 
 async function diarySearchLib(){
-  const q = (document.getElementById('diary-search').value||'').toLowerCase().trim();
+  const q = (document.getElementById('diary-search').value||'').trim();
   const res = document.getElementById('diary-results');
   if(!q){ res.innerHTML=''; return; }
 
-  const libMatches = sharedData.library.filter(m => m.title.toLowerCase().includes(q)).slice(0,5);
-  const libHTML = libMatches.map(m => {
-    const hp = m.poster && m.poster !== 'N/A';
-    return `<button type="button" class="lk-opt" onclick="selectDiaryItem('${m.id}','${m.title.replace(/'/g,"\\'")}','${m.poster||""}',true)">
-      ${hp?`<img src="${m.poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-      <div style="flex:1;min-width:0"><div class="lk-opt-title">${m.title}</div><div class="lk-opt-yr">${m.year||''} · In Library</div></div>
-      <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
-    </button>`;
-  }).join('');
-
-  res.innerHTML = libHTML || `<div style="font-size:11px;color:var(--muted);padding:4px 0">Searching OMDB...</div>`;
+  res.innerHTML = `<div style="font-size:11px;color:var(--muted);padding:4px 0">Searching...</div>`;
 
   try{
     const d = await omdbSearchFuzzy(q);
     if(d.Response==='True'&&d.Search?.length){
-      const omdbHTML = d.Search.slice(0,8).map(it=>{
-        if(sharedData.library.find(m=>m.title.toLowerCase()===it.Title.toLowerCase())) return '';
+      const html = d.Search.slice(0,8).map(it=>{
         const hp = it.Poster && it.Poster !== 'N/A';
-        return `<button type="button" class="lk-opt" onclick="selectDiaryItem('omdb:${it.imdbID}','${it.Title.replace(/'/g,"\\'")}','${hp?it.Poster:""}',false)">
+        return `<button type="button" class="lk-opt" onclick="selectDiaryItem('omdb:${it.imdbID}','${it.Title.replace(/'/g,"\\'")}','${hp?it.Poster:""}')">
           ${hp?`<img src="${it.Poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-          <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.Title}</div><div class="lk-opt-yr">${it.Year||''} · OMDB</div></div>
+          <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.Title}</div><div class="lk-opt-yr">${it.Year||''}</div></div>
           <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
         </button>`;
-      }).filter(Boolean).join('');
-      res.innerHTML = (libHTML||'') + (omdbHTML||'');
-      if(!libHTML&&!omdbHTML) res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
-    }else if(!libMatches.length){
+      }).join('');
+      res.innerHTML = html || `<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
+    }else{
       res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
     }
-  }catch(e){}
+  }catch(e){
+    res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">Search failed — check your connection.</div>`;
+  }
 }
 
-function selectDiaryItem(id, title, poster, inLibrary){
+function selectDiaryItem(id, title, poster){
   diarySelectedId = id;
-  diarySelectedItem = { id, title, poster, inLibrary };
+  diarySelectedItem = { id, title, poster };
   document.getElementById('diary-search').value = '';
   document.getElementById('diary-results').innerHTML = '';
   const sel = document.getElementById('diary-selected');
@@ -6931,7 +6935,6 @@ function selectDiaryItem(id, title, poster, inLibrary){
   sel.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
     ${hp?`<img src="${poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:''}
     <span>${title}</span>
-    ${!inLibrary?'<span style="font-size:10px;color:var(--muted)">· Not in library</span>':''}
   </div>`;
   document.getElementById('diary-selected-wrap').style.display = '';
 }
@@ -6974,7 +6977,6 @@ async function submitDiaryAdd(){
   me.watched[itemId] = true;
   saveUsers().then(()=>{
     closeMo('diary-add');
-    buildDiaryYearSelect();
     renderDiary();
     renderLib();
     renderTV();
@@ -6983,22 +6985,6 @@ async function submitDiaryAdd(){
   });
 }
 
-function buildDiaryYearSelect(){
-  const me = myData();
-  const years = new Set();
-  Object.values(me.history||{}).forEach(dates => {
-    dates.forEach(ts => {
-      const y = new Date(ts).getFullYear();
-      years.add(y); // show all years in diary
-    });
-  });
-  if(!years.size) return;
-  const sel = document.getElementById('diary-year');
-  if(!sel) return;
-  const curYear = new Date().getFullYear();
-  const sorted = [...years].sort((a,b)=>b-a);
-  sel.innerHTML = sorted.map(y => `<option value="${y}"${y===curYear?' selected':''}>${y}</option>`).join('');
-}
 
 
 // ── TICKET STUB HELPERS ───────────────────────────────────────────────────────
@@ -7106,26 +7092,19 @@ function buildStubHTML(e, tktNum, col){
 
 function renderDiary(){
   const me = myData();
-  buildDiaryYearSelect(); // ensure selector is populated
-  const sel = document.getElementById('diary-year');
-  const rawYear = sel ? parseInt(sel.value) : NaN;
-  const filterYear = isNaN(rawYear) ? new Date().getFullYear() : rawYear;
   const body = document.getElementById('diary-body');
   const empty = document.getElementById('diary-empty');
   if(!body) return;
 
-  // Build a flat list of all watch events in the selected year
+  // Build a flat list of all watch events, across all years
   const entries = [];
   Object.entries(me.history||{}).forEach(([itemId, dates]) => {
-    // Check shared library first, then personal diary items
-    const m = sharedData.library.find(x => x.id === itemId)
-           || (me.diaryItems&&me.diaryItems[itemId]);
+    // Diary items (pulled from OMDB when logged) first, shared library as fallback
+    const m = (me.diaryItems&&me.diaryItems[itemId])
+           || sharedData.library.find(x => x.id === itemId);
     if(!m) return;
     dates.forEach((ts, histIdx) => {
-      const d = new Date(ts);
-      if(d.getFullYear() === filterYear){
-        entries.push({ m, ts, histIdx, itemId, rating: me.ratings?.[itemId]||0 });
-      }
+      entries.push({ m, ts, histIdx, itemId, rating: me.ratings?.[itemId]||0 });
     });
   });
 
@@ -7333,11 +7312,27 @@ function removeFromWatched(id, isDiary){
 }
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
-// More menu removed
+function toggleMoreMenu(e){
+  if(e) e.stopPropagation();
+  const menu = document.getElementById('more-menu');
+  if(menu) menu.classList.toggle('open');
+}
+function closeMoreMenu(){
+  const menu = document.getElementById('more-menu');
+  if(menu) menu.classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  const menu = document.getElementById('more-menu');
+  const moreBtn = document.getElementById('bnb-more');
+  if(!menu || !menu.classList.contains('open')) return;
+  if(menu.contains(e.target) || (moreBtn && moreBtn.contains(e.target))) return;
+  closeMoreMenu();
+});
 
 function switchTabMobile(t, el){
   // Just call switchTab — it now syncs both navs
   switchTab(t, el);
+  if(t!=='trophies'&&t!=='compare'&&t!=='runtime'&&t!=='vintage') closeMoreMenu();
 }
 
 
@@ -7572,7 +7567,6 @@ function importLetterboxd(){
   });
   saveUsers().then(()=>{
     closeMo('letterboxd');
-    buildDiaryYearSelect();
     renderDiary();
     renderLib();
     toast(`Imported ${imported} entries${skipped?', '+skipped+' skipped (not in library)':''}`);
