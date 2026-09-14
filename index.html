@@ -9034,12 +9034,13 @@ function checkGauntletAutoComplete(movieId){
 }
 
 function resetGauntlet(){
-  if(!confirm("Abandon the Gauntlet? All progress will be lost.")) return;
+  if(!confirm("Abandon the Gauntlet? All progress — including this week's challenge — will be lost.")) return;
   const me=myData();
   const g=me.gauntlet;
   if(g && !g.scoreLogged && (g.points||0)>0) finalizeGauntletScore(g, me); // banked points count even if abandoned
   const hs = (g && !g.customId && me.gauntletHighScores && me.gauntletHighScores[g.mode]) || 0;
   me.gauntlet={highScore:hs};
+  me.weeklyState = null; // abandoning the gauntlet also abandons the current weekly challenge
   if(_gauntletTick){clearInterval(_gauntletTick);_gauntletTick=null;}
   saveUsers().then(()=>renderGauntlet());
 }
