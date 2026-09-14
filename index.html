@@ -2896,43 +2896,12 @@ function closeLeaveModal(){
 }
 
 function initApp(){
-  // Warn the user if the cloud failed to load and the library looks empty —
-  // better to see a loud warning than to assume "empty" means "nothing here yet"
-  if(window._mcflixCloudLoadFailed){
-    setTimeout(()=>{
-      toast('⚠️ Could not reach the server — showing local data only. Your library may not be up to date. Do NOT add titles until this is resolved, or check your connection and reload.', true);
-    }, 500);
-  }
-  // Apply the logged-in user's saved theme preference (overrides localStorage default)
-  if(CU.theme==='light' || CU.theme==='dark'){
-    document.body.classList.toggle('light-mode', CU.theme==='light');
-    localStorage.setItem('mcflix_theme', CU.theme);
-  }
-  const av=document.getElementById('hdr-av');
-  if(CU.photo){ av.innerHTML=`<img src="${CU.photo}" onerror="this.parentNode.innerHTML='${ini(CU.username)}';this.parentNode.style.background='${CU.color}22';this.parentNode.style.color='${CU.color}'">`; }
-  else{ av.textContent=ini(CU.username); av.style.background=CU.color+'22'; av.style.color=CU.color; }
-  document.getElementById('hdr-name').textContent=CU.username;
-  const rt=document.getElementById('hdr-role');
-  rt.textContent=isAdmin()?'Admin':'Member';
-  rt.className='role-tag '+(isAdmin()?'rt-admin':'rt-member');
-  document.getElementById('add-lib-btn').style.display=isAdmin()?'':'none';
-  if(document.getElementById('diary-reconcile-btn')) document.getElementById('diary-reconcile-btn').style.display=isAdmin()?'':'none';
-  if(document.getElementById('bulk-add-btn')) document.getElementById('bulk-add-btn').style.display=isAdmin()?'':'none';
-  if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
-  document.getElementById('add-wish-btn').style.display='';
-  buildGenreFilter();
-  renderLib();
-  updateCounts();
-  initBackGuard();
-  checkShowQuestionnaire();
-  buildDiaryYearSelect();
-  // Activate diary tab directly.
-  // Deferred to the next tick (setTimeout 0) so it runs *after* the browser
-  // has painted the newly-visible app screen — same as a manual click on the
-  // Diary nav button, which is a fresh event that always fires after paint.
-  // Without this, renderDiary() can run before the tab's layout has settled
-  // and end up rendering into a container the browser hasn't sized/shown yet.
-  setTimeout(()=>{
+  // Activate the Diary tab FIRST, before anything else runs. If a later step
+  // in this function throws, JavaScript stops executing the rest of the
+  // function — so anything placed after a risky call may simply never run.
+  // Putting this first guarantees the Diary tab shows up regardless of what
+  // breaks below.
+  try{
     document.querySelectorAll('.tab').forEach(p=>p.classList.remove('active'));
     const diaryTab = document.getElementById('tab-diary');
     if(diaryTab) diaryTab.classList.add('active');
@@ -2940,8 +2909,51 @@ function initApp(){
     const diaryBtn = document.getElementById('nb-diary');
     if(diaryBtn) diaryBtn.classList.add('active');
     document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
+    buildDiaryYearSelect();
     renderDiary();
-  }, 0);
+  }catch(e){ console.error('initApp: diary activation failed', e); }
+
+  // Warn the user if the cloud failed to load and the library looks empty —
+  // better to see a loud warning than to assume "empty" means "nothing here yet"
+  if(window._mcflixCloudLoadFailed){
+    setTimeout(()=>{
+      toast('⚠️ Could not reach the server — showing local data only. Your library may not be up to date. Do NOT add titles until this is resolved, or check your connection and reload.', true);
+    }, 500);
+  }
+
+  // Everything below is wrapped individually so a failure in any one step
+  // (e.g. a bad avatar URL, a missing element, a corrupt library entry)
+  // can't prevent the other steps from running. Check the browser console
+  // for "initApp:" errors if something still isn't showing up.
+  try{
+    // Apply the logged-in user's saved theme preference (overrides localStorage default)
+    if(CU.theme==='light' || CU.theme==='dark'){
+      document.body.classList.toggle('light-mode', CU.theme==='light');
+      localStorage.setItem('mcflix_theme', CU.theme);
+    }
+  }catch(e){ console.error('initApp: theme apply failed', e); }
+
+  try{
+    const av=document.getElementById('hdr-av');
+    if(CU.photo){ av.innerHTML=`<img src="${CU.photo}" onerror="this.parentNode.innerHTML='${ini(CU.username)}';this.parentNode.style.background='${CU.color}22';this.parentNode.style.color='${CU.color}'">`; }
+    else{ av.textContent=ini(CU.username); av.style.background=CU.color+'22'; av.style.color=CU.color; }
+    document.getElementById('hdr-name').textContent=CU.username;
+    const rt=document.getElementById('hdr-role');
+    rt.textContent=isAdmin()?'Admin':'Member';
+    rt.className='role-tag '+(isAdmin()?'rt-admin':'rt-member');
+    document.getElementById('add-lib-btn').style.display=isAdmin()?'':'none';
+    if(document.getElementById('diary-reconcile-btn')) document.getElementById('diary-reconcile-btn').style.display=isAdmin()?'':'none';
+    if(document.getElementById('bulk-add-btn')) document.getElementById('bulk-add-btn').style.display=isAdmin()?'':'none';
+    if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
+    document.getElementById('add-wish-btn').style.display='';
+  }catch(e){ console.error('initApp: header setup failed', e); }
+
+  try{ buildGenreFilter(); }catch(e){ console.error('initApp: buildGenreFilter failed', e); }
+  try{ renderLib(); }catch(e){ console.error('initApp: renderLib failed', e); }
+  try{ updateCounts(); }catch(e){ console.error('initApp: updateCounts failed', e); }
+  try{ initBackGuard(); }catch(e){ console.error('initApp: initBackGuard failed', e); }
+  try{ checkShowQuestionnaire(); }catch(e){ console.error('initApp: checkShowQuestionnaire failed', e); }
+
   loadPlexCfg().then(()=>{
     // Fetch both in parallel, re-render lib when each completes
     fetchPlexActivity().then(()=>renderLib());
