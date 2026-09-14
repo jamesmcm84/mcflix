@@ -64,10 +64,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
 /* HEADER */
-.header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
+.header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:2px solid rgba(255,255,255,.22);background:rgba(7,7,13,0.97);position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px)}
+body.light-mode .header{border-bottom-color:rgba(0,0,0,.22)}
 .logo{font-family:Bebas Neue,cursive;font-size:38px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
-.nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:fixed;top:54px;left:0;right:0;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .nav-bar::-webkit-scrollbar{display:none}
 .nav{display:contents}
 .nb{padding:6px 10px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
@@ -88,7 +89,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .rt-member{background:rgba(138,90,240,.15);color:var(--purple)}
 
 /* MAIN */
-.main{padding:18px 20px 80px;max-width:1400px;margin:0 auto;}
+.main{padding:118px 20px 80px;max-width:1400px;margin:0 auto;}
 .tab{display:none}.tab.active{display:block}
 
 /* TOOLBAR */
@@ -229,10 +230,11 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .skel-text.short{width:60%}
 
 /* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
-.bottom-nav .bnb,.more-menu .bnb{min-width:60px;flex-shrink:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
+.bottom-nav{display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:2px solid rgba(255,255,255,.22);backdrop-filter:blur(16px);padding:8px 4px calc(8px + env(safe-area-inset-bottom));gap:2px}
+body.light-mode .bottom-nav{border-top-color:rgba(0,0,0,.22)}
+.bottom-nav .bnb,.more-menu .bnb{min-width:64px;flex-shrink:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 3px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
 .bottom-nav .bnb.active,.more-menu .bnb.active{color:var(--gold)}
-.bottom-nav .bnb i,.more-menu .bnb i{font-size:18px}
+.bottom-nav .bnb i,.more-menu .bnb i{font-size:21px}
 .bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
 .more-menu{display:none;position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:102;background:var(--bg2);border-top:1px solid var(--border2);padding:8px;box-shadow:0 -8px 24px rgba(0,0,0,.4)}
 .more-menu.open{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
@@ -240,7 +242,7 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 @media(max-width:600px){
   .bottom-nav{display:flex}
   .nav-bar{display:none}
-  .main{padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
+  .main{padding-top:72px!important;padding-bottom:calc(172px + env(safe-area-inset-bottom))!important}
 }
 
 /* ACTIVITY FEED */
@@ -1122,6 +1124,20 @@ textarea.ffi{resize:vertical}
 .graveyard-imdb{font-family:Bebas Neue,cursive;font-size:22px;color:#f5c530}
 .graveyard-rip{font-size:18px;margin-left:4px}
 
+/* ── WATCHLIST (custom lists) ───────────────────────────────────────────────── */
+.wl-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.wl-head-btns{display:flex;gap:8px;flex-wrap:wrap}
+.wl-layout{display:flex;gap:18px;align-items:flex-start}
+.wl-tab-rail{display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:168px}
+@media (max-width:760px){.wl-layout{flex-direction:column}.wl-tab-rail{flex-direction:row;flex-wrap:wrap;width:100%}}
+.wl-tab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:9px;
+  background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+  text-align:left;transition:all .15s}
+.wl-tab:hover{border-color:var(--border2);color:var(--light)}
+.wl-tab.active{background:var(--gold-dim);border-color:rgba(232,184,75,.35);color:var(--gold)}
+.wl-tab .wl-tab-count{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg3);border-radius:8px;padding:1px 6px}
+.wl-tab.active .wl-tab-count{color:var(--gold);background:rgba(232,184,75,.15)}
+.wl-content{flex:1;min-width:0}
 /* ── GAUNTLET ────────────────────────────────────────────────── */
 .gauntlet-hero{background:linear-gradient(135deg,#1a0808,#2a1010);border:1px solid rgba(232,53,75,.2);border-radius:14px;padding:20px;margin-bottom:20px;text-align:center}
 .gauntlet-title{font-family:Bebas Neue,cursive;font-size:32px;letter-spacing:3px;color:var(--red);text-shadow:0 0 20px rgba(232,53,75,.3)}
@@ -1720,7 +1736,40 @@ textarea.ffi{resize:vertical}
 
     <!-- WISHLIST -->
     <div class="tab" id="tab-wishlist">
-      <div id="wish-wrap"></div>
+      <div class="wl-head">
+        <div class="sl" style="margin:0"><i class="ti ti-bookmark"></i> Watchlist</div>
+        <div class="wl-head-btns">
+          <button class="fb" onclick="createList()"><i class="ti ti-playlist-add"></i> New List</button>
+          <button class="primary-btn" onclick="openWLAddMovieModal()"><i class="ti ti-plus"></i> Add Movie to List</button>
+        </div>
+      </div>
+      <div class="wl-layout">
+        <div class="wl-tab-rail" id="wl-tab-rail"></div>
+        <div class="wl-content">
+          <div class="toolbar" id="wl-all-toolbar" style="display:none;flex-wrap:wrap;margin-bottom:14px">
+            <div class="sw"><i class="ti ti-search"></i><input type="text" id="wl-search" placeholder="Search titles, actors, directors..." oninput="renderWish()"></div>
+            <select class="fb" id="wl-filter-list" onchange="renderWish()"><option value="">Any List</option></select>
+            <div class="genre-msel" id="wl-genre-msel">
+              <button class="fb genre-msel-btn" onclick="toggleGenrePanel(event,'wl-genre-panel')"><i class="ti ti-tag"></i> <span id="wl-genre-label">All Genres</span></button>
+              <div class="genre-msel-panel" id="wl-genre-panel"></div>
+            </div>
+            <div class="genre-msel" id="wl-decade-msel">
+              <button class="fb genre-msel-btn" onclick="toggleGenrePanel(event,'wl-decade-panel')"><i class="ti ti-calendar"></i> <span id="wl-decade-label">All Decades</span></button>
+              <div class="genre-msel-panel" id="wl-decade-panel"></div>
+            </div>
+            <input type="number" class="ffi" id="wl-year" placeholder="Year" style="width:90px" min="1900" max="2030" oninput="renderWish()">
+            <select class="fb" id="wl-lang" onchange="renderWish()"><option value="">All Languages</option></select>
+            <input type="text" class="ffi" id="wl-actor" placeholder="Actor..." style="min-width:120px" oninput="renderWish()">
+            <input type="text" class="ffi" id="wl-director" placeholder="Director..." style="min-width:120px" oninput="renderWish()">
+            <select class="fb" id="wl-sort" onchange="renderWish()">
+              <option value="title">A–Z</option>
+              <option value="year">Year</option>
+              <option value="added">Recently Added</option>
+            </select>
+          </div>
+          <div id="wish-wrap"></div>
+        </div>
+      </div>
     </div>
 
     <!-- LISTS -->
@@ -1885,6 +1934,7 @@ textarea.ffi{resize:vertical}
 
     <!-- DISCOVER -->
     <div class="tab" id="tab-discover">
+      <div id="discover-queue-wrap"></div>
       <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap">
         <div class="genre-msel" id="discover-genre-msel">
           <button class="fb genre-msel-btn" onclick="toggleGenrePanel(event,'discover-genre-panel')"><i class="ti ti-tag"></i> <span id="discover-genre-label">Any Genre</span></button>
@@ -2255,6 +2305,18 @@ textarea.ffi{resize:vertical}
   <div class="md md-sm">
     <button class="mc" onclick="closeMo('addtolist')"><i class="ti ti-x"></i></button>
     <div id="addtolist-body" style="padding:16px 20px"></div>
+  </div>
+</div>
+
+<!-- ADD MOVIE TO LIST (picker) MODAL -->
+<div class="mo" id="mo-wladdmovie" onclick="if(event.target===this)closeMo('wladdmovie')">
+  <div class="md md-sm">
+    <button class="mc" onclick="closeMo('wladdmovie')"><i class="ti ti-x"></i></button>
+    <div style="padding:16px 20px">
+      <div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:10px">Add Movie to List</div>
+      <div class="sw" style="margin-bottom:10px"><i class="ti ti-search"></i><input type="text" id="wl-picker-search" placeholder="Search your library & watchlist..." oninput="renderWLMoviePicker()" autofocus></div>
+      <div id="wl-picker-results" style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto"></div>
+    </div>
   </div>
 </div>
 
@@ -2826,6 +2888,17 @@ function closeLeaveModal(){
   if(mo) mo.style.display='none';
 }
 
+function fixHeaderOffset(){
+  const header = document.querySelector('.header');
+  const navBar = document.querySelector('.nav-bar');
+  const main = document.querySelector('.main');
+  if(!header || !main) return;
+  const headerH = header.offsetHeight;
+  const navH = (navBar && getComputedStyle(navBar).display!=='none') ? navBar.offsetHeight : 0;
+  main.style.paddingTop = (headerH + navH + 18) + 'px';
+}
+window.addEventListener('resize', fixHeaderOffset);
+
 function initApp(){
   // Activate the Diary tab FIRST, before anything else runs. If a later step
   // in this function throws, JavaScript stops executing the rest of the
@@ -2841,6 +2914,7 @@ function initApp(){
     if(diaryBtn) diaryBtn.classList.add('active');
     document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
     renderDiary();
+    fixHeaderOffset();
   }catch(e){ console.error('initApp: diary activation failed', e); }
 
   // Warn the user if the cloud failed to load and the library looks empty —
@@ -2922,7 +2996,7 @@ function switchTab(t,el){
   if(t==='vintage') renderVintage();
   if(t==='stats') renderStats();
   if(t==='trophies') renderTrophies();
-  if(t==='discover' && !_tmdbGenreList) buildDiscoverGenrePanel();
+  if(t==='discover'){ if(!_tmdbGenreList) buildDiscoverGenrePanel(); renderQueueShelf(); }
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
@@ -4964,154 +5038,353 @@ async function openWishTrailer(btn, movieId, movieTitle, movieYear){
   }
 }
 
+// ── WATCHLIST (custom lists + All tab) ─────────────────────────────────────────
+let _wlActiveList = 'all'; // 'all' | list.id
+let wlSelectedGenres = new Set();
+let wlSelectedDecades = new Set();
+
+function wlResolveItem(id){
+  return sharedData.library.find(m=>m.id===id) || sharedData.wishlist.find(m=>m.id===id);
+}
+
+function switchWLTab(id){
+  _wlActiveList = id;
+  renderWish();
+}
+
+function buildWLTabRail(){
+  const me = myData();
+  const myLists = me.collections||[];
+  const rail = document.getElementById('wl-tab-rail');
+  if(!rail) return;
+  // Dedup All count
+  const allIds = new Set();
+  myLists.forEach(l=>(l.items||[]).forEach(id=>{ if(wlResolveItem(id)) allIds.add(id); }));
+  let h = `<button class="wl-tab${_wlActiveList==='all'?' active':''}" onclick="switchWLTab('all')">
+    <span><i class="ti ti-layout-grid" style="margin-right:6px"></i>All</span>
+    <span class="wl-tab-count">${allIds.size}</span></button>`;
+  myLists.forEach(function(list){
+    const count = (list.items||[]).filter(id=>wlResolveItem(id)).length;
+    const safe = (list.name||'').replace(/'/g,"\\'");
+    h += `<button class="wl-tab${_wlActiveList===list.id?' active':''}" onclick="switchWLTab('${list.id}')" title="${safe}">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${list.name}</span>
+      <span class="wl-tab-count">${count}</span></button>`;
+  });
+  rail.innerHTML = h;
+}
+
+function buildWLFilterOptions(){
+  const me = myData();
+  const myLists = me.collections||[];
+  // pool = every item across every list, deduped
+  const pool = [];
+  const seen = new Set();
+  myLists.forEach(l=>(l.items||[]).forEach(id=>{
+    if(seen.has(id)) return;
+    const m = wlResolveItem(id);
+    if(m){ seen.add(id); pool.push(m); }
+  }));
+
+  // Genre panel
+  const genres = new Set();
+  pool.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)}));
+  [...wlSelectedGenres].forEach(g=>{if(!genres.has(g))wlSelectedGenres.delete(g)});
+  const genrePanel = document.getElementById('wl-genre-panel');
+  if(genrePanel){
+    genrePanel.innerHTML = [...genres].sort().map(g=>`
+      <label class="genre-msel-opt"><input type="checkbox" value="${g}" ${wlSelectedGenres.has(g)?'checked':''} onchange="wlToggleGenre('${g.replace(/'/g,"\\'")}',this.checked)"> ${g}</label>
+    `).join('') || '<div style="font-size:11px;color:var(--muted);padding:6px">No genres yet.</div>';
+  }
+  const gLabel = document.getElementById('wl-genre-label');
+  if(gLabel) gLabel.textContent = wlSelectedGenres.size===0 ? 'All Genres' : (wlSelectedGenres.size===1 ? [...wlSelectedGenres][0] : wlSelectedGenres.size+' Genres');
+
+  // Decade panel
+  const decades = new Set();
+  pool.forEach(m=>{const y=parseInt(m.year);if(y)decades.add(Math.floor(y/10)*10)});
+  [...wlSelectedDecades].forEach(d=>{if(!decades.has(d))wlSelectedDecades.delete(d)});
+  const decadePanel = document.getElementById('wl-decade-panel');
+  if(decadePanel){
+    decadePanel.innerHTML = [...decades].sort((a,b)=>b-a).map(d=>`
+      <label class="genre-msel-opt"><input type="checkbox" value="${d}" ${wlSelectedDecades.has(d)?'checked':''} onchange="wlToggleDecade(${d},this.checked)"> ${d}s</label>
+    `).join('') || '<div style="font-size:11px;color:var(--muted);padding:6px">No years yet.</div>';
+  }
+  const dLabel = document.getElementById('wl-decade-label');
+  if(dLabel) dLabel.textContent = wlSelectedDecades.size===0 ? 'All Decades' : (wlSelectedDecades.size===1 ? [...wlSelectedDecades][0]+'s' : wlSelectedDecades.size+' Decades');
+
+  // Language select
+  const langSel = document.getElementById('wl-lang');
+  if(langSel){
+    const cur = langSel.value;
+    const langs = new Set();
+    pool.forEach(m=>(m.language||'').split(',').forEach(l=>{const t=l.trim();if(t&&t!=='N/A')langs.add(t)}));
+    langSel.innerHTML = '<option value="">All Languages</option>' + [...langs].sort().map(l=>`<option value="${l}"${l===cur?' selected':''}>${l}</option>`).join('');
+  }
+
+  // "Filter by list" select
+  const listSel = document.getElementById('wl-filter-list');
+  if(listSel){
+    const cur = listSel.value;
+    listSel.innerHTML = '<option value="">Any List</option>' + myLists.map(l=>`<option value="${l.id}"${l.id===cur?' selected':''}>${l.name}</option>`).join('');
+  }
+}
+
+function wlToggleGenre(g, checked){
+  if(checked) wlSelectedGenres.add(g); else wlSelectedGenres.delete(g);
+  renderWish();
+}
+function wlToggleDecade(d, checked){
+  if(checked) wlSelectedDecades.add(d); else wlSelectedDecades.delete(d);
+  renderWish();
+}
+
+function wlCardHTML(m){
+  const hp = m.poster && m.poster !== 'N/A';
+  const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
+  const safeTitle = (m.title||'').replace(/'/g,"\\'");
+  return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
+    ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+    <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
+    <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+    <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+      onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','${src}')" title="Add to list">
+      <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
+    </button>
+    <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+      onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+      <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
+    </button>
+  </div>`;
+}
+
+function renderWLAllPane(){
+  const me = myData();
+  const myLists = me.collections||[];
+  const listFilter = (document.getElementById('wl-filter-list')?.value||'');
+
+  // Dedup pool, honoring the "filter to a specific list" control
+  const seen = new Set();
+  let items = [];
+  myLists.forEach(function(list){
+    if(listFilter && list.id!==listFilter) return;
+    (list.items||[]).forEach(id=>{
+      if(seen.has(id)) return;
+      const m = wlResolveItem(id);
+      if(m){ seen.add(id); items.push(m); }
+    });
+  });
+
+  const q = (document.getElementById('wl-search')?.value||'').toLowerCase();
+  const yearVal = (document.getElementById('wl-year')?.value||'').trim();
+  const langVal = (document.getElementById('wl-lang')?.value||'').trim();
+  const actorVal = (document.getElementById('wl-actor')?.value||'').toLowerCase().trim();
+  const directorVal = (document.getElementById('wl-director')?.value||'').toLowerCase().trim();
+  const sort = document.getElementById('wl-sort')?.value||'title';
+
+  items = items.filter(m=>{
+    if(q && !((m.title+' '+(m.actors||'')+' '+(m.director||'')+' '+(m.genre||'')).toLowerCase()).includes(q)) return false;
+    if(wlSelectedGenres.size && !(m.genre||'').split(',').map(g=>g.trim()).some(g=>wlSelectedGenres.has(g))) return false;
+    if(wlSelectedDecades.size){const y=parseInt(m.year);if(!y||!wlSelectedDecades.has(Math.floor(y/10)*10))return false;}
+    if(yearVal && String(m.year||'')!==yearVal) return false;
+    if(langVal && !(m.language||'').split(',').map(l=>l.trim()).includes(langVal)) return false;
+    if(actorVal && !(m.actors||'').toLowerCase().includes(actorVal)) return false;
+    if(directorVal && !(m.director||'').toLowerCase().includes(directorVal)) return false;
+    return true;
+  });
+
+  items.sort((a,b)=>{
+    if(sort==='year') return (b.year||0)-(a.year||0);
+    if(sort==='added') return (b.addedAt||0)-(a.addedAt||0);
+    return (a.sortTitle||a.title||'').localeCompare(b.sortTitle||b.title||'');
+  });
+
+  if(!items.length){
+    return '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">No movies match these filters.</p></div>';
+  }
+  return `<div class="grid">${items.map(wlCardHTML).join('')}</div>`;
+}
+
+function renderWLListPane(list){
+  const items = (list.items||[]).map(id=>wlResolveItem(id)).filter(Boolean);
+  if(!items.length){
+    return '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">Nothing in this list yet.</p></div>';
+  }
+  const groups = {};
+  items.forEach(function(m){
+    const y = (m.year||'Unknown').toString().slice(0,4);
+    (groups[y]=groups[y]||[]).push(m);
+  });
+  const years = Object.keys(groups).sort((a,b)=>{
+    if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+    return Number(b)-Number(a);
+  });
+  const dropdown = years.length > 2
+    ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>
+        <select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">
+          <option value="">— Year —</option>
+          ${years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')}
+        </select></div>`
+    : '';
+  return `${dropdown}
+    ${years.map(y=>`
+      <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
+      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(wlCardHTML).join('')}</div>
+    `).join('')}`;
+}
+
+function renderWLRequests(){
+  const requestItems = (sharedData.wishlist||[]).filter(m=>!m.priority);
+  if(!requestItems.length) return '';
+  const groups = {};
+  requestItems.forEach(function(m){
+    const y=(m.year||'Unknown').toString().slice(0,4);
+    (groups[y]=groups[y]||[]).push(m);
+  });
+  const years = Object.keys(groups).sort((a,b)=>{
+    if(a==='Unknown') return 1; if(b==='Unknown') return -1;
+    return Number(b)-Number(a);
+  });
+  const yearDropdown = years.length>2
+    ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+      +'<label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>'
+      +'<select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">'
+      +'<option value="">— Year —</option>'
+      +years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')
+      +'</select></div>'
+    : '';
+  const reqCardHTML = m => {
+    const hp=m.poster&&m.poster!=='N/A';
+    const safeTitle=(m.title||'').replace(/'/g,"\\'");
+    return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
+      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
+      <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+        onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','wishlist')" title="Add to list">
+        <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
+      </button>
+      <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+        onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+        <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
+      </button>
+    </div>`;
+  };
+  let html = `<div class="sl" style="margin-bottom:8px;margin-top:24px">Requests <span style="font-size:12px;color:var(--muted)">(${requestItems.length})</span></div>`;
+  html += yearDropdown;
+  html += years.map(y=>`
+    <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
+    <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(reqCardHTML).join('')}</div>
+  `).join('');
+  return html;
+}
+
 function renderWish(){
   const me = myData();
   const wrap = document.getElementById('wish-wrap');
   if(!wrap) return;
-
-  const queueItems = (sharedData.wishlist||[]).filter(m=>m.priority).sort((a,b)=>(a.priorityOrder||0)-(b.priorityOrder||0));
   const myLists = me.collections||[];
 
+  if(_wlActiveList!=='all' && !myLists.some(l=>l.id===_wlActiveList)) _wlActiveList='all';
+
+  buildWLTabRail();
+
+  const toolbar = document.getElementById('wl-all-toolbar');
+  if(toolbar) toolbar.style.display = (_wlActiveList==='all') ? '' : 'none';
+
   let html = '';
+  if(_wlActiveList==='all'){
+    buildWLFilterOptions();
+    html += renderWLAllPane();
+    html += renderWLRequests();
+  } else {
+    const list = myLists.find(l=>l.id===_wlActiveList);
+    html += list ? renderWLListPane(list) : '';
+  }
 
-  // ── QUEUE ─────────────────────────────────────────────────────────────────
-  if(queueItems.length){
-    const queueCardHTML = m => {
-      const hp = m.poster && m.poster !== 'N/A';
-      const isFirst = queueItems[0]?.id === m.id;
-      return `<div class="shelf-card queue-card" draggable="true" data-id="${m.id}"
-        ondragstart="queueDragStart(event)" ondragover="queueDragOver(event)"
-        ondrop="queueDrop(event)" ondragend="queueDragEnd(event)"
-        onclick="openDetail('${m.id}','wishlist')">
-        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:``}
-        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div></div></div>
-        <div class="priority-badge"><i class="ti ti-brand-plex"></i></div>
-        ${!isFirst?`<button class="queue-front-btn" onclick="event.stopPropagation();sendToFrontOfQueue('${m.id}')" title="Send to front"><i class="ti ti-chevrons-left"></i></button>`:''}
-        <button style="position:absolute;bottom:5px;right:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-          onclick="event.stopPropagation();openAddToListModal('${m.id}','${m.title.replace(/'/g,"\'")}','wishlist')" title="Add to a list">
-          <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
-        </button>
-      </div>`;
-    };
+  if(!myLists.length && !(sharedData.wishlist||[]).length){
+    html = '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">Nothing on the watchlist yet. Create a list to get started.</p></div>';
+  }
 
-    html += `<div class="sl" style="margin-bottom:8px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Queue <span style="font-size:12px;color:var(--muted)">(${queueItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
+  wrap.innerHTML = html;
+  updateCounts();
+  renderQueueShelf();
+}
+
+// ── QUEUE (lives at the top of Discovery) ───────────────────────────────────────
+function renderQueueShelf(){
+  const wrap = document.getElementById('discover-queue-wrap');
+  if(!wrap) return;
+  const queueItems = (sharedData.wishlist||[]).filter(m=>m.priority).sort((a,b)=>(a.priorityOrder||0)-(b.priorityOrder||0));
+  if(!queueItems.length){ wrap.innerHTML=''; return; }
+  const queueCardHTML = m => {
+    const hp = m.poster && m.poster !== 'N/A';
+    const isFirst = queueItems[0]?.id === m.id;
+    const safeTitle = (m.title||'').replace(/'/g,"\\'");
+    return `<div class="shelf-card queue-card" draggable="true" data-id="${m.id}"
+      ondragstart="queueDragStart(event)" ondragover="queueDragOver(event)"
+      ondrop="queueDrop(event)" ondragend="queueDragEnd(event)"
+      onclick="openDetail('${m.id}','wishlist')">
+      ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:``}
+      <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div></div></div>
+      <div class="priority-badge"><i class="ti ti-brand-plex"></i></div>
+      ${!isFirst?`<button class="queue-front-btn" onclick="event.stopPropagation();sendToFrontOfQueue('${m.id}')" title="Send to front"><i class="ti ti-chevrons-left"></i></button>`:''}
+      <button style="position:absolute;bottom:5px;right:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+        onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','wishlist')" title="Add to a list">
+        <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
+      </button>
+    </div>`;
+  };
+  wrap.innerHTML = `<div class="sl" style="margin-bottom:8px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Queue <span style="font-size:12px;color:var(--muted)">(${queueItems.length})</span> <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
     <div style="position:relative;margin-bottom:24px">
       <button class="shelf-arrow left" id="queue-arrow-l" onclick="shelfScroll('queue-shelf',-1)"><i class="ti ti-chevron-left"></i></button>
       <div class="shelf-scroll" id="queue-shelf">${queueItems.map(queueCardHTML).join('')}</div>
       <button class="shelf-arrow right" id="queue-arrow-r" onclick="shelfScroll('queue-shelf',1)"><i class="ti ti-chevron-right"></i></button>
     </div>`;
-  }
-
-  // ── USER LISTS ────────────────────────────────────────────────────────────
-  if(myLists.length){
-    myLists.forEach(function(list){
-      const items = (list.items||[]).map(id=>sharedData.library.find(m=>m.id===id)||sharedData.wishlist.find(m=>m.id===id)).filter(Boolean);
-      if(!items.length) return;
-
-      // Group by year
-      const groups = {};
-      items.forEach(function(m){
-        const y = (m.year||'Unknown').toString().slice(0,4);
-        (groups[y]=groups[y]||[]).push(m);
-      });
-      const years = Object.keys(groups).sort((a,b)=>{
-        if(a==='Unknown') return 1; if(b==='Unknown') return -1;
-        return Number(b)-Number(a);
-      });
-
-      const cardHTML = m => {
-        const hp = m.poster && m.poster !== 'N/A';
-        const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
-        const safeTitle = m.title.replace(/'/g,"\'");
-        return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
-          ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-          <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
-          <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-          <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-            onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
-            <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
-          </button>
-        </div>`;
-      };
-
-      // Year jump dropdown
-      const dropdown = years.length > 2
-        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>
-            <select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">
-              <option value="">— Year —</option>
-              ${years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')}
-            </select></div>`
-        : '';
-
-      html += `<div style="margin-bottom:28px">
-        <div class="sl" style="margin-bottom:4px">${list.name} <span style="font-size:12px;color:var(--muted)">(${items.length})</span></div>
-        ${dropdown}
-        ${years.map(y=>`
-          <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
-          <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(cardHTML).join('')}</div>
-        `).join('')}
-      </div>`;
-    });
-  }
-
-  // ── REQUESTS (non-queue wishlist items) ──────────────────────────────────
-  const requestItems = (sharedData.wishlist||[]).filter(m=>!m.priority);
-  if(requestItems.length){
-    const groups = {};
-    requestItems.forEach(function(m){
-      const y=(m.year||'Unknown').toString().slice(0,4);
-      (groups[y]=groups[y]||[]).push(m);
-    });
-    const years = Object.keys(groups).sort((a,b)=>{
-      if(a==='Unknown') return 1; if(b==='Unknown') return -1;
-      return Number(b)-Number(a);
-    });
-    const yearDropdown = years.length>2
-      ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-        +'<label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">Jump to</label>'
-        +'<select class="fb" style="font-size:11px;padding:4px 8px" onchange="wishJumpYear(this.value)">'
-        +'<option value="">— Year —</option>'
-        +years.map(y=>`<option value="${y}">${y} (${groups[y].length})</option>`).join('')
-        +'</select></div>'
-      : '';
-    const reqCardHTML = m => {
-      const hp=m.poster&&m.poster!=='N/A';
-      const safeTitle=m.title.replace(/'/g,"\'");
-      return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','wishlist')">
-        ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-        <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-bookmark"></i><span>${m.title}</span></div>
-        <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-        <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-          onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','wishlist')" title="Add to list">
-          <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
-        </button>
-        <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-          onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
-          <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
-        </button>
-      </div>`;
-    };
-    html += `<div class="sl" style="margin-bottom:8px;margin-top:${queueItems.length||myLists.length?'24px':'0'}">Requests <span style="font-size:12px;color:var(--muted)">(${requestItems.length})</span></div>`;
-    html += yearDropdown;
-    html += years.map(y=>`
-      <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
-      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(reqCardHTML).join('')}</div>
-    `).join('');
-  }
-
-  if(!queueItems.length && !myLists.length && !(sharedData.wishlist||[]).length){
-    html += '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">Nothing on the watchlist yet.</p></div>';
-  }
-
-  wrap.innerHTML = html;
-  updateCounts();
-
-  // Restore queue scroll
   setTimeout(function(){
     const qs = document.getElementById('queue-shelf');
     if(qs) qs.scrollLeft = 0;
   }, 50);
+}
+
+// ── ADD MOVIE TO LIST (picker) ─────────────────────────────────────────────────
+function openWLAddMovieModal(){
+  const me = myData();
+  if(!(me.collections||[]).length){
+    toast('Create a list first!', true);
+    createList();
+    return;
+  }
+  const search = document.getElementById('wl-picker-search');
+  if(search) search.value='';
+  renderWLMoviePicker();
+  openMo('wladdmovie');
+}
+
+function renderWLMoviePicker(){
+  const results = document.getElementById('wl-picker-results');
+  if(!results) return;
+  const q = (document.getElementById('wl-picker-search')?.value||'').toLowerCase().trim();
+  const pool = [...sharedData.library, ...sharedData.wishlist];
+  let items = pool;
+  if(q) items = items.filter(m=>(m.title||'').toLowerCase().includes(q));
+  items = items.slice(0, 40);
+  if(!items.length){
+    results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">No movies found.</div>';
+    return;
+  }
+  results.innerHTML = items.map(m=>{
+    const hp = m.poster && m.poster!=='N/A';
+    const safeTitle = (m.title||'').replace(/'/g,"\\'");
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);cursor:pointer"
+      onclick="closeMo('wladdmovie');openAddToListModal('${m.id}','${safeTitle}','${sharedData.library.find(x=>x.id===m.id)?'library':'wishlist'}')">
+      ${hp?`<img src="${m.poster}" style="width:32px;height:46px;object-fit:cover;border-radius:4px" loading="lazy">`:`<div style="width:32px;height:46px;border-radius:4px;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:14px;color:var(--muted)"></i></div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
+        <div style="font-size:11px;color:var(--muted)">${m.year||''}</div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
+    </div>`;
+  }).join('');
 }
 
 
@@ -8337,27 +8610,28 @@ function gauntletShuffle(arr, seed){
 }
 
 function gauntletIntervalMs(mode){
-  if(mode==='daily') return 24*60*60*1000;
-  if(mode==='48hr')  return 48*60*60*1000;
-  return 0;
+  if(mode==='24hr')   return 24*60*60*1000;
+  if(mode==='48hr')   return 48*60*60*1000;
+  if(mode==='30days') return 30*24*60*60*1000;
+  return 0; // freestyle — no limit
 }
 
 function gauntletCurrentChallenge(g){ return (g.completed||[]).length; }
 
 function gauntletTimeLeft(g){
-  if(!g.mode||g.mode==='untimed') return null;
+  if(!g.mode||g.mode==='freestyle') return null;
   const ms=gauntletIntervalMs(g.mode);
-  const last=g.lastChallengeStartedAt||g.startedAt;
-  return (last+ms)-Date.now();
+  return (g.startedAt+ms)-Date.now();
 }
 
 function fmtCountdown(ms){
   if(ms<=0) return '0h 00m 00s';
   const totalSec=Math.floor(ms/1000);
-  const h=Math.floor(totalSec/3600);
+  const days=Math.floor(totalSec/86400);
+  const h=Math.floor((totalSec%86400)/3600);
   const m=Math.floor((totalSec%3600)/60);
   const s=totalSec%60;
-  return h+'h '+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
+  return (days>0?days+'d ':'')+h+'h '+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
 }
 
 let _gauntletTick=null;
@@ -8367,31 +8641,30 @@ function startGauntlet(mode){
   const hs=(me.gauntlet&&me.gauntlet.highScore)||0;
   const seed=Date.now();
   me.gauntlet={mode,seed,challenges:gauntletShuffle(GAUNTLET_CHALLENGES,seed),
-    startedAt:Date.now(),lastChallengeStartedAt:Date.now(),
-    completed:[],failed:false,highScore:hs};
+    startedAt:Date.now(),
+    completed:[],timeUp:false,highScore:hs};
   saveUsers().then(()=>renderGauntlet());
   toast('The Gauntlet begins! Good luck.');
 }
 
 function markGauntletDayDone(movieId){
   const me=myData(); const g=me.gauntlet;
-  if(!g||g.failed) return;
+  if(!g||g.timeUp) return;
   const left=gauntletTimeLeft(g);
-  if(left!==null&&left<=0){gauntletFail();return;}
+  if(left!==null&&left<=0){gauntletTimeUp();return;}
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
   g.completed.push({challenge:g.challenges[idx],completedAt:Date.now(),movieId:movieId||null});
   if(g.completed.length>(g.highScore||0)) g.highScore=g.completed.length;
-  g.lastChallengeStartedAt=Date.now();
   saveUsers().then(()=>renderGauntlet());
   toast('Challenge complete! Next one is up.');
 }
 
-function gauntletFail(){
+function gauntletTimeUp(){
   const me=myData(); const g=me.gauntlet; if(!g) return;
   const score=(g.completed||[]).length;
   if(score>(g.highScore||0)) g.highScore=score;
-  g.failed=true;
+  g.timeUp=true;
   saveUsers().then(()=>renderGauntlet());
 }
 
@@ -8414,7 +8687,7 @@ function getGauntletHint(challenge){
 
 function checkGauntletAutoComplete(movieId){
   const me=myData(); const g=me.gauntlet;
-  if(!g||g.failed||!g.challenges) return;
+  if(!g||g.timeUp||!g.challenges) return;
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
   markGauntletDayDone(movieId);
@@ -8428,6 +8701,9 @@ function resetGauntlet(){
   saveUsers().then(()=>renderGauntlet());
 }
 
+const GAUNTLET_MODE_LABELS = {'24hr':'24 Hours','48hr':'48 Hours','30days':'30 Days','freestyle':'Free Style'};
+const GAUNTLET_MODE_COLORS = {'24hr':'var(--gold)','48hr':'var(--purple)','30days':'var(--blue)','freestyle':'var(--muted)'};
+
 function renderGauntlet(){
   const me=myData(); const body=document.getElementById('gauntlet-body');
   if(!body) return;
@@ -8439,24 +8715,25 @@ function renderGauntlet(){
   if(!g||!g.challenges){
     body.innerHTML='<div class="gauntlet-hero">'
       +'<div class="gauntlet-title">The Gauntlet</div>'
-      +'<div style="font-size:14px;color:var(--muted);margin:12px 0 6px;line-height:1.7">30 shuffled challenges. Log a diary viewing to auto-complete the active challenge, or tap Mark Complete. Miss the deadline and game over.</div>'
+      +'<div style="font-size:14px;color:var(--muted);margin:12px 0 6px;line-height:1.7">30 shuffled challenges. Log a diary viewing to auto-complete the active challenge, or tap Mark Complete. Whatever your count is when the clock runs out is your score.</div>'
       +(highScore?'<div style="font-size:13px;color:var(--gold);margin-bottom:16px;font-weight:700">High Score: '+highScore+' / 30</div>':'<div style="margin-bottom:16px"></div>')
       +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Choose your mode</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px;margin:0 auto">'
-      +'<button class="primary-btn" onclick="startGauntlet(\'daily\')"><i class="ti ti-clock-24"></i> Daily — 24hrs per challenge</button>'
-      +'<button class="primary-btn" style="background:rgba(138,90,240,.15);border-color:rgba(138,90,240,.3);color:var(--purple)" onclick="startGauntlet(\'48hr\')"><i class="ti ti-clock"></i> 48-Hour — 2 days each</button>'
-      +'<button class="ghost-btn" onclick="startGauntlet(\'untimed\')"><i class="ti ti-infinity"></i> Untimed — no pressure</button>'
+      +'<button class="primary-btn" onclick="startGauntlet(\'24hr\')"><i class="ti ti-clock-24"></i> 24 Hours — race the clock</button>'
+      +'<button class="primary-btn" style="background:rgba(138,90,240,.15);border-color:rgba(138,90,240,.3);color:var(--purple)" onclick="startGauntlet(\'48hr\')"><i class="ti ti-clock"></i> 48 Hours — two days total</button>'
+      +'<button class="primary-btn" style="background:rgba(52,152,219,.15);border-color:rgba(52,152,219,.3);color:var(--blue)" onclick="startGauntlet(\'30days\')"><i class="ti ti-calendar-time"></i> 30 Days — score at the deadline</button>'
+      +'<button class="ghost-btn" onclick="startGauntlet(\'freestyle\')"><i class="ti ti-infinity"></i> Free Style — no time limit</button>'
       +'</div></div>';
     return;
   }
 
-  // FAILED
-  if(g.failed){
+  // TIME'S UP (deadline passed on a timed mode — score locked in, not a "fail")
+  if(g.timeUp){
     const score=(g.completed||[]).length;
-    let h='<div class="gauntlet-hero" style="border-color:rgba(232,53,75,.3);background:rgba(232,53,75,.05)">'
-      +'<div class="gauntlet-title" style="color:var(--red)">GAME OVER</div>'
-      +(g.mode!=='untimed'?'<div style="font-family:Bebas Neue,cursive;font-size:32px;color:var(--red);letter-spacing:2px">TIME\'S UP</div>':'')
-      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 4px">Completed <strong style="color:var(--gold)">'+score+' / 30</strong></div>'
+    let h='<div class="gauntlet-hero" style="border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.05)">'
+      +'<div class="gauntlet-title" style="color:var(--gold)">TIME\'S UP</div>'
+      +'<div class="gauntlet-day">'+score+' / 30</div>'
+      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 4px">Final score for this '+(GAUNTLET_MODE_LABELS[g.mode]||'')+' run</div>'
       +(score>0&&score>=highScore?'<div style="font-size:12px;color:var(--gold);margin-bottom:14px">New High Score!</div>':'<div style="font-size:12px;color:var(--muted);margin-bottom:14px">High Score: '+(highScore||0)+'</div>')
       +'<button class="primary-btn" style="margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> Start New Gauntlet</button>'
       +'</div>';
@@ -8476,7 +8753,7 @@ function renderGauntlet(){
     body.innerHTML=h; return;
   }
 
-  // COMPLETE
+  // COMPLETE (all 30 finished before the deadline, or in Free Style)
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length){
     body.innerHTML='<div class="gauntlet-hero">'
@@ -8489,10 +8766,12 @@ function renderGauntlet(){
 
   // ACTIVE
   const currentChallenge=g.challenges[idx];
-  const mode=g.mode||'untimed';
+  const mode=g.mode||'freestyle';
   const timeLeft=gauntletTimeLeft(g);
-  const modeLabel=mode==='daily'?'Daily':mode==='48hr'?'48-Hour':'Untimed';
-  const heroColor=mode==='daily'?'var(--gold)':mode==='48hr'?'var(--purple)':'var(--muted)';
+  const modeLabel=GAUNTLET_MODE_LABELS[mode]||'Free Style';
+  const heroColor=GAUNTLET_MODE_COLORS[mode]||'var(--muted)';
+  const totalMs=gauntletIntervalMs(mode);
+  const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-g.startedAt)/totalMs*100)):0;
 
   let h='<div class="gauntlet-hero">'
     +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:'+heroColor+';margin-bottom:6px">'+modeLabel+' Gauntlet</div>'
@@ -8500,7 +8779,9 @@ function renderGauntlet(){
     +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/30*100)+'%;border-radius:6px;transition:width .5s"></div></div>'
     +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong></div>'
     +(function(){ const hint=getGauntletHint(currentChallenge); return hint?'<div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-bulb" style="color:var(--gold)"></i> '+hint+'</div>':''; })()
-    +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:30px;color:'+heroColor+';letter-spacing:2px;margin:8px 0">'+fmtCountdown(timeLeft)+'</div>':'<div style="font-size:12px;color:var(--muted);margin:6px 0">No time limit</div>')
+    +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:26px;color:'+heroColor+';letter-spacing:1px;margin:8px 0">'+fmtCountdown(timeLeft)+' left</div>'
+      +'<div style="margin:0 0 8px;background:var(--bg3);border-radius:6px;height:4px;overflow:hidden;max-width:220px;margin-left:auto;margin-right:auto"><div style="height:4px;background:'+heroColor+';width:'+elapsedPct+'%;border-radius:6px"></div></div>'
+      :'<div style="font-size:12px;color:var(--muted);margin:6px 0">No time limit</div>')
     +'<button class="primary-btn" style="margin:8px auto 4px" onclick="markGauntletDayDone(null)"><i class="ti ti-check"></i> Mark Complete</button>'
     +'<button class="ghost-btn" style="font-size:11px;margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-x"></i> Abandon</button>'
     +(highScore?'<div style="font-size:11px;color:var(--muted);margin-top:8px">High Score: '+highScore+'</div>':'')
@@ -8524,11 +8805,11 @@ function renderGauntlet(){
   if(timeLeft!==null){
     _gauntletTick=setInterval(function(){
       const g2=myData().gauntlet;
-      if(!g2||g2.failed){clearInterval(_gauntletTick);_gauntletTick=null;return;}
+      if(!g2||g2.timeUp){clearInterval(_gauntletTick);_gauntletTick=null;return;}
       const left=gauntletTimeLeft(g2);
-      if(left<=0){clearInterval(_gauntletTick);_gauntletTick=null;gauntletFail();return;}
+      if(left<=0){clearInterval(_gauntletTick);_gauntletTick=null;gauntletTimeUp();return;}
       const el=document.getElementById('gauntlet-countdown');
-      if(el) el.textContent=fmtCountdown(left);
+      if(el) el.textContent=fmtCountdown(left)+' left';
     },1000);
   }
 }
