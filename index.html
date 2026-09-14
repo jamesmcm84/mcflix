@@ -930,8 +930,9 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .rat-user{display:flex;align-items:center;gap:6px;min-width:100px}
 .rat-name{font-size:12px;font-weight:500;color:var(--light)}
 .stars{display:flex;gap:2px}
-.star{font-size:15px;cursor:pointer;color:rgba(255,255,255,.1);transition:color .1s;line-height:1;user-select:none}
+.star{font-size:19px;cursor:pointer;color:rgba(255,255,255,.45);transition:color .1s;line-height:1;user-select:none}
 .star.on{color:var(--gold);text-shadow:0 0 6px rgba(232,184,75,.35)}
+body.light-mode .star{color:rgba(0,0,0,.28)}
 .star:hover{color:var(--gold2)}
 .star.ro{cursor:default}
 .rat-val{font-size:12px;font-weight:700;color:var(--gold);min-width:26px}
@@ -5296,8 +5297,10 @@ function openDetail(id,src){
     </div>
     <div class="det-body">
       <div class="det-tabs">
-        <button class="det-tab-btn active" onclick="switchDetTab('info',this)">Info</button>
-        <button class="det-tab-btn" onclick="switchDetTab('critique',this)">Critics Corner</button>
+        <button class="det-tab-btn active" data-tab="info" onclick="switchDetTab('info',this)">Info</button>
+        <button class="det-tab-btn" data-tab="userdata" onclick="switchDetTab('userdata',this)">User Data</button>
+        <button class="det-tab-btn" data-tab="critique" onclick="switchDetTab('critique',this)">Critics Corner</button>
+        <button class="det-tab-btn" data-tab="comments" onclick="switchDetTab('comments',this)">Comments</button>
       </div>
       <div class="det-tab-panel active" id="det-panel-info-${id}" style="display:block">
       <div class="det-actions" style="margin-bottom:12px">
@@ -5314,25 +5317,7 @@ function openDetail(id,src){
       <div id="trailer-btn-${id}"></div>
       <div id="tmdb-collection-${id}"></div>
       ${m.plot&&m.plot!=='N/A'?plotHTML(m.plot):''}
-      <div id="tmdb-awards-${id}"></div>
-      <div id="tmdb-providers-${id}"></div>
       <div id="tmdb-cast-${id}"></div>
-      <div id="tmdb-review-${id}"></div>
-      ${externalRatingsHTML(m)}
-      ${ghostRatingsHTML(m, me.ratings?.[id]||0)}
-      ${(()=>{
-        const crit=(me.critiques||{})[id];
-        const cs=crit&&crit._v2?critiqueOverallScore(crit):0;
-        if(!cs) return '';
-        return `<div style="display:flex;align-items:center;gap:10px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer" onclick="(function(el){var btns=el.closest('.det-body').querySelectorAll('.det-tab-btn');switchDetTab('critique',btns[btns.length-1]);})(this)">
-          <div style="font-family:Bebas Neue,cursive;font-size:36px;color:var(--gold);line-height:1">${cs.toFixed(1)}</div>
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px">Your Critic Score</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">Tap to view full critique</div>
-          </div>
-          <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
-        </div>`;
-      })()}
       <div class="det-section det-section-ratings">
         <div class="det-section-hd"><i class="ti ti-info-circle" style="font-size:14px"></i> Details</div>
         <div class="info-grid">
@@ -5342,11 +5327,42 @@ function openDetail(id,src){
         ${m.rating&&m.rating!=='N/A'?`<div class="info-item"><div class="info-lbl">Rated</div><div class="info-val">${m.rating}</div></div>`:''}
         ${m.language&&m.language!=='N/A'?`<div class="info-item"><div class="info-lbl">Language</div><div class="info-val">${m.language}</div></div>`:''}
         ${m.genre&&m.genre!=='N/A'?`<div class="info-item full"><div class="info-lbl">Genre</div><div class="info-val">${m.genre}</div></div>`:''}
-        ${m.actors&&m.actors!=='N/A'?`<div class="info-item full"><div class="info-lbl">Cast</div><div class="info-val">${m.actors}</div></div>`:''}
       </div>
+      <div id="tmdb-awards-${id}"></div>
       ${seriesProgressHTML(m)}
-      <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       </div>
+      <div class="det-section det-section-reviews">
+        <div class="det-section-hd"><i class="ti ti-star" style="font-size:14px"></i> Reviews</div>
+        ${externalRatingsHTML(m)}
+        <div id="tmdb-review-${id}"></div>
+      </div>
+      <div id="tmdb-providers-${id}"></div>
+      <div class="det-section det-section-history">
+        <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
+        ${histHTML}
+        <div class="lk-row">
+          <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
+          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
+        </div>
+      </div>
+      ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
+      </div><!-- det-panel-info -->
+      <div class="det-tab-panel" id="det-panel-userdata-${id}" style="display:none">
+      ${(()=>{
+        const crit=(me.critiques||{})[id];
+        const cs=crit&&crit._v2?critiqueOverallScore(crit):0;
+        if(!cs) return '';
+        return `<div style="display:flex;align-items:center;gap:10px;background:rgba(232,184,75,.06);border:1px solid rgba(232,184,75,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer" onclick="(function(el){var btn=el.closest('.det-body').querySelector('[data-tab=\\'critique\\']');switchDetTab('critique',btn);})(this)">
+          <div style="font-family:Bebas Neue,cursive;font-size:36px;color:var(--gold);line-height:1">${cs.toFixed(1)}</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px">Your Critic Score</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Tap to view full critique</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color:var(--muted);margin-left:auto"></i>
+        </div>`;
+      })()}
+      ${ghostRatingsHTML(m, me.ratings?.[id]||0)}
+      <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       ${vibeCheckHTML(id)?`<div class="det-section det-section-vibe"><div class="det-section-hd"><i class="ti ti-mood-happy" style="font-size:14px"></i> Vibe Check</div>${vibeCheckHTML(id)}</div>`:''}
       <div class="personal-tags-section">
         <div class="notes-lbl" style="margin-bottom:6px">My Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">(only you can see these)</span></div>
@@ -5359,6 +5375,11 @@ function openDetail(id,src){
         </div>
       </div>
       ${inLib?buildListsSection(id,me):''}
+      </div><!-- det-panel-userdata -->
+      <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
+        ${buildCritiquePanel(id, src)}
+      </div>
+      <div class="det-tab-panel" id="det-panel-comments-${id}" style="display:none">
       ${inLib&&(m.watchComments||[]).length?`<div style="background:rgba(229,160,13,.06);border:1px solid rgba(229,160,13,.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openWatchReview('${id}')">
         <i class="ti ti-player-play-filled" style="color:#e5a00d;font-size:18px;flex-shrink:0"></i>
         <div><div style="font-size:12px;font-weight:700;color:#e5a00d">Watch Party Reactions</div>
@@ -5375,19 +5396,7 @@ function openDetail(id,src){
           <button class="comment-submit" onclick="addComment('${id}','${src}')"><i class="ti ti-send"></i> Post</button>
         </div>
       </div>
-      <div class="det-section det-section-history">
-        <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
-        ${histHTML}
-        <div class="lk-row">
-          <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
-          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
-        </div>
-      </div>
-      ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
-      </div><!-- det-panel-info -->
-      <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
-        ${buildCritiquePanel(id, src)}
-      </div>
+      </div><!-- det-panel-comments -->
     </div>`;
   openMo('detail');
   loadTMDBReview(id, m);
