@@ -1127,16 +1127,29 @@ textarea.ffi{resize:vertical}
 /* ── WATCHLIST (custom lists) ───────────────────────────────────────────────── */
 .wl-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .wl-head-btns{display:flex;gap:8px;flex-wrap:wrap}
-.wl-layout{display:flex;gap:18px;align-items:flex-start}
-.wl-tab-rail{display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:168px}
-@media (max-width:760px){.wl-layout{flex-direction:column}.wl-tab-rail{flex-direction:row;flex-wrap:wrap;width:100%}}
-.wl-tab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:9px;
-  background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
-  text-align:left;transition:all .15s}
-.wl-tab:hover{border-color:var(--border2);color:var(--light)}
+.wl-layout{display:block}
+.wl-tab-dd{position:relative;margin-bottom:16px}
+.wl-tab-dd-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;max-width:320px;
+  padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border2);color:var(--gold);
+  font-size:14px;font-weight:700;cursor:pointer;text-align:left}
+.wl-tab-dd-btn:hover{border-color:var(--gold)}
+.wl-tab-panel{position:absolute;top:calc(100% + 6px);left:0;width:100%;max-width:320px;background:var(--bg2);
+  border:1px solid var(--border2);border-radius:10px;padding:6px;z-index:60;max-height:340px;overflow-y:auto;
+  box-shadow:0 12px 32px rgba(0,0,0,.5);display:none;flex-direction:column;gap:2px}
+.wl-tab-panel.show{display:flex}
+.wl-tab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:8px;
+  background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+  text-align:left;transition:all .15s;width:100%}
+.wl-tab:hover{background:var(--bg3);color:var(--light)}
 .wl-tab.active{background:var(--gold-dim);border-color:rgba(232,184,75,.35);color:var(--gold)}
-.wl-tab .wl-tab-count{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg3);border-radius:8px;padding:1px 6px}
+.wl-tab .wl-tab-count{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg3);border-radius:8px;padding:1px 6px;flex-shrink:0}
 .wl-tab.active .wl-tab-count{color:var(--gold);background:rgba(232,184,75,.15)}
+.wl-tab-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl-tab-actions{display:flex;gap:2px;flex-shrink:0}
+.wl-tab-action{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;
+  color:var(--muted);cursor:pointer;flex-shrink:0}
+.wl-tab-action:hover{background:var(--bg3);color:var(--light)}
+.wl-tab-action.danger:hover{color:var(--red);background:rgba(232,53,75,.12)}
 .wl-content{flex:1;min-width:0}
 /* ── GAUNTLET ────────────────────────────────────────────────── */
 .gauntlet-hero{background:linear-gradient(135deg,#1a0808,#2a1010);border:1px solid rgba(232,53,75,.2);border-radius:14px;padding:20px;margin-bottom:20px;text-align:center}
@@ -1744,7 +1757,13 @@ textarea.ffi{resize:vertical}
         </div>
       </div>
       <div class="wl-layout">
-        <div class="wl-tab-rail" id="wl-tab-rail"></div>
+        <div class="wl-tab-dd" id="wl-tab-dd">
+          <button class="wl-tab-dd-btn" onclick="toggleWLTabDD(event)">
+            <span id="wl-tab-dd-label"><i class="ti ti-layout-grid"></i> All</span>
+            <i class="ti ti-chevron-down"></i>
+          </button>
+          <div class="wl-tab-panel" id="wl-tab-rail"></div>
+        </div>
         <div class="wl-content">
           <div class="toolbar" id="wl-all-toolbar" style="display:none;flex-wrap:wrap;margin-bottom:14px">
             <div class="sw"><i class="ti ti-search"></i><input type="text" id="wl-search" placeholder="Search titles, actors, directors..." oninput="renderWish()"></div>
@@ -5049,28 +5068,78 @@ function wlResolveItem(id){
 
 function switchWLTab(id){
   _wlActiveList = id;
+  closeWLTabDD();
   renderWish();
 }
+
+function toggleWLTabDD(e){
+  e.stopPropagation();
+  const panel = document.getElementById('wl-tab-rail');
+  const wasOpen = panel.classList.contains('show');
+  document.querySelectorAll('.wl-tab-panel').forEach(p=>p.classList.remove('show'));
+  if(!wasOpen) panel.classList.add('show');
+}
+function closeWLTabDD(){
+  const panel = document.getElementById('wl-tab-rail');
+  if(panel) panel.classList.remove('show');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.wl-tab-dd')) closeWLTabDD();
+});
 
 function buildWLTabRail(){
   const me = myData();
   const myLists = me.collections||[];
   const rail = document.getElementById('wl-tab-rail');
+  const ddLabel = document.getElementById('wl-tab-dd-label');
   if(!rail) return;
   // Dedup All count
   const allIds = new Set();
   myLists.forEach(l=>(l.items||[]).forEach(id=>{ if(wlResolveItem(id)) allIds.add(id); }));
   let h = `<button class="wl-tab${_wlActiveList==='all'?' active':''}" onclick="switchWLTab('all')">
-    <span><i class="ti ti-layout-grid" style="margin-right:6px"></i>All</span>
+    <span class="wl-tab-label"><i class="ti ti-layout-grid" style="margin-right:6px"></i>All</span>
     <span class="wl-tab-count">${allIds.size}</span></button>`;
   myLists.forEach(function(list){
     const count = (list.items||[]).filter(id=>wlResolveItem(id)).length;
     const safe = (list.name||'').replace(/'/g,"\\'");
-    h += `<button class="wl-tab${_wlActiveList===list.id?' active':''}" onclick="switchWLTab('${list.id}')" title="${safe}">
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${list.name}</span>
-      <span class="wl-tab-count">${count}</span></button>`;
+    h += `<div class="wl-tab${_wlActiveList===list.id?' active':''}" onclick="switchWLTab('${list.id}')" title="${safe}">
+      <span class="wl-tab-label">${list.name}</span>
+      <span class="wl-tab-actions">
+        <span class="wl-tab-action" onclick="event.stopPropagation();wlRenameList('${list.id}')" title="Rename list"><i class="ti ti-pencil" style="font-size:12px"></i></span>
+        <span class="wl-tab-action danger" onclick="event.stopPropagation();wlDeleteList('${list.id}')" title="Delete list"><i class="ti ti-trash" style="font-size:12px"></i></span>
+      </span>
+      <span class="wl-tab-count">${count}</span></div>`;
   });
   rail.innerHTML = h;
+
+  if(ddLabel){
+    if(_wlActiveList==='all'){
+      ddLabel.innerHTML = '<i class="ti ti-layout-grid"></i> All';
+    } else {
+      const active = myLists.find(l=>l.id===_wlActiveList);
+      ddLabel.textContent = active ? active.name : 'All';
+    }
+  }
+}
+
+function wlRenameList(listId){
+  const me = myData();
+  const list = (me.collections||[]).find(c=>c.id===listId);
+  if(!list) return;
+  const name = (prompt('Rename list:', list.name)||'').trim();
+  if(!name) return;
+  list.name = name;
+  saveUsers().then(()=>{ renderWish(); toast('List renamed.'); });
+}
+
+function wlDeleteList(listId){
+  const me = myData();
+  const list = (me.collections||[]).find(c=>c.id===listId);
+  if(!list) return;
+  if(!confirm(`Delete "${list.name}"? Your titles stay in the library/watchlist — only the list itself is removed.`)) return;
+  me.collections = (me.collections||[]).filter(c=>c.id!==listId);
+  if(_wlActiveList===listId) _wlActiveList='all';
+  saveUsers().then(()=>{ renderWish(); toast(`"${list.name}" deleted.`); });
 }
 
 function buildWLFilterOptions(){
