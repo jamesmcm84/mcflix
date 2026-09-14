@@ -2004,6 +2004,7 @@ textarea.ffi{resize:vertical}
         <div class="vntg-vcr-display" id="discover-page-display" style="font-size:18px;min-width:70px;letter-spacing:2px">1/1</div>
         <button class="fb" id="discover-next-btn" onclick="discoverGoPage(1)">Next <i class="ti ti-chevron-right"></i></button>
       </div>
+      <div id="discover-requests-wrap" style="margin-top:24px"></div>
     </div>
   </div>
 
@@ -2333,7 +2334,7 @@ textarea.ffi{resize:vertical}
     <button class="mc" onclick="closeMo('wladdmovie')"><i class="ti ti-x"></i></button>
     <div style="padding:16px 20px">
       <div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:10px">Add Movie to List</div>
-      <div class="sw" style="margin-bottom:10px"><i class="ti ti-search"></i><input type="text" id="wl-picker-search" placeholder="Search your library & watchlist..." oninput="renderWLMoviePicker()" autofocus></div>
+      <div class="sw" style="margin-bottom:10px"><i class="ti ti-search"></i><input type="text" id="wl-picker-search" placeholder="Search TMDB for any movie..." oninput="debounceWLPicker()" autofocus></div>
       <div id="wl-picker-results" style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto"></div>
     </div>
   </div>
@@ -3015,7 +3016,7 @@ function switchTab(t,el){
   if(t==='vintage') renderVintage();
   if(t==='stats') renderStats();
   if(t==='trophies') renderTrophies();
-  if(t==='discover'){ if(!_tmdbGenreList) buildDiscoverGenrePanel(); renderQueueShelf(); }
+  if(t==='discover'){ if(!_tmdbGenreList) buildDiscoverGenrePanel(); renderQueueShelf(); renderDiscoverRequests(); }
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') renderCompare();
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
@@ -5301,9 +5302,11 @@ function renderWLListPane(list){
     `).join('')}`;
 }
 
-function renderWLRequests(){
+function renderDiscoverRequests(){
+  const wrap = document.getElementById('discover-requests-wrap');
+  if(!wrap) return;
   const requestItems = (sharedData.wishlist||[]).filter(m=>!m.priority);
-  if(!requestItems.length) return '';
+  if(!requestItems.length){ wrap.innerHTML=''; return; }
   const groups = {};
   requestItems.forEach(function(m){
     const y=(m.year||'Unknown').toString().slice(0,4);
@@ -5344,7 +5347,7 @@ function renderWLRequests(){
     <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
     <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(reqCardHTML).join('')}</div>
   `).join('');
-  return html;
+  wrap.innerHTML = html;
 }
 
 function renderWish(){
@@ -5364,7 +5367,6 @@ function renderWish(){
   if(_wlActiveList==='all'){
     buildWLFilterOptions();
     html += renderWLAllPane();
-    html += renderWLRequests();
   } else {
     const list = myLists.find(l=>l.id===_wlActiveList);
     html += list ? renderWLListPane(list) : '';
@@ -5377,6 +5379,7 @@ function renderWish(){
   wrap.innerHTML = html;
   updateCounts();
   renderQueueShelf();
+  renderDiscoverRequests();
 }
 
 // ── QUEUE (lives at the top of Discovery) ───────────────────────────────────────
@@ -5425,35 +5428,95 @@ function openWLAddMovieModal(){
   }
   const search = document.getElementById('wl-picker-search');
   if(search) search.value='';
-  renderWLMoviePicker();
+  const results = document.getElementById('wl-picker-results');
+  if(results) results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">Search TMDB for any movie to add.</div>';
   openMo('wladdmovie');
 }
 
-function renderWLMoviePicker(){
+let _wlPickerTimer = null;
+function debounceWLPicker(){
+  clearTimeout(_wlPickerTimer);
+  _wlPickerTimer = setTimeout(renderWLMoviePicker, 400);
+}
+
+async function renderWLMoviePicker(){
   const results = document.getElementById('wl-picker-results');
   if(!results) return;
-  const q = (document.getElementById('wl-picker-search')?.value||'').toLowerCase().trim();
-  const pool = [...sharedData.library, ...sharedData.wishlist];
-  let items = pool;
-  if(q) items = items.filter(m=>(m.title||'').toLowerCase().includes(q));
-  items = items.slice(0, 40);
+  const q = (document.getElementById('wl-picker-search')?.value||'').trim();
+  if(!q){
+    results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">Search TMDB for any movie to add.</div>';
+    return;
+  }
+  results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0"><i class="ti ti-loader"></i> Searching TMDB...</div>';
+  let data;
+  try{
+    const r = await fetch('https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+encodeURIComponent(q)+'&include_adult=false');
+    data = await r.json();
+  }catch(e){
+    results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">TMDB search failed. Try again.</div>';
+    return;
+  }
+  // Stale response guard: bail if the search box has moved on
+  if((document.getElementById('wl-picker-search')?.value||'').trim() !== q) return;
+  const items = (data.results||[]).slice(0,20);
   if(!items.length){
-    results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">No movies found.</div>';
+    results.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0">No movies found on TMDB.</div>';
     return;
   }
   results.innerHTML = items.map(m=>{
-    const hp = m.poster && m.poster!=='N/A';
+    const poster = m.poster_path ? 'https://image.tmdb.org/t/p/w92'+m.poster_path : '';
+    const year = (m.release_date||'').slice(0,4);
     const safeTitle = (m.title||'').replace(/'/g,"\\'");
+    const already = sharedData.library.find(x=>x.tmdbId===m.id) || sharedData.wishlist.find(x=>x.tmdbId===m.id);
     return `<div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);cursor:pointer"
-      onclick="closeMo('wladdmovie');openAddToListModal('${m.id}','${safeTitle}','${sharedData.library.find(x=>x.id===m.id)?'library':'wishlist'}')">
-      ${hp?`<img src="${m.poster}" style="width:32px;height:46px;object-fit:cover;border-radius:4px" loading="lazy">`:`<div style="width:32px;height:46px;border-radius:4px;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:14px;color:var(--muted)"></i></div>`}
+      onclick="wlPickTMDBResult(${m.id},'${safeTitle}','${year}','${poster}',this)">
+      ${poster?`<img src="${poster}" style="width:32px;height:46px;object-fit:cover;border-radius:4px" loading="lazy">`:`<div style="width:32px;height:46px;border-radius:4px;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="ti ti-movie" style="font-size:14px;color:var(--muted)"></i></div>`}
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
-        <div style="font-size:11px;color:var(--muted)">${m.year||''}</div>
+        <div style="font-size:11px;color:var(--muted)">${year||''}${already?' · <span style="color:var(--purple)">Already saved</span>':''}</div>
       </div>
       <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
     </div>`;
   }).join('');
+}
+
+async function wlPickTMDBResult(tmdbId, title, year, poster, el){
+  if(el){ el.style.opacity='0.5'; el.style.pointerEvents='none'; }
+
+  // Already tracked in the library or wishlist? Reuse that record.
+  let item = sharedData.library.find(x=>x.tmdbId===tmdbId) || sharedData.wishlist.find(x=>x.tmdbId===tmdbId);
+  let src = item ? (sharedData.library.find(x=>x.id===item.id) ? 'library' : 'wishlist') : 'wishlist';
+
+  if(!item){
+    // Not tracked anywhere yet — pull it from TMDB/OMDB and save it to the wishlist so it can live on a list
+    item = {
+      id: uid(), title, sortTitle:'', type:'movie', year, genre:'', rating:'',
+      director:'', actors:'', plot:'', runtime:'', poster: poster||'',
+      imdb:'', tags:[], externalRatings:[], addedAt:Date.now(), addedBy:CU.username, tmdbId
+    };
+    try{
+      const r = await fetch('https://www.omdbapi.com/?apikey='+OMDB_KEY+'&t='+encodeURIComponent(title)+(year?'&y='+year:''));
+      const d = await r.json();
+      if(d.Response==='True'){
+        item.genre    = d.Genre&&d.Genre!=='N/A'    ? d.Genre    : '';
+        item.rating   = d.Rated&&d.Rated!=='N/A'    ? d.Rated    : '';
+        item.director = d.Director&&d.Director!=='N/A'?d.Director:'';
+        item.actors   = d.Actors&&d.Actors!=='N/A'  ? d.Actors   : '';
+        item.plot     = d.Plot&&d.Plot!=='N/A'      ? d.Plot     : '';
+        item.runtime  = d.Runtime&&d.Runtime!=='N/A'? d.Runtime.replace(/\s*min\s*$/i,''):'';
+        item.imdb     = d.imdbID||'';
+        item.language = d.Language&&d.Language!=='N/A'?d.Language:'';
+        item.externalRatings = (d.Ratings||[]).map(rt=>({s:rt.Source,v:rt.Value}));
+        if(d.Poster&&d.Poster!=='N/A') item.poster = d.Poster;
+      }
+    }catch(e){}
+    sharedData.wishlist.push(item);
+    await saveShared();
+    updateCounts();
+  }
+
+  closeMo('wladdmovie');
+  openAddToListModal(item.id, item.title, src);
 }
 
 
@@ -6377,6 +6440,7 @@ async function addTMDBToWishlist(title, year, poster, tmdbId){
   sharedData.wishlist.push(item);
   await saveShared();
   updateCounts();
+  renderDiscoverRequests();
   toast(title+' added to Wishlist!');
   // Re-render the grid so the bookmark badge appears
   const grid = document.getElementById('discover-grid') || document.getElementById('browse-grid');
