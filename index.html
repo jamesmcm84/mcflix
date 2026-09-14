@@ -185,6 +185,9 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .diary-title{font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
 .diary-rating{font-family:Bebas Neue,cursive;font-size:20px;color:var(--gold)}
+.diary-like{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
+.diary-like:hover{transform:scale(1.15)}
+.diary-like.on{color:var(--red)}
 
 /* YEAR IN REVIEW */
 .yir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
@@ -885,7 +888,7 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .mc:hover{color:var(--text);background:rgba(255,255,255,.1)}
 
 /* DETAIL */
-.det-hero{position:relative;height:160px;overflow:hidden;border-radius:18px 18px 0 0;flex-shrink:0}
+.det-hero{position:relative;height:190px;overflow:hidden;border-radius:18px 18px 0 0;flex-shrink:0}
 .det-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(6px) brightness(.25) saturate(1.4);transform:scale(1.08)}
 .det-bd-fallback{position:absolute;inset:0;background:linear-gradient(135deg,#14142a,#0e0e20)}
 .det-hero-inner{position:absolute;inset:0;z-index:1;display:flex;align-items:flex-end;gap:16px;padding:14px 16px}
@@ -1038,7 +1041,7 @@ textarea.ffi{resize:vertical}
   .header{padding:0 12px;height:48px}
   .main{padding:12px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
-  .det-hero{height:140px}
+  .det-hero{height:180px}
   .det-title{font-size:18px}
   .det-actions{gap:5px}
   .act{font-size:11px;padding:6px 9px}
@@ -1735,7 +1738,6 @@ textarea.ffi{resize:vertical}
     <div class="tab" id="tab-diary">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;background:var(--gold);padding:14px 18px;border-radius:0">
         <div class="sl" style="flex:1;margin:0;font-size:28px;color:#000;text-shadow:none">Watch Diary</div>
-        <button class="fb" id="diary-reconcile-btn" onclick="reconcileDiary()" title="Remove diary entries for deleted movies" style="display:none"><i class="ti ti-tool"></i> Reconcile</button>
         <button class="ab" onclick="openDiaryAdd()" style="background:#000;color:var(--gold);box-shadow:none"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
       <div id="diary-body"></div>
@@ -2869,7 +2871,6 @@ function initApp(){
     rt.textContent=isAdmin()?'Admin':'Member';
     rt.className='role-tag '+(isAdmin()?'rt-admin':'rt-member');
     document.getElementById('add-lib-btn').style.display=isAdmin()?'':'none';
-    if(document.getElementById('diary-reconcile-btn')) document.getElementById('diary-reconcile-btn').style.display=isAdmin()?'':'none';
     if(document.getElementById('bulk-add-btn')) document.getElementById('bulk-add-btn').style.display=isAdmin()?'':'none';
     if(document.getElementById('add-tv-btn')) document.getElementById('add-tv-btn').style.display=isAdmin()?'':'none';
     document.getElementById('add-wish-btn').style.display='';
@@ -5256,7 +5257,11 @@ function openDetail(id,src){
   if(!m)return;
   const hp=m.poster&&m.poster!=='N/A';
   const inLib=src==='library' && sharedData.library.some(x=>x.id===id);
-  const ratingsHTML=allUsers.accounts.map(u=>{
+  const ratingsHTML=allUsers.accounts.filter(u=>{
+    const ud=udataFor(u.id);
+    const r=ud.ratings?.[id]||0;
+    return r>0 || CU.id===u.id;
+  }).map(u=>{
     const ud=udataFor(u.id);
     const r=ud.ratings?.[id]||0;
     const canEdit=CU.id===u.id;
@@ -5298,7 +5303,6 @@ function openDetail(id,src){
       <div class="det-actions" style="margin-bottom:12px">
 
         ${inLib?`<button class="act act-fav ${me.favorites?.[id]?'on':''}" onclick="toggleFav('${id}')"><i class="ti ti-star${me.favorites?.[id]?'-filled':''}"></i></button>`:''}
-        ${inLib?`<button class="act act-now ${me.nowWatching?.[id]?'on':''}" onclick="toggleNow('${id}')"><i class="ti ti-player-play"></i> ${me.nowWatching?.[id]?'Watching':'Now Watching'}</button>`:''}
         ${!inLib&&isAdmin()?`<button class="act act-w" onclick="moveToLib('${id}')"><i class="ti ti-plus"></i> Add to Library</button>`:''}
         ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/" class="act act-imdb" target="_blank"><i class="ti ti-external-link"></i> IMDb</a>`:''}
         ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/parentalguide" class="act" style="background:rgba(229,9,20,.08);color:#ff4757;border-color:rgba(229,9,20,.22)" target="_blank"><i class="ti ti-shield-check"></i> Parents Guide</a>`:''}
@@ -5344,23 +5348,6 @@ function openDetail(id,src){
       <div class="rat-section"><div class="rat-title">Ratings</div>${ratingsHTML}</div>
       </div>
       ${vibeCheckHTML(id)?`<div class="det-section det-section-vibe"><div class="det-section-hd"><i class="ti ti-mood-happy" style="font-size:14px"></i> Vibe Check</div>${vibeCheckHTML(id)}</div>`:''}
-      <div class="det-section det-section-tags">
-        <div class="det-section-hd"><i class="ti ti-tags" style="font-size:14px"></i> Tags</div>
-        <div class="notes-lbl" style="margin-bottom:6px">Shared <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">· visible to everyone</span></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-          ${(m.tags||[]).length
-            ? (m.tags||[]).map(t=>`<span class="tpill" style="cursor:default">${t}${isAdmin()?` <i class="ti ti-x" style="font-size:11px;cursor:pointer" onclick="removeTag('${id}','${src}','${t.replace(/'/g,"\\'")}')" title="Remove tag"></i>`:''}</span>`).join('')
-            : `<span style="font-size:12px;color:var(--muted)">${isAdmin()?'No tags yet.':'No tags added.'}</span>`}
-        </div>
-        ${isAdmin()?`<div class="lk-row">
-          <input type="text" class="ffi" id="tagin-${id}" placeholder="Add a shared tag..." onkeydown="if(event.key==='Enter'){addTag('${id}','${src}')}">
-          <button class="lk-btn" onclick="addTag('${id}','${src}')"><i class="ti ti-plus"></i> Add</button>
-        </div>`:''}
-      </div>
-      <div class="det-section det-section-tags" id="tmdb-kw-wrap-${id}">
-        <div class="det-section-hd"><i class="ti ti-tag" style="font-size:14px"></i> TMDB Keywords</div>
-        <div id="tmdb-keywords-${id}"></div>
-      </div>
       <div class="personal-tags-section">
         <div class="notes-lbl" style="margin-bottom:6px">My Tags <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10px">(only you can see these)</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="personal-tags-display-${id}">
@@ -5397,7 +5384,6 @@ function openDetail(id,src){
         </div>
       </div>
       ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
-      <div id="tmdb-similar-${id}"></div>
       </div><!-- det-panel-info -->
       <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
         ${buildCritiquePanel(id, src)}
@@ -7096,6 +7082,13 @@ function buildStubHTML(e, tktNum, col){
     +'</div>';
 }
 
+function toggleDiaryLike(id){
+  const me=myData(); me.favorites=me.favorites||{};
+  me.favorites[id]=!me.favorites[id];
+  renderDiary();
+  saveUsers();
+}
+
 function renderDiary(){
   const me = myData();
   const body = document.getElementById('diary-body');
@@ -7148,6 +7141,7 @@ function renderDiary(){
           </div>
         </div>
         ${e.rating ? `<div class="diary-rating">${e.rating}<span style="font-size:12px;color:var(--muted)">/10</span></div>` : ''}
+        <button class="diary-like ${me.favorites?.[e.itemId]?'on':''}" onclick="event.stopPropagation();toggleDiaryLike('${e.itemId}')" title="${me.favorites?.[e.itemId]?'Unlike':'Like this movie'}"><i class="ti ti-heart${me.favorites?.[e.itemId]?'-filled':''}"></i></button>
         <div class="hist-x" style="margin-left:4px" onclick="event.stopPropagation();delDiaryEntry('${e.itemId}',${e.histIdx})"><i class="ti ti-x"></i></div>
       </div>`;
     }).join('');
