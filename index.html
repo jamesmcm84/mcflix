@@ -2269,6 +2269,19 @@ textarea.ffi{resize:vertical}
 </div>
 
 <!-- PERSONAL WISHLIST DETAIL MODAL -->
+<!-- LEAVE CONFIRM MODAL -->
+<div class="mo" id="mo-leave" style="z-index:99999">
+  <div class="md md-sm" style="text-align:center;padding:32px 28px;max-width:320px">
+    <div style="font-size:40px;margin-bottom:12px">🎬</div>
+    <div style="font-family:Bebas Neue,cursive;font-size:26px;letter-spacing:2px;color:var(--gold);margin-bottom:8px">Leave McFlix?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5">You'll lose any unsaved changes.</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="ghost-btn" style="flex:1;padding:12px;font-size:14px" onclick="leaveConfirmed()">Leave</button>
+      <button class="primary-btn" style="flex:1;padding:12px;font-size:14px" onclick="closeMo('leave')">Stay</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD TO LIST MODAL -->
 <div class="mo" id="mo-addtolist" onclick="if(event.target===this)closeMo('addtolist')">
   <div class="md md-sm">
@@ -2303,7 +2316,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.2.3';
+const VERSION     = '10.2.5';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2853,41 +2866,32 @@ function signOut(){
 // ── APP INIT ──────────────────────────────────────────────────────────────────
 
 // ── BACK BUTTON / PAGE LEAVE PROTECTION ──────────────────────────────────────
-function initBackGuard(){
-  // ── Back button (all browsers including iOS Safari) ──────────────────────
-  // Keep pushing a state so there's always something to pop back to
-  function pushGuardState(){
-    history.pushState({mcflix:true}, '', window.location.href);
-  }
-  pushGuardState();
+var _leaveConfirmedFlag = false;
 
-  window.addEventListener('popstate', function(e){
-    // Skip if on login screen
-    const authScreen = document.getElementById('auth-screen');
-    if(authScreen && authScreen.classList.contains('active')){
-      pushGuardState();
+function initBackGuard(){
+  // Always keep a guard state pushed
+  history.pushState({mcflix:true}, '');
+
+  window.addEventListener('popstate', function(){
+    if(_leaveConfirmedFlag){
+      _leaveConfirmedFlag = false;
       return;
     }
-    // Ask the user
-    const leave = confirm('Leave McFlix?\n\nAny unsaved changes will be lost.');
-    if(leave){
-      // Let the navigation happen — don't push back
-      window.removeEventListener('popstate', arguments.callee);
-      history.back();
-    } else {
-      // Stay — push a new guard state
-      pushGuardState();
-    }
+    // Push back immediately to prevent navigation
+    history.pushState({mcflix:true}, '');
+    // Show in-app confirmation modal
+    openMo('leave');
   });
+}
 
-  // ── Reload / tab close (desktop browsers) ────────────────────────────────
-  // Note: iOS Safari ignores beforeunload — the popstate handler above
-  // covers the back gesture on mobile. Chrome/Firefox on desktop respect this.
-  window.addEventListener('beforeunload', function(e){
-    e.preventDefault();
-    e.returnValue = '';
-    return '';
-  });
+function leaveConfirmed(){
+  closeMo('leave');
+  _leaveConfirmedFlag = true;
+  history.back();
+  // If history.back() has nowhere to go, redirect to about:blank fallback
+  setTimeout(function(){
+    window.location.href = 'about:blank';
+  }, 300);
 }
 
 function initApp(){
