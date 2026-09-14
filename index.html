@@ -234,16 +234,13 @@ select option{background:#1a1a2e;color:#eeeef5}
 .skel-text.short{width:60%}
 
 /* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
-.bottom-nav .bnb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
+.bottom-nav{display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;position:fixed;bottom:0;left:0;right:0;z-index:101;background:rgba(7,7,13,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}
+.bottom-nav .bnb{min-width:60px;flex-shrink:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s;border-radius:8px;position:relative}
 .bottom-nav .bnb.active{color:var(--gold)}
 .bottom-nav .bnb i{font-size:18px}
 .bottom-nav .bnb .bdg{position:absolute;top:3px;right:12px;min-width:14px;padding:0 4px;font-size:9px}
 .more-menu{display:none;position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:102;background:var(--bg2);border-top:1px solid var(--border2);padding:8px;box-shadow:0 -8px 24px rgba(0,0,0,.4)}
 .more-menu.open{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.more-menu-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 16px;border:none;border-radius:10px;background:var(--bg3);color:var(--muted);font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;cursor:pointer;min-width:80px}
-.more-menu-btn:active{background:var(--gold-dim);color:var(--gold)}
-.more-menu-btn i{font-size:20px}
 @media(max-width:600px){
   .bottom-nav{display:flex}
   .nav-bar{display:none}
@@ -1653,17 +1650,15 @@ textarea.ffi{resize:vertical}
   </div>
   <div class="nav-bar">
     <div class="nav">
-      <button class="nb" onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
-      <button class="nb active" onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
-      <button class="nb" onclick="switchTab('gauntlet',this)"><i class="ti ti-tournament"></i> Gauntlet</button>
-      <button class="nb" onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
-      <button class="nb" onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
-      <button class="nb" onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Rank</button>
-      <button class="nb" onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
-      <button class="nb" onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
-      <button class="nb nb-retro" onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
-      <button class="nb" onclick="switchTab('receipt',this)"><i class="ti ti-receipt"></i> Receipt</button>
-      
+      <button class="nb active" id="nb-diary"    onclick="switchTab('diary',this)"><i class="ti ti-calendar"></i> Diary</button>
+      <button class="nb" id="nb-gauntlet"         onclick="switchTab('gauntlet',this)"><i class="ti ti-tournament"></i> Gauntlet</button>
+      <button class="nb" id="nb-wishlist"          onclick="switchTab('wishlist',this)"><i class="ti ti-bookmark"></i> Watchlist <span class="bdg" id="wish-count">0</span></button>
+      <button class="nb" id="nb-stats"             onclick="switchTab('stats',this)"><i class="ti ti-chart-bar"></i> Stats</button>
+      <button class="nb" id="nb-trophies"          onclick="switchTab('trophies',this)"><i class="ti ti-trophy"></i> Trophies</button>
+      <button class="nb" id="nb-compare"           onclick="switchTab('compare',this)"><i class="ti ti-vs"></i> Rank</button>
+      <button class="nb" id="nb-runtime"           onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
+      <button class="nb" id="nb-discover"          onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
+      <button class="nb nb-retro" id="nb-vintage"  onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
     </div>
   </div>
 
@@ -1980,27 +1975,16 @@ textarea.ffi{resize:vertical}
 
   <!-- BOTTOM NAV (mobile only) -->
   <!-- MORE MENU (mobile overflow) -->
-  <div class="more-menu" id="more-menu">
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('diary',this)"><i class="ti ti-calendar"></i>Diary</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('activity',this)"><i class="ti ti-activity"></i>Activity</button>
-    <button class="more-menu-btn" style="color:#ff6ec7" onclick="closeMoreMenu();switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old" style="color:#ff6ec7"></i>Retro</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i>Stats</button>
-
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('canonical',this)"><i class="ti ti-list-numbers"></i>Canonical</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('discover',this)"><i class="ti ti-compass"></i>Discover</button>
-    <button class="more-menu-btn" id="bnb-watchmode-more" onclick="closeMoreMenu();switchTabMobile('watchmode',this)" style="display:none"><i class="ti ti-player-play-filled" style="color:#e5a00d"></i>Watch Mode</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('receipt',this)"><i class="ti ti-receipt"></i>Receipt</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('gauntlet',this)"><i class="ti ti-sword"></i>Gauntlet</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('runtime',this)"><i class="ti ti-clock"></i>Runtime</button>
-    <button class="more-menu-btn" onclick="closeMoreMenu();switchTabMobile('cgraveyard',this)"><i class="ti ti-tombstone"></i>Graveyard</button>
-  </div>
-
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bnb" id="bnb-diary" onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
-    <button class="bnb" id="bnb-library" onclick="switchTabMobile('library',this)"><i class="ti ti-movie"></i><span>Library</span></button>
-    <button class="bnb" id="bnb-tvshows" onclick="switchTabMobile('tvshows',this)"><i class="ti ti-device-tv"></i><span>TV</span></button>
-    <button class="bnb" id="bnb-wishlist" onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Requests</span></button>
-    <button class="bnb" id="bnb-more" onclick="toggleMoreMenu(this)"><i class="ti ti-dots"></i><span>More</span></button>
+    <button class="bnb active" id="bnb-diary"   onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
+    <button class="bnb" id="bnb-gauntlet"        onclick="switchTabMobile('gauntlet',this)"><i class="ti ti-tournament"></i><span>Gauntlet</span></button>
+    <button class="bnb" id="bnb-wishlist"         onclick="switchTabMobile('wishlist',this)"><i class="ti ti-bookmark"></i><span>Watchlist</span></button>
+    <button class="bnb" id="bnb-stats"            onclick="switchTabMobile('stats',this)"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
+    <button class="bnb" id="bnb-trophies"         onclick="switchTabMobile('trophies',this)"><i class="ti ti-trophy"></i><span>Trophies</span></button>
+    <button class="bnb" id="bnb-compare"          onclick="switchTabMobile('compare',this)"><i class="ti ti-vs"></i><span>Rank</span></button>
+    <button class="bnb" id="bnb-runtime"          onclick="switchTabMobile('runtime',this)"><i class="ti ti-clock"></i><span>Runtime</span></button>
+    <button class="bnb" id="bnb-discover"         onclick="switchTabMobile('discover',this)"><i class="ti ti-compass"></i><span>Discover</span></button>
+    <button class="bnb" id="bnb-vintage"          onclick="switchTabMobile('vintage',this)"><i class="ti ti-device-tv-old"></i><span>Retro</span></button>
   </nav>
 </div>
 
@@ -2319,7 +2303,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.1.9';
+const VERSION     = '10.2.1';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2926,7 +2910,7 @@ function initApp(){
   const diaryTab = document.getElementById('tab-diary');
   if(diaryTab) diaryTab.classList.add('active');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  const diaryBtn = document.querySelector('.nb[onclick*="diary"]');
+  const diaryBtn = document.getElementById('nb-diary');
   if(diaryBtn) diaryBtn.classList.add('active');
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
   renderDiary();
@@ -2956,10 +2940,9 @@ function switchTab(t,el){
   if(tabEl) tabEl.classList.add('active');
   // sync top nav
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
+  const _nb=document.getElementById('nb-'+t); if(_nb) _nb.classList.add('active'); else if(el) el.classList.add('active');
   // sync bottom nav
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
-  closeMoreMenu();
   // Always hide A-Z slider on tab switch — renderLib re-shows it if appropriate
   const _azEl = document.getElementById('az-slider');
   if(_azEl) _azEl.style.display = 'none';
@@ -7762,27 +7745,7 @@ function removeFromWatched(id, isDiary){
 }
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
-function toggleMoreMenu(el){
-  const menu = document.getElementById('more-menu');
-  const isOpen = menu.classList.toggle('open');
-  el.classList.toggle('active', isOpen);
-  // Close when tapping outside
-  if(isOpen){
-    setTimeout(()=>{
-      document.addEventListener('click', function handler(e){
-        if(!e.target.closest('#more-menu')&&!e.target.closest('#bnb-more')){
-          closeMoreMenu();
-          document.removeEventListener('click', handler);
-        }
-      });
-    }, 10);
-  }
-}
-
-function closeMoreMenu(){
-  document.getElementById('more-menu')?.classList.remove('open');
-  document.getElementById('bnb-more')?.classList.remove('active');
-}
+// More menu removed
 
 function switchTabMobile(t, el){
   // Just call switchTab — it now syncs both navs
