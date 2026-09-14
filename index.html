@@ -2303,7 +2303,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.2.2';
+const VERSION     = '10.2.3';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2854,28 +2854,39 @@ function signOut(){
 
 // ── BACK BUTTON / PAGE LEAVE PROTECTION ──────────────────────────────────────
 function initBackGuard(){
-  // Push a dummy state so the first back button press hits our handler
-  history.pushState({mcflix:true}, '', window.location.href);
+  // ── Back button (all browsers including iOS Safari) ──────────────────────
+  // Keep pushing a state so there's always something to pop back to
+  function pushGuardState(){
+    history.pushState({mcflix:true}, '', window.location.href);
+  }
+  pushGuardState();
 
-  window.addEventListener('popstate', function(){
-    // Only intercept when app is loaded (not on login screen)
+  window.addEventListener('popstate', function(e){
+    // Skip if on login screen
     const authScreen = document.getElementById('auth-screen');
-    if(authScreen && authScreen.classList.contains('active')) return;
-    const stay = !confirm('Leave McFlix?');
-    if(stay){
-      history.pushState({mcflix:true}, '', window.location.href);
+    if(authScreen && authScreen.classList.contains('active')){
+      pushGuardState();
+      return;
+    }
+    // Ask the user
+    const leave = confirm('Leave McFlix?\n\nAny unsaved changes will be lost.');
+    if(leave){
+      // Let the navigation happen — don't push back
+      window.removeEventListener('popstate', arguments.callee);
+      history.back();
+    } else {
+      // Stay — push a new guard state
+      pushGuardState();
     }
   });
 
-  // Desktop tab/window close protection
+  // ── Reload / tab close (desktop browsers) ────────────────────────────────
+  // Note: iOS Safari ignores beforeunload — the popstate handler above
+  // covers the back gesture on mobile. Chrome/Firefox on desktop respect this.
   window.addEventListener('beforeunload', function(e){
     e.preventDefault();
-    e.returnValue = 'Leave McFlix?';
-    return 'Leave McFlix?';
-  });
-  // iOS Safari: use pagehide as fallback
-  window.addEventListener('pagehide', function(e){
-    if(e.persisted) return; // bfcache restore — fine
+    e.returnValue = '';
+    return '';
   });
 }
 
