@@ -167,17 +167,18 @@ select option{background:#1a1a2e;color:#eeeef5}
 
 /* DIARY */
 .diary-month{margin-bottom:28px}
-.diary-month-hd{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:2px;color:var(--light);display:flex;align-items:center;gap:10px;margin-bottom:12px;text-transform:uppercase}
-.diary-month-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
-.diary-entries{display:flex;flex-direction:column;gap:10px}
-.diary-entry{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s}
-.diary-entry:hover{border-color:var(--border2);transform:translateX(3px)}
+.diary-month-hd{font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:2px;color:#000;background:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:0;padding:10px 14px;text-transform:uppercase;border-radius:0}
+.diary-month-hd::after{content:none}
+.diary-entries{display:flex;flex-direction:column;gap:0}
+.diary-entry{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0;padding:12px 16px;cursor:pointer;transition:all .2s}
+.diary-entries .diary-entry:first-child{border-top:1px solid var(--border)}
+.diary-entry:hover{border-color:var(--border2)}
 .diary-date{font-family:Bebas Neue,cursive;font-size:22px;color:var(--gold);min-width:42px;text-align:center;line-height:1}
 .diary-date-month{font-size:9px;color:var(--muted);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
-.diary-poster{width:64px;height:96px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.diary-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
 .diary-info{flex:1;min-width:0}
-.diary-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.diary-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.diary-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
 .diary-rating{font-family:Bebas Neue,cursive;font-size:20px;color:var(--gold)}
 
 /* YEAR IN REVIEW */
@@ -7145,7 +7146,7 @@ function renderDiary(){
         <div class="hist-x" style="margin-left:4px" onclick="event.stopPropagation();delDiaryEntry('${e.itemId}',${e.histIdx})"><i class="ti ti-x"></i></div>
       </div>`;
     }).join('');
-    return `<div class="diary-month"><div class="diary-month-hd">${monthKey} <span style="font-size:12px;color:var(--muted)">(${mes.length})</span></div><div class="diary-entries">${rows}</div></div>`;
+    return `<div class="diary-month"><div class="diary-month-hd">${monthKey} <span style="font-size:12px;color:rgba(0,0,0,.6)">(${mes.length})</span></div><div class="diary-entries">${rows}</div></div>`;
   }).join('');
 }
 
