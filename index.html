@@ -65,7 +65,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* HEADER */
 .header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
-.logo{font-family:Bebas Neue,cursive;font-size:30px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
+.logo{font-family:Bebas Neue,cursive;font-size:38px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
 .nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .nav-bar::-webkit-scrollbar{display:none}
@@ -178,6 +178,8 @@ body.light-mode .diary-entries .diary-entry:first-child{border-top-color:rgba(0,
 body.light-mode .diary-entry:hover{border-color:rgba(0,0,0,.38)}
 .diary-date{font-family:Bebas Neue,cursive;font-size:32px;color:var(--gold);min-width:48px;text-align:center;line-height:1}
 .diary-date-month{font-size:9px;color:var(--muted);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.diary-date-box{min-width:64px;padding:12px 8px;margin:-12px 0 -12px -16px;background:var(--bg3);border-right:2px solid rgba(255,255,255,.28);text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}
+body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .diary-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
 .diary-info{flex:1;min-width:0}
 .diary-title{font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7134,7 +7136,7 @@ function renderDiary(){
       const d = new Date(e.ts);
       const hp = e.m.poster && e.m.poster !== 'N/A';
       return `<div class="diary-entry">
-        <div style="min-width:42px;text-align:center;cursor:pointer" onclick="openDetail('${e.m.id}','library')">
+        <div class="diary-date-box" onclick="openDetail('${e.m.id}','library')">
           <div class="diary-date">${d.getDate()}</div>
           <div class="diary-date-month">${_DIARY_MONTHS[d.getMonth()]}</div>
         </div>
