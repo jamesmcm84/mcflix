@@ -1914,7 +1914,50 @@ textarea.ffi{resize:vertical}
 
     <!-- GAUNTLET -->
     <div class="tab" id="tab-gauntlet">
-      <div id="gauntlet-body"></div>
+      <div class="auth-tabs" style="max-width:520px">
+        <button class="auth-tab active" id="gauntlet-subtab-basic" onclick="switchGauntletSubtab('basic')">Basic</button>
+        <button class="auth-tab" id="gauntlet-subtab-custom" onclick="switchGauntletSubtab('custom')">Custom Gauntlets</button>
+        <button class="auth-tab" id="gauntlet-subtab-weekly" onclick="switchGauntletSubtab('weekly')">Weekly Challenges</button>
+      </div>
+
+      <!-- BASIC -->
+      <div id="gauntlet-basic-pane">
+        <div id="gauntlet-body"></div>
+      </div>
+
+      <!-- CUSTOM GAUNTLETS -->
+      <div id="gauntlet-custom-pane" style="display:none">
+        <div class="sl" style="margin-bottom:4px">Create a Custom Gauntlet</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Build your own challenge list. Saved gauntlets are shared with everyone in the household.</div>
+        <input type="text" class="fi" id="cg-name" placeholder="Gauntlet name (e.g. 'Horror Marathon')">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="text" class="fi" id="cg-challenge-input" placeholder="Add a challenge..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter'){event.preventDefault();addCGChallenge()}">
+          <button class="fb" onclick="addCGChallenge()"><i class="ti ti-plus"></i></button>
+        </div>
+        <div id="cg-challenge-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+        <button class="primary-btn" onclick="saveCustomGauntlet()"><i class="ti ti-device-floppy"></i> Save &amp; Share Gauntlet</button>
+
+        <div class="sl" style="margin:28px 0 10px">Shared Gauntlets</div>
+        <div id="custom-gauntlet-list"></div>
+        <div class="empty" id="custom-gauntlet-empty" style="display:none"><i class="ti ti-tournament"></i><p style="font-size:14px">No custom gauntlets yet. Create one above.</p></div>
+      </div>
+
+      <!-- WEEKLY CHALLENGES -->
+      <div id="gauntlet-weekly-pane" style="display:none">
+        <div id="weekly-active-wrap" style="margin-bottom:26px"></div>
+
+        <div class="sl" style="margin-bottom:4px">Default Weekly Challenges</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Toggle on the ones you want active this week.</div>
+        <div id="weekly-default-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:26px"></div>
+
+        <div class="sl" style="margin-bottom:4px">Custom Weekly Challenges</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Add your own challenge to the rotation.</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" class="fi" id="wc-custom-input" placeholder="Create a custom challenge..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomWeeklyChallenge()}">
+          <button class="fb" onclick="addCustomWeeklyChallenge()"><i class="ti ti-plus"></i></button>
+        </div>
+        <div id="weekly-custom-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
     </div>
 
     <!-- RUNTIME CALCULATOR -->
@@ -2363,6 +2406,23 @@ textarea.ffi{resize:vertical}
   <div class="md md-sm">
     <button class="mc" onclick="closeMo('addtolist')"><i class="ti ti-x"></i></button>
     <div id="addtolist-body" style="padding:16px 20px"></div>
+  </div>
+</div>
+
+<!-- CUSTOM GAUNTLET START MODAL -->
+<div class="mo" id="mo-cgstart" onclick="if(event.target===this)closeMo('cgstart')">
+  <div class="md md-sm">
+    <button class="mc" onclick="closeMo('cgstart')"><i class="ti ti-x"></i></button>
+    <div style="padding:16px 20px">
+      <div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:1px;color:var(--gold);margin-bottom:4px" id="cgstart-title">Start Gauntlet</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Choose your mode</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="primary-btn" onclick="confirmCustomGauntletStart('24hr')"><i class="ti ti-clock-24"></i> 24 Hours — race the clock</button>
+        <button class="primary-btn" style="background:rgba(138,90,240,.15);border-color:rgba(138,90,240,.3);color:var(--purple)" onclick="confirmCustomGauntletStart('48hr')"><i class="ti ti-clock"></i> 48 Hours — two days total</button>
+        <button class="primary-btn" style="background:rgba(52,152,219,.15);border-color:rgba(52,152,219,.3);color:var(--blue)" onclick="confirmCustomGauntletStart('30days')"><i class="ti ti-calendar-time"></i> 30 Days — score at the deadline</button>
+        <button class="ghost-btn" onclick="confirmCustomGauntletStart('freestyle')"><i class="ti ti-infinity"></i> Free Style — no time limit</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3058,7 +3118,7 @@ function switchTab(t,el){
   if(t==='canonical') renderCanonicalLists();
   if(t==='compare') switchRankSubtab(_rankSubtab||'liked');
   if(t==='receipt'){ buildReceiptMonthSelect(); renderReceipt(); }
-  if(t==='gauntlet') renderGauntlet();
+  if(t==='gauntlet') switchGauntletSubtab(_gauntletSubtab||'basic');
   if(t==='runtime') renderRuntime();
   if(t==='cgraveyard') renderCriticGraveyard();
 }
@@ -8807,14 +8867,21 @@ function fmtCountdown(ms){
 
 let _gauntletTick=null;
 
-function startGauntlet(mode){
+function startGauntlet(mode, customId){
   const me=myData();
-  const hs=(me.gauntlet&&me.gauntlet.highScore)||0;
+  me.customGauntletHighScores = me.customGauntletHighScores||{};
+  let challengeSource = GAUNTLET_CHALLENGES;
+  let customName = null;
+  if(customId){
+    const cg = (sharedData.customGauntlets||[]).find(c=>c.id===customId);
+    if(cg){ challengeSource = cg.challenges; customName = cg.name; }
+  }
+  const hs = customId ? (me.customGauntletHighScores[customId]||0) : ((me.gauntlet&&me.gauntlet.highScore)||0);
   const seed=Date.now();
-  me.gauntlet={mode,seed,challenges:gauntletShuffle(GAUNTLET_CHALLENGES,seed),
+  me.gauntlet={mode,seed,challenges:gauntletShuffle(challengeSource,seed),
     startedAt:Date.now(),
-    completed:[],timeUp:false,highScore:hs};
-  saveUsers().then(()=>renderGauntlet());
+    completed:[],timeUp:false,highScore:hs,customId:customId||null,customName};
+  saveUsers().then(()=>{ switchGauntletSubtab('basic'); });
   toast('The Gauntlet begins! Good luck.');
 }
 
@@ -8826,7 +8893,13 @@ function markGauntletDayDone(movieId){
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
   g.completed.push({challenge:g.challenges[idx],completedAt:Date.now(),movieId:movieId||null});
-  if(g.completed.length>(g.highScore||0)) g.highScore=g.completed.length;
+  if(g.completed.length>(g.highScore||0)){
+    g.highScore=g.completed.length;
+    if(g.customId){
+      me.customGauntletHighScores = me.customGauntletHighScores||{};
+      me.customGauntletHighScores[g.customId]=g.highScore;
+    }
+  }
   saveUsers().then(()=>renderGauntlet());
   toast('Challenge complete! Next one is up.');
 }
@@ -8834,7 +8907,13 @@ function markGauntletDayDone(movieId){
 function gauntletTimeUp(){
   const me=myData(); const g=me.gauntlet; if(!g) return;
   const score=(g.completed||[]).length;
-  if(score>(g.highScore||0)) g.highScore=score;
+  if(score>(g.highScore||0)){
+    g.highScore=score;
+    if(g.customId){
+      me.customGauntletHighScores = me.customGauntletHighScores||{};
+      me.customGauntletHighScores[g.customId]=score;
+    }
+  }
   g.timeUp=true;
   saveUsers().then(()=>renderGauntlet());
 }
@@ -8866,7 +8945,8 @@ function checkGauntletAutoComplete(movieId){
 
 function resetGauntlet(){
   if(!confirm("Abandon the Gauntlet? All progress will be lost.")) return;
-  const me=myData(); const hs=(me.gauntlet&&me.gauntlet.highScore)||0;
+  const me=myData();
+  const hs = (me.gauntlet && !me.gauntlet.customId && me.gauntlet.highScore) || 0;
   me.gauntlet={highScore:hs};
   if(_gauntletTick){clearInterval(_gauntletTick);_gauntletTick=null;}
   saveUsers().then(()=>renderGauntlet());
@@ -8901,10 +8981,11 @@ function renderGauntlet(){
   // TIME'S UP (deadline passed on a timed mode — score locked in, not a "fail")
   if(g.timeUp){
     const score=(g.completed||[]).length;
+    const total=(g.challenges||[]).length||30;
     let h='<div class="gauntlet-hero" style="border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.05)">'
       +'<div class="gauntlet-title" style="color:var(--gold)">TIME\'S UP</div>'
-      +'<div class="gauntlet-day">'+score+' / 30</div>'
-      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 4px">Final score for this '+(GAUNTLET_MODE_LABELS[g.mode]||'')+' run</div>'
+      +'<div class="gauntlet-day">'+score+' / '+total+'</div>'
+      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 4px">Final score for this '+(GAUNTLET_MODE_LABELS[g.mode]||'')+(g.customName?' · '+g.customName:'')+' run</div>'
       +(score>0&&score>=highScore?'<div style="font-size:12px;color:var(--gold);margin-bottom:14px">New High Score!</div>':'<div style="font-size:12px;color:var(--muted);margin-bottom:14px">High Score: '+(highScore||0)+'</div>')
       +'<button class="primary-btn" style="margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> Start New Gauntlet</button>'
       +'</div>';
@@ -8924,13 +9005,14 @@ function renderGauntlet(){
     body.innerHTML=h; return;
   }
 
-  // COMPLETE (all 30 finished before the deadline, or in Free Style)
+  // COMPLETE (all challenges finished before the deadline, or in Free Style)
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length){
+    const total=(g.challenges||[]).length||30;
     body.innerHTML='<div class="gauntlet-hero">'
       +'<div class="gauntlet-title">CONQUERED</div>'
-      +'<div class="gauntlet-day">30 / 30</div>'
-      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 16px">You completed every challenge. Legendary.</div>'
+      +'<div class="gauntlet-day">'+total+' / '+total+'</div>'
+      +'<div style="font-size:14px;color:var(--muted);margin:8px 0 16px">You completed every challenge'+(g.customName?' in "'+g.customName+'"':'')+'. Legendary.</div>'
       +'<button class="primary-btn" style="margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> New Gauntlet</button>'
       +'</div>'; return;
   }
@@ -8943,11 +9025,12 @@ function renderGauntlet(){
   const heroColor=GAUNTLET_MODE_COLORS[mode]||'var(--muted)';
   const totalMs=gauntletIntervalMs(mode);
   const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-g.startedAt)/totalMs*100)):0;
+  const total=(g.challenges||[]).length||30;
 
   let h='<div class="gauntlet-hero">'
-    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:'+heroColor+';margin-bottom:6px">'+modeLabel+' Gauntlet</div>'
-    +'<div class="gauntlet-day">'+(idx+1)+' / 30</div>'
-    +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/30*100)+'%;border-radius:6px;transition:width .5s"></div></div>'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:'+heroColor+';margin-bottom:6px">'+(g.customName?g.customName+' · ':'')+modeLabel+' Gauntlet</div>'
+    +'<div class="gauntlet-day">'+(idx+1)+' / '+total+'</div>'
+    +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/total*100)+'%;border-radius:6px;transition:width .5s"></div></div>'
     +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong></div>'
     +(function(){ const hint=getGauntletHint(currentChallenge); return hint?'<div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-bulb" style="color:var(--gold)"></i> '+hint+'</div>':''; })()
     +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:26px;color:'+heroColor+';letter-spacing:1px;margin:8px 0">'+fmtCountdown(timeLeft)+' left</div>'
@@ -8982,6 +9065,313 @@ function renderGauntlet(){
       const el=document.getElementById('gauntlet-countdown');
       if(el) el.textContent=fmtCountdown(left)+' left';
     },1000);
+  }
+}
+
+// ── GAUNTLET SUB-TABS ────────────────────────────────────────────────────────
+let _gauntletSubtab = 'basic';
+function switchGauntletSubtab(t){
+  try{
+    _gauntletSubtab = t;
+    document.querySelectorAll('#tab-gauntlet .auth-tab').forEach(b=>b.classList.remove('active'));
+    const btn = document.getElementById('gauntlet-subtab-'+t);
+    if(btn) btn.classList.add('active');
+    const panes = {basic:'gauntlet-basic-pane', custom:'gauntlet-custom-pane', weekly:'gauntlet-weekly-pane'};
+    Object.keys(panes).forEach(function(k){
+      const el = document.getElementById(panes[k]);
+      if(el) el.style.display = (k===t) ? '' : 'none';
+    });
+    if(t==='basic') renderGauntlet();
+    if(t==='custom') renderCustomGauntletList();
+    if(t==='weekly') renderWeeklyChallenges();
+  }catch(err){
+    console.error('switchGauntletSubtab failed:', err);
+    toast('Something went wrong switching tabs — check console.', true);
+  }
+}
+
+// ── CUSTOM GAUNTLETS (create + shared with household) ───────────────────────
+let _cgChallenges = [];
+let _cgStartTarget = null;
+
+function addCGChallenge(){
+  const input = document.getElementById('cg-challenge-input');
+  const val = (input?.value||'').trim();
+  if(!val) return;
+  _cgChallenges.push(val);
+  input.value='';
+  renderCGChallengeList();
+}
+function removeCGChallenge(i){
+  _cgChallenges.splice(i,1);
+  renderCGChallengeList();
+}
+function renderCGChallengeList(){
+  const wrap = document.getElementById('cg-challenge-list');
+  if(!wrap) return;
+  if(!_cgChallenges.length){
+    wrap.innerHTML = '<div style="font-size:11px;color:var(--muted)">No challenges added yet — add at least 5 to save.</div>';
+    return;
+  }
+  wrap.innerHTML = _cgChallenges.map(function(c,i){
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
+      <span style="flex:1;font-size:12px;color:var(--light)">${i+1}. ${c}</span>
+      <span class="wl-tab-action danger" onclick="removeCGChallenge(${i})" title="Remove"><i class="ti ti-x" style="font-size:12px"></i></span>
+    </div>`;
+  }).join('');
+}
+
+function saveCustomGauntlet(){
+  const nameEl = document.getElementById('cg-name');
+  const name = (nameEl?.value||'').trim();
+  if(!name){ toast('Give your gauntlet a name.', true); return; }
+  if(_cgChallenges.length<5){ toast('Add at least 5 challenges.', true); return; }
+  if(!sharedData.customGauntlets) sharedData.customGauntlets=[];
+  sharedData.customGauntlets.push({
+    id: uid(), name, challenges: _cgChallenges.slice(),
+    createdBy: (typeof CU!=='undefined'&&CU.username)||'someone', createdAt: Date.now()
+  });
+  saveShared().then(function(){
+    toast('Gauntlet saved and shared with the household!');
+    _cgChallenges = [];
+    if(nameEl) nameEl.value='';
+    renderCGChallengeList();
+    renderCustomGauntletList();
+  });
+}
+
+function renderCustomGauntletList(){
+  renderCGChallengeList();
+  const wrap = document.getElementById('custom-gauntlet-list');
+  const empty = document.getElementById('custom-gauntlet-empty');
+  if(!wrap) return;
+  const list = sharedData.customGauntlets||[];
+  if(!list.length){
+    wrap.innerHTML='';
+    if(empty) empty.style.display='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  wrap.innerHTML = list.slice().reverse().map(function(cg){
+    const safeName = (cg.name||'').replace(/'/g,"\\'");
+    return `<div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--light)">${cg.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${cg.challenges.length} challenges · by ${cg.createdBy||'someone'}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="fb" style="font-size:11px" onclick="startCustomGauntletPicker('${cg.id}')"><i class="ti ti-player-play"></i> Start</button>
+          <span class="wl-tab-action danger" onclick="deleteCustomGauntlet('${cg.id}','${safeName}')" title="Delete"><i class="ti ti-trash" style="font-size:14px"></i></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteCustomGauntlet(id, name){
+  if(!confirm('Delete "'+name+'"? This removes it for everyone in the household.')) return;
+  sharedData.customGauntlets = (sharedData.customGauntlets||[]).filter(c=>c.id!==id);
+  saveShared().then(function(){ renderCustomGauntletList(); toast('"'+name+'" deleted.'); });
+}
+
+function startCustomGauntletPicker(id){
+  const cg = (sharedData.customGauntlets||[]).find(c=>c.id===id);
+  if(!cg) return;
+  _cgStartTarget = id;
+  const titleEl = document.getElementById('cgstart-title');
+  if(titleEl) titleEl.textContent = 'Start: '+cg.name;
+  openMo('cgstart');
+}
+function confirmCustomGauntletStart(mode){
+  if(!_cgStartTarget) return;
+  const id = _cgStartTarget;
+  closeMo('cgstart');
+  startGauntlet(mode, id);
+  _cgStartTarget = null;
+}
+
+// ── WEEKLY CHALLENGES ────────────────────────────────────────────────────────
+const DEFAULT_WEEKLY_CHALLENGES = [
+  "The #3 Challenge — Watch a movie with a connection to the number 3",
+  "NYC Challenge — Watch a film about New York, New York",
+  "Help! Challenge — Watch a movie where a character turns to others for the skills, support, or rescue they desperately need",
+  "Inspired-By Challenge — Watch a movie inspired by stories, ideas, or media that originated outside cinema",
+  "3-Word-Title Challenge — Watch a film with a three-word title",
+  "In-Their-Hands Challenge — Watch a movie with a character holding onto something on the poster",
+  "The End Challenge — Watch a movie embracing \"the end\"; titles and films that mean closure",
+  "Plurals Challenge — Watch a movie with plurals in the title",
+  "Major Anniversary Challenge — Watch a movie celebrating a major anniversary of its release (10th, 25th, 50th, 75th or 100th) this year",
+  "The First Challenge — Watch a movie with a connection to \"firsts\"",
+  "Me, Myself, & I Challenge — Watch a movie that has a self-referential title (me, myself, & I)",
+  "Planes, Trains, & Automobiles Challenge — Watch a movie in which planes, trains or automobiles take center stage",
+  "Main Character Challenge — Watch a movie in which (one of) the main character(s) is named directly in the title",
+  "The Time Challenge — Watch a movie where time is running the show, whether it's jumping through history, living the same day on repeat, or racing against a ticking timer",
+  "Two-Characters Challenge — Watch a movie with a poster that features exactly two characters",
+  "Two-Word Title Challenge — Watch a film with a two-word title",
+  "True? Story Challenge — Watch a movie that's (however loosely) based on a true event",
+  "The Red Challenge — Watch a movie with a connection to the color Red",
+  "Who, What, Where, Why, When & How Challenge — Watch a movie with a question word in the title",
+  "Elemental Challenge — Watch a movie that connects to one of the elements on the periodic table",
+  "Age is Just a Number Challenge — Watch a movie where age plays a starring role",
+  "Animal Challenge — Watch a movie that is all about animals",
+  "Direction Challenge — Watch a movie in which titles and plots include direction words or suggest movement, travel, guiding lights or a change in course",
+  "Good, Bad, Best...or Worse Challenge — Watch a movie that includes how good/bad something or someone is in the title or the plot",
+  "Fire Challenge — Watch a movie where fire is in the title or at the heart of the plot",
+  "The Future Challenge — Watch a movie that's set in the future — or one that was considered the future when it was released, but has since become part of our past",
+  "New Beginnings Challenge — Watch a movie about fresh starts, new chapters in life, moving on etc.",
+  "Phobias Challenge — Watch a movie that explores a fear or phobia within its storyline, or features a plot element with a named \"...phobia\"",
+  "Single-Character Challenge — Watch a movie with a poster that features just one character",
+  "Location, Location, Location Challenge — Watch a film where the location plays a starring role",
+  "Alliteration Challenge — Watch a movie that has an alliteration of some sort (in the title, a character's name, or an actor/director/writer's name)",
+  "Weather Challenge — Watch a movie where the weather plays a significant role in the story or has a weather reference in the title",
+  "Big and Small Challenge — Watch a movie that has some sort of connection with big and/or small",
+  "Single-Word Challenge — Watch a movie with a title that's a single word",
+  "Voting, Politics, or Political Figures Challenge — Watch a movie about voting, politics or political figures",
+  "You Challenge — Watch a movie that has some sort of connection to you",
+  "Family Challenge — Watch a movie that features a family relationship (father, mother, brother, sister, uncle etc.) in the title",
+  "NATO Phonetic Alphabet Challenge — Watch a movie based on/featuring a word from the NATO Phonetic Alphabet",
+  "5 Below Challenge — Watch a movie where the title contains 5 letters or less",
+  "Money Challenge — Watch a movie that features money, the concept of value or currency in the title, or as a pivotal part of the plot",
+  "Shapes Challenge — Watch a movie that's either got a shape right there in the title or features a particular shape that plays a pivotal role in the plot",
+  "Adjective Challenge — Watch a movie with an adjective in its title",
+  "Size Title Challenge — Watch a movie where a word relating to size is in the title",
+  "The Senses Challenge — Watch a movie that is related to the 5 senses",
+  "The Plot Title Challenge — Watch a movie where the title explains the plot",
+  "Medicinal Challenge — Watch a movie that has a reference to something in the medical or health care realm",
+  "Unit of Time Challenge — Watch a movie with a reference to time in the title",
+  "Body Parts Challenge — Watch a movie that has a body part in the title",
+  "Job/Career Challenge — Watch a movie that is about a job or career",
+  "The Challenge — Watch a movie where the title starts with \"the\"",
+  "Criterion Challenge — Watch a movie from the Criterion Collection",
+  "Stuck Challenge — Watch a movie with a lead forced to be somewhere they don't want to be (prison, work, abduction, etc.)",
+  "Water Challenge — Watch a movie with water as a plot device, water in the title, or an ingeniously tenuous connection to water",
+  "Black & White Challenge — Watch a black and white movie",
+  "Color Challenge — Watch a movie with a color in the title",
+  "Academy Challenge — Watch a movie that was nominated for an Oscar"
+];
+
+function toggleWeeklyDefault(text, on){
+  const me=myData(); me.weeklyEnabled=me.weeklyEnabled||{};
+  me.weeklyEnabled[text]=on;
+  saveUsers().then(()=>renderWeeklyChallenges());
+}
+
+function addCustomWeeklyChallenge(){
+  const input = document.getElementById('wc-custom-input');
+  const val = (input?.value||'').trim();
+  if(!val) return;
+  const me = myData(); me.customWeeklyChallenges = me.customWeeklyChallenges||[];
+  me.customWeeklyChallenges.push({id:uid(), text:val, enabled:true});
+  input.value='';
+  saveUsers().then(()=>renderWeeklyChallenges());
+}
+
+function toggleCustomWeekly(id, on){
+  const me = myData();
+  const c = (me.customWeeklyChallenges||[]).find(x=>x.id===id);
+  if(!c) return;
+  c.enabled = on;
+  saveUsers().then(()=>renderWeeklyChallenges());
+}
+
+function deleteCustomWeekly(id, text){
+  if(!confirm('Delete "'+text+'"?')) return;
+  const me = myData();
+  me.customWeeklyChallenges = (me.customWeeklyChallenges||[]).filter(x=>x.id!==id);
+  saveUsers().then(function(){ renderWeeklyChallenges(); toast('Challenge deleted.'); });
+}
+
+function getEnabledWeeklyChallenges(){
+  const me = myData();
+  const defaults = DEFAULT_WEEKLY_CHALLENGES.filter(t=>me.weeklyEnabled && me.weeklyEnabled[t]);
+  const customs = (me.customWeeklyChallenges||[]).filter(c=>c.enabled).map(c=>c.text);
+  return defaults.concat(customs);
+}
+
+function startWeeklyRun(){
+  const me = myData();
+  const active = getEnabledWeeklyChallenges();
+  if(!active.length){ toast('Toggle on at least one challenge first.', true); return; }
+  me.weeklyRun = { startedAt: Date.now(), challenges: active.slice(), completed: {} };
+  saveUsers().then(()=>renderWeeklyChallenges());
+  toast("This week's challenges are locked in!");
+}
+
+function toggleWeeklyRunItem(text){
+  const me = myData();
+  if(!me.weeklyRun) return;
+  me.weeklyRun.completed = me.weeklyRun.completed||{};
+  me.weeklyRun.completed[text] = !me.weeklyRun.completed[text];
+  saveUsers().then(()=>renderWeeklyChallenges());
+}
+
+function resetWeeklyRun(){
+  if(!confirm('Start a new week? This clears current progress.')) return;
+  const me = myData();
+  me.weeklyRun = null;
+  saveUsers().then(()=>renderWeeklyChallenges());
+}
+
+function renderWeeklyChallenges(){
+  const me = myData();
+
+  const activeWrap = document.getElementById('weekly-active-wrap');
+  if(activeWrap){
+    if(me.weeklyRun && (me.weeklyRun.challenges||[]).length){
+      const run = me.weeklyRun;
+      const doneCount = Object.values(run.completed||{}).filter(Boolean).length;
+      activeWrap.innerHTML = `
+        <div class="sl" style="margin-bottom:4px">This Week's Challenges <span style="font-size:12px;color:var(--muted)">(${doneCount}/${run.challenges.length})</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+          ${run.challenges.map(function(c){
+            const safeC = c.replace(/'/g,"\\'");
+            const done = run.completed && run.completed[c];
+            return `<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer">
+              <input type="checkbox" ${done?'checked':''} onchange="toggleWeeklyRunItem('${safeC}')">
+              <span style="font-size:12px;color:${done?'var(--green)':'var(--light)'};${done?'text-decoration:line-through':''}">${c}</span>
+            </label>`;
+          }).join('')}
+        </div>
+        <button class="ghost-btn" style="font-size:11px" onclick="resetWeeklyRun()"><i class="ti ti-refresh"></i> Start New Week</button>
+      `;
+    } else {
+      const activeCount = getEnabledWeeklyChallenges().length;
+      activeWrap.innerHTML = `
+        <div class="sl" style="margin-bottom:4px">This Week's Challenges</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${activeCount} challenge${activeCount===1?'':'s'} toggled on below. Lock them in to start tracking this week.</div>
+        <button class="primary-btn" onclick="startWeeklyRun()"><i class="ti ti-flag-3"></i> Start This Week's Challenges</button>
+      `;
+    }
+  }
+
+  const defList = document.getElementById('weekly-default-list');
+  if(defList){
+    defList.innerHTML = DEFAULT_WEEKLY_CHALLENGES.map(function(t){
+      const on = !!(me.weeklyEnabled && me.weeklyEnabled[t]);
+      const safeT = t.replace(/'/g,"\\'");
+      return `<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer">
+        <input type="checkbox" ${on?'checked':''} onchange="toggleWeeklyDefault('${safeT}', this.checked)">
+        <span style="font-size:12px;color:var(--light)">${t}</span>
+      </label>`;
+    }).join('');
+  }
+
+  const custList = document.getElementById('weekly-custom-list');
+  if(custList){
+    const customs = me.customWeeklyChallenges||[];
+    if(!customs.length){
+      custList.innerHTML = '<div style="font-size:11px;color:var(--muted)">No custom challenges yet.</div>';
+    } else {
+      custList.innerHTML = customs.map(function(c){
+        const safeText = (c.text||'').replace(/'/g,"\\'");
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
+          <input type="checkbox" ${c.enabled?'checked':''} onchange="toggleCustomWeekly('${c.id}', this.checked)">
+          <span style="flex:1;font-size:12px;color:var(--light)">${c.text}</span>
+          <span class="wl-tab-action danger" onclick="deleteCustomWeekly('${c.id}','${safeText}')" title="Delete"><i class="ti ti-trash" style="font-size:12px"></i></span>
+        </div>`;
+      }).join('');
+    }
   }
 }
 
@@ -10422,18 +10812,23 @@ function getRankPool(me){
 
 // ── Sub-tab switching ──────────────────────────────────────────────────────────
 function switchRankSubtab(t){
-  _rankSubtab = t;
-  document.querySelectorAll('#tab-compare .auth-tab').forEach(b=>b.classList.remove('active'));
-  const btn = document.getElementById('rank-subtab-'+t);
-  if(btn) btn.classList.add('active');
-  const panes = {liked:'rank-liked-pane', rankings:'rank-rankings-pane', top100:'rank-top100-pane'};
-  Object.keys(panes).forEach(function(k){
-    const el = document.getElementById(panes[k]);
-    if(el) el.style.display = (k===t) ? '' : 'none';
-  });
-  if(t==='liked') renderRankLiked();
-  if(t==='rankings') renderCompare();
-  if(t==='top100') renderRankTop100();
+  try{
+    _rankSubtab = t;
+    document.querySelectorAll('#tab-compare .auth-tab').forEach(b=>b.classList.remove('active'));
+    const btn = document.getElementById('rank-subtab-'+t);
+    if(btn) btn.classList.add('active');
+    const panes = {liked:'rank-liked-pane', rankings:'rank-rankings-pane', top100:'rank-top100-pane'};
+    Object.keys(panes).forEach(function(k){
+      const el = document.getElementById(panes[k]);
+      if(el) el.style.display = (k===t) ? '' : 'none';
+    });
+    if(t==='liked') renderRankLiked();
+    if(t==='rankings') renderCompare();
+    if(t==='top100') renderRankTop100();
+  }catch(err){
+    console.error('switchRankSubtab failed:', err);
+    toast('Something went wrong switching tabs — check console.', true);
+  }
 }
 
 // ── LIKED pane ───────────────────────────────────────────────────────────────
@@ -10671,20 +11066,30 @@ RankEngine.prototype.estimatedTotal = function(){
 
 // ── Render functions ──────────────────────────────────────────────────────────
 function startRanking(){
-  var me = myData();
-  var pool = getRankPool(me);
-  if(pool.length<2){
-    toast('Need at least 2 liked films to rank. Pool size: '+pool.length);
-    return;
+  try{
+    var me = myData();
+    var pool = getRankPool(me);
+    if(pool.length<2){
+      toast('Need at least 2 liked films to rank. Pool size: '+pool.length, true);
+      return;
+    }
+    _rankEngine = new RankEngine(pool);
+    renderCompare();
+  }catch(err){
+    console.error('startRanking failed:', err);
+    toast('Something went wrong starting the ranking — check console.', true);
   }
-  _rankEngine = new RankEngine(pool);
-  renderCompare();
 }
 
 function pickRankWinner(winnerId){
-  if(!_rankEngine) return;
-  _rankEngine.pick(winnerId);
-  renderCompare();
+  try{
+    if(!_rankEngine) return;
+    _rankEngine.pick(winnerId);
+    renderCompare();
+  }catch(err){
+    console.error('pickRankWinner failed:', err);
+    toast('Something went wrong recording that pick — check console.', true);
+  }
 }
 
 function cancelRanking(){
@@ -10693,15 +11098,20 @@ function cancelRanking(){
 }
 
 function saveRanking(){
-  var me = myData();
-  var ranked = _rankEngine ? _rankEngine.ranked() : [];
-  me.compareTop100 = ranked.map(function(m){ return m.id; });
-  me.compareTop100SavedAt = Date.now();
-  saveUsers().then(function(){
-    toast('Rankings saved! ⭐');
-    renderCompare();
-    if(document.getElementById('rank-top100-pane')) renderRankTop100();
-  });
+  try{
+    var me = myData();
+    var ranked = _rankEngine ? _rankEngine.ranked() : [];
+    me.compareTop100 = ranked.map(function(m){ return m.id; });
+    me.compareTop100SavedAt = Date.now();
+    saveUsers().then(function(){
+      toast('Rankings saved! ⭐');
+      renderCompare();
+      if(document.getElementById('rank-top100-pane')) renderRankTop100();
+    });
+  }catch(err){
+    console.error('saveRanking failed:', err);
+    toast('Something went wrong saving your rankings — check console.', true);
+  }
 }
 
 function renderCompare(){
