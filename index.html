@@ -165,20 +165,6 @@ select option{background:#1a1a2e;color:#eeeef5}
 .comment-submit:hover{background:linear-gradient(135deg,var(--gold2),var(--gold))}
 .no-comments{font-size:12px;color:var(--muted);padding:4px 0;margin-bottom:6px}
 
-/* PLEX ACTIVITY */
-.activity-feed{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
-.activity-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
-.activity-item:last-child{border:none}
-.activity-who{font-weight:600;color:var(--light)}
-.activity-when{color:var(--muted);font-size:11px}
-.activity-empty{font-size:12px;color:var(--muted);padding:4px 0}
-.watching-now{display:flex;align-items:center;gap:7px;background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.2);border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:8px}
-.watching-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;animation:wpulse .9s infinite}
-@keyframes wpulse{0%,100%{opacity:1}50%{opacity:.2}}
-.watchers-bar{display:flex;gap:3px;align-items:center;position:absolute;bottom:36px;left:50%;transform:translateX(-50%)}
-.watcher-av{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.watcher-av img{width:100%;height:100%;object-fit:cover}
-
 /* DIARY */
 .diary-month{margin-bottom:28px}
 .diary-month-hd{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:2px;color:var(--light);display:flex;align-items:center;gap:10px;margin-bottom:12px;text-transform:uppercase}
@@ -311,9 +297,6 @@ select option{background:#1a1a2e;color:#eeeef5}
 .trophy-period-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.5px;flex-shrink:0}
 .monthly-badge{background:rgba(52,152,219,.15);color:var(--blue);border:1px solid rgba(52,152,219,.3)}
 .annual-badge{background:rgba(138,90,240,.15);color:var(--purple);border:1px solid rgba(138,90,240,.3)}
-
-/* RECENTLY ADDED FROM PLEX */
-.plex-new-badge{position:absolute;top:6px;left:6px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase}
 
 /* AUTO COLLECTIONS */
 .collection-shelf{margin-bottom:24px}
@@ -862,18 +845,6 @@ select option{background:#1a1a2e;color:#eeeef5}
 .genre-msel-opt input{accent-color:var(--gold)}
 .genre-msel-count{background:var(--gold);color:#000;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;line-height:1.4}
 
-/* A-Z SLIDER */
-.az-slider{position:fixed;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:60;background:rgba(14,14,24,.55);border:1px solid var(--border);border-radius:10px;padding:6px 3px;backdrop-filter:blur(8px)}
-.az-slider-item{font-size:9px;font-weight:600;color:var(--muted);text-align:center;width:16px;line-height:1.5;cursor:pointer;border-radius:3px;transition:all .1s;user-select:none}
-.az-slider-item:hover,.az-slider-item.active{color:var(--gold);background:var(--gold-dim)}
-.az-bubble{position:fixed;right:32px;top:50%;transform:translateY(-50%) scale(0);background:var(--gold);color:#000;font-family:Bebas Neue,cursive;font-size:28px;font-weight:700;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:61;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .12s ease-out;pointer-events:none}
-.az-bubble.show{transform:translateY(-50%) scale(1)}
-@media(max-width:600px){
-  .az-slider{right:0;padding:4px 2px;border-radius:8px 0 0 8px;border-right:none}
-  .az-slider-item{width:13px;font-size:8px;padding:0 1px}
-  .az-bubble{right:20px;width:40px;height:40px;font-size:20px}
-}
-
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:var(--muted)}
 .empty i{font-size:48px;margin-bottom:12px;display:block;opacity:.25}
@@ -1250,7 +1221,6 @@ textarea.ffi{resize:vertical}
 .wm-comment:hover .wm-del{opacity:1}
 .wm-del:hover{color:var(--red)}
 .wm-divider{font-size:10px;color:var(--muted);text-align:center;padding:8px 0;letter-spacing:1px;text-transform:uppercase}
-.wm-plex-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;animation:wpulse .9s infinite}
 .wm-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.7}
 
 
@@ -1662,13 +1632,6 @@ textarea.ffi{resize:vertical}
     </div>
   </div>
 
-  <!-- CURRENTLY PLAYING BANNER -->
-  <div class="now-playing-banner" id="now-playing-banner">
-    <div class="now-playing-dot"></div>
-    <span style="color:var(--blue);font-weight:600;font-size:11px;letter-spacing:.5px;text-transform:uppercase">Now Playing</span>
-    <div class="now-playing-users" id="now-playing-users"></div>
-  </div>
-
   <div class="main">
     <!-- LIBRARY -->
     <div class="tab" id="tab-library">
@@ -1678,10 +1641,6 @@ textarea.ffi{resize:vertical}
         <div class="cf-stage" id="cf-stage"></div>
       </div>
       <div class="stats" id="lib-stats"></div>
-      <div id="plex-new-shelf" style="display:none">
-        <div class="shelf-title"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> New on Plex <span id="plex-new-status" style="font-size:10px;color:var(--muted);font-family:'Outfit',sans-serif;letter-spacing:0;text-transform:none;font-weight:400"></span></div>
-        <div class="shelf-scroll" id="plex-new-scroll" style="margin-bottom:20px"></div>
-      </div>
       <div class="shelf" id="now-shelf" style="display:none">
         <div class="shelf-title"><i class="ti ti-player-play" style="color:var(--blue)"></i> Now Watching</div>
         <div class="shelf-scroll" id="now-scroll"></div>
@@ -1690,7 +1649,7 @@ textarea.ffi{resize:vertical}
         <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
         <div class="shelf-scroll" id="fav-scroll"></div>
       </div>
-      <div class="sl" style="margin-bottom:12px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Library</div>
+      <div class="sl" style="margin-bottom:12px"><i class="ti ti-movie"></i> Library</div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-lib" placeholder="Search titles, actors, directors..." oninput="renderLib()"></div>
         <div class="genre-msel" id="genre-msel">
@@ -1723,9 +1682,6 @@ textarea.ffi{resize:vertical}
       <div class="grid" id="lib-grid"></div>
       <div class="empty" id="lib-empty" style="display:none"><i class="ti ti-video-off"></i><p style="font-size:14px">No titles found.</p></div>
     </div>
-    <div class="az-bubble" id="az-bubble"></div>
-    <div class="az-slider" id="az-slider" style="display:none"></div>
-
     <!-- TV SHOWS -->
     <div class="tab" id="tab-tvshows">
       <div class="stats" id="tv-stats"></div>
@@ -1737,7 +1693,7 @@ textarea.ffi{resize:vertical}
         <div class="shelf-title"><i class="ti ti-star-filled" style="color:var(--gold)"></i> Top Picks</div>
         <div class="shelf-scroll" id="tv-fav-scroll"></div>
       </div>
-      <div class="sl" style="margin-bottom:12px"><i class="ti ti-brand-plex" style="color:#e5a00d"></i> Plex Library</div>
+      <div class="sl" style="margin-bottom:12px"><i class="ti ti-device-tv"></i> TV Library</div>
       <div class="toolbar">
         <div class="sw"><i class="ti ti-search"></i><input type="text" id="s-tv" placeholder="Search TV shows..." oninput="renderTV()"></div>
         <select class="fb" id="f-tv-genre" onchange="renderTV()"><option value="">All Genres</option></select>
@@ -1794,7 +1750,7 @@ textarea.ffi{resize:vertical}
       <div class="vntg-fullpage" id="vntg-fullpage">
 
         <!-- Back button -->
-        <button class="vntg-back-btn" onclick="switchTab('library',document.querySelector('.nb'))">
+        <button class="vntg-back-btn" onclick="switchTab('diary',document.getElementById('nb-diary'))">
           <i class="ti ti-arrow-left"></i> Back
         </button>
 
@@ -2583,43 +2539,6 @@ function setThemeMode(mode){
 })();
 
 let CU = null;
-let plexActivity = { history:[], sessions:[], plexUsers:[], lastFetch:0 };
-let plexRecentItems = []; // cached recently added from Plex
-
-// Plex config — stored in Worker KV so all devices share it automatically
-let _plexCfgCache = null;
-function getPlexCfg(){ return _plexCfgCache || {}; }
-async function savePlexCfg(cfg){
-  _plexCfgCache = cfg;
-  // Also keep in localStorage as fallback
-  try{ localStorage.setItem('mcflix_plex', JSON.stringify(cfg)); }catch(e){}
-  // Save to Worker KV
-  if(WORKER_URL && APP_TOKEN){
-    try{
-      await fetch(`${WORKER_URL}/data/plex_config`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json','X-McFlix-Token':APP_TOKEN},
-        body:JSON.stringify(cfg)
-      });
-    }catch(e){ console.warn('Could not save Plex config to Worker:', e.message); }
-  }
-}
-async function loadPlexCfg(){
-  // Try Worker first
-  if(WORKER_URL && APP_TOKEN){
-    try{
-      const r = await fetch(`${WORKER_URL}/data/plex_config`,{
-        headers:{'X-McFlix-Token':APP_TOKEN}
-      });
-      if(r.ok){
-        const d = await r.json();
-        if(d && d.url && d.token){ _plexCfgCache = d; return; }
-      }
-    }catch(e){}
-  }
-  // Fallback to localStorage
-  try{ _plexCfgCache = JSON.parse(localStorage.getItem('mcflix_plex')||'{}'); }catch(e){ _plexCfgCache={}; }
-}
 let cloudLoaded = false;
 let sharedData = { library:[], wishlist:[], requests:[] };
 let allUsers = { accounts:[], personal:{} };
@@ -2953,12 +2872,6 @@ function initApp(){
   try{ updateCounts(); }catch(e){ console.error('initApp: updateCounts failed', e); }
   try{ initBackGuard(); }catch(e){ console.error('initApp: initBackGuard failed', e); }
   try{ checkShowQuestionnaire(); }catch(e){ console.error('initApp: checkShowQuestionnaire failed', e); }
-
-  loadPlexCfg().then(()=>{
-    // Fetch both in parallel, re-render lib when each completes
-    fetchPlexActivity().then(()=>renderLib());
-    fetchPlexRecentlyAdded().then(()=>renderLib());
-  });
 }
 
 function myData(){
@@ -4220,7 +4133,6 @@ function renderTV(){
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
       ${(()=>{const crit=(me.critiques||{})[m.id];const cs=crit&&crit._v2?critiqueOverallScore(crit):0;if(cs>0)return `<div class="rating-badge" style="background:rgba(232,184,75,.25);border:1px solid rgba(232,184,75,.5)"><i class="ti ti-star-filled" style="font-size:7px;margin-right:1px;vertical-align:middle"></i>${cs.toFixed(1)}</div>`;if(r[m.id])return `<div class="rating-badge">${r[m.id]}/10</div>`;return '';})()}
-      ${watcherAvatarsHTML(m)}
     </div>`;
   }).join('');
   updateCounts();
@@ -4259,248 +4171,6 @@ function renderTV(){
   }
 }
 let _tvProgressFetchInFlight = false;
-
-// ── PLEX ACTIVITY (browser-direct) ───────────────────────────────────────────
-// Fetch with a timeout — plain fetch() can hang indefinitely on mobile networks
-// when a host is unreachable (especially IPv6 plex.direct addresses over cellular),
-// which leaves "Loading..." stuck forever with no error.
-function fetchWithTimeout(url, options={}, timeoutMs=10000){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
-  return fetch(url, {...options, signal: controller.signal}).finally(()=>clearTimeout(timer));
-}
-
-async function fetchPlexActivity(){
-  const cfg = getPlexCfg();
-  if(!cfg.url || !cfg.token) return;
-  if(Date.now() - plexActivity.lastFetch < 90000) return;
-  try{
-    const base = cfg.url.replace(/\/+$/, '');
-    const tok  = cfg.token;
-    const headers = { 'Accept': 'application/json', 'X-Plex-Token': tok };
-
-    // Use the proper history endpoint — returns accountID correctly
-    const histR = await fetchWithTimeout(
-      `${base}/status/sessions/history/all?sort=viewedAt:desc&limit=2000&X-Plex-Token=${tok}`,
-      { headers }
-    );
-    if(!histR.ok) throw new Error('history '+histR.status);
-    const histData = await histR.json();
-    const raw = histData.MediaContainer?.Metadata || [];
-
-    // Group by title+accountID, keep the most recent viewedAt and count plays
-    const seen = {};
-    raw.forEach(item => {
-      // For episodes use the show title, for movies use title
-      const titleKey = item.grandparentTitle || item.title;
-      const key = titleKey + '||' + item.accountID;
-      if(!seen[key]){
-        seen[key] = {
-          ratingKey:   item.grandparentRatingKey || item.ratingKey,
-          title:       titleKey,
-          type:        item.type === 'episode' ? 'show' : 'movie',
-          lastViewedAt: item.viewedAt,
-          viewCount:   1,
-          accountID:   String(item.accountID || ''),
-        };
-      } else {
-        seen[key].viewCount++;
-        if(item.viewedAt > seen[key].lastViewedAt) seen[key].lastViewedAt = item.viewedAt;
-      }
-    });
-    const history = Object.values(seen);
-
-    // Active sessions
-    let sessions = [];
-    try{
-      const sessR = await fetchWithTimeout(`${base}/status/sessions?X-Plex-Token=${tok}`, { headers });
-      if(sessR.ok){
-        const sd = await sessR.json();
-        sessions = (sd.MediaContainer?.Metadata||[]).map(s=>({
-          ratingKey: s.ratingKey,
-          title:     s.grandparentTitle || s.title,
-          state:     s.Player?.state||'playing',
-          progress:  s.viewOffset&&s.duration ? Math.round(s.viewOffset/s.duration*100) : null,
-          user:      s.User?.title||s.User?.name||null,
-          accountID: String(s.User?.id||''),
-        }));
-      }
-    }catch(e){}
-
-    // Fetch accounts from the server directly (works without plex.tv)
-    let plexUsers = [];
-    try{
-      const uR = await fetchWithTimeout(`${base}/accounts?X-Plex-Token=${tok}`, { headers });
-      if(uR.ok){
-        const ud = await uR.json();
-        plexUsers = (ud.MediaContainer?.Account||[]).map(u=>({
-          id:       String(u.id),
-          username: u.name||String(u.id),
-        }));
-      }
-    }catch(e){}
-
-    plexActivity = { history, sessions, plexUsers, lastFetch: Date.now(), lastError: null };
-    console.log('McFlix Plex: loaded '+history.length+' history entries, '+plexUsers.length+' users');
-    updateNowPlayingBanner();
-    fetchPlexRecentlyAdded();
-
-    // Auto-mark watched and log history for the current user based on Plex activity
-    if(CU && history.length){
-      const me = myData();
-      let changed = false;
-      history.forEach(h => {
-        // Find matching McFlix user via plexUsername
-        const pu = plexUsers.find(u => u.id === h.accountID);
-        const mu = pu ? plexUserToMcFlix(pu.username) : null;
-        if(!mu || mu.id !== CU.id) return; // only update current user
-        // Find matching library item by title
-        const item = sharedData.library.find(m => m.title.toLowerCase() === h.title.toLowerCase());
-        if(!item) return;
-        const ud = allUsers.personal[mu.id] || (allUsers.personal[mu.id] = {ratings:{},watched:{},nowWatching:{},favorites:{},notes:{},history:{},collections:[]});
-        // Mark as watched
-        if(!ud.watched) ud.watched = {};
-        if(!ud.watched[item.id]){ ud.watched[item.id] = true; changed = true; }
-        // Log history — use viewCount to log multiple viewings
-        if(!ud.history) ud.history = {};
-        if(!ud.history[item.id]) ud.history[item.id] = [];
-        const ts = h.lastViewedAt * 1000; // most recent viewing timestamp
-        const viewCount = h.viewCount || 1;
-        const currentCount = ud.history[item.id].length;
-        if(currentCount < viewCount){
-          // Add the most recent viewing if not already there
-          const alreadyLogged = ud.history[item.id].some(d => Math.abs(d - ts) < 86400000);
-          if(!alreadyLogged){ ud.history[item.id].push(ts); changed = true; }
-          // Backfill missing viewings with estimated dates spaced ~30 days apart
-          const needed = viewCount - ud.history[item.id].length;
-          for(let i = 1; i <= needed; i++){
-            const estTs = ts - (i * 30 * 24 * 60 * 60 * 1000); // ~30 days back per viewing
-            const alreadyEst = ud.history[item.id].some(d => Math.abs(d - estTs) < 7 * 86400000);
-            if(!alreadyEst){ ud.history[item.id].push(estTs); changed = true; }
-          }
-        }
-      });
-      if(changed){ saveUsers(); console.log('McFlix Plex: synced watch history to user data'); }
-    }
-  }catch(e){
-    const msg = e.name==='AbortError' ? 'Connection timed out reaching your Plex server.' : (e.message||'Unknown error');
-    console.warn('McFlix Plex fetch failed:', msg);
-    plexActivity.lastError = msg;
-    plexActivity.lastFetch = Date.now(); // mark as "tried" so we don't loop forever and so the UI updates
-  }
-}
-
-function plexUserToMcFlix(plexUsername){
-  if(!plexUsername) return null;
-  return allUsers.accounts.find(a =>
-    a.plexUsername && a.plexUsername.toLowerCase() === plexUsername.toLowerCase()
-  ) || null;
-}
-
-function activityForItem(m){
-  const titleLower = (m.title||'').toLowerCase();
-  // Match history by title (case-insensitive)
-  const hist = plexActivity.history.filter(h =>
-    h.title.toLowerCase() === titleLower
-  );
-  // Match sessions by title too
-  const sess = plexActivity.sessions.filter(s =>
-    s.title.toLowerCase() === titleLower
-  );
-  return { hist, sess };
-}
-
-function watcherAvatarsHTML(m){
-  if(!plexActivity.lastFetch) return '';
-  const { hist, sess } = activityForItem(m);
-  const seen = new Set();
-  const watchers = [];
-  sess.forEach(s => {
-    if(seen.has(s.accountID)) return; seen.add(s.accountID);
-    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
-    const mu = plexUserToMcFlix(pu?.username||s.user||'');
-    watchers.push({ mu, name: pu?.username||s.user||'?', active: true });
-  });
-  hist.forEach(h => {
-    if(seen.has(h.accountID)) return; seen.add(h.accountID);
-    const pu = plexActivity.plexUsers.find(u=>u.id===h.accountID);
-    const mu = plexUserToMcFlix(pu?.username||'');
-    watchers.push({ mu, name: pu?.username||h.accountID||'?', active: false });
-  });
-  if(!watchers.length) return '';
-  return `<div class="watchers-bar">${watchers.slice(0,4).map(w=>{
-    if(w.mu){
-      const inner = w.mu.photo
-        ? `<img src="${w.mu.photo}">`
-        : `<span style="color:${w.mu.color}">${ini(w.mu.username)}</span>`;
-      return `<div class="watcher-av" style="background:${w.mu.color}22;${w.active?'box-shadow:0 0 0 2px var(--blue)':''}">${inner}</div>`;
-    }
-    return `<div class="watcher-av" style="background:var(--bg3);color:var(--muted)">${w.name.slice(0,1).toUpperCase()}</div>`;
-  }).join('')}</div>`;
-}
-
-function buildActivitySection(m){
-  const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token){
-    return `<div class="activity-empty">Add your Plex server in Settings to see activity here.</div>`;
-  }
-  if(!plexActivity.lastFetch){
-    return `<div class="activity-empty">Loading Plex activity...</div>`;
-  }
-  if(plexActivity.lastError){
-    return `<div class="activity-empty" style="color:var(--orange)"><i class="ti ti-alert-triangle" style="margin-right:4px"></i>${plexActivity.lastError}<br><span style="color:var(--muted);font-size:11px">Your Plex server may not be reachable on this network.</span></div>`;
-  }
-  const { hist, sess } = activityForItem(m);
-  let html = '';
-  sess.forEach(s=>{
-    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
-    const mu = plexUserToMcFlix(pu?.username||s.user||'');
-    const name = mu ? mu.username : (pu?.username||s.user||'Someone');
-    const av = mu ? avatarEl(mu,20) : `<div class="av" style="width:20px;height:20px;font-size:8px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
-    html += `<div class="watching-now">${av}<div class="watching-dot"></div><span><strong>${name}</strong> is watching right now${s.progress!=null?' · '+s.progress+'%':''}</span></div>`;
-  });
-  if(!hist.length && !sess.length){
-    return html + `<div class="activity-empty">No one has watched this yet.</div>`;
-  }
-  // Group by account, keep latest
-  const byAcct = {};
-  hist.forEach(h=>{
-    if(!byAcct[h.accountID]||h.lastViewedAt>byAcct[h.accountID].lastViewedAt) byAcct[h.accountID]=h;
-  });
-  const entries = Object.values(byAcct).sort((a,b)=>b.lastViewedAt-a.lastViewedAt);
-  if(!entries.length) return html + `<div class="activity-empty">No watch history found.</div>`;
-  html += `<div class="activity-feed">`;
-  entries.forEach(e=>{
-    const pu = plexActivity.plexUsers.find(u=>u.id===e.accountID);
-    const mu = plexUserToMcFlix(pu?.username||'');
-    const name = mu ? mu.username : (pu?.username||e.accountID||'Unknown');
-    const av = mu ? avatarEl(mu,22) : `<div class="av" style="width:22px;height:22px;font-size:9px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
-    const when = e.lastViewedAt ? formatAgo(e.lastViewedAt*1000) : '';
-    const times = e.viewCount>1 ? ` · ${e.viewCount}× watched` : '';
-    html += `<div class="activity-item">${av}<div style="flex:1"><span class="activity-who">${name}</span> watched this<span class="activity-when"> · ${when}${times}</span></div></div>`;
-  });
-  html += `</div>`;
-  return html;
-}
-
-// ── CURRENTLY PLAYING BANNER ─────────────────────────────────────────────────
-function updateNowPlayingBanner(){
-  const banner = document.getElementById('now-playing-banner');
-  const usersEl = document.getElementById('now-playing-users');
-  if(!banner||!usersEl) return;
-  const sessions = plexActivity.sessions||[];
-  if(!sessions.length){ banner.classList.remove('show'); return; }
-  const items = sessions.map(s=>{
-    const pu = plexActivity.plexUsers.find(u=>u.id===s.accountID);
-    const mu = pu ? plexUserToMcFlix(pu.username||'') : null;
-    const name = mu ? mu.username : (pu?.username||s.user||'Someone');
-    const av = mu ? avatarEl(mu,20) : `<div class="av" style="width:20px;height:20px;font-size:8px;background:var(--bg3);color:var(--muted)">${name.slice(0,1).toUpperCase()}</div>`;
-    const pct = s.progress!=null ? ` <span style="color:var(--muted)">${s.progress}%</span>` : '';
-    return `<div class="now-playing-item">${av} <strong>${name}</strong> is watching <strong>${s.title}</strong>${pct}</div>`;
-  }).join('<span style="color:var(--border2);margin:0 4px">·</span>');
-  usersEl.innerHTML = items;
-  banner.classList.add('show');
-}
 
 // ── FILTER PRESETS ────────────────────────────────────────────────────────────
 function togglePresetsPanel(e){
@@ -4795,81 +4465,6 @@ function renderCollections(){
   }).join('');
 }
 
-// ── RECENTLY ADDED FROM PLEX ──────────────────────────────────────────────────
-async function fetchPlexRecentlyAdded(){
-  const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token) return;
-  try{
-    const base = cfg.url.replace(/\/+$/, '');
-    const tok = cfg.token;
-    // Get all library sections first
-    const secR = await fetch(`${base}/library/sections?X-Plex-Token=${tok}`,{
-      headers:{'Accept':'application/json','X-Plex-Token':tok}
-    });
-    if(!secR.ok){ console.warn('Plex sections failed:', secR.status); return; }
-    const secD = await secR.json();
-    const sections = (secD.MediaContainer?.Directory||[]).filter(s=>s.type==='movie'||s.type==='show');
-    if(!sections.length) return;
-
-    const allItems = [];
-    for(const sec of sections){
-      try{
-        const r = await fetch(`${base}/library/sections/${sec.key}/recentlyAdded?X-Plex-Token=${tok}&X-Plex-Container-Size=10`,{
-          headers:{'Accept':'application/json','X-Plex-Token':tok}
-        });
-        if(!r.ok) continue;
-        const d = await r.json();
-        const items = d.MediaContainer?.Metadata||[];
-        items.forEach(m=>allItems.push({...m, _base:base, _tok:tok}));
-      }catch(e){}
-    }
-
-    if(!allItems.length){ console.warn('Plex recently added: no items found'); return; }
-    // Sort by addedAt, newest first, dedupe by title
-    const seen = new Set();
-    plexRecentItems = allItems
-      .sort((a,b)=>(b.addedAt||0)-(a.addedAt||0))
-      .filter(m=>{ const t=m.title?.toLowerCase(); if(seen.has(t)) return false; seen.add(t); return true; })
-      .slice(0,12);
-    console.log('McFlix: Plex recently added loaded', plexRecentItems.length, 'items');
-    renderPlexNewShelf();
-  }catch(e){ console.error('Plex recently added failed:', e.message); }
-}
-
-function renderPlexNewShelf(){
-  const shelf = document.getElementById('plex-new-shelf');
-  const scroll = document.getElementById('plex-new-scroll');
-  const status = document.getElementById('plex-new-status');
-  if(!shelf||!scroll) return;
-  if(!plexRecentItems.length){
-    // Show shelf anyway with a loading message if Plex is configured
-    const cfg = getPlexCfg();
-    if(cfg.url && cfg.token){
-      shelf.style.display='';
-      if(status) status.textContent = '(loading...)';
-      scroll.innerHTML='';
-    } else {
-      shelf.style.display='none';
-    }
-    return;
-  }
-  if(status) status.textContent = '('+plexRecentItems.length+' titles)';
-  scroll.innerHTML = plexRecentItems.slice(0,12).map(m=>{
-    const inLib = sharedData.library.find(x=>x.title.toLowerCase()===m.title.toLowerCase());
-    const poster = inLib?.poster&&inLib.poster!=='N/A' ? inLib.poster
-      : (m.thumb ? `${m._base}${m.thumb}?X-Plex-Token=${m._tok}` : '');
-    const hp = !!poster;
-    return `<div class="shelf-card" onclick="${inLib?`openDetail('${inLib.id}','library')`:'void 0'}" style="cursor:${inLib?'pointer':'default'};position:relative">
-      ${hp?`<img src="${poster}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div style="width:100%;height:100%;display:${hp?'none':'flex'};background:var(--bg3);align-items:center;justify-content:center"><i class="ti ti-movie" style="color:var(--muted);opacity:.4"></i></div>
-      ${!inLib?'<div class="plex-new-badge">New</div>':''}
-      <div class="ov">${m.title}</div>
-    </div>`;
-  }).join('');
-  shelf.style.display='';
-}
-
-// ── PLEX POSTER PULL ──────────────────────────────────────────────────────────
 let bulkAddTarget = 'library';
 function openBulkAdd(defaultTarget='library'){
   bulkAddTarget = defaultTarget;
@@ -5052,35 +4647,6 @@ function confirmPosterPick(){
   });
 }
 
-async function pullPlexPoster(itemId){
-  const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token){ toast('Connect Plex first',true); return; }
-  const m = sharedData.library.find(x=>x.id===itemId);
-  if(!m) return;
-  const base = cfg.url.replace(/\/+$/, '');
-  const tok = cfg.token;
-  try{
-    // Search Plex for this title
-    const r = await fetch(`${base}/search?query=${encodeURIComponent(m.title)}&X-Plex-Token=${tok}`,{
-      headers:{'Accept':'application/json','X-Plex-Token':tok}
-    });
-    if(!r.ok){ toast('Plex search failed',true); return; }
-    const d = await r.json();
-    const results = d.MediaContainer?.Metadata||[];
-    const match = results.find(x=>x.title.toLowerCase()===m.title.toLowerCase()&&(x.type==='movie'||x.type==='show'));
-    if(!match||!match.thumb){ toast('No poster found on Plex',true); return; }
-    const posterUrl = `${base}${match.thumb}?X-Plex-Token=${tok}`;
-    // Update the library item
-    const idx = sharedData.library.findIndex(x=>x.id===itemId);
-    if(idx>-1){
-      sharedData.library[idx].poster = posterUrl;
-      await saveShared();
-      openDetail(itemId,'library');
-      toast('Plex poster applied!');
-    }
-  }catch(e){ toast('Could not pull Plex poster',true); }
-}
-
 // ── OMDB RATINGS BACKFILL ─────────────────────────────────────────────────────
 
 // ── BULK TMDB KEYWORD IMPORT ──────────────────────────────────────────────────
@@ -5255,8 +4821,6 @@ function renderLib(){
   fs.style.display=favs.length?'':'none';
   if(favs.length) document.getElementById('fav-scroll').innerHTML=favs.map(m=>miniCard(m)).join('');
 
-  // New on Plex shelf — render from cached data
-  renderPlexNewShelf();
   // Cover flow banner
   updateBanner();
   const grid=document.getElementById('lib-grid'),empty=document.getElementById('lib-empty');
@@ -5280,7 +4844,6 @@ function renderLib(){
       ${me.watched?.[m.id]?`<div class="wb"><i class="ti ti-check"></i></div>`:''}
       ${me.favorites?.[m.id]?`<div class="fav-star">★</div>`:''}
       ${(()=>{const crit=(me.critiques||{})[m.id];const cs=crit&&crit._v2?critiqueOverallScore(crit):0;if(cs>0)return `<div class="rating-badge" style="background:rgba(232,184,75,.25);border:1px solid rgba(232,184,75,.5)"><i class="ti ti-star-filled" style="font-size:7px;margin-right:1px;vertical-align:middle"></i>${cs.toFixed(1)}</div>`;if(r[m.id])return `<div class="rating-badge">${r[m.id]}/10</div>`;return '';})()}
-      ${watcherAvatarsHTML(m)}
     </div>`;
   }).join('');
   updateCounts();
@@ -5670,11 +5233,6 @@ function renderLists(){
 function openDetail(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
-  fetchPlexActivity().then(()=>{
-    const el=document.getElementById('plex-act-'+id);
-    if(el) el.innerHTML=buildActivitySection(m);
-    renderLib();
-  });
   const me=myData();
   const hp=m.poster&&m.poster!=='N/A';
   const inLib=src==='library';
@@ -5726,7 +5284,7 @@ function openDetail(id,src){
         ${m.imdb&&m.imdb!=='N/A'?`<a href="https://www.imdb.com/title/${m.imdb}/parentalguide" class="act" style="background:rgba(229,9,20,.08);color:#ff4757;border-color:rgba(229,9,20,.22)" target="_blank"><i class="ti ti-shield-check"></i> Parents Guide</a>`:''}
         ${inLib?`<button class="act" style="background:rgba(229,160,13,.08);border-color:rgba(229,160,13,.2);color:#e5a00d" onclick="openWatchMode('${id}')"><i class="ti ti-player-play-filled"></i> Watch Mode</button>`:''}
         ${isAdmin()&&src==='library'&&m.type!=='tv'?`<button class="act ${m.hidden?'active':''}" onclick="toggleHidden('${id}')" title="${m.hidden?'Unhide — make visible to members':'Hide from other members'}" style="border-color:rgba(138,90,240,.3);color:var(--purple)"><i class="ti ti-eye-off"></i> ${m.hidden?'Unhide':'Hide'}</button>`:''}
-        ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>${src==='library'&&getPlexCfg().url?`<button class="act" style="background:rgba(229,160,13,.1);border:1px solid rgba(229,160,13,.25);color:#e5a00d" onclick="pullPlexPoster('${id}')"><i class="ti ti-brand-plex"></i></button>`:""}`:''}
+        ${isAdmin()?`<button class="act" onclick="openEdit('${id}','${src}')"><i class="ti ti-edit"></i></button><button class="act" onclick="quickChangePoster('${id}','${src}')" title="Change poster"><i class="ti ti-photo"></i></button><button class="act act-del" onclick="delItem('${id}','${src}')"><i class="ti ti-trash"></i></button>`:''}
       </div>
       ${src==='wishlist'?`<button class="act act-priority ${m.priority?'on':''}" onclick="togglePriority('${id}')" style="width:100%;justify-content:center;margin-bottom:10px;font-size:13px;padding:10px 14px"><i class="ti ti-brand-plex"></i> ${m.priority?'✓ On Queue':'Add to Queue'}</button>`:``}
       <div id="trailer-btn-${id}"></div>
@@ -5809,10 +5367,6 @@ function openDetail(id,src){
           <textarea class="ffi comment-input-wrap" id="comment-input-${id}" placeholder="Leave a comment..." rows="2" style="flex:1;resize:none"></textarea>
           <button class="comment-submit" onclick="addComment('${id}','${src}')"><i class="ti ti-send"></i> Post</button>
         </div>
-      </div>
-      <div class="det-section det-section-notes">
-        <div class="det-section-hd"><i class="ti ti-brand-plex" style="font-size:14px;color:#e5a00d"></i> Plex Activity</div>
-        <div id="plex-act-${id}">${buildActivitySection(m)}</div>
       </div>
       <div class="det-section det-section-history">
         <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
@@ -10938,7 +10492,6 @@ let _wmRunning  = false;
 let _wmPaused   = false;
 let _wmPauseOffset = 0;   // ms paused at
 let _wmTick     = null;   // setInterval
-let _wmPollTick = null;   // Plex session poll
 let _wmLastCommentCount = 0;
 let _wmHighlightRange = 30000; // 30s window for "now" highlights
 
@@ -10975,12 +10528,11 @@ function renderWatchMode(){
     <div class="wm-header">
       ${hp?`<img src="${m.poster}" class="wm-poster" alt="">`:'<div class="wm-poster"></div>'}
       <div class="wm-title">${m.title}</div>
-      <div class="wm-timer" id="wm-timer" onclick="wmTimerClick()" title="Tap to start / sync to Plex">0:00:00</div>
+      <div class="wm-timer" id="wm-timer" onclick="wmTimerClick()" title="Tap to start / pause">0:00:00</div>
       <div class="wm-controls">
         <button class="wm-ctrl-btn green" id="wm-play-btn" onclick="wmPlay()" title="Play / Resume"><i class="ti ti-player-play"></i></button>
         <button class="wm-ctrl-btn" id="wm-pause-btn" onclick="wmPause()" title="Pause"><i class="ti ti-player-pause"></i></button>
         <button class="wm-ctrl-btn red" onclick="wmReset()" title="Reset timer"><i class="ti ti-refresh"></i></button>
-        <button class="wm-ctrl-btn" id="wm-plex-btn" onclick="wmSyncPlex()" title="Sync to Plex playback"><i class="ti ti-brand-plex" style="color:#e5a00d"></i></button>
         ${isAdmin()?'<button class="wm-ctrl-btn" onclick="wmShowSubInfo()" title="Subtitle file info"><i class="ti ti-subtitles"></i></button>':''}
       </div>
     </div>
@@ -11010,10 +10562,6 @@ function renderWatchMode(){
 
   // Start ticker
   wmStartTicker();
-  // Start Plex poll
-  wmStartPlexPoll();
-  // Auto-try Plex sync
-  setTimeout(wmSyncPlex, 800);
 }
 
 // ── Feed builder ──────────────────────────────────────────────────────────────
@@ -11132,58 +10680,6 @@ function wmSeekTo(ms){
   if(el) el.classList.add('running');
 }
 
-// ── Plex sync ─────────────────────────────────────────────────────────────────
-function wmStartPlexPoll(){
-  if(_wmPollTick) clearInterval(_wmPollTick);
-  _wmPollTick = setInterval(wmPollPlex, 5000);
-}
-
-async function wmPollPlex(){
-  const updated = await wmSyncPlex(true); // silent mode
-  if(updated) wmRefreshFeed();
-}
-
-async function wmSyncPlex(silent=false){
-  const cfg = getPlexCfg();
-  if(!cfg.url||!cfg.token) return false;
-  try{
-    const base = cfg.url.replace(/\/+$/,'');
-    const r = await fetchWithTimeout(`${base}/status/sessions?X-Plex-Token=${cfg.token}`,
-      {headers:{'Accept':'application/json','X-Plex-Token':cfg.token}}, 6000);
-    if(!r.ok) return false;
-    const d = await r.json();
-    const sessions = d.MediaContainer?.Metadata||[];
-    // Find a session matching this movie
-    const m = sharedData.library.find(x=>x.id===_wmMovieId);
-    const match = sessions.find(s=>(s.title||'').toLowerCase()===((m?.title||'').toLowerCase()));
-    if(match && match.viewOffset!=null){
-      const ms = parseInt(match.viewOffset)||0;
-      const isPlaying = match.Player?.state==='playing';
-      // Sync timer
-      _wmStartTs = Date.now() - ms;
-      _wmPaused = !isPlaying;
-      _wmRunning = isPlaying;
-      const el = document.getElementById('wm-timer');
-      if(el){
-        el.textContent = wmFmtMs(ms);
-        el.className = 'wm-timer synced' + (isPlaying?' running':'');
-      }
-      const pb = document.getElementById('wm-play-btn');
-      if(pb) pb.classList.toggle('active', isPlaying);
-      const btn = document.getElementById('wm-plex-btn');
-      if(btn) btn.innerHTML = '<i class="ti ti-brand-plex" style="color:var(--green)"></i>';
-      if(!silent) toast('Synced to Plex ✓');
-      return true;
-    } else {
-      if(!silent){ toast('Not found in active Plex sessions', true); }
-      return false;
-    }
-  }catch(e){
-    if(!silent) toast('Plex sync failed', true);
-    return false;
-  }
-}
-
 // ── Post reactions ────────────────────────────────────────────────────────────
 function wmPost(text, emoji){
   if(!_wmMovieId) return;
@@ -11227,7 +10723,7 @@ function wmShowSubInfo(){
     + '<strong style="color:var(--gold)">' + count + ' comment' + (count!==1?'s':'') + '</strong>'
     + ' from ' + users + ' ready for subtitle export.<br>'
     + '<span style="font-size:11px">Run <code>python mcflix_subtitle_gen.py</code> to generate the .ass file for this movie, '
-    + 'then enable "McFlix" in the Plex subtitle selector during playback.</span>';
+    + 'then load it as an external subtitle track in your media player during playback.</span>';
 }
 
 function wmPostEmoji(emoji, label){
