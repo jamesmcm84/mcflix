@@ -38,7 +38,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* AUTH */
 .auth-box{width:100%;max-width:420px;background:rgba(14,14,24,0.85);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,0.7)}
-.auth-logo{font-family:Bebas Neue,cursive;font-size:52px;letter-spacing:5px;color:var(--gold);text-align:center;line-height:1;margin-bottom:4px;text-shadow:0 0 40px rgba(232,184,75,0.25)}
+.auth-logo{font-family:Bebas Neue,cursive;font-size:60px;letter-spacing:5px;color:var(--gold);text-align:center;line-height:1;margin-bottom:4px;text-shadow:0 0 40px rgba(232,184,75,0.25)}
 .auth-logo span{color:#fff}
 .auth-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:28px}
 .auth-tabs{display:flex;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:24px;gap:3px}
@@ -65,7 +65,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* HEADER */
 .header{display:flex;align-items:center;gap:10px;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
-.logo{font-family:Bebas Neue,cursive;font-size:22px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
+.logo{font-family:Bebas Neue,cursive;font-size:30px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
 .nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:sticky;top:54px;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .nav-bar::-webkit-scrollbar{display:none}
@@ -176,7 +176,7 @@ select option{background:#1a1a2e;color:#eeeef5}
 body.light-mode .diary-entry{border-color:rgba(0,0,0,.22)}
 body.light-mode .diary-entries .diary-entry:first-child{border-top-color:rgba(0,0,0,.22)}
 body.light-mode .diary-entry:hover{border-color:rgba(0,0,0,.38)}
-.diary-date{font-family:Bebas Neue,cursive;font-size:22px;color:var(--gold);min-width:42px;text-align:center;line-height:1}
+.diary-date{font-family:Bebas Neue,cursive;font-size:32px;color:var(--gold);min-width:48px;text-align:center;line-height:1}
 .diary-date-month{font-size:9px;color:var(--muted);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
 .diary-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
 .diary-info{flex:1;min-width:0}
@@ -1732,7 +1732,7 @@ textarea.ffi{resize:vertical}
     <!-- DIARY -->
     <div class="tab" id="tab-diary">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-        <div class="sl" style="flex:1;margin:0">Watch Diary</div>
+        <div class="sl" style="flex:1;margin:0;font-size:26px">Watch Diary</div>
         <button class="fb" id="diary-reconcile-btn" onclick="reconcileDiary()" title="Remove diary entries for deleted movies" style="display:none"><i class="ti ti-tool"></i> Reconcile</button>
         <button class="ab" onclick="openDiaryAdd()"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
