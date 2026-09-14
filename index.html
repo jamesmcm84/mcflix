@@ -1162,6 +1162,44 @@ textarea.ffi{resize:vertical}
 .gauntlet-day-num.today{color:var(--gold)}
 .gauntlet-card.done{border-color:rgba(46,204,113,.2);background:rgba(46,204,113,.03)}
 .gauntlet-card.today-card{border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.04)}
+.gauntlet-weekly-banner{background:rgba(138,90,240,.08);border:1px solid rgba(138,90,240,.25);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.gauntlet-weekly-banner.done{background:rgba(46,204,113,.06);border-color:rgba(46,204,113,.25)}
+.gauntlet-points-info{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px;text-align:left}
+.gpi-row{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--light);padding:3px 0}
+.gpi-row span:first-child{font-weight:700;min-width:70px;flex-shrink:0}
+.gpi-row em{font-style:normal;color:var(--muted)}
+
+/* ── HIGH SCORES (retro arcade) ──────────────────────────────── */
+.hs-screen{background:#000;border:2px solid #00dc3c;border-radius:10px;padding:26px 18px;position:relative;overflow:hidden;
+  box-shadow:0 0 30px rgba(0,220,60,.2) inset,0 0 24px rgba(0,220,60,.12)}
+.hs-screen::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0px,rgba(255,255,255,.035) 1px,transparent 1px,transparent 3px)}
+.hs-inner{position:relative;z-index:1}
+.hs-title{font-family:"VT323",monospace;font-size:44px;letter-spacing:8px;text-align:center;color:#ffe94d;
+  text-shadow:0 0 8px #ffe94d,0 0 22px #ffb700;margin-bottom:2px}
+.hs-subtitle{font-family:"VT323",monospace;font-size:16px;letter-spacing:3px;text-align:center;color:#00dc3c;
+  text-shadow:0 0 6px #00dc3c;margin-bottom:20px;animation:hsBlink 1.4s steps(1) infinite}
+@keyframes hsBlink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+.hs-mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.hs-mode-tab{font-family:"VT323",monospace;font-size:17px;letter-spacing:2px;padding:5px 16px;border:1px solid rgba(0,220,60,.4);
+  border-radius:4px;background:transparent;color:#00dc3c;cursor:pointer}
+.hs-mode-tab.active{background:rgba(0,220,60,.15);color:#fff;text-shadow:0 0 6px #00dc3c;border-color:#00dc3c}
+.hs-header-row{display:flex;align-items:center;gap:10px;font-family:"VT323",monospace;font-size:13px;letter-spacing:2px;
+  color:rgba(0,220,60,.5);padding:0 8px 6px;text-transform:uppercase}
+.hs-header-row .hs-rank{width:34px;flex-shrink:0}
+.hs-header-row .hs-name{flex:1}
+.hs-header-row .hs-pts{width:76px;text-align:right}
+.hs-header-row .hs-date{width:64px;text-align:right}
+.hs-row{display:flex;align-items:center;gap:10px;font-family:"VT323",monospace;font-size:20px;letter-spacing:1.5px;
+  color:#00dc3c;padding:5px 8px;border-bottom:1px dashed rgba(0,220,60,.15)}
+.hs-row .hs-rank{width:34px;flex-shrink:0;color:#ffe94d}
+.hs-row .hs-name{flex:1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hs-row .hs-pts{width:76px;text-align:right;color:#00dc3c}
+.hs-row .hs-date{width:64px;text-align:right;font-size:13px;color:rgba(0,220,60,.5)}
+.hs-row.gold .hs-rank{color:#ffe94d;text-shadow:0 0 8px #ffe94d}
+.hs-row.gold .hs-name{color:#ffe94d;text-shadow:0 0 6px #ffe94d}
+.hs-row.silver .hs-name{color:#d9d9d9}
+.hs-row.bronze .hs-name{color:#e0995e}
 
 /* ── TRAILER ROOM ────────────────────────────────────────────── */
 .trailer-room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
@@ -1669,6 +1707,7 @@ textarea.ffi{resize:vertical}
       <button class="nb" id="nb-runtime"           onclick="switchTab('runtime',this)"><i class="ti ti-clock"></i> Runtime</button>
       <button class="nb" id="nb-discover"          onclick="switchTab('discover',this)"><i class="ti ti-compass"></i> Discover</button>
       <button class="nb nb-retro" id="nb-vintage"  onclick="switchTab('vintage',this)"><i class="ti ti-device-tv-old"></i> Retro</button>
+      <button class="nb" id="nb-highscores"        onclick="switchTab('highscores',this)"><i class="ti ti-medal"></i> High Scores</button>
     </div>
   </div>
 
@@ -1965,6 +2004,28 @@ textarea.ffi{resize:vertical}
       <div id="runtime-body"></div>
     </div>
 
+    <!-- HIGH SCORES -->
+    <div class="tab" id="tab-highscores">
+      <div class="hs-screen">
+        <div class="hs-inner">
+          <div class="hs-title">HIGH SCORES</div>
+          <div class="hs-subtitle">★ GAUNTLET LEADERBOARD ★</div>
+          <div class="hs-mode-tabs" id="hs-mode-tabs"></div>
+          <div class="hs-header-row">
+            <span class="hs-rank">RK</span>
+            <span class="hs-name">NAME</span>
+            <span class="hs-pts">SCORE</span>
+            <span class="hs-date">DATE</span>
+          </div>
+          <div id="hs-list"></div>
+          <div class="empty" id="hs-empty" style="display:none">
+            <i class="ti ti-trophy"></i>
+            <p style="font-size:14px;font-family:'VT323',monospace;color:#00dc3c;letter-spacing:1px">NO SCORES YET — GO PLAY THE GAUNTLET</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CRITIC GRAVEYARD -->
     <div class="tab" id="tab-cgraveyard">
       <div class="sl" style="margin-bottom:4px">The Critic Graveyard</div>
@@ -2096,6 +2157,7 @@ textarea.ffi{resize:vertical}
     <button class="bnb" id="bnb-compare"          onclick="switchTabMobile('compare',this);closeMoreMenu()"><i class="ti ti-vs"></i><span>Rank</span></button>
     <button class="bnb" id="bnb-runtime"          onclick="switchTabMobile('runtime',this);closeMoreMenu()"><i class="ti ti-clock"></i><span>Runtime</span></button>
     <button class="bnb nb-retro" id="bnb-vintage" onclick="switchTabMobile('vintage',this);closeMoreMenu()"><i class="ti ti-device-tv-old"></i><span>Retro</span></button>
+    <button class="bnb" id="bnb-highscores"       onclick="switchTabMobile('highscores',this);closeMoreMenu()"><i class="ti ti-medal"></i><span>High Scores</span></button>
   </div>
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnb active" id="bnb-diary"   onclick="switchTabMobile('diary',this)"><i class="ti ti-calendar"></i><span>Diary</span></button>
@@ -3097,7 +3159,7 @@ function switchTab(t,el){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const _nb=document.getElementById('nb-'+t); if(_nb) _nb.classList.add('active'); else if(el) el.classList.add('active');
   // sync bottom nav
-  const _moreTabs = ['trophies','compare','runtime','vintage'];
+  const _moreTabs = ['trophies','compare','runtime','vintage','highscores'];
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active',b.id==='bnb-'+t));
   const _bnbMore = document.getElementById('bnb-more');
   if(_bnbMore) _bnbMore.classList.toggle('active', _moreTabs.includes(t));
@@ -3112,6 +3174,7 @@ function switchTab(t,el){
   if(t==='activity') renderActivity();
   // trophies rendered via renderCombinedStats below
   if(t==='vintage') renderVintage();
+  if(t==='highscores') renderHighScores();
   if(t==='stats') renderStats();
   if(t==='trophies') renderTrophies();
   if(t==='discover'){ if(!_tmdbGenreList) buildDiscoverGenrePanel(); renderQueueShelf(); renderDiscoverRequests(); }
@@ -8847,12 +8910,16 @@ function gauntletIntervalMs(mode){
   return 0; // freestyle — no limit
 }
 
+const GAUNTLET_POINTS_PER_MODE = {'24hr':3,'48hr':2,'30days':1,'freestyle':0};
+
 function gauntletCurrentChallenge(g){ return (g.completed||[]).length; }
 
+// Timer is PER-CHALLENGE: each challenge gets its own window (24h/48h/30d depending on mode).
 function gauntletTimeLeft(g){
   if(!g.mode||g.mode==='freestyle') return null;
   const ms=gauntletIntervalMs(g.mode);
-  return (g.startedAt+ms)-Date.now();
+  const start=g.challengeStartedAt||g.startedAt;
+  return (start+ms)-Date.now();
 }
 
 function fmtCountdown(ms){
@@ -8867,8 +8934,38 @@ function fmtCountdown(ms){
 
 let _gauntletTick=null;
 
+// Persists the final score for a finished run — once — to personal high scores
+// and the shared household leaderboard. Freestyle never scores (no points).
+function finalizeGauntletScore(g, me){
+  if(!g || g.scoreLogged) return;
+  g.scoreLogged = true;
+  if(g.mode==='freestyle') return;
+  const pts = g.points||0;
+  if(g.customId){
+    me.customGauntletHighScores = me.customGauntletHighScores||{};
+    if(pts>(me.customGauntletHighScores[g.customId]||0)) me.customGauntletHighScores[g.customId]=pts;
+  } else {
+    me.gauntletHighScores = me.gauntletHighScores||{};
+    if(pts>(me.gauntletHighScores[g.mode]||0)) me.gauntletHighScores[g.mode]=pts;
+  }
+  sharedData.gauntletScores = sharedData.gauntletScores||[];
+  sharedData.gauntletScores.push({
+    id: uid(),
+    username: (typeof CU!=='undefined'&&CU.username)||'someone',
+    mode: g.mode,
+    points: pts,
+    completedCount: (g.completed||[]).length,
+    total: (g.challenges||[]).length,
+    customId: g.customId||null,
+    customName: g.customName||null,
+    date: Date.now()
+  });
+  saveShared();
+}
+
 function startGauntlet(mode, customId){
   const me=myData();
+  me.gauntletHighScores = me.gauntletHighScores||{};
   me.customGauntletHighScores = me.customGauntletHighScores||{};
   let challengeSource = GAUNTLET_CHALLENGES;
   let customName = null;
@@ -8876,11 +8973,13 @@ function startGauntlet(mode, customId){
     const cg = (sharedData.customGauntlets||[]).find(c=>c.id===customId);
     if(cg){ challengeSource = cg.challenges; customName = cg.name; }
   }
-  const hs = customId ? (me.customGauntletHighScores[customId]||0) : ((me.gauntlet&&me.gauntlet.highScore)||0);
+  const hs = customId ? (me.customGauntletHighScores[customId]||0) : (me.gauntletHighScores[mode]||0);
   const seed=Date.now();
+  const now=Date.now();
   me.gauntlet={mode,seed,challenges:gauntletShuffle(challengeSource,seed),
-    startedAt:Date.now(),
-    completed:[],timeUp:false,highScore:hs,customId:customId||null,customName};
+    startedAt:now, challengeStartedAt:now,
+    completed:[],timeUp:false,points:0,highScore:hs,
+    customId:customId||null,customName,scoreLogged:false};
   saveUsers().then(()=>{ switchGauntletSubtab('basic'); });
   toast('The Gauntlet begins! Good luck.');
 }
@@ -8893,12 +8992,10 @@ function markGauntletDayDone(movieId){
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
   g.completed.push({challenge:g.challenges[idx],completedAt:Date.now(),movieId:movieId||null});
-  if(g.completed.length>(g.highScore||0)){
-    g.highScore=g.completed.length;
-    if(g.customId){
-      me.customGauntletHighScores = me.customGauntletHighScores||{};
-      me.customGauntletHighScores[g.customId]=g.highScore;
-    }
+  g.points = (g.points||0) + (GAUNTLET_POINTS_PER_MODE[g.mode]||0);
+  g.challengeStartedAt = Date.now(); // fresh timer window for the next challenge
+  if(gauntletCurrentChallenge(g) >= (g.challenges||[]).length){
+    finalizeGauntletScore(g, me); // conquered — lock in the score
   }
   saveUsers().then(()=>renderGauntlet());
   toast('Challenge complete! Next one is up.');
@@ -8906,15 +9003,8 @@ function markGauntletDayDone(movieId){
 
 function gauntletTimeUp(){
   const me=myData(); const g=me.gauntlet; if(!g) return;
-  const score=(g.completed||[]).length;
-  if(score>(g.highScore||0)){
-    g.highScore=score;
-    if(g.customId){
-      me.customGauntletHighScores = me.customGauntletHighScores||{};
-      me.customGauntletHighScores[g.customId]=score;
-    }
-  }
   g.timeUp=true;
+  finalizeGauntletScore(g, me);
   saveUsers().then(()=>renderGauntlet());
 }
 
@@ -8946,7 +9036,9 @@ function checkGauntletAutoComplete(movieId){
 function resetGauntlet(){
   if(!confirm("Abandon the Gauntlet? All progress will be lost.")) return;
   const me=myData();
-  const hs = (me.gauntlet && !me.gauntlet.customId && me.gauntlet.highScore) || 0;
+  const g=me.gauntlet;
+  if(g && !g.scoreLogged && (g.points||0)>0) finalizeGauntletScore(g, me); // banked points count even if abandoned
+  const hs = (g && !g.customId && me.gauntletHighScores && me.gauntletHighScores[g.mode]) || 0;
   me.gauntlet={highScore:hs};
   if(_gauntletTick){clearInterval(_gauntletTick);_gauntletTick=null;}
   saveUsers().then(()=>renderGauntlet());
@@ -8959,37 +9051,52 @@ function renderGauntlet(){
   const me=myData(); const body=document.getElementById('gauntlet-body');
   if(!body) return;
   if(_gauntletTick){clearInterval(_gauntletTick);_gauntletTick=null;}
+
+  if(maybeAdvanceWeeklyChallenge()) saveUsers();
+  const weeklyBanner = renderWeeklyBanner(me);
+
   const g=me.gauntlet;
   const highScore=(g&&g.highScore)||0;
 
   // START SCREEN
   if(!g||!g.challenges){
-    body.innerHTML='<div class="gauntlet-hero">'
+    body.innerHTML = weeklyBanner + '<div class="gauntlet-hero">'
       +'<div class="gauntlet-title">The Gauntlet</div>'
-      +'<div style="font-size:14px;color:var(--muted);margin:12px 0 6px;line-height:1.7">30 shuffled challenges. Log a diary viewing to auto-complete the active challenge, or tap Mark Complete. Whatever your count is when the clock runs out is your score.</div>'
-      +(highScore?'<div style="font-size:13px;color:var(--gold);margin-bottom:16px;font-weight:700">High Score: '+highScore+' / 30</div>':'<div style="margin-bottom:16px"></div>')
+      +'<div style="font-size:14px;color:var(--muted);margin:12px 0 6px;line-height:1.7">30 shuffled challenges, one at a time. Log a diary viewing to auto-complete the active challenge, or tap Mark Complete. Miss the timer on a challenge and your run ends — whatever you\'ve scored stands.</div>'
+      +(highScore?'<div style="font-size:13px;color:var(--gold);margin-bottom:12px;font-weight:700">High Score: '+highScore+' pts</div>':'<div style="margin-bottom:12px"></div>')
+      +'<div class="gauntlet-points-info">'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">How scoring works</div>'
+      +'<div class="gpi-row"><span style="color:var(--gold)">24 Hours</span><span>24-hr timer <em>per challenge</em> · 3 pts each</span></div>'
+      +'<div class="gpi-row"><span style="color:var(--purple)">48 Hours</span><span>48-hr timer <em>per challenge</em> · 2 pts each</span></div>'
+      +'<div class="gpi-row"><span style="color:var(--blue)">30 Days</span><span>30-day timer <em>per challenge</em> · 1 pt each</span></div>'
+      +'<div class="gpi-row"><span style="color:var(--muted)">Free Style</span><span>No timer, no points — just for fun</span></div>'
+      +'<div style="font-size:10px;color:var(--muted);margin-top:6px">Miss a challenge\'s timer and the run ends with whatever you\'ve scored. Scores save to the household High Scores page.</div>'
+      +'</div>'
       +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Choose your mode</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px;margin:0 auto">'
-      +'<button class="primary-btn" onclick="startGauntlet(\'24hr\')"><i class="ti ti-clock-24"></i> 24 Hours — race the clock</button>'
-      +'<button class="primary-btn" style="background:rgba(138,90,240,.15);border-color:rgba(138,90,240,.3);color:var(--purple)" onclick="startGauntlet(\'48hr\')"><i class="ti ti-clock"></i> 48 Hours — two days total</button>'
-      +'<button class="primary-btn" style="background:rgba(52,152,219,.15);border-color:rgba(52,152,219,.3);color:var(--blue)" onclick="startGauntlet(\'30days\')"><i class="ti ti-calendar-time"></i> 30 Days — score at the deadline</button>'
-      +'<button class="ghost-btn" onclick="startGauntlet(\'freestyle\')"><i class="ti ti-infinity"></i> Free Style — no time limit</button>'
+      +'<button class="primary-btn" onclick="startGauntlet(\'24hr\')"><i class="ti ti-clock-24"></i> 24 Hours — 3 pts / challenge</button>'
+      +'<button class="primary-btn" style="background:rgba(138,90,240,.15);border-color:rgba(138,90,240,.3);color:var(--purple)" onclick="startGauntlet(\'48hr\')"><i class="ti ti-clock"></i> 48 Hours — 2 pts / challenge</button>'
+      +'<button class="primary-btn" style="background:rgba(52,152,219,.15);border-color:rgba(52,152,219,.3);color:var(--blue)" onclick="startGauntlet(\'30days\')"><i class="ti ti-calendar-time"></i> 30 Days — 1 pt / challenge</button>'
+      +'<button class="ghost-btn" onclick="startGauntlet(\'freestyle\')"><i class="ti ti-infinity"></i> Free Style — no time limit, no points</button>'
       +'</div></div>';
+    startWeeklyTickerIfNeeded(me);
     return;
   }
 
-  // TIME'S UP (deadline passed on a timed mode — score locked in, not a "fail")
+  // TIME'S UP (a challenge's own timer expired — score locked in, not a "fail")
   if(g.timeUp){
-    const score=(g.completed||[]).length;
+    const pts=g.points||0;
+    const done=g.completed||[];
     const total=(g.challenges||[]).length||30;
-    let h='<div class="gauntlet-hero" style="border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.05)">'
+    const scored = g.mode!=='freestyle';
+    let h=weeklyBanner+'<div class="gauntlet-hero" style="border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.05)">'
       +'<div class="gauntlet-title" style="color:var(--gold)">TIME\'S UP</div>'
-      +'<div class="gauntlet-day">'+score+' / '+total+'</div>'
+      +'<div class="gauntlet-day">'+(scored?pts+' pts':done.length+' / '+total)+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+done.length+' of '+total+' challenges completed</div>'
       +'<div style="font-size:14px;color:var(--muted);margin:8px 0 4px">Final score for this '+(GAUNTLET_MODE_LABELS[g.mode]||'')+(g.customName?' · '+g.customName:'')+' run</div>'
-      +(score>0&&score>=highScore?'<div style="font-size:12px;color:var(--gold);margin-bottom:14px">New High Score!</div>':'<div style="font-size:12px;color:var(--muted);margin-bottom:14px">High Score: '+(highScore||0)+'</div>')
+      +(scored ? (pts>0&&pts>=highScore?'<div style="font-size:12px;color:var(--gold);margin-bottom:14px">New High Score!</div>':'<div style="font-size:12px;color:var(--muted);margin-bottom:14px">High Score: '+(highScore||0)+' pts</div>') : '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">Free Style runs don\'t score points</div>')
       +'<button class="primary-btn" style="margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> Start New Gauntlet</button>'
       +'</div>';
-    const done=g.completed||[];
     if(done.length){
       h+='<div class="sl" style="margin:16px 0 10px">Completed Challenges</div>';
       h+=done.slice().reverse().map(function(c,i){
@@ -9002,19 +9109,25 @@ function renderGauntlet(){
           +'</div></div>';
       }).join('');
     }
-    body.innerHTML=h; return;
+    body.innerHTML=h;
+    startWeeklyTickerIfNeeded(me);
+    return;
   }
 
   // COMPLETE (all challenges finished before the deadline, or in Free Style)
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length){
     const total=(g.challenges||[]).length||30;
-    body.innerHTML='<div class="gauntlet-hero">'
+    const scored = g.mode!=='freestyle';
+    body.innerHTML = weeklyBanner + '<div class="gauntlet-hero">'
       +'<div class="gauntlet-title">CONQUERED</div>'
-      +'<div class="gauntlet-day">'+total+' / '+total+'</div>'
+      +'<div class="gauntlet-day">'+(scored?(g.points||0)+' pts':total+' / '+total)+'</div>'
+      +(scored?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+total+' / '+total+' challenges completed</div>':'')
       +'<div style="font-size:14px;color:var(--muted);margin:8px 0 16px">You completed every challenge'+(g.customName?' in "'+g.customName+'"':'')+'. Legendary.</div>'
       +'<button class="primary-btn" style="margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-refresh"></i> New Gauntlet</button>'
-      +'</div>'; return;
+      +'</div>';
+    startWeeklyTickerIfNeeded(me);
+    return;
   }
 
   // ACTIVE
@@ -9024,21 +9137,25 @@ function renderGauntlet(){
   const modeLabel=GAUNTLET_MODE_LABELS[mode]||'Free Style';
   const heroColor=GAUNTLET_MODE_COLORS[mode]||'var(--muted)';
   const totalMs=gauntletIntervalMs(mode);
-  const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-g.startedAt)/totalMs*100)):0;
+  const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-(g.challengeStartedAt||g.startedAt))/totalMs*100)):0;
   const total=(g.challenges||[]).length||30;
+  const scored = mode!=='freestyle';
+  const ptsPerChallenge = GAUNTLET_POINTS_PER_MODE[mode]||0;
 
-  let h='<div class="gauntlet-hero">'
+  let h=weeklyBanner+'<div class="gauntlet-hero">'
     +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:'+heroColor+';margin-bottom:6px">'+(g.customName?g.customName+' · ':'')+modeLabel+' Gauntlet</div>'
     +'<div class="gauntlet-day">'+(idx+1)+' / '+total+'</div>'
+    +(scored?'<div style="font-size:12px;color:'+heroColor+';font-weight:700;margin-top:2px">'+(g.points||0)+' pts</div>':'')
     +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/total*100)+'%;border-radius:6px;transition:width .5s"></div></div>'
     +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong></div>'
+    +(scored?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Worth '+ptsPerChallenge+' pt'+(ptsPerChallenge===1?'':'s')+' if you beat the timer</div>':'')
     +(function(){ const hint=getGauntletHint(currentChallenge); return hint?'<div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-bulb" style="color:var(--gold)"></i> '+hint+'</div>':''; })()
     +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:26px;color:'+heroColor+';letter-spacing:1px;margin:8px 0">'+fmtCountdown(timeLeft)+' left</div>'
       +'<div style="margin:0 0 8px;background:var(--bg3);border-radius:6px;height:4px;overflow:hidden;max-width:220px;margin-left:auto;margin-right:auto"><div style="height:4px;background:'+heroColor+';width:'+elapsedPct+'%;border-radius:6px"></div></div>'
       :'<div style="font-size:12px;color:var(--muted);margin:6px 0">No time limit</div>')
     +'<button class="primary-btn" style="margin:8px auto 4px" onclick="markGauntletDayDone(null)"><i class="ti ti-check"></i> Mark Complete</button>'
     +'<button class="ghost-btn" style="font-size:11px;margin:0 auto" onclick="resetGauntlet()"><i class="ti ti-x"></i> Abandon</button>'
-    +(highScore?'<div style="font-size:11px;color:var(--muted);margin-top:8px">High Score: '+highScore+'</div>':'')
+    +(scored&&highScore?'<div style="font-size:11px;color:var(--muted);margin-top:8px">High Score: '+highScore+' pts</div>':'')
     +'</div>';
 
   const done=g.completed||[];
@@ -9056,16 +9173,39 @@ function renderGauntlet(){
   }
   body.innerHTML=h;
 
-  if(timeLeft!==null){
-    _gauntletTick=setInterval(function(){
-      const g2=myData().gauntlet;
-      if(!g2||g2.timeUp){clearInterval(_gauntletTick);_gauntletTick=null;return;}
+  _gauntletTick=setInterval(function(){
+    const me2=myData(); const g2=me2.gauntlet;
+    if(g2 && !g2.timeUp){
       const left=gauntletTimeLeft(g2);
-      if(left<=0){clearInterval(_gauntletTick);_gauntletTick=null;gauntletTimeUp();return;}
-      const el=document.getElementById('gauntlet-countdown');
-      if(el) el.textContent=fmtCountdown(left)+' left';
-    },1000);
-  }
+      if(left!==null){
+        if(left<=0){clearInterval(_gauntletTick);_gauntletTick=null;gauntletTimeUp();return;}
+        const el=document.getElementById('gauntlet-countdown');
+        if(el) el.textContent=fmtCountdown(left)+' left';
+      }
+    }
+    const ws=me2.weeklyState;
+    if(ws && ws.current && !ws.completedAt){
+      const wleft=(ws.current.startedAt+WEEKLY_CHALLENGE_MS)-Date.now();
+      const wel=document.getElementById('weekly-banner-countdown');
+      if(wel) wel.textContent = wleft>0 ? fmtCountdown(wleft)+' left' : 'Rotating soon…';
+      if(wleft<=0){ clearInterval(_gauntletTick); _gauntletTick=null; renderGauntlet(); }
+    }
+  },1000);
+}
+
+// Keeps the weekly countdown ticking even on screens with no per-challenge timer
+// (start screen, time's up, conquered, or an active Free Style run).
+function startWeeklyTickerIfNeeded(me){
+  const ws=me.weeklyState;
+  if(!ws || !ws.current || ws.completedAt) return;
+  _gauntletTick=setInterval(function(){
+    const me2=myData(); const ws2=me2.weeklyState;
+    if(!ws2||!ws2.current||ws2.completedAt){clearInterval(_gauntletTick);_gauntletTick=null;return;}
+    const wleft=(ws2.current.startedAt+WEEKLY_CHALLENGE_MS)-Date.now();
+    const wel=document.getElementById('weekly-banner-countdown');
+    if(wel) wel.textContent = wleft>0 ? fmtCountdown(wleft)+' left' : 'Rotating soon…';
+    if(wleft<=0){ clearInterval(_gauntletTick); _gauntletTick=null; renderGauntlet(); }
+  },1000);
 }
 
 // ── GAUNTLET SUB-TABS ────────────────────────────────────────────────────────
@@ -9289,60 +9429,74 @@ function getEnabledWeeklyChallenges(){
   return defaults.concat(customs);
 }
 
-function startWeeklyRun(){
+const WEEKLY_CHALLENGE_MS = 7*24*60*60*1000;
+
+// Checks whether the active weekly challenge's 7-day window has elapsed and, if so,
+// rotates in the next one from a shuffled queue. Only one challenge is ever active
+// at a time — completing it early does not speed up the rotation.
+function maybeAdvanceWeeklyChallenge(){
   const me = myData();
-  const active = getEnabledWeeklyChallenges();
-  if(!active.length){ toast('Toggle on at least one challenge first.', true); return; }
-  me.weeklyRun = { startedAt: Date.now(), challenges: active.slice(), completed: {} };
-  saveUsers().then(()=>renderWeeklyChallenges());
-  toast("This week's challenges are locked in!");
+  const enabled = getEnabledWeeklyChallenges();
+  if(!enabled.length) return false;
+  const now = Date.now();
+  const ws = me.weeklyState;
+  if(!ws || !ws.current || (now-ws.current.startedAt)>=WEEKLY_CHALLENGE_MS){
+    let queue = (ws&&ws.queue||[]).filter(t=>enabled.includes(t));
+    if(!queue.length) queue = gauntletShuffle(enabled, now);
+    const next = queue.shift();
+    me.weeklyState = { current:{text:next, startedAt:now}, completedAt:null, queue };
+    return true;
+  }
+  return false;
 }
 
-function toggleWeeklyRunItem(text){
+function markWeeklyChallengeComplete(){
   const me = myData();
-  if(!me.weeklyRun) return;
-  me.weeklyRun.completed = me.weeklyRun.completed||{};
-  me.weeklyRun.completed[text] = !me.weeklyRun.completed[text];
-  saveUsers().then(()=>renderWeeklyChallenges());
+  if(!me.weeklyState || !me.weeklyState.current){ toast('No active weekly challenge.', true); return; }
+  if(me.weeklyState.completedAt) return;
+  me.weeklyState.completedAt = Date.now();
+  let addedPts = false;
+  if(me.gauntlet && !me.gauntlet.timeUp && me.gauntlet.mode && me.gauntlet.mode!=='freestyle'){
+    me.gauntlet.points = (me.gauntlet.points||0) + 2;
+    addedPts = true;
+  }
+  saveUsers().then(function(){
+    renderGauntlet();
+    toast(addedPts ? 'Weekly challenge complete! +2 pts added to your run.' : 'Weekly challenge complete!');
+  });
 }
 
-function resetWeeklyRun(){
-  if(!confirm('Start a new week? This clears current progress.')) return;
-  const me = myData();
-  me.weeklyRun = null;
-  saveUsers().then(()=>renderWeeklyChallenges());
+function renderWeeklyBanner(me){
+  const ws = me.weeklyState;
+  if(!ws || !ws.current){
+    return '<div class="gauntlet-weekly-banner">'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple)">This Week\'s Challenge</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:4px">No weekly challenge active yet — toggle some on in the Weekly Challenges tab.</div>'
+      +'</div>';
+  }
+  const left = (ws.current.startedAt+WEEKLY_CHALLENGE_MS) - Date.now();
+  const done = !!ws.completedAt;
+  const safeText = ws.current.text.replace(/'/g,"\\'");
+  return '<div class="gauntlet-weekly-banner'+(done?' done':'')+'">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple)">This Week\'s Challenge</div>'
+    +'<div style="font-size:13px;font-weight:600;color:var(--light);margin:4px 0">'+ws.current.text+'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;flex-wrap:wrap">'
+    +'<span id="weekly-banner-countdown" style="font-family:\'VT323\',monospace;font-size:16px;color:var(--purple)">'+(left>0?fmtCountdown(left)+' left':'Rotating soon…')+'</span>'
+    +(done
+      ? '<span style="font-size:11px;color:var(--green);font-weight:700"><i class="ti ti-check"></i> Completed (+2 pts)</span>'
+      : '<button class="fb" style="font-size:11px;padding:5px 10px" onclick="markWeeklyChallengeComplete()"><i class="ti ti-check"></i> Mark Complete (+2 pts)</button>')
+    +'</div></div>';
 }
 
 function renderWeeklyChallenges(){
   const me = myData();
+  if(maybeAdvanceWeeklyChallenge()) saveUsers();
 
   const activeWrap = document.getElementById('weekly-active-wrap');
   if(activeWrap){
-    if(me.weeklyRun && (me.weeklyRun.challenges||[]).length){
-      const run = me.weeklyRun;
-      const doneCount = Object.values(run.completed||{}).filter(Boolean).length;
-      activeWrap.innerHTML = `
-        <div class="sl" style="margin-bottom:4px">This Week's Challenges <span style="font-size:12px;color:var(--muted)">(${doneCount}/${run.challenges.length})</span></div>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-          ${run.challenges.map(function(c){
-            const safeC = c.replace(/'/g,"\\'");
-            const done = run.completed && run.completed[c];
-            return `<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer">
-              <input type="checkbox" ${done?'checked':''} onchange="toggleWeeklyRunItem('${safeC}')">
-              <span style="font-size:12px;color:${done?'var(--green)':'var(--light)'};${done?'text-decoration:line-through':''}">${c}</span>
-            </label>`;
-          }).join('')}
-        </div>
-        <button class="ghost-btn" style="font-size:11px" onclick="resetWeeklyRun()"><i class="ti ti-refresh"></i> Start New Week</button>
-      `;
-    } else {
-      const activeCount = getEnabledWeeklyChallenges().length;
-      activeWrap.innerHTML = `
-        <div class="sl" style="margin-bottom:4px">This Week's Challenges</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${activeCount} challenge${activeCount===1?'':'s'} toggled on below. Lock them in to start tracking this week.</div>
-        <button class="primary-btn" onclick="startWeeklyRun()"><i class="ti ti-flag-3"></i> Start This Week's Challenges</button>
-      `;
-    }
+    const enabledCount = getEnabledWeeklyChallenges().length;
+    activeWrap.innerHTML = renderWeeklyBanner(me)
+      + (!enabledCount ? '' : '<div style="font-size:11px;color:var(--muted);margin-top:8px">Runs alongside any Gauntlet challenge — mark it complete any time within its 7-day window. A new one rotates in automatically once the week is up.</div>');
   }
 
   const defList = document.getElementById('weekly-default-list');
@@ -9373,6 +9527,45 @@ function renderWeeklyChallenges(){
       }).join('');
     }
   }
+}
+
+// ── HIGH SCORES (retro arcade leaderboard, includes other household members) ───
+let _hsMode = '24hr';
+function switchHSMode(m){ _hsMode = m; renderHighScores(); }
+
+function renderHighScores(){
+  const tabsWrap = document.getElementById('hs-mode-tabs');
+  const modes = [['24hr','24 HR · 3PT'],['48hr','48 HR · 2PT'],['30days','30 DAY · 1PT']];
+  if(tabsWrap){
+    tabsWrap.innerHTML = modes.map(function(m){
+      return '<button class="hs-mode-tab '+(_hsMode===m[0]?'active':'')+'" onclick="switchHSMode(\''+m[0]+'\')">'+m[1]+'</button>';
+    }).join('');
+  }
+  const list = document.getElementById('hs-list');
+  const empty = document.getElementById('hs-empty');
+  if(!list) return;
+  const scores = (sharedData.gauntletScores||[])
+    .filter(function(s){ return s.mode===_hsMode; })
+    .slice()
+    .sort(function(a,b){ return (b.points||0)-(a.points||0) || (b.date||0)-(a.date||0); })
+    .slice(0,25);
+  if(!scores.length){
+    list.innerHTML='';
+    if(empty) empty.style.display='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  list.innerHTML = scores.map(function(s,i){
+    const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const dateStr = new Date(s.date).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'2-digit'});
+    const name = ((s.username||'???')+(s.customName?' · '+s.customName:'')).toUpperCase();
+    return '<div class="hs-row '+rankClass+'">'
+      +'<span class="hs-rank">'+String(i+1).padStart(2,'0')+'</span>'
+      +'<span class="hs-name">'+name+'</span>'
+      +'<span class="hs-pts">'+(s.points||0)+' PTS</span>'
+      +'<span class="hs-date">'+dateStr+'</span>'
+      +'</div>';
+  }).join('');
 }
 
 // ── TRAILER ROOM ──────────────────────────────────────────────────────────────
