@@ -2303,7 +2303,7 @@ textarea.ffi{resize:vertical}
 // ══════════════════════════════════════════════════════════════════════════════
 // CONFIG — edit these
 // ══════════════════════════════════════════════════════════════════════════════
-const VERSION     = '10.2.1';
+const VERSION     = '10.2.2';
 const ADMIN_CODE  = 'mcflix-admin-2024';
 const MEMBER_CODE = 'watchparty';
 const OMDB_KEY    = 'trilogy'; // get your own free key: omdbapi.com/apikey.aspx
@@ -2870,7 +2870,12 @@ function initBackGuard(){
   // Desktop tab/window close protection
   window.addEventListener('beforeunload', function(e){
     e.preventDefault();
-    e.returnValue = '';
+    e.returnValue = 'Leave McFlix?';
+    return 'Leave McFlix?';
+  });
+  // iOS Safari: use pagehide as fallback
+  window.addEventListener('pagehide', function(e){
+    if(e.persisted) return; // bfcache restore — fine
   });
 }
 
@@ -2948,13 +2953,7 @@ function switchTab(t,el){
   if(_azEl) _azEl.style.display = 'none';
   if(t==='library') renderLib();
   if(t==='tvshows') renderTV();
-  if(t==='wishlist'){
-    // Hide A-Z slider — it belongs to the library only
-    const azEl = document.getElementById('az-slider');
-    if(azEl) azEl.style.display = 'none';
-    // Reset to shared tab when switching to wishlist
-    switchWishTab('shared');
-  }
+    if(t==='wishlist') renderWish();
   if(t==='lists') renderLists();
   if(t==='diary') renderDiary();
   if(t==='activity') renderActivity();
@@ -8282,7 +8281,6 @@ function trophyRowHTML(t, e, isEarned, prog, w, rated, u, lib, me, extraClass, p
     +'</div>';
 }
 
-function renderTrophies(){ renderCinema(); }
 
 
 
@@ -10483,8 +10481,9 @@ function setCompareMode(mode){
 function startRanking(){
   var me = myData();
   var pool = getRankPool(me);
+  console.log('startRanking pool:', pool.length, 'library:', sharedData.library.length);
   if(pool.length<2){
-    toast('Need at least 2 watched films. Pool: '+pool.length+'. Library: '+sharedData.library.length);
+    toast('Need at least 2 watched films to rank. Pool size: '+pool.length);
     return;
   }
   _rankEngine = new RankEngine(pool);
@@ -11256,8 +11255,6 @@ function openWatchReview(movieId){
 // COMBINED STATS + TROPHIES PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 
-function renderCombinedPage(){ renderStats(); }
-function renderCinema(){ renderStats(); }
 
 
 function archSelectMonth(monthKey, el){
@@ -11752,11 +11749,9 @@ function renderTrophies(){
 
 
 
-function renderTrophies(){ renderCinema(); }
 
 
 // renderStats merged into renderCinema
-function renderStats(){ renderCinema(); }
 
 function setupYIRLongPress(){
   if(_yirBound) return;
