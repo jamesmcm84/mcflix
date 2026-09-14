@@ -5256,6 +5256,9 @@ function openDetail(id,src){
   const me=myData();
   const m=list.find(x=>x.id===id) || (me.diaryItems&&me.diaryItems[id]);
   if(!m)return;
+  // Remember which tab was open (if the modal is already showing this/another item)
+  // so re-rendering after an action (rating, tagging, etc.) doesn't bounce back to Info.
+  const _prevActiveTab = document.querySelector('#det-body .det-tab-btn.active')?.dataset.tab || 'info';
   const hp=m.poster&&m.poster!=='N/A';
   const inLib=src==='library' && sharedData.library.some(x=>x.id===id);
   const ratingsHTML=allUsers.accounts.filter(u=>{
@@ -5337,14 +5340,6 @@ function openDetail(id,src){
         <div id="tmdb-review-${id}"></div>
       </div>
       <div id="tmdb-providers-${id}"></div>
-      <div class="det-section det-section-history">
-        <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
-        ${histHTML}
-        <div class="lk-row">
-          <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
-          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
-        </div>
-      </div>
       ${m.type==='tv'?`<div id="tmdb-episodes-${id}"></div>`:''}
       </div><!-- det-panel-info -->
       <div class="det-tab-panel" id="det-panel-userdata-${id}" style="display:none">
@@ -5375,6 +5370,14 @@ function openDetail(id,src){
         </div>
       </div>
       ${inLib?buildListsSection(id,me):''}
+      <div class="det-section det-section-history">
+        <div class="det-section-hd"><i class="ti ti-calendar" style="font-size:14px"></i> Watch Log</div>
+        ${histHTML}
+        <div class="lk-row">
+          <input type="date" class="ffi" id="logdate-${id}" value="${todayStr()}" max="${todayStr()}" style="flex:1">
+          <button class="log-btn" onclick="logWatch('${id}')" style="white-space:nowrap"><i class="ti ti-calendar-plus"></i> Log a Viewing</button>
+        </div>
+      </div>
       </div><!-- det-panel-userdata -->
       <div class="det-tab-panel" id="det-panel-critique-${id}" style="display:none">
         ${buildCritiquePanel(id, src)}
@@ -5398,6 +5401,10 @@ function openDetail(id,src){
       </div>
       </div><!-- det-panel-comments -->
     </div>`;
+  if(_prevActiveTab && _prevActiveTab!=='info'){
+    const _btn = document.querySelector(`#det-body .det-tab-btn[data-tab="${_prevActiveTab}"]`);
+    if(_btn) switchDetTab(_prevActiveTab, _btn);
+  }
   openMo('detail');
   loadTMDBReview(id, m);
 }
