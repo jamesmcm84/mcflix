@@ -2881,12 +2881,19 @@ async function wPut(key, data){
 
 async function loadFromCloud(){
   loading(true,'Loading library...');
-  const [lib, wish, users] = await Promise.all([wGet('library'), wGet('wishlist'), wGet('users')]);
+  const [lib, wish, users, scores, customG] = await Promise.all([
+    wGet('library'), wGet('wishlist'), wGet('users'), wGet('gauntletScores'), wGet('customGauntlets')
+  ]);
   let ok = false;
   if(lib){
     sharedData = lib;
     // Merge wishlist from separate key if it exists (newer format)
     if(wish && wish.wishlist) sharedData.wishlist = wish.wishlist;
+    // Merge gauntlet high scores + custom gauntlets from their own keys —
+    // these live outside the "library" payload so they must be restored here too,
+    // otherwise a cloud reload wipes them out (this was the High Scores persistence bug).
+    sharedData.gauntletScores = (scores && scores.gauntletScores) || sharedData.gauntletScores || [];
+    sharedData.customGauntlets = (customG && customG.customGauntlets) || sharedData.customGauntlets || [];
     ok = true;
   }
   if(users){ allUsers=users; ok=true; }
@@ -2925,12 +2932,19 @@ async function saveShared(){
       priority:m.priority||false, priorityOrder:m.priorityOrder!=null?m.priorityOrder:undefined,
       addedAt:m.addedAt||0, addedBy:m.addedBy||''
     })))) };
+    const scoresPayload = { gauntletScores: JSON.parse(JSON.stringify(sharedData.gauntletScores||[])) };
+    const customGauntletsPayload = { customGauntlets: JSON.parse(JSON.stringify(sharedData.customGauntlets||[])) };
     // Sequential saves — wishlist first, library second
     // so a partial failure doesn't leave library updated but wishlist stale
     const r1 = await wPut('wishlist', wishPayload);
     const r2 = await wPut('library', libraryPayload);
-    if(!r1 || !r2){
-      console.warn('saveShared: one or both saves failed', {wishlist:r1, library:r2});
+    // High scores + custom gauntlets have their own cloud keys (they aren't part
+    // of the library payload above) — without saving these, high scores would
+    // reset on the next cloud load. See loadFromCloud().
+    const r3 = await wPut('gauntletScores', scoresPayload);
+    const r4 = await wPut('customGauntlets', customGauntletsPayload);
+    if(!r1 || !r2 || !r3 || !r4){
+      console.warn('saveShared: one or more saves failed', {wishlist:r1, library:r2, gauntletScores:r3, customGauntlets:r4});
       toast('⚠️ Save may not have completed — check your connection', true);
     }
   }catch(e){
@@ -8253,136 +8267,157 @@ function importLetterboxd(){
 
 
 // ── TROPHY SYSTEM ─────────────────────────────────────────────────────────────
-const TROPHIES = [
-  // WATCHING
-  { id:"watch_1",    cat:"Watching", icon:"🎬", name:"First Watch",      desc:"Watch your first title",                check:(w)=>w>=1 },
-  { id:"watch_10",   cat:"Watching", icon:"🍿", name:"Movie Night",      desc:"Watch 10 titles",                       check:(w)=>w>=10,  prog:(w)=>[w,10] },
-  { id:"watch_25",   cat:"Watching", icon:"🎞", name:"Film Buff",        desc:"Watch 25 titles",                       check:(w)=>w>=25,  prog:(w)=>[w,25] },
-  { id:"watch_50",   cat:"Watching", icon:"🏆", name:"Cinephile",        desc:"Watch 50 titles",                       check:(w)=>w>=50,  prog:(w)=>[w,50] },
-  { id:"watch_100",  cat:"Watching", icon:"💫", name:"Century Club",     desc:"Watch 100 titles",                      check:(w)=>w>=100, prog:(w)=>[w,100] },
-  { id:"watch_250",  cat:"Watching", icon:"🌟", name:"The Archivist",    desc:"Watch 250 titles",                      check:(w)=>w>=250, prog:(w)=>[w,250] },
-  { id:"tv_10",      cat:"Watching", icon:"📺", name:"Binge Watcher",   desc:"Watch 10 TV shows",                     check:(w,r,u,lib,me)=>lib.filter(m=>m.type==="tv"&&me.watched?.[m.id]).length>=10 },
-  { id:"tv_25",      cat:"Watching", icon:"📡", name:"Series Addict",   desc:"Watch 25 TV shows",                     check:(w,r,u,lib,me)=>lib.filter(m=>m.type==="tv"&&me.watched?.[m.id]).length>=25 },
-  { id:"same_day",   cat:"Watching", icon:"⚡", name:"Hot Off the Press",desc:"Watch something the same day it was added", check:(w,r,u,lib,me)=>{
-    return lib.some(m=>{
-      if(!me.watched?.[m.id]||!m.addedAt) return false;
-      return (me.history?.[m.id]||[]).some(d=>Math.abs(d-(m.addedAt||0))<86400000);
+
+// ── Period-aware helper functions used by MONTHLY/ANNUAL trophy checks ────────
+// "movies" = non-TV titles only, matching the rest of the app's stat graphs.
+function countMoviesWatchedThisPeriod(me, period){
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const ids=new Set();
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m=sharedData.library.find(x=>x.id===id);
+    if(!m||m.type==='tv') return;
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(period==='monthly'&&d.getFullYear()===yr&&d.getMonth()===mo) ids.add(id);
+      if(period==='annual'&&d.getFullYear()===yr) ids.add(id);
     });
-  }},
-  { id:"marathon",   cat:"Watching", icon:"🔥", name:"Marathon",        desc:"Watch 3 things in one day",             check:(w,r,u,lib,me)=>{
-    const counts={};
-    Object.values(me.history||{}).flat().forEach(d=>{const k=new Date(d).toDateString();counts[k]=(counts[k]||0)+1;});
-    return Object.values(counts).some(c=>c>=3);
-  }},
-  { id:"rewatcher",  cat:"Watching", icon:"🔄", name:"Rewatcher",       desc:"Watch the same title twice",            check:(w,r,u,lib,me)=>Object.values(me.history||{}).some(d=>d.length>=2) },
-  { id:"old_movie",  cat:"Watching", icon:"🎭", name:"Time Traveler",   desc:"Watch a movie from before 1980",        check:(w,r,u,lib,me)=>lib.some(m=>me.watched?.[m.id]&&parseInt(m.year||0)<1980) },
-  { id:"new_movie",  cat:"Watching", icon:"🚀", name:"Early Adopter",   desc:"Watch something from the current year", check:(w,r,u,lib,me)=>{const yr=new Date().getFullYear();return lib.some(m=>me.watched?.[m.id]&&parseInt(m.year||0)===yr);} },
-  { id:"xmas",       cat:"Watching", icon:"🎄", name:"Christmas",       desc:"Watch something on Christmas Day",      check:(w,r,u,lib,me)=>Object.values(me.history||{}).flat().some(d=>{const dt=new Date(d);return dt.getMonth()===11&&dt.getDate()===25;}) },
-  { id:"new_year",   cat:"Watching", icon:"🎆", name:"New Year Watch",  desc:"Watch something on January 1st",        check:(w,r,u,lib,me)=>Object.values(me.history||{}).flat().some(d=>{const dt=new Date(d);return dt.getMonth()===0&&dt.getDate()===1;}) },
-  { id:"night_owl",  cat:"Watching", icon:"🦉", name:"Night Owl",       desc:"Log a watch after midnight",            check:(w,r,u,lib,me)=>Object.values(me.history||{}).flat().some(d=>{const h=new Date(d).getHours();return h>=0&&h<5;}) },
-  // RATINGS
-  { id:"rate_1",     cat:"Ratings",  icon:"⭐", name:"Critic",           desc:"Rate your first title",                 check:(w,rated)=>rated>=1 },
-  { id:"rate_10",    cat:"Ratings",  icon:"🎯", name:"Reviewer",         desc:"Rate 10 titles",                        check:(w,rated)=>rated>=10,  prog:(w,r)=>[r,10] },
-  { id:"rate_25",    cat:"Ratings",  icon:"📝", name:"The Analyst",      desc:"Rate 25 titles",                        check:(w,rated)=>rated>=25,  prog:(w,r)=>[r,25] },
-  { id:"rate_50",    cat:"Ratings",  icon:"🏅", name:"The Connoisseur",  desc:"Rate 50 titles",                        check:(w,rated)=>rated>=50,  prog:(w,r)=>[r,50] },
-  { id:"perfect_10", cat:"Ratings",  icon:"💯", name:"Perfection",       desc:"Give a title a perfect 10",             check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===10) },
-  { id:"score_1",    cat:"Ratings",  icon:"💀", name:"Scorched Earth",   desc:"Give a title a 1 out of 10",            check:(w,r,u,lib,me)=>Object.values(me.ratings||{}).some(v=>v===1) },
-  { id:"agree_10",   cat:"Ratings",  icon:"🤝", name:"Same Taste",       desc:"Match another user on 10 or more ratings", check:(w,r,u,lib,me)=>{
-    return u.filter(a=>a.id!==CU.id).some(other=>{
-      const od=allUsers.personal?.[other.id]?.ratings||{};
-      let matches=0;
-      Object.entries(me.ratings||{}).forEach(([id,v])=>{if(od[id]===v)matches++;});
-      return matches>=10;
+  });
+  return ids.size;
+}
+
+// Approximation (matches the app's existing "rated this period" pattern):
+// a like counts toward a period if the film is currently liked AND has a
+// watch-history entry inside that period (there's no separate "liked at" timestamp).
+function countLikedThisPeriod(me, period){
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const ids=new Set();
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    if(!me.favorites?.[id]) return;
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      if(period==='monthly'&&d.getFullYear()===yr&&d.getMonth()===mo) ids.add(id);
+      if(period==='annual'&&d.getFullYear()===yr) ids.add(id);
     });
-  }},
-  // LIBRARY
-  { id:"first_add",  cat:"Library",  icon:"➕", name:"Curator",          desc:"Add the first title to the library",    check:(w,r,u,lib)=>lib.length>=1 },
-  { id:"lib_50",     cat:"Library",  icon:"📚", name:"Collection",       desc:"Library reaches 50 titles",             check:(w,r,u,lib)=>lib.length>=50,  prog:(w,r,u,lib)=>[lib.length,50] },
-  { id:"lib_100",    cat:"Library",  icon:"📦", name:"The Archive",      desc:"Library reaches 100 titles",            check:(w,r,u,lib)=>lib.length>=100, prog:(w,r,u,lib)=>[lib.length,100] },
-  { id:"lib_200",    cat:"Library",  icon:"🏛", name:"The Museum",       desc:"Library reaches 200 titles",            check:(w,r,u,lib)=>lib.length>=200, prog:(w,r,u,lib)=>[lib.length,200] },
-  { id:"first_comment",cat:"Library",icon:"💬", name:"Commentator",     desc:"Post your first comment",               check:(w,r,u,lib)=>lib.some(m=>(m.comments||[]).some(c=>c.userId===CU.id)) },
-  { id:"first_tag",  cat:"Library",  icon:"🔖", name:"Tagger",           desc:"Add a tag to any title",                check:(w,r,u,lib)=>lib.some(m=>(m.tags||[]).length>0) },
-  { id:"director_sweep",cat:"Library",icon:"🎥",name:"Completionist",   desc:"Watch every film by one director (min 3)",check:(w,r,u,lib,me)=>{
-    const dirs={};
-    lib.filter(m=>m.director&&m.director!=="N/A").forEach(m=>{
-      const d=m.director.split(",")[0].trim();
-      if(!dirs[d])dirs[d]={total:0,watched:0};
-      dirs[d].total++;
-      if(me.watched?.[m.id])dirs[d].watched++;
+  });
+  return ids.size;
+}
+
+function maxTitlesInOneDay(me, period){
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const counts={};
+  Object.values(me.history||{}).flat().forEach(ts=>{
+    const d=new Date(ts);
+    const inPeriod = period==='monthly' ? (d.getFullYear()===yr&&d.getMonth()===mo) : (d.getFullYear()===yr);
+    if(!inPeriod) return;
+    const k=d.toDateString();
+    counts[k]=(counts[k]||0)+1;
+  });
+  let max=0;
+  Object.values(counts).forEach(c=>{ if(c>max) max=c; });
+  return max;
+}
+
+function genreSetForPeriod(me, period){
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const genres=new Set();
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m=sharedData.library.find(x=>x.id===id); if(!m) return;
+    dates.forEach(ts=>{
+      const d=new Date(ts);
+      const inPeriod = period==='monthly' ? (d.getFullYear()===yr&&d.getMonth()===mo) : (d.getFullYear()===yr);
+      if(inPeriod) (m.genre||'').split(',').forEach(g=>{ if(g.trim()) genres.add(g.trim()); });
     });
-    return Object.values(dirs).some(d=>d.total>=3&&d.total===d.watched);
-  }},
-  // SOCIAL
-  { id:"first_to_watch",cat:"Social",icon:"🥇",name:"First!",            desc:"First to watch something after it was added",check:(w,r,u,lib,me)=>{
-    return lib.some(m=>{
-      if(!me.watched?.[m.id]||!m.addedAt) return false;
-      const myFirst=(me.history?.[m.id]||[]).sort((a,b)=>a-b)[0]||Infinity;
-      return u.filter(a=>a.id!==CU.id).every(other=>{
-        const od=allUsers.personal?.[other.id];
-        if(!od?.watched?.[m.id]) return true;
-        const theirFirst=(od.history?.[m.id]||[]).sort((a,b)=>a-b)[0]||Infinity;
-        return myFirst<=theirFirst;
-      });
-    });
-  }},
-  // SPECIAL
-  { id:"genre_sweep",cat:"Special",  icon:"🌈", name:"Genre Hopper",    desc:"Watch titles from 5 different genres",  check:(w,r,u,lib,me)=>{
-    const genres=new Set();
-    lib.filter(m=>me.watched?.[m.id]).forEach(m=>(m.genre||"").split(",").forEach(g=>{if(g.trim())genres.add(g.trim())}));
-    return genres.size>=5;
-  }},
-  { id:"diary_10",   cat:"Special",  icon:"📓", name:"Diarist",          desc:"Log 10 viewings in your diary",         check:(w,r,u,lib,me)=>{let t=0;Object.values(me.history||{}).forEach(d=>t+=d.length);return t>=10;} },
+  });
+  return genres;
+}
+
+function maxSingleGenreCountThisYear(me){
+  const yr=new Date().getFullYear();
+  const counts={}, seen=new Set();
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m=sharedData.library.find(x=>x.id===id); if(!m||m.type==='tv') return;
+    if(seen.has(id)||!dates.some(ts=>new Date(ts).getFullYear()===yr)) return;
+    seen.add(id);
+    (m.genre||'').split(',').forEach(g=>{ const t=g.trim(); if(t) counts[t]=(counts[t]||0)+1; });
+  });
+  let max=0;
+  Object.values(counts).forEach(c=>{ if(c>max) max=c; });
+  return max;
+}
+
+// Reuses the existing global DECADE_LIST constant (defined earlier in this file).
+function decadesWithThreeThisYear(me){
+  const yr=new Date().getFullYear();
+  const decadeCounts={}, seen=new Set();
+  Object.entries(me.history||{}).forEach(([id,dates])=>{
+    const m=sharedData.library.find(x=>x.id===id); if(!m||m.type==='tv') return;
+    if(seen.has(id)||!dates.some(ts=>new Date(ts).getFullYear()===yr)) return;
+    seen.add(id);
+    const y=parseInt(m.year)||0;
+    if(y<1930) return;
+    const dec=Math.floor(y/10)*10;
+    decadeCounts[dec]=(decadeCounts[dec]||0)+1;
+  });
+  return DECADE_LIST.every(d=>(decadeCounts[d]||0)>=3);
+}
+
+// ── ALL-TIME TROPHIES (lifetime watch-count milestones, never reset) ──────────
+const ALLTIME_TROPHIES = [
+  { id:"life_25",   icon:"🎬",  name:"Quarter Century",     desc:"Watch 25 titles, all-time",    target:25,   check:(w)=>w>=25   },
+  { id:"life_50",   icon:"🍿",  name:"Half Century",        desc:"Watch 50 titles, all-time",    target:50,   check:(w)=>w>=50   },
+  { id:"life_100",  icon:"💯",  name:"Century Club",        desc:"Watch 100 titles, all-time",   target:100,  check:(w)=>w>=100  },
+  { id:"life_200",  icon:"📽️", name:"Bicentennial Binger",  desc:"Watch 200 titles, all-time",   target:200,  check:(w)=>w>=200  },
+  { id:"life_300",  icon:"🎞️", name:"Triple Century",       desc:"Watch 300 titles, all-time",   target:300,  check:(w)=>w>=300  },
+  { id:"life_400",  icon:"🏆",  name:"Reel Deal",           desc:"Watch 400 titles, all-time",   target:400,  check:(w)=>w>=400  },
+  { id:"life_500",  icon:"⭐",  name:"High Five Hundred",    desc:"Watch 500 titles, all-time",   target:500,  check:(w)=>w>=500  },
+  { id:"life_600",  icon:"🔮",  name:"Sixth Sense",         desc:"Watch 600 titles, all-time",   target:600,  check:(w)=>w>=600  },
+  { id:"life_700",  icon:"🍀",  name:"Lucky 700",           desc:"Watch 700 titles, all-time",   target:700,  check:(w)=>w>=700  },
+  { id:"life_800",  icon:"🎊",  name:"Eight Is Great",      desc:"Watch 800 titles, all-time",   target:800,  check:(w)=>w>=800  },
+  { id:"life_900",  icon:"🚀",  name:"So Close",            desc:"Watch 900 titles, all-time",   target:900,  check:(w)=>w>=900  },
+  { id:"life_1000", icon:"👑",  name:"The Thousand Club",   desc:"Watch 1,000 titles, all-time", target:1000, check:(w)=>w>=1000 },
+  { id:"life_1250", icon:"💎",  name:"Cinephile Elite",     desc:"Watch 1,250 titles, all-time", target:1250, check:(w)=>w>=1250 },
+  { id:"life_1500", icon:"🏅",  name:"Marathon Master",     desc:"Watch 1,500 titles, all-time", target:1500, check:(w)=>w>=1500 },
+  { id:"life_1750", icon:"🐉",  name:"Legend of the Reel",  desc:"Watch 1,750 titles, all-time", target:1750, check:(w)=>w>=1750 },
+  { id:"life_2000", icon:"🌌",  name:"Two Thousand Club",   desc:"Watch 2,000 titles, all-time", target:2000, check:(w)=>w>=2000 },
+  { id:"life_2500", icon:"📚",  name:"The Archivist",       desc:"Watch 2,500 titles, all-time", target:2500, check:(w)=>w>=2500 },
+  { id:"life_5000", icon:"🏛️", name:"Hall of Fame",         desc:"Watch 5,000 titles, all-time", target:5000, check:(w)=>w>=5000 },
 ];
+// Kept for backward compatibility with any old saved data referencing TROPHIES.
+const TROPHIES = ALLTIME_TROPHIES;
 
 // ── MONTHLY TROPHIES (reset each calendar month) ──────────────────────────────
-// id must start with "monthly_" — evaluateMonthlyTrophies checks this period
 const MONTHLY_TROPHIES = [
-  { id:"monthly_5",    period:"monthly", icon:"📅", name:"Month Watcher",     desc:"Watch 5 titles this month",    check:(w)=>w>=5,  prog:(w)=>[w,5]  },
-  { id:"monthly_10",   period:"monthly", icon:"🗓️", name:"Monthly Buff",      desc:"Watch 10 titles this month",   check:(w)=>w>=10, prog:(w)=>[w,10] },
-  { id:"monthly_rate", period:"monthly", icon:"⭐", name:"Monthly Critic",     desc:"Rate 5 titles this month",     check:(w,r)=>r>=5, prog:(w,r)=>[r,5] },
-  { id:"monthly_marathon",period:"monthly",icon:"🔥",name:"Weekend Marathon", desc:"Watch 3 titles in one day this month", check:(w,r,u,lib,me)=>{
-    const now=new Date(); const y=now.getFullYear(); const mo=now.getMonth();
-    const counts={};
-    Object.values(me.history||{}).flat().forEach(ts=>{
-      const d=new Date(ts);
-      if(d.getFullYear()===y&&d.getMonth()===mo){ const k=d.toDateString(); counts[k]=(counts[k]||0)+1; }
-    });
-    return Object.values(counts).some(c=>c>=3);
-  }},
-  { id:"monthly_genre", period:"monthly", icon:"🌈", name:"Genre Explorer",   desc:"Watch 3 different genres this month", check:(w,r,u,lib,me)=>{
-    const now=new Date(); const y=now.getFullYear(); const mo=now.getMonth();
-    const genres=new Set();
-    Object.entries(me.history||{}).forEach(([id,dates])=>{
-      const m=sharedData.library.find(x=>x.id===id); if(!m) return;
-      dates.forEach(ts=>{ const d=new Date(ts); if(d.getFullYear()===y&&d.getMonth()===mo) (m.genre||'').split(',').forEach(g=>{if(g.trim())genres.add(g.trim());}); });
-    });
-    return genres.size>=3;
-  }},
+  { id:"monthly_watch10", period:"monthly", icon:"🎬", name:"Perfect Ten",         desc:"Watch 10 movies this month",       check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'monthly')>=10 },
+  { id:"monthly_watch20", period:"monthly", icon:"🍿", name:"Double Feature Club", desc:"Watch 20 movies this month",       check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'monthly')>=20 },
+  { id:"monthly_watch30", period:"monthly", icon:"📅", name:"Almost Daily",        desc:"Watch 30 movies this month",       check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'monthly')>=30 },
+  { id:"monthly_watch35", period:"monthly", icon:"🚀", name:"Overachiever",        desc:"Watch 35 movies this month",       check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'monthly')>=35 },
+  { id:"monthly_watch40", period:"monthly", icon:"🏆", name:"Screen Time Champion",desc:"Watch 40 movies this month",       check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'monthly')>=40 },
+  { id:"monthly_2inday",  period:"monthly", icon:"🎭", name:"Double Feature",      desc:"Watch 2 titles in one day this month", check:(w,r,u,lib,me)=>maxTitlesInOneDay(me,'monthly')>=2 },
+  { id:"monthly_3inday",  period:"monthly", icon:"🔥", name:"Triple Threat",       desc:"Watch 3 titles in one day this month", check:(w,r,u,lib,me)=>maxTitlesInOneDay(me,'monthly')>=3 },
+  { id:"monthly_genre5",  period:"monthly", icon:"🌈", name:"Genre Explorer",      desc:"Watch 5 different genres this month",  check:(w,r,u,lib,me)=>genreSetForPeriod(me,'monthly').size>=5 },
+  { id:"monthly_like5",   period:"monthly", icon:"❤️", name:"Warming Up",          desc:"Like 5 films this month",           check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'monthly')>=5 },
+  { id:"monthly_like10",  period:"monthly", icon:"💕", name:"Fan Favorite",        desc:"Like 10 films this month",          check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'monthly')>=10 },
+  { id:"monthly_like20",  period:"monthly", icon:"💖", name:"Certified Superfan",  desc:"Like 20 films this month",          check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'monthly')>=20 },
 ];
 
 // ── ANNUAL TROPHIES (reset each calendar year) ────────────────────────────────
 const ANNUAL_TROPHIES = [
-  { id:"annual_25",    period:"annual", icon:"📆", name:"Year in Film",       desc:"Watch 25 titles this year",      check:(w)=>w>=25,  prog:(w)=>[w,25]  },
-  { id:"annual_50",    period:"annual", icon:"🎖️", name:"Annual Cinephile",   desc:"Watch 50 titles this year",      check:(w)=>w>=50,  prog:(w)=>[w,50]  },
-  { id:"annual_100",   period:"annual", icon:"🏆", name:"Centurion",          desc:"Watch 100 titles this year",     check:(w)=>w>=100, prog:(w)=>[w,100] },
-  { id:"annual_rate",  period:"annual", icon:"📊", name:"Annual Critic",      desc:"Rate 25 titles this year",       check:(w,r)=>r>=25, prog:(w,r)=>[r,25] },
-  { id:"annual_genre", period:"annual", icon:"🎨", name:"Genre Master",       desc:"Watch 8 different genres this year", check:(w,r,u,lib,me)=>{
+  { id:"annual_watch100", period:"annual", icon:"🎯",  name:"Century of Cinema",   desc:"Watch 100 films this year", check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'annual')>=100 },
+  { id:"annual_watch200", period:"annual", icon:"🏛️", name:"The Bicentennial",    desc:"Watch 200 films this year", check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'annual')>=200 },
+  { id:"annual_watch300", period:"annual", icon:"🦸",  name:"Tricentennial Titan", desc:"Watch 300 films this year", check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'annual')>=300 },
+  { id:"annual_watch365", period:"annual", icon:"📆",  name:"A Movie a Day",       desc:"Watch 365 films this year", check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'annual')>=365 },
+  { id:"annual_watch400", period:"annual", icon:"🎩",  name:"The 400 Club",        desc:"Watch 400 films this year", check:(w,r,u,lib,me)=>countMoviesWatchedThisPeriod(me,'annual')>=400 },
+  { id:"annual_like50",   period:"annual", icon:"❤️",  name:"Half-Century Heart",  desc:"Like 50 films this year",   check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'annual')>=50 },
+  { id:"annual_like100",  period:"annual", icon:"💯",  name:"Hundred Hearts",      desc:"Like 100 films this year",  check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'annual')>=100 },
+  { id:"annual_like150",  period:"annual", icon:"💘",  name:"Love Overload",       desc:"Like 150 films this year",  check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'annual')>=150 },
+  { id:"annual_like200",  period:"annual", icon:"😍",  name:"Ultimate Admirer",    desc:"Like 200 films this year",  check:(w,r,u,lib,me)=>countLikedThisPeriod(me,'annual')>=200 },
+  { id:"annual_genre10",  period:"annual", icon:"🧭",  name:"Genre Voyager",       desc:"Watch 10 different genres this year", check:(w,r,u,lib,me)=>genreSetForPeriod(me,'annual').size>=10 },
+  { id:"annual_genre12",  period:"annual", icon:"🎨",  name:"Genre Completionist", desc:"Watch 12 different genres this year", check:(w,r,u,lib,me)=>genreSetForPeriod(me,'annual').size>=12 },
+  { id:"annual_decades",  period:"annual", icon:"⏳",  name:"Decades of Cinema",   desc:"Watch 3 films from each decade, 1930s–2020s, this year", check:(w,r,u,lib,me)=>decadesWithThreeThisYear(me) },
+  { id:"annual_genre50",  period:"annual", icon:"🎭",  name:"Genre Devotee",       desc:"Watch 50 films of one genre this year", check:(w,r,u,lib,me)=>maxSingleGenreCountThisYear(me)>=50 },
+  { id:"annual_sweep",    period:"annual", icon:"👑",  name:"Perfect Month",       desc:"Complete every monthly trophy in a single month", check:(w,r,u,lib,me)=>{
     const yr=new Date().getFullYear();
-    const genres=new Set();
-    Object.entries(me.history||{}).forEach(([id,dates])=>{
-      const m=sharedData.library.find(x=>x.id===id); if(!m) return;
-      dates.forEach(ts=>{ if(new Date(ts).getFullYear()===yr) (m.genre||'').split(',').forEach(g=>{if(g.trim())genres.add(g.trim());}); });
-    });
-    return genres.size>=8;
-  }},
-  { id:"annual_allcat",period:"annual", icon:"🌟", name:"Well Rounded",       desc:"Watch a movie, TV show, and rate 10 titles this year", check:(w,r,u,lib,me)=>{
-    const yr=new Date().getFullYear();
-    const watchedThisYear=new Set();
-    Object.entries(me.history||{}).forEach(([id,dates])=>{ dates.forEach(ts=>{ if(new Date(ts).getFullYear()===yr) watchedThisYear.add(id); }); });
-    const hasMovie=sharedData.library.some(m=>m.type!=='tv'&&watchedThisYear.has(m.id));
-    const hasTV=sharedData.library.some(m=>m.type==='tv'&&watchedThisYear.has(m.id));
-    const ratedThisYear=Object.keys(me.ratings||{}).filter(id=>me.ratings[id]>0&&watchedThisYear.has(id)).length;
-    return hasMovie&&hasTV&&ratedThisYear>=10;
+    return (me.completedMonthKeys||[]).some(k=>k.startsWith(yr+'-'));
   }},
 ];
 
@@ -8472,7 +8507,35 @@ function evaluatePeriodicTrophies(me, trophyList, period){
     saveUsers();
     newlyEarned.forEach(t=>toast('🏅 '+t.name+' unlocked!'));
   }
+
+  // Track fully-completed months for the "Perfect Month" annual trophy.
+  if(period==='monthly'){
+    const allEarnedThisMonth = MONTHLY_TROPHIES.every(t=>store[t.id]&&store[t.id].periodKey===periodKey);
+    if(allEarnedThisMonth){
+      me.completedMonthKeys = me.completedMonthKeys||[];
+      if(!me.completedMonthKeys.includes(periodKey)) me.completedMonthKeys.push(periodKey);
+    }
+  }
   return store;
+}
+
+// Lifetime watched-title count, respecting a manual trophy reset baseline (if any).
+function getAllTimeWatchedCount(me){
+  const lib=sharedData.library;
+  const resetAt = me.trophyResetAt || 0;
+  const baseline = me.trophyResetBaseline || null;
+  if(baseline && resetAt){
+    const preWatchedIds = new Set(baseline.watchedIds || []);
+    return lib.filter(m=>{
+      if(!me.watched?.[m.id]) return false;
+      if(preWatchedIds.has(m.id)){
+        const history = me.history?.[m.id] || [];
+        return history.some(ts=>ts>resetAt);
+      }
+      return true;
+    }).length;
+  }
+  return lib.filter(m=>me.watched?.[m.id]).length;
 }
 
 function evaluateTrophies(){
@@ -8481,32 +8544,20 @@ function evaluateTrophies(){
   const resetAt = me.trophyResetAt || 0;
   const baseline = me.trophyResetBaseline || null;
 
-  let w, rated;
+  const w = getAllTimeWatchedCount(me);
+  let rated;
   if(baseline && resetAt){
-    // Count only watches that have at least one history entry AFTER the reset timestamp
-    const preWatchedIds = new Set(baseline.watchedIds || []);
-    w = lib.filter(m=>{
-      if(!me.watched?.[m.id]) return false;
-      // If this item was already watched before reset, only count it if
-      // it has a new watch log entry after the reset
-      if(preWatchedIds.has(m.id)){
-        const history = me.history?.[m.id] || [];
-        return history.some(ts=>ts>resetAt);
-      }
-      return true; // watched after reset, counts fresh
-    }).length;
     // For ratings: only count ratings above the pre-reset baseline count
     const totalRated = Object.values(me.ratings||{}).filter(v=>v>0).length;
     rated = Math.max(0, totalRated - (baseline.rated||0));
   } else {
-    w = lib.filter(m=>me.watched?.[m.id]).length;
     rated = Object.values(me.ratings||{}).filter(v=>v>0).length;
   }
 
   const u=allUsers.accounts;
   if(!me.trophies) me.trophies={};
   const newlyEarned=[];
-  TROPHIES.forEach(t=>{
+  ALLTIME_TROPHIES.forEach(t=>{
     if(me.trophies[t.id]) return;
     let earned=false;
     try{ earned=t.check(w,rated,u,lib,me); }catch(e){}
@@ -8720,17 +8771,42 @@ function ghostRatingsHTML(m, myRating){
 }
 
 // ── RUNTIME CALCULATOR ────────────────────────────────────────────────────────
+var _runtimePeriod = 'all'; // 'all' | 'year' | 'month'
+
+function setRuntimePeriod(p){
+  _runtimePeriod = p;
+  renderRuntime();
+}
+
+// Movies (non-TV) watched within the given runtime-tab period.
+function moviesWatchedInRuntimePeriod(me, allMovies, period){
+  if(period==='all') return allMovies.filter(m=>me.watched?.[m.id]);
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  return allMovies.filter(m=>{
+    if(!me.watched?.[m.id]) return false;
+    const dates = me.history?.[m.id]||[];
+    return dates.some(ts=>{
+      const d=new Date(ts);
+      if(period==='year')  return d.getFullYear()===yr;
+      if(period==='month') return d.getFullYear()===yr && d.getMonth()===mo;
+      return false;
+    });
+  });
+}
+
 function renderRuntime(){
   const me = myData();
   const lib = sharedData.library;
   const allMovies = lib.filter(m=>m.type!=='tv');
-  const watched = allMovies.filter(m=>me.watched?.[m.id]);
+  const watched = moviesWatchedInRuntimePeriod(me, allMovies, _runtimePeriod);
 
   let watchedMins=0, watchedCount=0;
   watched.forEach(m=>{ const mins=parseInt(m.runtime)||0; watchedMins+=mins; watchedCount++; });
 
   const fmtH = m => Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';
   const fmtDays = m => (m/60/24).toFixed(1)+' days';
+
+  const periodLabel = _runtimePeriod==='year' ? 'This Year' : _runtimePeriod==='month' ? 'This Month' : 'All Time';
 
   // Location-based comparisons using DRIVE_LOCATION setting
   const loc = me.driveLocation||'Indianapolis';
@@ -8745,11 +8821,16 @@ function renderRuntime(){
     'Denver':         {mins:1260, label:'Denver'},
   };
   const drive = DRIVE_TIMES[loc]||DRIVE_TIMES['Indianapolis'];
-  const trips = Math.round(watchedMins/drive.mins);
+  const trips = drive.mins>0 ? Math.round(watchedMins/drive.mins) : 0;
 
   const body = document.getElementById('runtime-body');
   if(!body) return;
   body.innerHTML = `
+    <div class="auth-tabs" style="max-width:420px;margin-bottom:16px">
+      <button class="auth-tab${_runtimePeriod==='all'?' active':''}" onclick="setRuntimePeriod('all')">All Time</button>
+      <button class="auth-tab${_runtimePeriod==='year'?' active':''}" onclick="setRuntimePeriod('year')">This Year</button>
+      <button class="auth-tab${_runtimePeriod==='month'?' active':''}" onclick="setRuntimePeriod('month')">This Month</button>
+    </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
       <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Drive to</div>
       <select class="fb" id="drive-loc-sel" onchange="saveRuntimeLocation(this.value)">
@@ -8757,7 +8838,7 @@ function renderRuntime(){
       </select>
     </div>
     <div class="runtime-hero">
-      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Time Watched</div>
+      <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Time Watched · ${periodLabel}</div>
       <div class="runtime-countdown">${fmtH(watchedMins)}</div>
       <div class="runtime-label">${fmtDays(watchedMins)} of cinema · ${watchedCount} films</div>
       <div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7">
@@ -8771,7 +8852,7 @@ function renderRuntime(){
       <div class="runtime-stat"><div class="runtime-stat-n">${Math.round(watchedMins/(watchedCount||1))}m</div><div class="runtime-stat-l">Avg Runtime</div></div>
       <div class="runtime-stat"><div class="runtime-stat-n">${trips}</div><div class="runtime-stat-l">Trips to ${drive.label}</div></div>
     </div>
-    <div class="sl" style="margin-bottom:12px">Longest Films Watched</div>
+    <div class="sl" style="margin-bottom:12px">Longest Films Watched · ${periodLabel}</div>
     <div style="display:flex;flex-direction:column;gap:6px">
       ${watched.filter(m=>parseInt(m.runtime)>0)
         .sort((a,b)=>parseInt(b.runtime)-parseInt(a.runtime))
@@ -8780,7 +8861,7 @@ function renderRuntime(){
           ${m.poster&&m.poster!=='N/A'?`<img src="${m.poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:'<div style="width:28px;height:42px;border-radius:4px;background:var(--bg3);flex-shrink:0"></div>'}
           <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div><div style="font-size:11px;color:var(--muted)">${m.year||''}</div></div>
           <div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);white-space:nowrap">${fmtH(parseInt(m.runtime))}</div>
-        </div>`).join('')}
+        </div>`).join('') || `<div class="empty" style="padding:24px 0"><i class="ti ti-movie-off"></i><p style="font-size:13px">No films watched ${periodLabel==='All Time'?'yet':periodLabel.toLowerCase()}.</p></div>`}
     </div>`;
 }
 
@@ -11088,12 +11169,61 @@ function toggleListFromModal(btn, adding){
 var _rankEngine = null;
 var _rankTick = 0;
 var _rankSubtab = 'liked';
+var _rankMode = 'alltime';     // 'alltime' | 'month' | 'year'
+var _rankYearFilter = 'all';   // 'all' | 'liked' — secondary filter, only used when _rankMode==='year'
 
-function getRankPool(me){
+// Movies (non-TV) with a watch-history entry inside the given period.
+function moviesWatchedInPeriodForRank(me, period){
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const ids = new Set();
+  Object.entries(me.history||{}).forEach(function(entry){
+    const id = entry[0], dates = entry[1];
+    const m = sharedData.library.find(function(x){ return x.id===id; });
+    if(!m||m.type==='tv') return;
+    dates.forEach(function(ts){
+      const d=new Date(ts);
+      if(period==='monthly'&&d.getFullYear()===yr&&d.getMonth()===mo) ids.add(id);
+      if(period==='annual'&&d.getFullYear()===yr) ids.add(id);
+    });
+  });
+  return sharedData.library.filter(function(m){ return ids.has(m.id); });
+}
+
+function getRankPool(me, mode){
+  mode = mode || _rankMode;
+  if(mode==='month'){
+    // Movies watched this calendar month — liked status doesn't matter.
+    return moviesWatchedInPeriodForRank(me, 'monthly');
+  }
+  if(mode==='year'){
+    // Movies watched this calendar year, optionally narrowed to liked-only.
+    let pool = moviesWatchedInPeriodForRank(me, 'annual');
+    if(_rankYearFilter==='liked') pool = pool.filter(function(m){ return !!(me.favorites && me.favorites[m.id]); });
+    return pool;
+  }
+  // 'alltime' — all liked movies, ever (original behavior).
   return sharedData.library.filter(function(m){
     if(m.type==='tv') return false;
     return !!(me.favorites && me.favorites[m.id]);
   });
+}
+
+function setRankMode(mode){
+  if(_rankEngine) return; // don't allow switching mid-ranking
+  _rankMode = mode;
+  renderCompare();
+}
+
+function setRankYearFilter(f){
+  if(_rankEngine) return;
+  _rankYearFilter = f;
+  renderCompare();
+}
+
+function rankModeLabel(mode, yearFilter){
+  if(mode==='month') return 'movies watched this month';
+  if(mode==='year')  return 'movies watched this year'+(yearFilter==='liked'?' (liked only)':'');
+  return 'liked films';
 }
 
 // ── Sub-tab switching ──────────────────────────────────────────────────────────
@@ -11354,9 +11484,9 @@ RankEngine.prototype.estimatedTotal = function(){
 function startRanking(){
   try{
     var me = myData();
-    var pool = getRankPool(me);
+    var pool = getRankPool(me, _rankMode);
     if(pool.length<2){
-      toast('Need at least 2 liked films to rank. Pool size: '+pool.length, true);
+      toast('Need at least 2 films in this mode to rank. Pool size: '+pool.length, true);
       return;
     }
     _rankEngine = new RankEngine(pool);
@@ -11409,17 +11539,36 @@ function renderCompare(){
 
   // ── START SCREEN ──
   if(!_rankEngine){
-    var pool = getRankPool(me);
+    // Mode selector — All Time (liked films) / This Month (all watched) / This Year (toggle liked-only or all)
+    h += '<div class="auth-tabs" style="max-width:460px;margin:0 auto 10px">'
+      +'<button class="auth-tab'+(_rankMode==='alltime'?' active':'')+'" onclick="setRankMode(\'alltime\')">All Time</button>'
+      +'<button class="auth-tab'+(_rankMode==='month'?' active':'')+'" onclick="setRankMode(\'month\')">This Month</button>'
+      +'<button class="auth-tab'+(_rankMode==='year'?' active':'')+'" onclick="setRankMode(\'year\')">This Year</button>'
+      +'</div>';
+
+    if(_rankMode==='year'){
+      h += '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">'
+        +'<button class="ghost-btn" style="font-size:11px;'+(_rankYearFilter==='all'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setRankYearFilter(\'all\')"><i class="ti ti-movie"></i> All Watched</button>'
+        +'<button class="ghost-btn" style="font-size:11px;'+(_rankYearFilter==='liked'?'border-color:var(--gold);color:var(--gold)':'')+'" onclick="setRankYearFilter(\'liked\')"><i class="ti ti-heart"></i> Liked Only</button>'
+        +'</div>';
+    }
+
+    var pool = getRankPool(me, _rankMode);
     var est = pool.length>1 ? Math.ceil(pool.length*Math.log2(pool.length)) : 0;
-    h += '<div style="text-align:center;padding:24px 0">'
+    var modeLabel = rankModeLabel(_rankMode, _rankYearFilter);
+    h += '<div style="text-align:center;padding:8px 0 24px">'
       +'<div style="font-size:48px;margin-bottom:12px">🎬</div>'
-      +'<div style="font-family:Bebas Neue,cursive;font-size:20px;color:var(--light);margin-bottom:6px;letter-spacing:1px">Rank Your Liked Movies</div>'
-      +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.7">'+pool.length+' liked films in the pool.</div>';
+      +'<div style="font-family:Bebas Neue,cursive;font-size:20px;color:var(--light);margin-bottom:6px;letter-spacing:1px">Rank Your Movies</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.7">'+pool.length+' '+modeLabel+' in the pool.</div>';
     if(pool.length>1){
       h += '<div style="font-size:11px;color:var(--muted);margin-bottom:20px">Pick between two at a time. Uses tournament sorting — only ~'+est+' comparisons needed.</div>'
         +'<button class="primary-btn" style="margin:0 auto" onclick="startRanking()"><i class="ti ti-tournament"></i> Start Ranking</button>';
-    } else {
+    } else if(_rankMode==='alltime'){
       h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Like at least 2 films (from the Library or Liked tab) to rank them.</div>';
+    } else if(_rankMode==='month'){
+      h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Watch at least 2 movies this month to rank them.</div>';
+    } else {
+      h += '<div style="font-size:11px;color:var(--red);margin-bottom:20px">Watch at least 2 '+(_rankYearFilter==='liked'?'liked ':'')+'movies this year to rank them.</div>';
     }
     h += '</div>';
 
@@ -12500,16 +12649,17 @@ function renderTrophies(){
     return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   }
 
-  function trophyDetailHTML(t, store){
-    const earned = t.earned;
-    const data = store[t.id]||{};
-    const earnedDate = data.earnedAt ? fmtDate(data.earnedAt) : (earned ? 'Earned' : '');
+  function trophyDetailHTML(t, earned, earnedAt, currentVal){
+    const showProgress = !earned && t.target!=null && currentVal!=null;
+    const pct = showProgress ? Math.min(100, Math.round((currentVal/t.target)*100)) : 0;
+    const earnedDate = earnedAt ? fmtDate(earnedAt) : (earned ? 'Earned' : '');
     return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:'+(earned?'rgba(232,184,75,.07)':'var(--bg2)')+';border:1px solid '+(earned?'rgba(232,184,75,.25)':'var(--border)')+';border-radius:12px;margin-bottom:8px;opacity:'+(earned?'1':'.5')+'">'
       +'<div style="font-size:28px;flex-shrink:0;line-height:1;margin-top:2px">'+t.icon+'</div>'
       +'<div style="flex:1;min-width:0">'
       +'<div style="font-size:13px;font-weight:700;color:'+(earned?'var(--gold)':'var(--muted)')+'">'+t.name+'</div>'
       +(t.desc?'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4">'+t.desc+'</div>':'')
       +(earnedDate?'<div style="font-size:10px;color:'+(earned?'rgba(232,184,75,.6)':'var(--muted)')+';margin-top:4px;font-weight:600">'+( earned?'✓ Earned ':'')+''+earnedDate+'</div>':'')
+      +(showProgress?'<div style="margin-top:6px"><div style="height:4px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="height:4px;width:'+pct+'%;background:linear-gradient(to right,var(--gold),var(--gold2));border-radius:3px"></div></div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+currentVal+' / '+t.target+'</div></div>':'')
       +'</div>'
       +'<div style="font-size:18px;flex-shrink:0">'+( earned?'✅':'🔒')+'</div>'
       +'</div>';
@@ -12518,16 +12668,25 @@ function renderTrophies(){
   // Monthly trophy defs (same as cinema)
   const monthlyTrophyDefs = MONTHLY_TROPHIES.map(function(t){
     const data = monthStore[t.id]||{};
-    return Object.assign({}, t, {earned: data.earned||false});
+    return Object.assign({}, t, {earned: !!data.earnedAt, earnedAt: data.earnedAt});
   });
 
   const annualTrophyDefs = ANNUAL_TROPHIES.map(function(t){
     const data = yearStore[t.id]||{};
-    return Object.assign({}, t, {earned: data.earned||false});
+    return Object.assign({}, t, {earned: !!data.earnedAt, earnedAt: data.earnedAt});
   });
 
-  const monthEarned = monthlyTrophyDefs.filter(function(t){return t.earned;}).length;
-  const yearEarned  = annualTrophyDefs.filter(function(t){return t.earned;}).length;
+  // All-Time trophy defs (never reset — lifetime watch milestones)
+  evaluateTrophies();
+  const allTimeWatched = getAllTimeWatchedCount(me);
+  const alltimeTrophyDefs = ALLTIME_TROPHIES.map(function(t){
+    const data = (me.trophies&&me.trophies[t.id])||{};
+    return Object.assign({}, t, {earned: !!data.earnedAt, earnedAt: data.earnedAt});
+  });
+
+  const monthEarned   = monthlyTrophyDefs.filter(function(t){return t.earned;}).length;
+  const yearEarned    = annualTrophyDefs.filter(function(t){return t.earned;}).length;
+  const alltimeEarned = alltimeTrophyDefs.filter(function(t){return t.earned;}).length;
 
   let h = '';
 
@@ -12536,15 +12695,23 @@ function renderTrophies(){
     +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">'+monthName+' '+yr+' &nbsp;·&nbsp; '+monthEarned+' of '+monthlyTrophyDefs.length+' earned &nbsp;·&nbsp; resets 1st of month</div>';
 
   monthlyTrophyDefs.forEach(function(t){
-    h += trophyDetailHTML(t, monthStore);
+    h += trophyDetailHTML(t, t.earned, t.earnedAt, null);
   });
 
-  // ── ANNUAL TROPHIES (below) ───────────────────────────────────────────────
+  // ── ANNUAL TROPHIES (middle) ──────────────────────────────────────────────
   h += '<div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-top:24px;margin-bottom:4px">🏅 Annual Trophies</div>'
     +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">'+yr+' &nbsp;·&nbsp; '+yearEarned+' of '+annualTrophyDefs.length+' earned &nbsp;·&nbsp; resets Jan 1</div>';
 
   annualTrophyDefs.forEach(function(t){
-    h += trophyDetailHTML(t, yearStore);
+    h += trophyDetailHTML(t, t.earned, t.earnedAt, null);
+  });
+
+  // ── ALL-TIME TROPHIES (bottom) ────────────────────────────────────────────
+  h += '<div style="font-family:Bebas Neue,cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-top:24px;margin-bottom:4px">👑 All-Time Trophies</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:14px">Lifetime &nbsp;·&nbsp; '+alltimeEarned+' of '+alltimeTrophyDefs.length+' earned &nbsp;·&nbsp; never resets</div>';
+
+  alltimeTrophyDefs.forEach(function(t){
+    h += trophyDetailHTML(t, t.earned, t.earnedAt, allTimeWatched);
   });
 
   body.innerHTML = h;
