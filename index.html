@@ -68,10 +68,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 body.light-mode .header{border-bottom-color:rgba(0,0,0,.22)}
 .logo{font-family:Bebas Neue,cursive;font-size:38px;letter-spacing:4px;color:var(--gold);flex-shrink:0;text-shadow:0 0 20px rgba(232,184,75,0.25)}
 .logo span{color:#fff}
-.nav-bar{display:flex;align-items:center;gap:2px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:fixed;top:54px;left:0;right:0;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav-bar{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);background:rgba(7,7,13,0.97);position:fixed;top:54px;left:0;right:0;z-index:99;backdrop-filter:blur(16px);overflow-x:auto;-webkit-overflow-scrolling:touch;pointer-events:auto}
 .nav-bar::-webkit-scrollbar{display:none}
 .nav{display:contents}
-.nb{padding:6px 10px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
+.nb{padding:11px 18px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;pointer-events:auto}
+.nb i{font-size:16px}
 .nb-retro{color:#ff6ec7!important;text-shadow:0 0 8px rgba(255,110,199,.5)}
 .nb-retro:hover{background:rgba(255,110,199,.08)!important;color:#ff6ec7!important}
 .nb-retro.active{background:rgba(255,110,199,.12)!important;color:#ff6ec7!important;text-shadow:0 0 12px rgba(255,110,199,.7)}
@@ -89,7 +90,7 @@ body.light-mode .header{border-bottom-color:rgba(0,0,0,.22)}
 .rt-member{background:rgba(138,90,240,.15);color:var(--purple)}
 
 /* MAIN */
-.main{padding:118px 20px 80px;max-width:1400px;margin:0 auto;}
+.main{padding:142px 20px 80px;max-width:1400px;margin:0 auto;}
 .tab{display:none}.tab.active{display:block}
 
 /* TOOLBAR */
@@ -2374,9 +2375,9 @@ textarea.ffi{resize:vertical}
     <div class="form-sec">
       <div class="form-title">Log a Watch</div>
       <div class="ff full" style="margin-bottom:10px">
-        <label class="fl">Search Library</label>
+        <label class="fl">Search TMDB</label>
         <div class="lk-row">
-          <input type="text" class="ffi" id="diary-search" placeholder="Search your library..." oninput="diarySearchLib()">
+          <input type="text" class="ffi" id="diary-search" placeholder="Search TMDB for any movie..." oninput="diarySearchLib()">
         </div>
         <div id="diary-results" style="display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto;margin-top:8px"></div>
       </div>
@@ -5367,7 +5368,7 @@ function wlToggleDecade(d, checked){
   renderWish();
 }
 
-function wlCardHTML(m){
+function wlCardHTML(m, listId){
   const hp = m.poster && m.poster !== 'N/A';
   const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
   const safeTitle = (m.title||'').replace(/'/g,"\\'");
@@ -5379,6 +5380,10 @@ function wlCardHTML(m){
       onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','${src}')" title="Add to list">
       <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
     </button>
+    ${listId?`<button style="position:absolute;top:5px;right:5px;background:rgba(232,53,75,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
+      onclick="event.stopPropagation();removeFromList('${listId}','${m.id}','${safeTitle}')" title="Remove from this list">
+      <i class="ti ti-x" style="font-size:11px;color:#fff;pointer-events:none"></i>
+    </button>`:''}
     <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
       onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
       <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
@@ -5430,7 +5435,7 @@ function renderWLAllPane(){
   if(!items.length){
     return '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">No movies match these filters.</p></div>';
   }
-  return `<div class="grid">${items.map(wlCardHTML).join('')}</div>`;
+  return `<div class="grid">${items.map(m=>wlCardHTML(m, listFilter||null)).join('')}</div>`;
 }
 
 function renderWLListPane(list){
@@ -5458,7 +5463,7 @@ function renderWLListPane(list){
   return `${dropdown}
     ${years.map(y=>`
       <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
-      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(wlCardHTML).join('')}</div>
+      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(m=>wlCardHTML(m, list.id)).join('')}</div>
     `).join('')}`;
 }
 
@@ -5761,10 +5766,13 @@ function deleteList(listId){
   const me=myData();me.collections=(me.collections||[]).filter(c=>c.id!==listId);
   saveUsers().then(()=>{renderLists();updateCounts();});
 }
-function removeFromList(listId,itemId){
+function removeFromList(listId,itemId,title){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=(list.items||[]).filter(x=>x!==itemId);
-  saveUsers().then(()=>renderLists());
+  saveUsers().then(()=>{
+    renderWish();
+    toast((title||'Title')+' removed from "'+(list.name||'list')+'". Still in your library/watchlist and diary.');
+  });
 }
 function canFeatureList(){
   // Admin can feature unlimited; members can feature 1 at a time
@@ -7492,42 +7500,53 @@ function openDiaryAdd(){
 let diarySelectedItem = null;
 
 async function diarySearchLib(){
+  clearTimeout(_diarySearchTimer);
+  _diarySearchTimer = setTimeout(diarySearchTMDB, 350);
+}
+let _diarySearchTimer = null;
+
+async function diarySearchTMDB(){
   const q = (document.getElementById('diary-search').value||'').trim();
   const res = document.getElementById('diary-results');
   if(!q){ res.innerHTML=''; return; }
 
-  res.innerHTML = `<div style="font-size:11px;color:var(--muted);padding:4px 0">Searching...</div>`;
+  res.innerHTML = `<div style="font-size:11px;color:var(--muted);padding:4px 0">Searching TMDB...</div>`;
 
   try{
-    const d = await omdbSearchFuzzy(q);
-    if(d.Response==='True'&&d.Search?.length){
-      const html = d.Search.slice(0,8).map(it=>{
-        const hp = it.Poster && it.Poster !== 'N/A';
-        return `<button type="button" class="lk-opt" onclick="selectDiaryItem('omdb:${it.imdbID}','${it.Title.replace(/'/g,"\\'")}','${hp?it.Poster:""}')">
-          ${hp?`<img src="${it.Poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
-          <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.Title}</div><div class="lk-opt-yr">${it.Year||''}</div></div>
-          <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
-        </button>`;
-      }).join('');
-      res.innerHTML = html || `<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
-    }else{
-      res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
+    const r = await fetch('https://api.themoviedb.org/3/search/movie?api_key='+TMDB_KEY+'&query='+encodeURIComponent(q)+'&include_adult=false');
+    const d = await r.json();
+    // Stale response guard: bail if the search box has moved on
+    if((document.getElementById('diary-search').value||'').trim() !== q) return;
+    const items = (d.results||[]).slice(0,8);
+    if(!items.length){
+      res.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:6px">No results.</div>`;
+      return;
     }
+    res.innerHTML = items.map(it=>{
+      const poster = it.poster_path ? 'https://image.tmdb.org/t/p/w92'+it.poster_path : '';
+      const year = (it.release_date||'').slice(0,4);
+      const safeTitle = (it.title||'').replace(/'/g,"\\'");
+      return `<button type="button" class="lk-opt" onclick="selectDiaryItem('tmdb:${it.id}','${safeTitle}','${poster}','${year}')">
+        ${poster?`<img src="${poster}" style="width:32px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div class="lk-opt-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+        <div style="flex:1;min-width:0"><div class="lk-opt-title">${it.title}</div><div class="lk-opt-yr">${year||''}</div></div>
+        <i class="ti ti-chevron-right" style="color:var(--muted)"></i>
+      </button>`;
+    }).join('');
   }catch(e){
     res.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px">Search failed — check your connection.</div>`;
   }
 }
 
-function selectDiaryItem(id, title, poster){
+function selectDiaryItem(id, title, poster, year){
   diarySelectedId = id;
-  diarySelectedItem = { id, title, poster };
+  diarySelectedItem = { id, title, poster, year };
   document.getElementById('diary-search').value = '';
   document.getElementById('diary-results').innerHTML = '';
   const sel = document.getElementById('diary-selected');
   const hp = poster && poster !== 'N/A';
   sel.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
     ${hp?`<img src="${poster}" style="width:28px;height:42px;border-radius:4px;object-fit:cover;flex-shrink:0">`:''}
-    <span>${title}</span>
+    <span>${title}${year?' ('+year+')':''}</span>
   </div>`;
   document.getElementById('diary-selected-wrap').style.display = '';
 }
@@ -7545,14 +7564,40 @@ async function submitDiaryAdd(){
 
   let itemId = diarySelectedId;
 
-  // If this is an OMDB item not in the library, fetch full details and add to personal diary items
-  if(diarySelectedId.startsWith('omdb:')){
+  // If this is a TMDB pick, reuse an existing library/wishlist entry when we already
+  // track this movie, otherwise enrich via OMDB and store it as a personal diary item.
+  if(diarySelectedId.startsWith('tmdb:')){
+    const tmdbId = parseInt(diarySelectedId.replace('tmdb:',''), 10);
+    const existing = sharedData.library.find(x=>x.tmdbId===tmdbId) || sharedData.wishlist.find(x=>x.tmdbId===tmdbId);
+    if(existing){
+      itemId = existing.id;
+    } else {
+      const picked = diarySelectedItem||{};
+      itemId = 'diary:tmdb'+tmdbId;
+      if(!me.diaryItems) me.diaryItems={};
+      me.diaryItems[itemId] = { id:itemId, title:picked.title||'', year:picked.year||'', poster:picked.poster||'', genre:'', type:'movie', director:'', imdb:'', tmdbId };
+      try{
+        const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(picked.title||'')}${picked.year?'&y='+picked.year:''}`);
+        const d2 = await r.json();
+        if(d2.Response==='True'){
+          me.diaryItems[itemId] = {
+            id:itemId, title:d2.Title||picked.title||'', year:(d2.Year||picked.year||'').slice(0,4),
+            poster:(d2.Poster&&d2.Poster!=='N/A')?d2.Poster:(picked.poster||''),
+            genre:d2.Genre||'', type:d2.Type==='series'?'tv':'movie',
+            director:d2.Director&&d2.Director!=='N/A'?d2.Director:'',
+            imdb:d2.imdbID||'', tmdbId
+          };
+        }
+      }catch(e){ /* OMDB enrichment failed — the basic TMDB info logged above still stands */ }
+    }
+  }
+  // Legacy: still support old OMDB-sourced ids from before this switched to TMDB search
+  else if(diarySelectedId.startsWith('omdb:')){
     const imdbID = diarySelectedId.replace('omdb:','');
     try{
       const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&i=${imdbID}&plot=full`);
       const d2 = await r.json();
       if(d2.Response==='True'){
-        // Store as a diary-only item in personal data (not in shared library)
         if(!me.diaryItems) me.diaryItems={};
         itemId = 'diary:'+imdbID;
         me.diaryItems[itemId]={
