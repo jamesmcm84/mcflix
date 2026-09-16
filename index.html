@@ -189,6 +189,20 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
 .diary-rating{font-family:Bebas Neue,cursive;font-size:20px;color:var(--gold)}
 .diary-like{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
+/* ── WATCHLIST ROW LIST (Diary-style vertical list) ─────────────────────── */
+.wl-list{display:flex;flex-direction:column;gap:0}
+.wl-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid rgba(255,255,255,.18);border-top:none;padding:10px 14px;cursor:pointer;transition:background .2s}
+.wl-list .wl-row:first-child{border-top:1px solid rgba(255,255,255,.18);border-radius:8px 8px 0 0}
+.wl-list .wl-row:last-child{border-radius:0 0 8px 8px}
+.wl-row:hover{background:var(--bg3)}
+.wl-row-poster{width:36px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.wl-row-poster-fb{width:36px;height:54px;border-radius:5px;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.wl-row-info{flex:1;min-width:0}
+.wl-row-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--light)}
+.wl-row-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.wl-row-actions{display:flex;gap:6px;flex-shrink:0}
+.wl-row-btn{width:30px;height:30px;border-radius:7px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.wl-row-btn i{font-size:14px;pointer-events:none}
 .diary-like:hover{transform:scale(1.15)}
 .diary-like.on{color:var(--red)}
 
@@ -3334,10 +3348,9 @@ function removeVibeTag(id, tag){
   const me = myData();
   if(!me.vibes?.[id]?.tags) return;
   me.vibes[id].tags = me.vibes[id].tags.filter(t=>t!==tag);
-  saveUsers().then(()=>{
-    renderVibeTagPills(id);
-    updateVibeSummary(id);
-  });
+  renderVibeTagPills(id);
+  updateVibeSummary(id);
+  saveUsers();
 }
 
 function renderVibeTagPills(id){
@@ -4539,7 +4552,8 @@ function deletePreset(i){
   const name = me.filterPresets[i]?.name || 'this preset';
   if(!confirm(`Delete preset "${name}"?`)) return;
   me.filterPresets.splice(i,1);
-  saveUsers().then(()=>renderPresetsPanel());
+  renderPresetsPanel();
+  saveUsers();
 }
 
 // ── A-Z SLIDER ────────────────────────────────────────────────────────────────
@@ -5301,7 +5315,9 @@ function wlDeleteList(listId){
   if(!confirm(`Delete "${list.name}"? Your titles stay in the library/watchlist — only the list itself is removed.`)) return;
   me.collections = (me.collections||[]).filter(c=>c.id!==listId);
   if(_wlActiveList===listId) _wlActiveList='all';
-  saveUsers().then(()=>{ renderWish(); toast(`"${list.name}" deleted.`); });
+  renderWish();
+  toast(`"${list.name}" deleted.`);
+  saveUsers();
 }
 
 function buildWLFilterOptions(){
@@ -5372,22 +5388,26 @@ function wlCardHTML(m, listId){
   const hp = m.poster && m.poster !== 'N/A';
   const src = sharedData.library.find(x=>x.id===m.id) ? 'library' : 'wishlist';
   const safeTitle = (m.title||'').replace(/'/g,"\\'");
-  return `<div class="card" style="position:relative" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
-    ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-    <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
-    <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
-    <button style="position:absolute;top:5px;left:5px;background:rgba(52,152,219,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-      onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','${src}')" title="Add to list">
-      <i class="ti ti-list-check" style="font-size:11px;color:#fff;pointer-events:none"></i>
-    </button>
-    ${listId?`<button style="position:absolute;top:5px;right:5px;background:rgba(232,53,75,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-      onclick="event.stopPropagation();removeFromList('${listId}','${m.id}','${safeTitle}')" title="Remove from this list">
-      <i class="ti ti-x" style="font-size:11px;color:#fff;pointer-events:none"></i>
-    </button>`:''}
-    <button style="position:absolute;bottom:5px;left:5px;background:rgba(229,9,20,.85);border:none;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
-      onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
-      <i class="ti ti-brand-youtube" style="font-size:11px;color:#fff;pointer-events:none"></i>
-    </button>
+  return `<div class="wl-row" data-mid="${m.id}" data-src="${src}" onclick="openDetail(this.dataset.mid,this.dataset.src)">
+    ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" class="wl-row-poster" onerror="this.outerHTML='<div class=&quot;wl-row-poster-fb&quot;><i class=&quot;ti ti-movie&quot; style=&quot;color:var(--muted)&quot;></i></div>'">`:`<div class="wl-row-poster-fb"><i class="ti ti-movie" style="color:var(--muted)"></i></div>`}
+    <div class="wl-row-info">
+      <div class="wl-row-title">${m.title}</div>
+      <div class="wl-row-meta">${m.year||''}${m.genre?' · '+m.genre.split(',')[0]:''}</div>
+    </div>
+    <div class="wl-row-actions">
+      <button class="wl-row-btn" style="background:rgba(52,152,219,.15);color:#5dade2"
+        onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','${src}')" title="Add to list">
+        <i class="ti ti-list-check"></i>
+      </button>
+      ${listId?`<button class="wl-row-btn" style="background:rgba(232,53,75,.15);color:#e74c3c"
+        onclick="event.stopPropagation();removeFromList('${listId}','${m.id}','${safeTitle}')" title="Remove from this list">
+        <i class="ti ti-x"></i>
+      </button>`:''}
+      <button class="wl-row-btn" style="background:rgba(229,9,20,.15);color:#e5484d"
+        onclick="event.stopPropagation();openWishTrailer(this,'${m.id}','${safeTitle}','${m.year||''}')" title="Trailer">
+        <i class="ti ti-brand-youtube"></i>
+      </button>
+    </div>
   </div>`;
 }
 
@@ -5435,7 +5455,7 @@ function renderWLAllPane(){
   if(!items.length){
     return '<div class="empty"><i class="ti ti-bookmark"></i><p style="font-size:13px">No movies match these filters.</p></div>';
   }
-  return `<div class="grid">${items.map(m=>wlCardHTML(m, listFilter||null)).join('')}</div>`;
+  return `<div class="wl-list">${items.map(m=>wlCardHTML(m, listFilter||null)).join('')}</div>`;
 }
 
 function renderWLListPane(list){
@@ -5463,7 +5483,7 @@ function renderWLListPane(list){
   return `${dropdown}
     ${years.map(y=>`
       <div id="wish-year-${y}" class="sl" style="font-size:13px;margin-top:14px;margin-bottom:8px;scroll-margin-top:60px">${y} <span style="font-size:11px;color:var(--muted)">(${groups[y].length})</span></div>
-      <div class="grid">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(m=>wlCardHTML(m, list.id)).join('')}</div>
+      <div class="wl-list">${groups[y].slice().sort((a,b)=>a.title.localeCompare(b.title)).map(m=>wlCardHTML(m, list.id)).join('')}</div>
     `).join('')}`;
 }
 
@@ -5555,6 +5575,10 @@ function renderWish(){
 function renderQueueShelf(){
   const wrap = document.getElementById('discover-queue-wrap');
   if(!wrap) return;
+  // Preserve horizontal scroll position across re-renders (e.g. after send-to-front,
+  // add-to-list, or a drag reorder) so the shelf doesn't jump back to the start.
+  const prevShelf = document.getElementById('queue-shelf');
+  const prevScrollLeft = prevShelf ? prevShelf.scrollLeft : 0;
   const queueItems = (sharedData.wishlist||[]).filter(m=>m.priority).sort((a,b)=>(a.priorityOrder||0)-(b.priorityOrder||0));
   if(!queueItems.length){ wrap.innerHTML=''; return; }
   const queueCardHTML = m => {
@@ -5583,7 +5607,7 @@ function renderQueueShelf(){
     </div>`;
   setTimeout(function(){
     const qs = document.getElementById('queue-shelf');
-    if(qs) qs.scrollLeft = 0;
+    if(qs) qs.scrollLeft = prevScrollLeft;
   }, 50);
 }
 
@@ -5703,7 +5727,8 @@ function addTag(id,src){
 function removeTag(id,src,tag){
   const m=findItem(id,src);if(!m)return;
   m.tags=(m.tags||[]).filter(t=>t!==tag);
-  saveShared().then(()=>{openDetail(id,src);renderLib();});
+  openDetail(id,src);renderLib();
+  saveShared();
 }
 
 // ── LISTS ─────────────────────────────────────────────────────────────────────
@@ -5764,15 +5789,15 @@ function renameList(listId){
 function deleteList(listId){
   if(!confirm('Delete this list? (Your titles stay in the library.)'))return;
   const me=myData();me.collections=(me.collections||[]).filter(c=>c.id!==listId);
-  saveUsers().then(()=>{renderLists();updateCounts();});
+  renderLists();updateCounts();
+  saveUsers();
 }
 function removeFromList(listId,itemId,title){
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   list.items=(list.items||[]).filter(x=>x!==itemId);
-  saveUsers().then(()=>{
-    renderWish();
-    toast((title||'Title')+' removed from "'+(list.name||'list')+'". Still in your library/watchlist and diary.');
-  });
+  renderWish();
+  toast((title||'Title')+' removed from "'+(list.name||'list')+'". Still in your library/watchlist and diary.');
+  saveUsers();
 }
 function canFeatureList(){
   // Admin can feature unlimited; members can feature 1 at a time
@@ -6747,8 +6772,9 @@ function sendToFrontOfQueue(id){
   const others = sharedData.wishlist.filter(x=>x.priority && x.id!==id);
   others.forEach(x=>{ if(x.priorityOrder!=null) x.priorityOrder += 1; });
   m.priorityOrder = 0;
-  saveShared().then(()=>renderWish()); // renderWish preserves scroll position
+  renderQueueShelf(); // re-renders immediately and preserves scroll position
   toast('"'+m.title+'" moved to front of queue!');
+  saveShared();
 }
 
 function addRequestToQueue(id){
@@ -6759,11 +6785,10 @@ function addRequestToQueue(id){
   const queueItems = sharedData.wishlist.filter(x=>x.priority && x.priorityOrder!=null);
   const maxOrder = queueItems.reduce((max,x)=>x.priorityOrder>max?x.priorityOrder:max, 0);
   m.priorityOrder = maxOrder+1;
-  saveShared().then(()=>{
-    renderDiscoverRequests();
-    renderQueueShelf();
-    toast(m.title+' added to Queue!');
-  });
+  renderDiscoverRequests();
+  renderQueueShelf();
+  toast(m.title+' added to Queue!');
+  saveShared();
 }
 
 function togglePriority(id){
@@ -6776,8 +6801,10 @@ function togglePriority(id){
     const maxOrder = queueItems.reduce((max, x) => x.priorityOrder > max ? x.priorityOrder : max, 0);
     m.priorityOrder = maxOrder + 1;
   }
-  saveShared().then(()=>{openDetail(id,'wishlist');renderWish();});
+  openDetail(id,'wishlist');
+  renderQueueShelf();
   toast(m.priority?'Added to Plex queue!':'Removed from Plex queue');
+  saveShared();
 }
 
 // ── DRAG-TO-REORDER PLEX QUEUE ─────────────────────────────────────────────────
@@ -6807,7 +6834,7 @@ function queueDrop(e){
   const targetId = targetCard.dataset.id;
   if(!_queueDragId || _queueDragId===targetId) return;
 
-  const shelf = document.getElementById('queue-shelf-shelf');
+  const shelf = document.getElementById('queue-shelf');
   const cards = [...shelf.querySelectorAll('.queue-card')];
   const ids = cards.map(c=>c.dataset.id);
 
@@ -6825,7 +6852,8 @@ function queueDrop(e){
   });
 
   _queueDragId = null;
-  saveShared().then(()=>renderWish());
+  renderQueueShelf(); // re-renders immediately and preserves scroll position
+  saveShared();
 }
 
 function toggleFav(id){
@@ -6900,11 +6928,10 @@ function deleteComment(id,src,idx){
   const m=findItem(id,src);
   if(!m||!m.comments) return;
   m.comments.splice(idx,1);
-  saveShared().then(()=>{
-    const cl=document.getElementById('comments-list-'+id);
-    if(cl) cl.innerHTML=buildComments(m,id,src);
-    toast('Comment deleted');
-  });
+  const cl=document.getElementById('comments-list-'+id);
+  if(cl) cl.innerHTML=buildComments(m,id,src);
+  toast('Comment deleted');
+  saveShared();
 }
 function logWatch(id){
   const me=myData();me.history=me.history||{};
@@ -6926,7 +6953,8 @@ function delHist(id,idx){
     me.history[id] = newDates;
   }
   try{ localStorage.setItem('mcflix_usr', JSON.stringify(allUsers)); }catch(e){}
-  saveUsers().then(()=>openDetail(id,'library'));
+  openDetail(id,'library');
+  saveUsers();
 }
 function delDiaryEntry(itemId,idx){
   const me=myData();if(!me.history?.[itemId])return;
@@ -7364,7 +7392,8 @@ function cfRender(){
 function removeFromPWishlist(id){
   const me = myData();
   me.personalWishlist = (me.personalWishlist||[]).filter(x => x.id !== id);
-  saveUsers().then(() => renderPWishlist());
+  renderPWishlist();
+  saveUsers();
 }
 
 
@@ -7947,14 +7976,13 @@ function removeFromWatched(id, isDiary){
     if(me.watched) delete me.watched[id];
     delete me.history?.[id];
   }
-  saveUsers().then(()=>{
-    renderWatched();
-    renderLib();
-    renderDiary();
-    renderStats();
-    evaluateTrophies();
-    toast('Removed from watched');
-  });
+  renderWatched();
+  renderLib();
+  renderDiary();
+  renderStats();
+  evaluateTrophies();
+  toast('Removed from watched');
+  saveUsers();
 }
 
 // ── MOBILE NAV SYNC ───────────────────────────────────────────────────────────
@@ -9376,7 +9404,9 @@ function renderCustomGauntletList(){
 function deleteCustomGauntlet(id, name){
   if(!confirm('Delete "'+name+'"? This removes it for everyone in the household.')) return;
   sharedData.customGauntlets = (sharedData.customGauntlets||[]).filter(c=>c.id!==id);
-  saveShared().then(function(){ renderCustomGauntletList(); toast('"'+name+'" deleted.'); });
+  renderCustomGauntletList();
+  toast('"'+name+'" deleted.');
+  saveShared();
 }
 
 function startCustomGauntletPicker(id){
@@ -9483,7 +9513,9 @@ function deleteCustomWeekly(id, text){
   if(!confirm('Delete "'+text+'"?')) return;
   const me = myData();
   me.customWeeklyChallenges = (me.customWeeklyChallenges||[]).filter(x=>x.id!==id);
-  saveUsers().then(function(){ renderWeeklyChallenges(); toast('Challenge deleted.'); });
+  renderWeeklyChallenges();
+  toast('Challenge deleted.');
+  saveUsers();
 }
 
 function getEnabledWeeklyChallenges(){
@@ -9890,7 +9922,8 @@ function removePersonalTag(id, tag){
   const me = myData();
   if(!me.personalTags?.[id]) return;
   me.personalTags[id] = me.personalTags[id].filter(t=>t!==tag);
-  saveUsers().then(()=>renderPersonalTagPills(id));
+  renderPersonalTagPills(id);
+  saveUsers();
 }
 
 function renderPersonalTagPills(id){
@@ -10425,11 +10458,10 @@ function deleteCritique(id){
   if(!confirm('Delete this critique?')) return;
   const me = myData();
   if(me.critiques) delete me.critiques[id];
-  saveUsers().then(()=>{
-    const panel = document.getElementById('det-panel-critique-'+id);
-    if(panel){ panel.innerHTML = buildCritiquePanel(id,'library'); panel.style.display='block'; }
-    toast('Critique deleted.');
-  });
+  const panel = document.getElementById('det-panel-critique-'+id);
+  if(panel){ panel.innerHTML = buildCritiquePanel(id,'library'); panel.style.display='block'; }
+  toast('Critique deleted.');
+  saveUsers();
 }
 
 
@@ -12598,12 +12630,11 @@ function removeFromYearInReview(itemId, year){
   if(!confirm(`Remove all ${year} viewings of "${name}" from your diary?`)) return;
   me.history[itemId] = me.history[itemId].filter(ts => new Date(ts).getFullYear() !== year);
   if(me.history[itemId].length === 0) delete me.history[itemId];
-  saveUsers().then(()=>{
-    renderStats();
-    renderDiary();
-    evaluateTrophies();
-    toast('Removed from '+year+' in review');
-  });
+  renderStats();
+  renderDiary();
+  evaluateTrophies();
+  toast('Removed from '+year+' in review');
+  saveUsers();
 }
 
 // ── RANDOM PICKER ─────────────────────────────────────────────────────────────
@@ -12712,7 +12743,8 @@ function removeUser(id){
   if(!confirm('Remove this user? Their personal data will be deleted.'))return;
   allUsers.accounts=allUsers.accounts.filter(a=>a.id!==id);
   delete allUsers.personal[id];
-  saveUsers().then(()=>{openProfile();toast('User removed.');});
+  openProfile();toast('User removed.');
+  saveUsers();
 }
 
 // ── SEED DATA ──────────────────────────────────────────────────────────────────
