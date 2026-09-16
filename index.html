@@ -6873,8 +6873,12 @@ function toggleNow(id){
 function setRating(id,userId,val){
   const ud=udataFor(userId);ud.ratings=ud.ratings||{};
   ud.ratings[id]=val;
-  saveUsers().then(()=>{openDetail(id,'library');renderLib();evaluateTrophies();});
+  openDetail(id,'library');
+  renderLib();
+  renderDiary();
+  evaluateTrophies();
   toast(val?`Rated ${val}/10!`:'Rating cleared');
+  saveUsers();
 }
 function buildComments(m,id,src){
   const comments=(m.comments||[]);
