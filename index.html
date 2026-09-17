@@ -1821,6 +1821,26 @@ textarea.ffi{resize:vertical}
           <input type="text" class="fi" id="cg-challenge-input" placeholder="Add a challenge..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter'){event.preventDefault();addCGChallenge()}">
           <button class="fb" onclick="addCGChallenge()"><i class="ti ti-plus"></i></button>
         </div>
+        <div style="border:1px solid var(--border);padding:10px 12px;margin-bottom:14px;background:var(--bg2)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Optional: Auto-Complete Rule</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Pick a rule so a matching diary watch can complete this challenge on its own. Leave it on "None" for a freeform challenge you'll mark complete by hand — freeform still works exactly as before.</div>
+          <select class="fb" id="cg-rule-type" style="margin-bottom:8px;width:100%" onchange="updateRuleValueControl('cg')">
+            <option value="">None — freeform only</option>
+            <option value="decade">From a specific decade</option>
+            <option value="before">Before a certain year</option>
+            <option value="rating">MPAA rating</option>
+            <option value="runtime_under">Under a runtime</option>
+            <option value="runtime_over">Over a runtime</option>
+            <option value="genre">A specific genre</option>
+            <option value="language_foreign">Foreign language film</option>
+            <option value="rewatch">Must be a rewatch</option>
+            <option value="number_in_title">Number in the title</option>
+            <option value="color_in_title">Color in the title</option>
+            <option value="title_words">Title word count</option>
+          </select>
+          <div id="cg-rule-value-wrap" style="margin-bottom:8px"></div>
+          <button type="button" class="ghost-btn" style="font-size:11px" onclick="suggestRuleText('cg')"><i class="ti ti-wand"></i> Suggest Text From Rule</button>
+        </div>
         <div id="cg-challenge-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
         <button class="primary-btn" onclick="saveCustomGauntlet()"><i class="ti ti-device-floppy"></i> Save &amp; Share Gauntlet</button>
 
@@ -1839,9 +1859,29 @@ textarea.ffi{resize:vertical}
 
         <div class="sl" style="margin-bottom:4px">Custom Weekly Challenges</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Add your own challenge to the rotation.</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
           <input type="text" class="fi" id="wc-custom-input" placeholder="Create a custom challenge..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomWeeklyChallenge()}">
           <button class="fb" onclick="addCustomWeeklyChallenge()"><i class="ti ti-plus"></i></button>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px 12px;margin-bottom:12px;background:var(--bg2)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Optional: Auto-Complete Rule</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Same idea as the Gauntlet — pick a rule so this challenge can complete itself from a diary watch, or leave it as freeform.</div>
+          <select class="fb" id="wc-rule-type" style="margin-bottom:8px;width:100%" onchange="updateRuleValueControl('wc')">
+            <option value="">None — freeform only</option>
+            <option value="decade">From a specific decade</option>
+            <option value="before">Before a certain year</option>
+            <option value="rating">MPAA rating</option>
+            <option value="runtime_under">Under a runtime</option>
+            <option value="runtime_over">Over a runtime</option>
+            <option value="genre">A specific genre</option>
+            <option value="language_foreign">Foreign language film</option>
+            <option value="rewatch">Must be a rewatch</option>
+            <option value="number_in_title">Number in the title</option>
+            <option value="color_in_title">Color in the title</option>
+            <option value="title_words">Title word count</option>
+          </select>
+          <div id="wc-rule-value-wrap" style="margin-bottom:8px"></div>
+          <button type="button" class="ghost-btn" style="font-size:11px" onclick="suggestRuleText('wc')"><i class="ti ti-wand"></i> Suggest Text From Rule</button>
         </div>
         <div id="weekly-custom-list" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
@@ -7958,7 +7998,7 @@ function markGauntletDayDone(movieId, auto){
   if(left!==null&&left<=0){gauntletTimeUp();return;}
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
-  g.completed.push({challenge:g.challenges[idx],completedAt:Date.now(),movieId:movieId||null});
+  g.completed.push({challenge:getChallengeText(g.challenges[idx]),completedAt:Date.now(),movieId:movieId||null});
   g.points = (g.points||0) + (GAUNTLET_POINTS_PER_MODE[g.mode]||0);
   if(g.mode!=='30days') g.challengeStartedAt = Date.now(); // fresh timer window for the next challenge (24hr/48hr only — 30days shares one deadline)
   if(gauntletCurrentChallenge(g) >= (g.challenges||[]).length){
@@ -8059,11 +8099,43 @@ const CHALLENGE_AUTO_RULES = [
 
 // Returns true/false once a rule has matched and evaluated the movie, or null
 // if nothing here understands this challenge yet — meaning it stays manual-only.
-function evaluateChallengeAuto(challengeText, movie, ctx){
-  if(!challengeText || !movie) return null;
-  for(const rule of CHALLENGE_AUTO_RULES){
-    if(rule.match.test(challengeText)){
-      try{ return !!rule.test(movie, ctx||{}); }catch(e){ return null; }
+// Normalizes a challenge list entry to its display text / optional structured
+// rule. Built-in challenges (and legacy custom ones saved before structured
+// rules existed) are plain strings; newer custom challenges are {text, rule}.
+function getChallengeText(c){ return typeof c==='string' ? c : ((c&&c.text)||''); }
+function getChallengeRule(c){ return typeof c==='string' ? null : ((c&&c.rule)||null); }
+
+// Evaluates a structured rule directly against a movie — this is what lets a
+// custom challenge built from the "Decade / Genre / Runtime / ..." picker
+// auto-complete without needing its freeform text to match a regex at all.
+function evaluateStructuredRule(rule, movie, ctx){
+  if(!rule || !rule.type || !movie) return null;
+  switch(rule.type){
+    case 'decade': return _cInDecade(movie.year, Number(rule.value));
+    case 'before': return _cYear(movie.year)>0 && _cYear(movie.year) < Number(rule.value);
+    case 'rating': return (movie.rating||'').trim().toUpperCase() === String(rule.value).toUpperCase();
+    case 'runtime_under': { const r=_cRuntimeMin(movie.runtime); return r>0 && r < Number(rule.value); }
+    case 'runtime_over': return _cRuntimeMin(movie.runtime) > Number(rule.value);
+    case 'genre': return (movie.genre||'').toLowerCase().split(',').map(s=>s.trim()).includes(String(rule.value).toLowerCase());
+    case 'language_foreign': return !!movie.language && !/^english/i.test(movie.language.trim());
+    case 'rewatch': return !!(ctx&&ctx.isRewatch);
+    case 'number_in_title': return /\d/.test(movie.title||'');
+    case 'color_in_title': return _C_COLORS.some(c=>_cWordBoundary(movie.title,c));
+    case 'title_words': return _cTitleWords(movie.title).length === Number(rule.value);
+    default: return null;
+  }
+}
+
+function evaluateChallengeAuto(challengeTxt, movie, ctx, rule){
+  if(!movie) return null;
+  if(rule){
+    const r = evaluateStructuredRule(rule, movie, ctx);
+    if(r!==null) return r;
+  }
+  if(!challengeTxt) return null;
+  for(const rd of CHALLENGE_AUTO_RULES){
+    if(rd.match.test(challengeTxt)){
+      try{ return !!rd.test(movie, ctx||{}); }catch(e){ return null; }
     }
   }
   return null;
@@ -8076,7 +8148,8 @@ function checkGauntletAutoComplete(movieId, isRewatch){
   if(idx>=(g.challenges||[]).length) return;
   const movie = (me.diaryItems&&me.diaryItems[movieId]) || sharedData.library.find(x=>x.id===movieId);
   if(!movie) return;
-  const result = evaluateChallengeAuto(g.challenges[idx], movie, {isRewatch});
+  const c = g.challenges[idx];
+  const result = evaluateChallengeAuto(getChallengeText(c), movie, {isRewatch}, getChallengeRule(c));
   if(result===true) markGauntletDayDone(movieId, true);
 }
 
@@ -8085,7 +8158,7 @@ function checkWeeklyAutoComplete(movieId, isRewatch){
   if(!ws || !ws.current || ws.completedAt) return;
   const movie = (me.diaryItems&&me.diaryItems[movieId]) || sharedData.library.find(x=>x.id===movieId);
   if(!movie) return;
-  const result = evaluateChallengeAuto(ws.current.text, movie, {isRewatch});
+  const result = evaluateChallengeAuto(ws.current.text, movie, {isRewatch}, ws.current.rule);
   if(result===true) markWeeklyChallengeComplete(true);
 }
 
@@ -8196,7 +8269,8 @@ function renderGauntlet(){
   }
 
   // ACTIVE
-  const currentChallenge=g.challenges[idx];
+  const currentChallenge=getChallengeText(g.challenges[idx]);
+  const currentChallengeAuto=!!getChallengeRule(g.challenges[idx]);
   const mode=g.mode||'freestyle';
   const timeLeft=gauntletTimeLeft(g);
   const modeLabel=GAUNTLET_MODE_LABELS[mode]||'Free Style';
@@ -8212,7 +8286,7 @@ function renderGauntlet(){
     +'<div class="gauntlet-day">'+(idx+1)+' / '+total+'</div>'
     +(scored?'<div style="font-size:12px;color:'+heroColor+';font-weight:700;margin-top:2px">'+(g.points||0)+' pts</div>':'')
     +'<div style="margin:8px 0 12px;background:var(--bg3);border-radius:0;height:6px;overflow:hidden"><div style="height:6px;background:linear-gradient(to right,var(--gold),rgba(232,184,75,.4));width:'+Math.round(idx/total*100)+'%;border-radius:0;transition:width .5s"></div></div>'
-    +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong></div>'
+    +'<div class="gauntlet-challenge"><strong>'+currentChallenge+'</strong>'+(currentChallengeAuto?' <i class="ti ti-bolt" style="font-size:12px;color:var(--gold)" title="Completes automatically from a matching diary watch"></i>':'')+'</div>'
     +(scored?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Worth '+ptsPerChallenge+' pt'+(ptsPerChallenge===1?'':'s')+' if you beat the timer</div>':'')
     +(function(){ const hint=getGauntletHint(currentChallenge); return hint?'<div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-bulb" style="color:var(--gold)"></i> '+hint+'</div>':''; })()
     +(timeLeft!==null?'<div id="gauntlet-countdown" style="font-family:Bebas Neue,cursive;font-size:26px;color:'+heroColor+';letter-spacing:1px;margin:8px 0">'+fmtCountdown(timeLeft)+' left</div>'
@@ -8295,6 +8369,86 @@ function switchGauntletSubtab(t){
   }
 }
 
+// ── STRUCTURED RULE BUILDER (shared by custom Gauntlet + custom Weekly forms) ──
+// Lets a custom challenge optionally be built from a dropdown instead of typed
+// freeform text, so it can auto-complete the same way built-in challenges do.
+// Freeform text alone (rule left as "None") still works exactly as before.
+const CHALLENGE_RULE_TYPES = {
+  decade:          { control:'select', options:()=>{ const opts=[]; const cur=Math.floor(new Date().getFullYear()/10)*10; for(let d=1950; d<=cur; d+=10) opts.push({value:d, label:d+'s'}); return opts; } },
+  before:          { control:'number', placeholder:'e.g. 1980' },
+  rating:          { control:'select', options:()=>['G','PG','PG-13','R','NC-17','Not Rated'].map(r=>({value:r,label:r})) },
+  runtime_under:   { control:'number', placeholder:'e.g. 90' },
+  runtime_over:    { control:'number', placeholder:'e.g. 150' },
+  genre:           { control:'select', options:()=>{ const genres=new Set(); sharedData.library.forEach(m=>(m.genre||'').split(',').forEach(g=>{const t=g.trim();if(t)genres.add(t)})); return [...genres].sort().map(g=>({value:g,label:g})); } },
+  language_foreign:{ control:'none' },
+  rewatch:         { control:'none' },
+  number_in_title: { control:'none' },
+  color_in_title:  { control:'none' },
+  title_words:     { control:'select', options:()=>[1,2,3,4].map(n=>({value:n,label:n+(n===1?' word':' words')})) },
+};
+
+function updateRuleValueControl(prefix){
+  const type = document.getElementById(prefix+'-rule-type')?.value || '';
+  const wrap = document.getElementById(prefix+'-rule-value-wrap');
+  if(!wrap) return;
+  const def = CHALLENGE_RULE_TYPES[type];
+  if(!type || !def || def.control==='none'){ wrap.innerHTML=''; return; }
+  if(def.control==='select'){
+    const opts = def.options();
+    wrap.innerHTML = '<select class="fb" id="'+prefix+'-rule-value" style="width:100%">'
+      + opts.map(o=>'<option value="'+o.value+'">'+o.label+'</option>').join('') + '</select>';
+  } else if(def.control==='number'){
+    wrap.innerHTML = '<input type="number" class="fi" id="'+prefix+'-rule-value" placeholder="'+(def.placeholder||'')+'" style="margin-bottom:0">';
+  }
+}
+
+// Reads whatever rule the person has set up in the form. Returns null (freeform
+// only) if "None" is selected, or if a value-required rule is missing its value.
+function getRuleFromForm(prefix){
+  const type = document.getElementById(prefix+'-rule-type')?.value || '';
+  if(!type) return null;
+  const def = CHALLENGE_RULE_TYPES[type];
+  if(def && def.control!=='none'){
+    const el = document.getElementById(prefix+'-rule-value');
+    if(!el || el.value===''){ return null; }
+    return { type, value: (def.control==='number') ? Number(el.value) : el.value };
+  }
+  return { type, value:null };
+}
+
+function ruleToText(rule){
+  if(!rule) return '';
+  switch(rule.type){
+    case 'decade': return 'Watch a movie from the '+rule.value+'s';
+    case 'before': return 'Watch a movie from before '+rule.value;
+    case 'rating': return 'Watch something rated '+rule.value;
+    case 'runtime_under': return 'Watch something under '+rule.value+' minutes';
+    case 'runtime_over': return 'Watch something over '+rule.value+' minutes';
+    case 'genre': return 'Watch a '+rule.value+' movie';
+    case 'language_foreign': return 'Watch a foreign language film';
+    case 'rewatch': return 'Rewatch a movie you have already seen';
+    case 'number_in_title': return 'Watch a movie with a number in the title';
+    case 'color_in_title': return 'Watch something with a color in the title';
+    case 'title_words': return 'Watch a movie with a '+rule.value+'-word title';
+    default: return '';
+  }
+}
+
+function suggestRuleText(prefix){
+  const rule = getRuleFromForm(prefix);
+  if(!rule){ toast('Pick a rule (and fill in its value) first.', true); return; }
+  const inputId = prefix==='cg' ? 'cg-challenge-input' : 'wc-custom-input';
+  const input = document.getElementById(inputId);
+  if(input) input.value = ruleToText(rule);
+}
+
+function resetRuleForm(prefix){
+  const typeEl = document.getElementById(prefix+'-rule-type');
+  if(typeEl) typeEl.value='';
+  const wrap = document.getElementById(prefix+'-rule-value-wrap');
+  if(wrap) wrap.innerHTML='';
+}
+
 // ── CUSTOM GAUNTLETS (create + shared with household) ───────────────────────
 let _cgChallenges = [];
 let _cgStartTarget = null;
@@ -8303,8 +8457,10 @@ function addCGChallenge(){
   const input = document.getElementById('cg-challenge-input');
   const val = (input?.value||'').trim();
   if(!val) return;
-  _cgChallenges.push(val);
+  const rule = getRuleFromForm('cg');
+  _cgChallenges.push(rule ? {text:val, rule} : val);
   input.value='';
+  resetRuleForm('cg');
   renderCGChallengeList();
 }
 function removeCGChallenge(i){
@@ -8319,8 +8475,10 @@ function renderCGChallengeList(){
     return;
   }
   wrap.innerHTML = _cgChallenges.map(function(c,i){
+    const hasRule = !!getChallengeRule(c);
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:0">
-      <span style="flex:1;font-size:12px;color:var(--light)">${i+1}. ${c}</span>
+      <span style="flex:1;font-size:12px;color:var(--light)">${i+1}. ${getChallengeText(c)}</span>
+      ${hasRule?'<i class="ti ti-bolt" style="font-size:12px;color:var(--gold)" title="Auto-completes from diary watches"></i>':''}
       <span class="wl-tab-action danger" onclick="removeCGChallenge(${i})" title="Remove"><i class="ti ti-x" style="font-size:12px"></i></span>
     </div>`;
   }).join('');
@@ -8468,9 +8626,11 @@ function addCustomWeeklyChallenge(){
   const input = document.getElementById('wc-custom-input');
   const val = (input?.value||'').trim();
   if(!val) return;
+  const rule = getRuleFromForm('wc');
   const me = myData(); me.customWeeklyChallenges = me.customWeeklyChallenges||[];
-  me.customWeeklyChallenges.push({id:uid(), text:val, enabled:true});
+  me.customWeeklyChallenges.push({id:uid(), text:val, enabled:true, rule});
   input.value='';
+  resetRuleForm('wc');
   saveUsers().then(()=>renderWeeklyChallenges());
 }
 
@@ -8493,8 +8653,8 @@ function deleteCustomWeekly(id, text){
 
 function getEnabledWeeklyChallenges(){
   const me = myData();
-  const defaults = DEFAULT_WEEKLY_CHALLENGES.filter(t=>me.weeklyEnabled && me.weeklyEnabled[t]);
-  const customs = (me.customWeeklyChallenges||[]).filter(c=>c.enabled).map(c=>c.text);
+  const defaults = DEFAULT_WEEKLY_CHALLENGES.filter(t=>me.weeklyEnabled && me.weeklyEnabled[t]).map(t=>({text:t, rule:null}));
+  const customs = (me.customWeeklyChallenges||[]).filter(c=>c.enabled).map(c=>({text:c.text, rule:c.rule||null}));
   return defaults.concat(customs);
 }
 
@@ -8505,15 +8665,17 @@ const WEEKLY_CHALLENGE_MS = 7*24*60*60*1000;
 // at a time — completing it early does not speed up the rotation.
 function maybeAdvanceWeeklyChallenge(){
   const me = myData();
-  const enabled = getEnabledWeeklyChallenges();
+  const enabled = getEnabledWeeklyChallenges(); // [{text, rule}]
   if(!enabled.length) return false;
+  const enabledTexts = enabled.map(e=>e.text);
   const now = Date.now();
   const ws = me.weeklyState;
   if(!ws || !ws.current || (now-ws.current.startedAt)>=WEEKLY_CHALLENGE_MS){
-    let queue = (ws&&ws.queue||[]).filter(t=>enabled.includes(t));
-    if(!queue.length) queue = gauntletShuffle(enabled, now);
-    const next = queue.shift();
-    me.weeklyState = { current:{text:next, startedAt:now}, completedAt:null, queue };
+    let queue = (ws&&ws.queue||[]).filter(t=>enabledTexts.includes(t));
+    if(!queue.length) queue = gauntletShuffle(enabledTexts, now);
+    const nextText = queue.shift();
+    const nextDef = enabled.find(e=>e.text===nextText) || {text:nextText, rule:null};
+    me.weeklyState = { current:{text:nextDef.text, rule:nextDef.rule, startedAt:now}, completedAt:null, queue };
     return true;
   }
   return false;
@@ -8593,6 +8755,7 @@ function renderWeeklyChallenges(){
         return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:0">
           <input type="checkbox" ${c.enabled?'checked':''} onchange="toggleCustomWeekly('${c.id}', this.checked)">
           <span style="flex:1;font-size:12px;color:var(--light)">${c.text}</span>
+          ${c.rule?'<i class="ti ti-bolt" style="font-size:12px;color:var(--gold)" title="Auto-completes from diary watches"></i>':''}
           <span class="wl-tab-action danger" onclick="deleteCustomWeekly('${c.id}','${safeText}')" title="Delete"><i class="ti ti-trash" style="font-size:12px"></i></span>
         </div>`;
       }).join('');
@@ -10599,6 +10762,61 @@ function getMonthlyGenres(me, watchedIds){
   return Object.entries(gc).sort((a,b)=>b[1]-a[1]);
 }
 
+// ── DIARY STREAKS ────────────────────────────────────────────────────────────
+// Consecutive calendar days with at least one logged watch. "Current" doesn't
+// break just because today hasn't been logged yet — it only breaks once a full
+// day passes with nothing watched.
+function computeDiaryStreaks(me){
+  const days = new Set();
+  Object.values(me.history||{}).forEach(dates=>{
+    (dates||[]).forEach(ts=>{
+      const d = new Date(ts);
+      days.add(d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate());
+    });
+  });
+  if(!days.size) return {current:0, longest:0};
+  const dayTimes = [...days].map(k=>{
+    const [y,mo,da] = k.split('-').map(Number);
+    return new Date(y,mo,da).getTime();
+  }).sort((a,b)=>a-b);
+
+  let longest=1, run=1;
+  for(let i=1;i<dayTimes.length;i++){
+    const diff = Math.round((dayTimes[i]-dayTimes[i-1])/86400000);
+    if(diff===1) run++;
+    else if(diff>1){ longest=Math.max(longest,run); run=1; }
+  }
+  longest = Math.max(longest, run);
+
+  const daySet = new Set(dayTimes);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let cursor = today.getTime();
+  if(!daySet.has(cursor)) cursor -= 86400000; // today not logged yet — still fine, try yesterday
+  let current = 0;
+  while(daySet.has(cursor)){ current++; cursor -= 86400000; }
+  return {current, longest};
+}
+
+// ── MOST-WATCHED CREDIT (all-time) ──────────────────────────────────────────
+// Counts distinct movies watched per person for a given field (director/actors),
+// across shared-library titles and personal diary-only entries alike.
+function getTopCreditName(me, field){
+  const counts = {};
+  Object.entries(me.history||{}).forEach(([itemId, dates])=>{
+    if(!dates || !dates.length) return;
+    const m = (me.diaryItems&&me.diaryItems[itemId]) || sharedData.library.find(x=>x.id===itemId);
+    if(!m) return;
+    const raw = (m[field]||'').toString().trim();
+    if(!raw) return;
+    raw.split(',').map(v=>v.trim()).filter(Boolean).forEach(v=>{
+      counts[v] = (counts[v]||0) + 1;
+    });
+  });
+  let best=null, bestCount=0;
+  Object.entries(counts).forEach(([name,c])=>{ if(c>bestCount){ bestCount=c; best=name; } });
+  return best ? {name:best, count:bestCount} : null;
+}
+
 function has3InOneDay(me, period){
   const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
   const dayCounts={};
@@ -10816,6 +11034,9 @@ function renderStats(){
   const myRatings = Object.entries(me.ratings||{}).filter(([,v])=>v>0);
   const avgRating = myRatings.length ? (myRatings.reduce((s,[,v])=>s+v,0)/myRatings.length).toFixed(1) : '—';
   const totalGenres = getMonthlyGenres(me, new Set(allMovies.filter(m=>me.watched?.[m.id]).map(m=>m.id)));
+  const streaks = computeDiaryStreaks(me);
+  const topDirector = getTopCreditName(me, 'director');
+  const topActor = getTopCreditName(me, 'actors');
 
   // ── BUILD HTML ─────────────────────────────────────────────────────────────
   let html = '';
@@ -10852,7 +11073,13 @@ function renderStats(){
     +'<div class="runtime-stat"><div class="runtime-stat-n">'+totalWatched+'</div><div class="runtime-stat-l">Movies Watched</div></div>'
     +'<div class="runtime-stat"><div class="runtime-stat-n">'+totalLib+'</div><div class="runtime-stat-l">In Library</div></div>'
     +'<div class="runtime-stat"><div class="runtime-stat-n">'+avgRating+'</div><div class="runtime-stat-l">Avg Rating</div></div>'
+    +'<div class="runtime-stat"><div class="runtime-stat-n">'+streaks.current+'</div><div class="runtime-stat-l">Day Streak</div></div>'
+    +'<div class="runtime-stat"><div class="runtime-stat-n">'+streaks.longest+'</div><div class="runtime-stat-l">Longest Streak</div></div>'
     +'</div>'
+    + ((topDirector||topActor) ? '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">'
+      + (topDirector?'<div class="runtime-stat" style="cursor:pointer;text-align:left;padding:12px 14px" onclick="openTMDBFilmography(\''+topDirector.name.replace(/'/g,"\\'")+'\')" title="View filmography"><div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Most Watched Director</div><div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);letter-spacing:.5px">'+topDirector.name+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+topDirector.count+' movie'+(topDirector.count===1?'':'s')+'</div></div>':'')
+      + (topActor?'<div class="runtime-stat" style="cursor:pointer;text-align:left;padding:12px 14px" onclick="openTMDBFilmography(\''+topActor.name.replace(/'/g,"\\'")+'\')" title="View filmography"><div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Most Watched Actor</div><div style="font-family:Bebas Neue,cursive;font-size:18px;color:var(--gold);letter-spacing:.5px">'+topActor.name+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+topActor.count+' movie'+(topActor.count===1?'':'s')+'</div></div>':'')
+      + '</div>' : '')
     + (totalGenres.length?buildGenreGraph(totalGenres, 12, 'All-time genres'):'')
     +'</div></div>';
 
