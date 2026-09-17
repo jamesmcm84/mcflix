@@ -1056,7 +1056,7 @@ textarea.ffi{resize:vertical}
 .runtime-countdown{font-family:Bebas Neue,cursive;font-size:56px;color:var(--gold);letter-spacing:3px;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.3)}
 .runtime-label{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
 .runtime-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
-.runtime-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.runtime-stat{background:var(--card);border:1px solid var(--border);border-radius:0;padding:14px;text-align:center}
 .runtime-stat-n{font-family:Bebas Neue,cursive;font-size:32px;color:var(--gold);line-height:1}
 .runtime-stat-l{font-size:10px;color:var(--muted);margin-top:2px}
 
@@ -1276,22 +1276,22 @@ textarea.ffi{resize:vertical}
 
 /* ── MY CINEMA PAGE ──────────────────────────────────────────────────────────── */
 /* ── MY CINEMA SECTIONS ──────────────────────────────────────────────────── */
-.cinema-section{margin-bottom:20px;border-radius:16px;padding:0;overflow:hidden;border:2px solid transparent}
+.cinema-section{margin-bottom:20px;border-radius:0;padding:0;overflow:hidden;border:2px solid transparent}
 .cinema-section-inner{padding:18px 16px}
 
 /* Monthly — strong blue identity */
-.cinema-monthly{border-color:var(--blue);box-shadow:0 0 0 1px rgba(52,152,219,.15),0 4px 20px rgba(52,152,219,.12)}
+.cinema-monthly{border-color:var(--border2);box-shadow:0 0 0 1px rgba(52,152,219,.15),0 4px 20px rgba(52,152,219,.12)}
 .cinema-monthly>.cinema-section-inner{background:linear-gradient(135deg,rgba(52,152,219,.08) 0%,rgba(52,152,219,.02) 100%)}
 
 /* Annual — strong gold identity */
-.cinema-annual{border-color:var(--gold);box-shadow:0 0 0 1px rgba(232,184,75,.15),0 4px 20px rgba(232,184,75,.12)}
+.cinema-annual{border-color:var(--border2);box-shadow:0 0 0 1px rgba(232,184,75,.15),0 4px 20px rgba(232,184,75,.12)}
 .cinema-annual>.cinema-section-inner{background:linear-gradient(135deg,rgba(232,184,75,.08) 0%,rgba(232,184,75,.02) 100%)}
 
 /* All time — subtle */
 .cinema-alltime{border-color:var(--border2);background:var(--card)}
 
 /* Trophies */
-.cinema-trophy{border-radius:14px}
+.cinema-trophy{border-radius:0}
 .cinema-trophy-annual{border-color:var(--purple);box-shadow:0 0 0 1px rgba(138,90,240,.15),0 4px 16px rgba(138,90,240,.1)}
 .cinema-trophy-annual>.cinema-section-inner{background:linear-gradient(135deg,rgba(138,90,240,.08) 0%,rgba(138,90,240,.02) 100%)}
 .cinema-trophy-monthly{border-color:var(--blue);box-shadow:0 0 0 1px rgba(52,152,219,.1)}
@@ -1322,7 +1322,7 @@ textarea.ffi{resize:vertical}
 .cinema-section-hd .cinema-sub{font-size:12px;color:var(--muted);font-family:'Outfit',sans-serif;font-weight:400;letter-spacing:0;text-transform:none}
 
 /* Bar graph */
-.bar-graph-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 16px 10px;margin-bottom:10px;position:relative}
+.bar-graph-wrap{background:var(--card);border:1px solid var(--border);border-radius:0;padding:16px 16px 10px;margin-bottom:10px;position:relative}
 .bar-graph-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 .bar-graph-bars{display:flex;align-items:flex-end;gap:3px;height:80px;position:relative}
 .bar-graph-fill{background:linear-gradient(180deg,var(--gold),rgba(232,184,75,.4));border-radius:3px 3px 0 0;min-width:6px;transition:height .5s ease;position:relative;flex:1}
@@ -1335,7 +1335,7 @@ textarea.ffi{resize:vertical}
 
 /* Decade boxes */
 .decade-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.decade-box{flex:1;min-width:52px;padding:8px 4px;text-align:center;border-radius:8px;border:1px solid var(--border);background:var(--bg3);transition:all .3s;cursor:default}
+.decade-box{flex:1;min-width:52px;padding:8px 4px;text-align:center;border-radius:0;border:1px solid var(--border);background:var(--bg3);transition:all .3s;cursor:default}
 .decade-box.hit{background:rgba(232,184,75,.1);border-color:rgba(232,184,75,.4)}
 .decade-box-label{font-size:10px;color:var(--muted);margin-bottom:2px}
 .decade-box.hit .decade-box-label{color:var(--gold)}
@@ -1353,7 +1353,7 @@ textarea.ffi{resize:vertical}
 .trophy-row-wrap{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
 .trophy-row-wrap::-webkit-scrollbar{height:3px}
 .trophy-row-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-.trophy-mini{flex-shrink:0;width:100px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;transition:all .2s}
+.trophy-mini{flex-shrink:0;width:100px;background:var(--card);border:1px solid var(--border);border-radius:0;padding:10px 8px;text-align:center;transition:all .2s}
 .trophy-mini.earned{border-color:rgba(232,184,75,.35);background:rgba(232,184,75,.05)}
 .trophy-mini.monthly-trophy.earned{border-color:rgba(52,152,219,.4);background:rgba(52,152,219,.05)}
 .trophy-mini-icon{font-size:26px;line-height:1;margin-bottom:4px}
@@ -1368,7 +1368,7 @@ textarea.ffi{resize:vertical}
 @keyframes secret-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.04)}}
 
 /* Archive cards */
-.archive-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.archive-card{background:var(--card);border:1px solid var(--border);border-radius:0;margin-bottom:10px;overflow:hidden}
 .archive-card-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;transition:background .2s}
 .archive-card-hdr:hover{background:var(--bg3)}
 .archive-card-body{padding:14px 16px;border-top:1px solid var(--border);display:none}
@@ -4759,6 +4759,10 @@ function wlCardHTML(m, listId){
         onclick="event.stopPropagation();openAddToListModal('${m.id}','${safeTitle}','${src}')" title="Add to list">
         <i class="ti ti-list-check"></i>
       </button>
+      <button class="wl-row-btn" style="background:rgba(46,204,113,.15);color:#2ecc71"
+        onclick="event.stopPropagation();moveToLib('${m.id}')" title="Mark watched (moves to library, removes from watchlist)">
+        <i class="ti ti-check"></i>
+      </button>
       ${listId?`<button class="wl-row-btn" style="background:rgba(232,53,75,.15);color:#e74c3c"
         onclick="event.stopPropagation();removeFromList('${listId}','${m.id}','${safeTitle}')" title="Remove from this list">
         <i class="ti ti-x"></i>
@@ -6057,6 +6061,10 @@ function moveToLib(id){
   const m=sharedData.wishlist.find(x=>x.id===id);if(!m)return;
   sharedData.library.push({...m,id:uid(),addedAt:Date.now()});
   sharedData.wishlist=sharedData.wishlist.filter(x=>x.id!==id);
+  // Purge the old id from any custom watchlist lists so nothing is left dangling
+  const me=myData();
+  (me.collections||[]).forEach(list=>{ list.items=(list.items||[]).filter(x=>x!==id); });
+  saveUsers();
   try{ localStorage.setItem('mcflix_lib', JSON.stringify(sharedData)); }catch(e){}
   closeMo('detail');
   renderLib();
@@ -10328,7 +10336,7 @@ function renderStats(){
   html += '<div class="cinema-section cinema-monthly">'
     +'<div class="cinema-section-stripe"></div>'
     +'<div class="cinema-section-inner">'
-    +'<div class="cinema-section-hd"><span class="cinema-period-badge monthly-badge-lbl">📅 Monthly</span> '+monthName+'</div>'
+    +'<div class="cinema-section-hd">'+monthName+'</div>'
     + buildBarGraph(monthCount, 50, MONTHLY_MILESTONES, bestMonth,
         'Movies watched this month',
         bestMonth?'Ghost bar = personal best ('+bestMonth+')':'')
@@ -10340,7 +10348,7 @@ function renderStats(){
   html += '<div class="cinema-section cinema-annual">'
     +'<div class="cinema-section-stripe"></div>'
     +'<div class="cinema-section-inner">'
-    +'<div class="cinema-section-hd"><span class="cinema-period-badge annual-badge-lbl">🏆 Annual</span> '+yr+'</div>'
+    +'<div class="cinema-section-hd">'+yr+'</div>'
     + buildBarGraph(yearCount, 300, ANNUAL_MILESTONES, 0,
         'Movies watched this year', '')
     + buildDecadeGrid(yearDecades, DECADE_MILESTONES_ANNUAL, 'year')
