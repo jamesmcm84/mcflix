@@ -2098,6 +2098,9 @@ textarea.ffi{resize:vertical}
         <div class="ff full"><label class="fl">Cast</label><input type="text" class="ffi" id="add-act" placeholder="Actor 1, Actor 2..."></div>
         <div class="ff"><label class="fl">Composer</label><input type="text" class="ffi" id="add-composer" placeholder="Score composer"></div>
         <div class="ff"><label class="fl">Cinematographer</label><input type="text" class="ffi" id="add-cinematographer"></div>
+        <div class="ff full" style="margin-top:-6px">
+          <button type="button" class="fb" onclick="fetchCrewIntoForm()"><i class="ti ti-cloud-download"></i> Fetch Writer/Composer/Cinematographer from TMDB</button>
+        </div>
         <div class="ff full"><label class="fl">Plot</label><textarea class="ffi" id="add-plot" rows="2"></textarea></div>
         <div class="ff full"><label class="fl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none">(comma separated)</span></label><input type="text" class="ffi" id="add-tags" placeholder="e.g. sci-fi, rewatch, mind-bending"></div>
         <div class="ff full">
@@ -2589,6 +2592,7 @@ let addTarget = 'library';
 let pendingPoster = '';
 let pendingImdb = '';
 let pendingRatings = [];
+let pendingTmdbId = '';
 let signupColor = COLORS[0];
 
 function uid(){ return 'u'+Date.now()+Math.random().toString(36).slice(2,6) }
@@ -6214,7 +6218,7 @@ function autoSortTitle(){
 }
 
 function openAdd(target='library', typeHint='movie'){
-  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';pendingRatings=[];
+  addTarget=target;editingId=null;pendingPoster='';pendingImdb='';pendingRatings=[];pendingTmdbId='';
   document.getElementById('add-lbl').textContent=target==='library'?'Add Movie':'Add to Watchlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
@@ -6229,7 +6233,7 @@ function openEdit(id,src){
   const list=src==='library'?sharedData.library:sharedData.wishlist;
   const m=list.find(x=>x.id===id);if(!m)return;
   closeMo('detail');
-  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';pendingRatings=m.externalRatings||[];
+  addTarget=src;editingId=id;pendingPoster=m.poster||'';pendingImdb=m.imdb||'';pendingRatings=m.externalRatings||[];pendingTmdbId=m.tmdbId||'';
   document.getElementById('add-lbl').textContent='Edit: '+m.title;
   document.getElementById('add-watched-row').style.display='none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-device-floppy"></i> Save Changes';
@@ -6369,11 +6373,61 @@ async function doLookup(){
   btn.disabled=false;
 }
 
+// Pulls director/writer/composer/cinematographer names out of a TMDB
+// append_to_response=credits payload. OMDB never provides composer or
+// cinematographer at all, and its Writer/Director fields are often less
+// complete than TMDB's structured crew list, so this is preferred when present.
+function extractTMDBCrew(credits){
+  const crew = (credits && credits.crew) || [];
+  const pick = (pred) => {
+    const names = [];
+    crew.forEach(c=>{ if(pred(c) && c.name && !names.includes(c.name)) names.push(c.name); });
+    return names.join(', ');
+  };
+  return {
+    director: pick(c=>c.job==='Director'),
+    writer: pick(c=>c.department==='Writing'),
+    composer: pick(c=>c.job==='Original Music Composer'),
+    cinematographer: pick(c=>c.job==='Director of Photography'),
+  };
+}
+
+// Manual "Fetch crew from TMDB" button in the Add/Edit form — resolves a TMDB id
+// from the current title/year if one isn't already known, then fills in
+// Writer/Composer/Cinematographer (composer and cinematographer have no OMDB
+// equivalent at all, so this is the only way to get them without typing them in).
+async function fetchCrewIntoForm(){
+  let tmdbId = pendingTmdbId;
+  const title = document.getElementById('add-t').value.trim();
+  const year = document.getElementById('add-yr').value.trim();
+  if(!tmdbId){
+    if(!title){ toast('Enter a title first.', true); return; }
+    try{
+      const q = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}${year?'&year='+year:''}`);
+      const qd = await q.json();
+      tmdbId = qd.results && qd.results[0] && qd.results[0].id;
+    }catch(e){}
+    if(!tmdbId){ toast('No TMDB match found for this title.', true); return; }
+    pendingTmdbId = tmdbId;
+  }
+  toast('Fetching crew from TMDB...');
+  try{
+    const cr = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${TMDB_KEY}`);
+    const cd = await cr.json();
+    const crew = extractTMDBCrew(cd);
+    if(crew.writer) document.getElementById('add-writer').value = crew.writer;
+    if(crew.composer) document.getElementById('add-composer').value = crew.composer;
+    if(crew.cinematographer) document.getElementById('add-cinematographer').value = crew.cinematographer;
+    if(!crew.writer && !crew.composer && !crew.cinematographer){ toast('TMDB has no crew credits for this title.', true); return; }
+    toast('Crew info filled in from TMDB.');
+  }catch(e){ toast('Could not fetch crew info.', true); }
+}
+
 async function pickTMDBResult(tmdbId, title, year, type){
   const res = document.getElementById('lk-result');
   res.innerHTML = '<div class="lk-status loading"><i class="ti ti-loader"></i> Loading details...</div>';
   try{
-    const endpoint = 'https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+TMDB_KEY;
+    const endpoint = 'https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+TMDB_KEY+'&append_to_response=credits';
     const tr = await fetch(endpoint);
     const td = await tr.json();
     const imdbId = td.imdb_id||'';
@@ -6385,9 +6439,11 @@ async function pickTMDBResult(tmdbId, title, year, type){
         if(od.Response==='True') d = od;
       }catch(e2){}
     }
+    const crew = extractTMDBCrew(td.credits);
     const poster = td.poster_path ? TMDB_IMG+'w342'+td.poster_path : (d&&d.Poster&&d.Poster!=='N/A'?d.Poster:'');
     pendingPoster = poster;
     pendingImdb = imdbId;
+    pendingTmdbId = tmdbId;
     pendingRatings = d ? (d.Ratings||[]).map(function(r){return {s:r.Source,v:r.Value};}) : [];
     document.getElementById('add-t').value = td.title||td.name||title;
     document.getElementById('add-yr').value = (td.release_date||td.first_air_date||year||'').slice(0,4);
@@ -6395,9 +6451,11 @@ async function pickTMDBResult(tmdbId, title, year, type){
     document.getElementById('add-lang').value = td.original_language ? (td.original_language==='en'?'English':td.original_language) : (d&&d.Language&&d.Language!=='N/A'?d.Language.split(',')[0].trim():'');
     document.getElementById('add-rat').value = d&&d.Rated&&d.Rated!=='N/A'?d.Rated:'';
     document.getElementById('add-runtime').value = td.runtime||(d&&d.Runtime?d.Runtime.replace(/\s*min\s*$/i,''):'');
-    document.getElementById('add-dir').value = d&&d.Director&&d.Director!=='N/A'?d.Director:'';
-    document.getElementById('add-writer').value = d&&d.Writer&&d.Writer!=='N/A'?d.Writer:'';
+    document.getElementById('add-dir').value = crew.director || (d&&d.Director&&d.Director!=='N/A'?d.Director:'');
+    document.getElementById('add-writer').value = crew.writer || (d&&d.Writer&&d.Writer!=='N/A'?d.Writer:'');
     document.getElementById('add-act').value = d&&d.Actors&&d.Actors!=='N/A'?d.Actors:'';
+    document.getElementById('add-composer').value = crew.composer;
+    document.getElementById('add-cinematographer').value = crew.cinematographer;
     document.getElementById('add-plot').value = td.overview||(d&&d.Plot&&d.Plot!=='N/A'?d.Plot:'')||'';
     document.getElementById('add-poster').value = poster;
     const displayTitle = (td.title||td.name||title) + ' (' + (td.release_date||td.first_air_date||year||'').slice(0,4) + ')';
@@ -6464,6 +6522,7 @@ function submitAdd(){
     addedAt:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedAt||Date.now()):Date.now(),
     addedBy:editingId?((sharedData.library.find(x=>x.id===editingId)||sharedData.wishlist.find(x=>x.id===editingId)||{}).addedBy||CU.username):CU.username,
   };
+  if(pendingTmdbId) item.tmdbId = pendingTmdbId; // only set when the search-pick actually resolved a TMDB id, so editing without re-searching never clobbers an existing link
   // plot and actors kept for all items
   if(editingId){
     const li=sharedData.library.findIndex(x=>x.id===editingId);
@@ -6829,6 +6888,53 @@ function switchDiarySubtab(t){
 // everything else links to that person's TMDB filmography.
 const BREAKDOWN_LINKABLE = { genre:false, actors:true, director:true, writer:true, composer:true, cinematographer:true };
 
+// Tracks movie ids we've already tried to backfill crew data for this session,
+// so a title with genuinely no TMDB composer/cinematographer credit doesn't get
+// re-fetched on every render.
+const _crewFetchAttempted = new Set();
+
+// Backfills writer/composer/cinematographer from TMDB crew credits for whichever
+// watched movies are missing the requested field. Resolves a TMDB id by title+year
+// search when a movie doesn't already have one cached, then writes results back
+// onto the actual library/diaryItems object so they're only ever fetched once.
+async function fillMissingCrewData(field, entries){
+  const me = myData();
+  const uniqueMovies = [];
+  const seen = new Set();
+  entries.forEach(e=>{
+    if(!(e.m[field]||'').trim() && !_crewFetchAttempted.has(e.m.id) && !seen.has(e.m.id)){
+      seen.add(e.m.id);
+      uniqueMovies.push(e.m);
+    }
+  });
+
+  for(const m of uniqueMovies){
+    _crewFetchAttempted.add(m.id);
+    try{
+      let tmdbId = m.tmdbId;
+      if(!tmdbId){
+        const q = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(m.title||'')}${m.year?'&year='+m.year:''}`);
+        const qd = await q.json();
+        tmdbId = qd.results && qd.results[0] && qd.results[0].id;
+      }
+      if(!tmdbId) continue;
+      const cr = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${TMDB_KEY}`);
+      const cd = await cr.json();
+      const crew = extractTMDBCrew(cd);
+      // Write onto whichever store actually holds this movie
+      const target = sharedData.library.find(x=>x.id===m.id) || (me.diaryItems && me.diaryItems[m.id]);
+      if(target){
+        if(tmdbId && !target.tmdbId) target.tmdbId = tmdbId;
+        if(crew.writer && !target.writer) target.writer = crew.writer;
+        if(crew.composer && !target.composer) target.composer = crew.composer;
+        if(crew.cinematographer && !target.cinematographer) target.cinematographer = crew.cinematographer;
+      }
+    }catch(e){ /* skip this title and move on — it stays without the field */ }
+  }
+  await saveShared().catch(()=>{});
+  await saveUsers().catch(()=>{});
+}
+
 function renderDiaryBreakdown(){
   const me = myData();
   const field = document.getElementById('breakdown-filter')?.value || 'director';
@@ -6854,6 +6960,20 @@ function renderDiaryBreakdown(){
       entries.push({ m, ts });
     });
   });
+
+  // Writer/Composer/Cinematographer have no OMDB equivalent (composer and
+  // cinematographer aren't in OMDB at all), so backfill any missing values from
+  // TMDB crew credits once per movie per session, then re-render when done.
+  const CREW_FIELDS = ['writer','composer','cinematographer'];
+  if(CREW_FIELDS.includes(field)){
+    const needsFetch = entries.some(e=> !(e.m[field]||'').trim() && !_crewFetchAttempted.has(e.m.id));
+    if(needsFetch){
+      body.innerHTML = '<div class="empty"><i class="ti ti-loader"></i><p style="font-size:14px">Fetching '+field+' info from TMDB...</p></div>';
+      if(empty) empty.style.display='none';
+      fillMissingCrewData(field, entries).then(()=> renderDiaryBreakdown());
+      return;
+    }
+  }
 
   if(!entries.length){
     body.innerHTML='';
