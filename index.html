@@ -187,6 +187,10 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .diary-meta{font-size:11px;color:var(--muted);margin-top:2px}
 .diary-rating{font-family:Bebas Neue,cursive;font-size:20px;color:var(--gold)}
 .diary-like{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
+.diary-rewatch{background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
+.diary-rewatch:hover{transform:scale(1.15);color:var(--blue)}
+.diary-entry{-webkit-user-select:none;user-select:none;transition:background .4s,border-color .2s}
+.diary-entry.longpress-active{background:rgba(232,53,75,.18)}
 /* ── WATCHLIST ROW LIST (Diary-style vertical list) ─────────────────────── */
 .wl-list{display:flex;flex-direction:column;gap:0}
 .wl-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid rgba(255,255,255,.18);border-top:none;padding:10px 14px;cursor:pointer;transition:background .2s}
@@ -203,6 +207,20 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .wl-row-btn i{font-size:14px;pointer-events:none}
 .diary-like:hover{transform:scale(1.15)}
 .diary-like.on{color:var(--red)}
+
+/* ── DIARY BREAKDOWN ─────────────────────────────────────────────────── */
+.breakdown-group{margin-bottom:22px}
+.breakdown-group-hd{font-family:Bebas Neue,cursive;font-size:18px;letter-spacing:1px;color:#000;background:var(--gold);display:flex;align-items:center;gap:8px;padding:8px 14px;text-transform:uppercase;border-radius:0}
+.breakdown-group-hd a{color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)}
+.breakdown-group-hd a:hover{text-decoration-color:#000}
+.breakdown-rows{display:flex;flex-direction:column;gap:0}
+.breakdown-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid rgba(255,255,255,.18);border-top:none;border-radius:0;padding:10px 16px;cursor:pointer;transition:all .2s}
+.breakdown-rows .breakdown-row:first-child{border-top:1px solid rgba(255,255,255,.18)}
+.breakdown-row:hover{background:var(--bg3)}
+body.light-mode .breakdown-row{border-color:rgba(0,0,0,.22)}
+body.light-mode .breakdown-rows .breakdown-row:first-child{border-top-color:rgba(0,0,0,.22)}
+.breakdown-row-title{font-size:14px;font-weight:600;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.breakdown-row-date{font-size:12px;color:var(--muted);flex-shrink:0}
 
 /* YEAR IN REVIEW */
 .yir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
@@ -1656,8 +1674,34 @@ textarea.ffi{resize:vertical}
         <div class="sl" style="flex:1;margin:0;font-size:28px;color:#000;text-shadow:none">Watch Diary</div>
         <button class="ab" onclick="openDiaryAdd()" style="background:#000;color:var(--gold);box-shadow:none"><i class="ti ti-plus"></i> Log a Watch</button>
       </div>
-      <div id="diary-body"></div>
-      <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
+
+      <div class="auth-tabs" style="max-width:320px">
+        <button class="auth-tab active" id="diary-subtab-diary" onclick="switchDiarySubtab('diary')">Diary</button>
+        <button class="auth-tab" id="diary-subtab-breakdown" onclick="switchDiarySubtab('breakdown')">Breakdown</button>
+      </div>
+
+      <div id="diary-diary-pane">
+        <div id="diary-body"></div>
+        <div class="empty" id="diary-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p></div>
+      </div>
+
+      <div id="diary-breakdown-pane" style="display:none">
+        <div class="toolbar" style="margin-bottom:14px">
+          <div class="ff" style="margin-bottom:0">
+            <label class="fl">Filter by</label>
+            <select class="fb" id="breakdown-filter" onchange="renderDiaryBreakdown()">
+              <option value="genre">Genre</option>
+              <option value="actors">Actor</option>
+              <option value="director" selected>Director</option>
+              <option value="writer">Writer</option>
+              <option value="composer">Composer</option>
+              <option value="cinematographer">Cinematographer</option>
+            </select>
+          </div>
+        </div>
+        <div id="breakdown-body"></div>
+        <div class="empty" id="breakdown-empty" style="display:none"><i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.</p></div>
+      </div>
     </div>
 
 
@@ -2042,7 +2086,10 @@ textarea.ffi{resize:vertical}
         <div class="ff"><label class="fl">Runtime <span style="font-weight:400;color:var(--muted);text-transform:none;font-size:10px">(minutes)</span></label><input type="text" class="ffi" id="add-runtime" placeholder="120"></div>
         <div class="ff"><label class="fl">Language</label><input type="text" class="ffi" id="add-lang" placeholder="English, French..."></div>
         <div class="ff"><label class="fl">Director</label><input type="text" class="ffi" id="add-dir"></div>
+        <div class="ff"><label class="fl">Writer</label><input type="text" class="ffi" id="add-writer" placeholder="Writer 1, Writer 2..."></div>
         <div class="ff full"><label class="fl">Cast</label><input type="text" class="ffi" id="add-act" placeholder="Actor 1, Actor 2..."></div>
+        <div class="ff"><label class="fl">Composer</label><input type="text" class="ffi" id="add-composer" placeholder="Score composer"></div>
+        <div class="ff"><label class="fl">Cinematographer</label><input type="text" class="ffi" id="add-cinematographer"></div>
         <div class="ff full"><label class="fl">Plot</label><textarea class="ffi" id="add-plot" rows="2"></textarea></div>
         <div class="ff full"><label class="fl">Tags <span style="font-weight:400;color:var(--muted);text-transform:none">(comma separated)</span></label><input type="text" class="ffi" id="add-tags" placeholder="e.g. sci-fi, rewatch, mind-bending"></div>
         <div class="ff full">
@@ -2838,7 +2885,7 @@ function initApp(){
     const diaryBtn = document.getElementById('nb-diary');
     if(diaryBtn) diaryBtn.classList.add('active');
     document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('active', b.id==='bnb-diary'));
-    renderDiary();
+    switchDiarySubtab(_diarySubtab||'diary');
     fixHeaderOffset();
   }catch(e){ console.error('initApp: diary activation failed', e); }
 
@@ -2886,6 +2933,7 @@ function myData(){
   if(!allUsers.personal) allUsers.personal={};
   if(!allUsers.personal[CU.id]) allUsers.personal[CU.id]={ratings:{},watched:{},favorites:{},notes:{},history:{},collections:[]};
   if(!allUsers.personal[CU.id].collections) allUsers.personal[CU.id].collections=[];
+  ensureRewatchList(allUsers.personal[CU.id]);
   return allUsers.personal[CU.id];
 }
 function udataFor(userId){
@@ -2910,7 +2958,7 @@ function switchTab(t,el){
   if(t==='library') renderLib();
     if(t==='wishlist') renderWish();
   if(t==='lists') renderLists();
-  if(t==='diary') renderDiary();
+  if(t==='diary') switchDiarySubtab(_diarySubtab||'diary');
   // trophies rendered via renderCombinedStats below
   if(t==='vintage') renderVintage();
   if(t==='highscores') renderHighScores();
@@ -4639,11 +4687,12 @@ function buildWLTabRail(){
   myLists.forEach(function(list){
     const count = (list.items||[]).filter(id=>wlResolveItem(id)).length;
     const safe = (list.name||'').replace(/'/g,"\\'");
+    const isPermanent = list.id===REWATCH_LIST_ID;
     h += `<div class="wl-tab${_wlActiveList===list.id?' active':''}" onclick="switchWLTab('${list.id}')" title="${safe}">
-      <span class="wl-tab-label">${list.name}</span>
+      <span class="wl-tab-label">${isPermanent?'<i class="ti ti-repeat" style="margin-right:5px"></i>':''}${list.name}</span>
       <span class="wl-tab-actions">
-        <span class="wl-tab-action" onclick="event.stopPropagation();wlRenameList('${list.id}')" title="Rename list"><i class="ti ti-pencil" style="font-size:12px"></i></span>
-        <span class="wl-tab-action danger" onclick="event.stopPropagation();wlDeleteList('${list.id}')" title="Delete list"><i class="ti ti-trash" style="font-size:12px"></i></span>
+        ${isPermanent?'':`<span class="wl-tab-action" onclick="event.stopPropagation();wlRenameList('${list.id}')" title="Rename list"><i class="ti ti-pencil" style="font-size:12px"></i></span>
+        <span class="wl-tab-action danger" onclick="event.stopPropagation();wlDeleteList('${list.id}')" title="Delete list"><i class="ti ti-trash" style="font-size:12px"></i></span>`}
       </span>
       <span class="wl-tab-count">${count}</span></div>`;
   });
@@ -4660,6 +4709,7 @@ function buildWLTabRail(){
 }
 
 function wlRenameList(listId){
+  if(listId===REWATCH_LIST_ID){ toast('The Rewatch list is permanent and can\'t be renamed.', true); return; }
   const me = myData();
   const list = (me.collections||[]).find(c=>c.id===listId);
   if(!list) return;
@@ -4670,6 +4720,7 @@ function wlRenameList(listId){
 }
 
 function wlDeleteList(listId){
+  if(listId===REWATCH_LIST_ID){ toast('The Rewatch list is permanent and can\'t be deleted.', true); return; }
   const me = myData();
   const list = (me.collections||[]).find(c=>c.id===listId);
   if(!list) return;
@@ -5097,6 +5148,29 @@ function removeTag(id,src,tag){
 }
 
 // ── LISTS ─────────────────────────────────────────────────────────────────────
+// A single reserved, permanent list — always present, can't be renamed or
+// deleted — used to collect movies flagged "Rewatch" from the diary.
+const REWATCH_LIST_ID = '__rewatch__';
+function ensureRewatchList(me){
+  me.collections = me.collections||[];
+  let list = me.collections.find(c=>c.id===REWATCH_LIST_ID);
+  if(!list){
+    list = {id:REWATCH_LIST_ID, name:'Rewatch', items:[], permanent:true};
+    me.collections.unshift(list);
+  }
+  return list;
+}
+function rewatchFromDiary(itemId){
+  const me = myData();
+  const list = ensureRewatchList(me);
+  list.items = list.items||[];
+  if(list.items.includes(itemId)){
+    toast('Already on your Rewatch list.');
+    return;
+  }
+  list.items.push(itemId);
+  saveUsers().then(()=>{ updateCounts(); toast('Added to your Rewatch list!'); });
+}
 function createList(addId){
   const name=(prompt('Name your list:')||'').trim();if(!name)return;
   const me=myData();me.collections=me.collections||[];
@@ -5147,11 +5221,13 @@ function toggleInList(listId,itemId){
   saveUsers().then(()=>openDetail(itemId,'library'));
 }
 function renameList(listId){
+  if(listId===REWATCH_LIST_ID){ toast('The Rewatch list is permanent and can\'t be renamed.', true); return; }
   const me=myData();const list=(me.collections||[]).find(c=>c.id===listId);if(!list)return;
   const name=(prompt('Rename list:',list.name)||'').trim();if(!name)return;
   list.name=name;saveUsers().then(()=>renderLists());
 }
 function deleteList(listId){
+  if(listId===REWATCH_LIST_ID){ toast('The Rewatch list is permanent and can\'t be deleted.', true); return; }
   if(!confirm('Delete this list? (Your titles stay in the library.)'))return;
   const me=myData();me.collections=(me.collections||[]).filter(c=>c.id!==listId);
   renderLists();updateCounts();
@@ -5181,12 +5257,13 @@ function renderLists(){
         <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.8);border-radius:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();removeFromList('${c.id}','${m.id}')"><i class="ti ti-x" style="font-size:13px;color:#fff"></i></div>
       </div>`;
     }).join('')}</div>`:'<div style="font-size:12px;color:var(--muted);padding:6px 0">Empty — open a title and add it to this list.</div>';
+    const isPermanent = c.id===REWATCH_LIST_ID;
     return `<div class="stat-block" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <div class="sbt" style="margin-bottom:0;flex:1"><i class="ti ti-list"></i> ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
+        <div class="sbt" style="margin-bottom:0;flex:1">${isPermanent?'<i class="ti ti-repeat"></i>':'<i class="ti ti-list"></i>'} ${c.name} <span style="font-size:11px;color:var(--muted)">(${items.length})</span></div>
         ${addMovieBtn}
-        <button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
-        <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>
+        ${isPermanent?'':`<button class="act" onclick="renameList('${c.id}')"><i class="ti ti-edit"></i></button>
+        <button class="act act-del" onclick="deleteList('${c.id}')"><i class="ti ti-trash"></i></button>`}
       </div>
       ${cards}
     </div>`;
@@ -5641,7 +5718,7 @@ async function addTMDBToSharedWishlistFromBtn(btn){
 async function buildTMDBWishlistItem(tmdbId, title, year, poster, isPersonal){
   let item = {
     id:uid(), title, sortTitle:'', type:'movie', year, genre:'', rating:'',
-    director:'', actors:'', plot:'', runtime:'', poster:poster||'',
+    director:'', writer:'', actors:'', composer:'', cinematographer:'', plot:'', runtime:'', poster:poster||'',
     imdb:'', tags:[], externalRatings:[], addedAt:Date.now(), addedBy:CU.username
   };
   try{
@@ -5651,6 +5728,7 @@ async function buildTMDBWishlistItem(tmdbId, title, year, poster, isPersonal){
       item.genre    = d.Genre&&d.Genre!=='N/A'    ? d.Genre    : '';
       item.rating   = d.Rated&&d.Rated!=='N/A'    ? d.Rated    : '';
       item.director = d.Director&&d.Director!=='N/A'?d.Director: '';
+      item.writer   = d.Writer&&d.Writer!=='N/A'  ? d.Writer   : '';
       item.actors   = d.Actors&&d.Actors!=='N/A'  ? d.Actors   : '';
       item.plot     = d.Plot&&d.Plot!=='N/A'       ? d.Plot     : '';
       item.runtime  = d.Runtime&&d.Runtime!=='N/A' ? d.Runtime.replace(/\s*min\s*$/i,'') : '';
@@ -6017,11 +6095,13 @@ function deleteComment(id,src,idx){
 }
 function logWatch(id){
   const me=myData();me.history=me.history||{};
+  const isRewatch = !!(me.history[id]&&me.history[id].length);
   let ts=Date.now();
   const el=document.getElementById('logdate-'+id);
   if(el&&el.value){const[y,mo,d]=el.value.split('-').map(Number);if(y&&mo&&d)ts=new Date(y,mo-1,d,12,0,0).getTime();}
   me.history[id]=[...(me.history[id]||[]),ts];
   me.watched=me.watched||{};me.watched[id]=true;
+  autoCheckChallengesForWatch(id, isRewatch);
   saveUsers().then(()=>{openDetail(id,'library');renderLib();renderDiary();renderStats();evaluateTrophies();});
   toast('Viewing logged!');
 }
@@ -6130,7 +6210,7 @@ function openAdd(target='library', typeHint='movie'){
   document.getElementById('add-lbl').textContent=target==='library'?'Add Movie':'Add to Watchlist';
   document.getElementById('add-watched-row').style.display=target==='library'?'flex':'none';
   document.getElementById('add-submit').innerHTML='<i class="ti ti-plus"></i> Add';
-  ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-runtime','add-lang','add-dir','add-act','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['add-t','add-sort-title','add-yr','add-gn','add-rat','add-runtime','add-lang','add-dir','add-writer','add-act','add-composer','add-cinematographer','add-plot','add-poster','add-search','add-tags'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   document.getElementById('add-type').value=typeHint;
   setAddType(typeHint);
   document.getElementById('add-wtch').checked=false;
@@ -6154,7 +6234,10 @@ function openEdit(id,src){
   document.getElementById('add-rat').value=m.rating||'';
   document.getElementById('add-lang').value=m.language||'';
   document.getElementById('add-dir').value=m.director||'';
+  document.getElementById('add-writer').value=m.writer||'';
   document.getElementById('add-act').value=m.actors||'';
+  document.getElementById('add-composer').value=m.composer||'';
+  document.getElementById('add-cinematographer').value=m.cinematographer||'';
   document.getElementById('add-plot').value=m.plot||'';
   document.getElementById('add-runtime').value=m.runtime||'';
   document.getElementById('add-poster').value=m.poster||'';
@@ -6305,6 +6388,7 @@ async function pickTMDBResult(tmdbId, title, year, type){
     document.getElementById('add-rat').value = d&&d.Rated&&d.Rated!=='N/A'?d.Rated:'';
     document.getElementById('add-runtime').value = td.runtime||(d&&d.Runtime?d.Runtime.replace(/\s*min\s*$/i,''):'');
     document.getElementById('add-dir').value = d&&d.Director&&d.Director!=='N/A'?d.Director:'';
+    document.getElementById('add-writer').value = d&&d.Writer&&d.Writer!=='N/A'?d.Writer:'';
     document.getElementById('add-act').value = d&&d.Actors&&d.Actors!=='N/A'?d.Actors:'';
     document.getElementById('add-plot').value = td.overview||(d&&d.Plot&&d.Plot!=='N/A'?d.Plot:'')||'';
     document.getElementById('add-poster').value = poster;
@@ -6336,6 +6420,7 @@ async function pickResult(imdbID){
       document.getElementById('add-rat').value=d.Rated&&d.Rated!=='N/A'?d.Rated:'';
       document.getElementById('add-runtime').value=d.Runtime&&d.Runtime!=='N/A'?d.Runtime.replace(/\s*min\s*$/i,''):'';
       document.getElementById('add-dir').value=d.Director&&d.Director!=='N/A'?d.Director:'';
+      document.getElementById('add-writer').value=d.Writer&&d.Writer!=='N/A'?d.Writer:'';
       document.getElementById('add-act').value=d.Actors&&d.Actors!=='N/A'?d.Actors:'';
       document.getElementById('add-plot').value=d.Plot&&d.Plot!=='N/A'?d.Plot:'';
       document.getElementById('add-poster').value=pendingPoster;
@@ -6361,7 +6446,10 @@ function submitAdd(){
     rating:document.getElementById('add-rat').value.trim(),
     language:document.getElementById('add-lang').value.trim(),
     director:document.getElementById('add-dir').value.trim(),
+    writer:document.getElementById('add-writer').value.trim(),
     actors:document.getElementById('add-act').value.trim(),
+    composer:document.getElementById('add-composer').value.trim(),
+    cinematographer:document.getElementById('add-cinematographer').value.trim(),
     plot:document.getElementById('add-plot').value.trim(),
     runtime:document.getElementById('add-runtime').value.trim(),
     poster,imdb:pendingImdb,tags,externalRatings:pendingRatings||[],
@@ -6377,7 +6465,12 @@ function submitAdd(){
   }else{
     if(addTarget==='library'){
       sharedData.library.push(item);
-      if(document.getElementById('add-wtch').checked){const me=myData();me.watched=me.watched||{};me.watched[item.id]=true;saveUsers();}
+      if(document.getElementById('add-wtch').checked){
+        const me=myData();me.watched=me.watched||{};me.watched[item.id]=true;
+        me.history=me.history||{};me.history[item.id]=[...(me.history[item.id]||[]),Date.now()];
+        autoCheckChallengesForWatch(item.id, false);
+        saveUsers();
+      }
     }else{
       sharedData.wishlist.push(item);
     }
@@ -6559,7 +6652,7 @@ async function submitDiaryAdd(){
       const picked = diarySelectedItem||{};
       itemId = 'diary:tmdb'+tmdbId;
       if(!me.diaryItems) me.diaryItems={};
-      me.diaryItems[itemId] = { id:itemId, title:picked.title||'', year:picked.year||'', poster:picked.poster||'', genre:'', type:'movie', director:'', imdb:'', tmdbId };
+      me.diaryItems[itemId] = { id:itemId, title:picked.title||'', year:picked.year||'', poster:picked.poster||'', genre:'', type:'movie', director:'', writer:'', actors:'', composer:'', cinematographer:'', imdb:'', tmdbId };
       try{
         const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(picked.title||'')}${picked.year?'&y='+picked.year:''}`);
         const d2 = await r.json();
@@ -6569,6 +6662,9 @@ async function submitDiaryAdd(){
             poster:(d2.Poster&&d2.Poster!=='N/A')?d2.Poster:(picked.poster||''),
             genre:d2.Genre||'', type:'movie',
             director:d2.Director&&d2.Director!=='N/A'?d2.Director:'',
+            writer:d2.Writer&&d2.Writer!=='N/A'?d2.Writer:'',
+            actors:d2.Actors&&d2.Actors!=='N/A'?d2.Actors:'',
+            composer:'', cinematographer:'',
             imdb:d2.imdbID||'', tmdbId
           };
         }
@@ -6589,6 +6685,9 @@ async function submitDiaryAdd(){
           poster:d2.Poster&&d2.Poster!=='N/A'?d2.Poster:'',
           genre:d2.Genre||'', type:'movie',
           director:d2.Director&&d2.Director!=='N/A'?d2.Director:'',
+          writer:d2.Writer&&d2.Writer!=='N/A'?d2.Writer:'',
+          actors:d2.Actors&&d2.Actors!=='N/A'?d2.Actors:'',
+          composer:'', cinematographer:'',
           imdb:d2.imdbID||'',
         };
       }
@@ -6596,7 +6695,9 @@ async function submitDiaryAdd(){
   }
 
   me.history[itemId] = [...(me.history[itemId]||[]), ts];
+  const isRewatch = me.history[itemId].length > 1;
   me.watched[itemId] = true;
+  autoCheckChallengesForWatch(itemId, isRewatch);
   saveUsers().then(()=>{
     closeMo('diary-add');
     renderDiary();
@@ -6654,7 +6755,9 @@ function renderDiary(){
     const rows = mes.map(e => {
       const d = new Date(e.ts);
       const hp = e.m.poster && e.m.poster !== 'N/A';
-      return `<div class="diary-entry">
+      return `<div class="diary-entry"
+        onmousedown="diaryLongPressStart(event,'${e.itemId}',${e.histIdx})" onmouseup="diaryLongPressEnd()" onmouseleave="diaryLongPressEnd()"
+        ontouchstart="diaryLongPressStart(event,'${e.itemId}',${e.histIdx})" ontouchend="diaryLongPressEnd()" ontouchcancel="diaryLongPressEnd()" ontouchmove="diaryLongPressEnd()">
         <div class="diary-date-box" onclick="openDetail('${e.m.id}','library')">
           <div class="diary-date">${d.getDate()}</div>
           <div class="diary-date-month">${_DIARY_MONTHS[d.getMonth()]}</div>
@@ -6667,11 +6770,122 @@ function renderDiary(){
           </div>
         </div>
         ${e.rating ? `<div class="diary-rating">${e.rating}<span style="font-size:12px;color:var(--muted)">/10</span></div>` : ''}
+        <button class="diary-rewatch" onclick="event.stopPropagation();rewatchFromDiary('${e.itemId}')" title="Add to Rewatch list"><i class="ti ti-repeat"></i></button>
         <button class="diary-like ${me.favorites?.[e.itemId]?'on':''}" onclick="event.stopPropagation();toggleDiaryLike('${e.itemId}')" title="${me.favorites?.[e.itemId]?'Unlike':'Like this movie'}"><i class="ti ti-heart${me.favorites?.[e.itemId]?'-filled':''}"></i></button>
-        <div class="hist-x" style="margin-left:4px" onclick="event.stopPropagation();delDiaryEntry('${e.itemId}',${e.histIdx})"><i class="ti ti-x"></i></div>
       </div>`;
     }).join('');
     return `<div class="diary-month"><div class="diary-month-hd">${monthKey} <span style="font-size:12px;color:rgba(0,0,0,.6)">(${mes.length})</span></div><div class="diary-entries">${rows}</div></div>`;
+  }).join('');
+}
+
+// Long-press-to-delete for diary entries (replaces the old always-visible delete button).
+// Hold an entry down for ~550ms to remove it; release early and nothing happens.
+let _diaryPressTimer = null;
+let _diaryPressTarget = null;
+function diaryLongPressStart(e, itemId, histIdx){
+  diaryLongPressEnd();
+  _diaryPressTarget = e.currentTarget;
+  if(_diaryPressTarget) _diaryPressTarget.classList.add('longpress-active');
+  _diaryPressTimer = setTimeout(()=>{
+    if(_diaryPressTarget) _diaryPressTarget.classList.remove('longpress-active');
+    _diaryPressTimer = null;
+    delDiaryEntry(itemId, histIdx);
+  }, 550);
+}
+function diaryLongPressEnd(){
+  if(_diaryPressTimer){ clearTimeout(_diaryPressTimer); _diaryPressTimer=null; }
+  if(_diaryPressTarget){ _diaryPressTarget.classList.remove('longpress-active'); _diaryPressTarget=null; }
+}
+
+// ── DIARY SUB-TABS (Diary / Breakdown) ────────────────────────────────────────
+let _diarySubtab = 'diary';
+function switchDiarySubtab(t){
+  try{
+    _diarySubtab = t;
+    document.querySelectorAll('#tab-diary .auth-tab').forEach(b=>b.classList.remove('active'));
+    const btn = document.getElementById('diary-subtab-'+t);
+    if(btn) btn.classList.add('active');
+    const panes = {diary:'diary-diary-pane', breakdown:'diary-breakdown-pane'};
+    Object.keys(panes).forEach(function(k){
+      const el = document.getElementById(panes[k]);
+      if(el) el.style.display = (k===t) ? '' : 'none';
+    });
+    if(t==='diary') renderDiary();
+    if(t==='breakdown') renderDiaryBreakdown();
+  }catch(err){
+    console.error('switchDiarySubtab failed:', err);
+  }
+}
+
+// Fields a movie can be broken down by. Genre isn't a "person" so it never links out;
+// everything else links to that person's TMDB filmography.
+const BREAKDOWN_LINKABLE = { genre:false, actors:true, director:true, writer:true, composer:true, cinematographer:true };
+
+function renderDiaryBreakdown(){
+  const me = myData();
+  const field = document.getElementById('breakdown-filter')?.value || 'director';
+  const body = document.getElementById('breakdown-body');
+  const empty = document.getElementById('breakdown-empty');
+  if(!body) return;
+
+  // Same flat list of watch events as the Diary tab — shared-library items plus
+  // personal diary-only items (logged directly, never added to the household library).
+  const entries = [];
+  Object.entries(me.history||{}).forEach(([itemId, dates]) => {
+    const m = (me.diaryItems&&me.diaryItems[itemId]) || sharedData.library.find(x => x.id === itemId);
+    if(!m) return;
+    dates.forEach(ts => { entries.push({ m, ts }); });
+  });
+
+  if(!entries.length){
+    body.innerHTML='';
+    if(empty){ empty.style.display=''; empty.innerHTML='<i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p>'; }
+    return;
+  }
+
+  // Group each watch event under every value of the chosen field (comma-split,
+  // so a movie with 3 actors shows up under all 3 of them).
+  const UNSPEC = '— Unspecified —';
+  const groups = {};
+  entries.forEach(e=>{
+    const raw = (e.m[field]||'').toString().trim();
+    const values = raw ? raw.split(',').map(v=>v.trim()).filter(Boolean) : [];
+    (values.length ? values : [UNSPEC]).forEach(v=>{
+      (groups[v] = groups[v]||[]).push(e);
+    });
+  });
+
+  const groupNames = Object.keys(groups).filter(g=>g!==UNSPEC).sort((a,b)=>a.localeCompare(b));
+  if(groups[UNSPEC]) groupNames.push(UNSPEC);
+
+  if(!groupNames.length){
+    body.innerHTML='';
+    if(empty){ empty.style.display=''; empty.innerHTML='<i class="ti ti-list"></i><p style="font-size:14px">No data logged for this filter yet.</p>'; }
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  const linkable = BREAKDOWN_LINKABLE[field];
+
+  body.innerHTML = groupNames.map(name=>{
+    // Sorted alphabetically within the group too, so it reads cleanly top to bottom.
+    const rows = groups[name].slice().sort((a,b)=>(a.m.sortTitle||a.m.title||'').localeCompare(b.m.sortTitle||b.m.title||''));
+    const safeName = name.replace(/'/g,"\\'");
+    const header = (linkable && name!==UNSPEC)
+      ? `<a href="javascript:void(0)" onclick="event.stopPropagation();openTMDBFilmography('${safeName}')">${name}</a>`
+      : name;
+    return `<div class="breakdown-group">
+      <div class="breakdown-group-hd">${header} <span style="font-size:11px;color:rgba(0,0,0,.6);font-weight:400">(${rows.length})</span></div>
+      <div class="breakdown-rows">
+        ${rows.map(e=>{
+          const d = new Date(e.ts);
+          return `<div class="breakdown-row" onclick="openDetail('${e.m.id}','library')">
+            <span class="breakdown-row-title">${e.m.title}${e.m.year?` <span style="font-weight:400;color:var(--muted)">(${e.m.year})</span>`:''}</span>
+            <span class="breakdown-row-date">${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -7591,7 +7805,7 @@ function startGauntlet(mode, customId){
   toast('The Gauntlet begins! Good luck.');
 }
 
-function markGauntletDayDone(movieId){
+function markGauntletDayDone(movieId, auto){
   const me=myData(); const g=me.gauntlet;
   if(!g||g.timeUp) return;
   const left=gauntletTimeLeft(g);
@@ -7605,7 +7819,7 @@ function markGauntletDayDone(movieId){
     finalizeGauntletScore(g, me); // conquered — lock in the score
   }
   saveUsers().then(()=>renderGauntlet());
-  toast('Challenge complete! Next one is up.');
+  toast(auto ? 'Diary watch auto-completed the challenge! Next one is up.' : 'Challenge complete! Next one is up.');
 }
 
 function gauntletTimeUp(){
@@ -7632,12 +7846,109 @@ function getGauntletHint(challenge){
   return null;
 }
 
-function checkGauntletAutoComplete(movieId){
+// ── CHALLENGE AUTO-COMPLETE ────────────────────────────────────────────────
+// Rule-based matching: each rule pairs a regex (tested against the challenge's
+// own text) with a test function (movie, ctx) => boolean. Whenever a watch is
+// logged to the diary, whatever Gauntlet challenge and weekly challenge are
+// currently active get checked against these rules; if one matches and the
+// movie actually satisfies it, the challenge completes on its own. Anything
+// not covered here — mostly plot/theme/poster-based weekly challenges, which
+// aren't derivable from the stored movie data — is left for manual "Mark
+// Complete", same as always. More rules can be added here as more challenge
+// data becomes available.
+function _cTitleWords(title){ return (title||'').trim().split(/\s+/).filter(Boolean); }
+function _cRuntimeMin(runtime){ const n=parseInt(runtime,10); return isNaN(n)?0:n; }
+function _cYear(year){ const n=parseInt(year,10); return isNaN(n)?0:n; }
+function _cInDecade(year, decadeStart){ const y=_cYear(year); return y>=decadeStart && y<decadeStart+10; }
+function _cWordBoundary(text, word){ return new RegExp('\\b'+word+'\\b','i').test(text||''); }
+const _C_COLORS = ['red','blue','green','yellow','black','white','purple','orange','pink','gold','silver','grey','gray','scarlet','crimson','violet'];
+const _C_FAMILY_WORDS = ['father','mother','brother','sister','uncle','aunt','son','daughter','dad','mom','mommy','daddy','family','grandfather','grandmother','grandpa','grandma','wife','husband','parent','parents'];
+const _C_NATO = ['alpha','bravo','charlie','delta','echo','foxtrot','golf','hotel','india','juliett','juliet','kilo','lima','mike','november','oscar','papa','quebec','romeo','sierra','tango','uniform','victor','whiskey','xray','x-ray','yankee','zulu'];
+const _C_QUESTION_WORDS = ['who','what','where','why','when','how'];
+function _cHasAlliteration(text){
+  const words = _cTitleWords(text).map(w=>w.replace(/[^a-zA-Z]/g,'')).filter(Boolean);
+  for(let i=0;i<words.length-1;i++){
+    if(words[i][0] && words[i+1][0] && words[i][0].toLowerCase()===words[i+1][0].toLowerCase()) return true;
+  }
+  return false;
+}
+
+const CHALLENGE_AUTO_RULES = [
+  // ── Gauntlet basic challenges ──
+  { match:/before 1980/i,              test:m=> _cYear(m.year)>0 && _cYear(m.year)<1980 },
+  { match:/rated g or pg\b/i,          test:m=> /^(g|pg)$/i.test((m.rating||'').trim()) },
+  { match:/one-word title/i,           test:m=> _cTitleWords(m.title).length===1 },
+  { match:/foreign language/i,         test:m=> !!m.language && !/^english/i.test(m.language.trim()) },
+  { match:/over 2\.5 hours/i,          test:m=> _cRuntimeMin(m.runtime)>150 },
+  { match:/rated r\b/i,                test:m=> /^r$/i.test((m.rating||'').trim()) },
+  { match:/from the 1990s/i,           test:m=> _cInDecade(m.year,1990) },
+  { match:/under 90 minutes/i,         test:m=> { const r=_cRuntimeMin(m.runtime); return r>0 && r<90; } },
+  { match:/rated pg-13/i,              test:m=> /^pg-13$/i.test((m.rating||'').trim()) },
+  { match:/from the 2000s/i,           test:m=> _cInDecade(m.year,2000) },
+  { match:/number in the title/i,      test:m=> /\d/.test(m.title||'') },
+  { match:/biographical film/i,        test:m=> /biograph/i.test(m.genre||'') },
+  { match:/rewatch a movie/i,          test:(m,ctx)=> !!ctx.isRewatch },
+  { match:/color in the title/i,       test:m=> _C_COLORS.some(c=>_cWordBoundary(m.title,c)) },
+  { match:/released this decade/i,     test:m=> _cInDecade(m.year, Math.floor(new Date().getFullYear()/10)*10) },
+  { match:/from the 1980s/i,           test:m=> _cInDecade(m.year,1980) },
+  { match:/from the 1970s/i,           test:m=> _cInDecade(m.year,1970) },
+  { match:/from the 1960s/i,           test:m=> _cInDecade(m.year,1960) },
+  { match:/two-word title/i,           test:m=> _cTitleWords(m.title).length===2 },
+  { match:/under 2 hours/i,            test:m=> { const r=_cRuntimeMin(m.runtime); return r>0 && r<120; } },
+  { match:/from the 2010s/i,           test:m=> _cInDecade(m.year,2010) },
+  { match:/whatever you want/i,        test:()=> true },
+
+  // ── Weekly challenges (title/metadata-based only — plot/theme/poster ones stay manual) ──
+  { match:/3-word-title/i,             test:m=> _cTitleWords(m.title).length===3 },
+  { match:/two-word title challenge/i, test:m=> _cTitleWords(m.title).length===2 },
+  { match:/single-word challenge/i,    test:m=> _cTitleWords(m.title).length===1 },
+  { match:/5 below challenge/i,        test:m=> (m.title||'').replace(/[^a-zA-Z]/g,'').length<=5 },
+  { match:/plurals challenge/i,        test:m=> _cTitleWords(m.title).some(w=>/s$/i.test(w) && !/ss$/i.test(w) && w.length>2) },
+  { match:/the red challenge/i,        test:m=> _cWordBoundary(m.title,'red') },
+  { match:/who, what, where, why, when/i, test:m=> _C_QUESTION_WORDS.some(w=>_cWordBoundary(m.title,w)) },
+  { match:/family challenge/i,         test:m=> _C_FAMILY_WORDS.some(w=>_cWordBoundary(m.title,w)) },
+  { match:/nato phonetic alphabet/i,   test:m=> _C_NATO.some(w=>_cWordBoundary(m.title,w)) },
+  { match:/alliteration challenge/i,   test:m=> _cHasAlliteration(m.title) || _cHasAlliteration(m.director||'') || _cHasAlliteration(m.actors||'') || _cHasAlliteration(m.writer||'') },
+];
+
+// Returns true/false once a rule has matched and evaluated the movie, or null
+// if nothing here understands this challenge yet — meaning it stays manual-only.
+function evaluateChallengeAuto(challengeText, movie, ctx){
+  if(!challengeText || !movie) return null;
+  for(const rule of CHALLENGE_AUTO_RULES){
+    if(rule.match.test(challengeText)){
+      try{ return !!rule.test(movie, ctx||{}); }catch(e){ return null; }
+    }
+  }
+  return null;
+}
+
+function checkGauntletAutoComplete(movieId, isRewatch){
   const me=myData(); const g=me.gauntlet;
   if(!g||g.timeUp||!g.challenges) return;
   const idx=gauntletCurrentChallenge(g);
   if(idx>=(g.challenges||[]).length) return;
-  markGauntletDayDone(movieId);
+  const movie = (me.diaryItems&&me.diaryItems[movieId]) || sharedData.library.find(x=>x.id===movieId);
+  if(!movie) return;
+  const result = evaluateChallengeAuto(g.challenges[idx], movie, {isRewatch});
+  if(result===true) markGauntletDayDone(movieId, true);
+}
+
+function checkWeeklyAutoComplete(movieId, isRewatch){
+  const me=myData(); const ws=me.weeklyState;
+  if(!ws || !ws.current || ws.completedAt) return;
+  const movie = (me.diaryItems&&me.diaryItems[movieId]) || sharedData.library.find(x=>x.id===movieId);
+  if(!movie) return;
+  const result = evaluateChallengeAuto(ws.current.text, movie, {isRewatch});
+  if(result===true) markWeeklyChallengeComplete(true);
+}
+
+// Single entry point diary-logging flows call after a watch is saved.
+function autoCheckChallengesForWatch(movieId, isRewatch){
+  try{
+    checkGauntletAutoComplete(movieId, isRewatch);
+    checkWeeklyAutoComplete(movieId, isRewatch);
+  }catch(e){ console.warn('autoCheckChallengesForWatch failed:', e); }
 }
 
 function resetGauntlet(){
@@ -8062,7 +8373,7 @@ function maybeAdvanceWeeklyChallenge(){
   return false;
 }
 
-function markWeeklyChallengeComplete(){
+function markWeeklyChallengeComplete(auto){
   const me = myData();
   if(!me.weeklyState || !me.weeklyState.current){ toast('No active weekly challenge.', true); return; }
   if(me.weeklyState.completedAt) return;
@@ -8074,7 +8385,9 @@ function markWeeklyChallengeComplete(){
   }
   saveUsers().then(function(){
     renderGauntlet();
-    toast(addedPts ? 'Weekly challenge complete! +2 pts added to your run.' : 'Weekly challenge complete!');
+    toast(auto
+      ? (addedPts ? 'Diary watch auto-completed the weekly challenge! +2 pts added to your run.' : 'Diary watch auto-completed the weekly challenge!')
+      : (addedPts ? 'Weekly challenge complete! +2 pts added to your run.' : 'Weekly challenge complete!'));
   });
 }
 
@@ -9128,7 +9441,14 @@ function renderRankLiked(){
   if(!grid) return;
   const q = (document.getElementById('rank-liked-search')?.value||'').toLowerCase();
   const sort = document.getElementById('rank-liked-sort')?.value||'title';
-  let items = sharedData.library.filter(m=>m.type!=='tv' && me.favorites?.[m.id]);
+  // Include diary-only items (logged directly, not added to the shared library) so
+  // anything liked from the Diary shows up here too, not just shared-library titles.
+  const diaryItems = Object.values(me.diaryItems||{});
+  const allItems = [
+    ...sharedData.library.map(m => ({...m, _src:'library'})),
+    ...diaryItems.map(m => ({...m, _src:'diary'}))
+  ];
+  let items = allItems.filter(m=>m.type!=='tv' && me.favorites?.[m.id]);
   if(q) items = items.filter(m=>(m.title||'').toLowerCase().includes(q));
   items = items.slice().sort((a,b)=>{
     if(sort==='year') return (b.year||0)-(a.year||0);
@@ -9142,11 +9462,13 @@ function renderRankLiked(){
   if(empty) empty.style.display='none';
   grid.innerHTML = items.map(m=>{
     const hp = m.poster && m.poster!=='N/A';
+    const isDiary = m._src === 'diary';
     return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','library')">
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
       <div class="fav-star">★</div>
+      ${isDiary?`<div class="tb tb-m" style="background:rgba(52,152,219,0.8)">Personal</div>`:''}
       <button style="position:absolute;top:5px;right:5px;background:rgba(232,53,75,.85);border:none;border-radius:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
         onclick="event.stopPropagation();rankToggleLike('${m.id}')" title="Unlike">
         <i class="ti ti-heart-off" style="font-size:11px;color:#fff;pointer-events:none"></i>
