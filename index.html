@@ -7494,11 +7494,15 @@ const GAUNTLET_POINTS_PER_MODE = {'24hr':3,'48hr':2,'30days':1,'freestyle':0};
 
 function gauntletCurrentChallenge(g){ return (g.completed||[]).length; }
 
-// Timer is PER-CHALLENGE: each challenge gets its own window (24h/48h/30d depending on mode).
+// Timer is PER-CHALLENGE for 24hr/48hr modes (each challenge gets its own window).
+// For 30days mode, the timer is for the WHOLE gauntlet (all challenges share one 30-day deadline).
+function gauntletTimerAnchor(g){
+  return g.mode==='30days' ? g.startedAt : (g.challengeStartedAt||g.startedAt);
+}
 function gauntletTimeLeft(g){
   if(!g.mode||g.mode==='freestyle') return null;
   const ms=gauntletIntervalMs(g.mode);
-  const start=g.challengeStartedAt||g.startedAt;
+  const start=gauntletTimerAnchor(g);
   return (start+ms)-Date.now();
 }
 
@@ -7573,7 +7577,7 @@ function markGauntletDayDone(movieId){
   if(idx>=(g.challenges||[]).length) return;
   g.completed.push({challenge:g.challenges[idx],completedAt:Date.now(),movieId:movieId||null});
   g.points = (g.points||0) + (GAUNTLET_POINTS_PER_MODE[g.mode]||0);
-  g.challengeStartedAt = Date.now(); // fresh timer window for the next challenge
+  if(g.mode!=='30days') g.challengeStartedAt = Date.now(); // fresh timer window for the next challenge (24hr/48hr only — 30days shares one deadline)
   if(gauntletCurrentChallenge(g) >= (g.challenges||[]).length){
     finalizeGauntletScore(g, me); // conquered — lock in the score
   }
@@ -7649,7 +7653,7 @@ function renderGauntlet(){
       +'<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">How scoring works</div>'
       +'<div class="gpi-row"><span style="color:var(--gold)">24 Hours</span><span>24-hr timer <em>per challenge</em> · 3 pts each</span></div>'
       +'<div class="gpi-row"><span style="color:var(--purple)">48 Hours</span><span>48-hr timer <em>per challenge</em> · 2 pts each</span></div>'
-      +'<div class="gpi-row"><span style="color:var(--blue)">30 Days</span><span>30-day timer <em>per challenge</em> · 1 pt each</span></div>'
+      +'<div class="gpi-row"><span style="color:var(--blue)">30 Days</span><span>30-day timer <em>for the whole gauntlet</em> · 1 pt each</span></div>'
       +'<div class="gpi-row"><span style="color:var(--muted)">Free Style</span><span>No timer, no points — just for fun</span></div>'
       +'<div style="font-size:10px;color:var(--muted);margin-top:6px">Miss a challenge\'s timer and the run ends with whatever you\'ve scored. Scores save to the household High Scores page.</div>'
       +'</div>'
@@ -7718,7 +7722,7 @@ function renderGauntlet(){
   const modeLabel=GAUNTLET_MODE_LABELS[mode]||'Free Style';
   const heroColor=GAUNTLET_MODE_COLORS[mode]||'var(--muted)';
   const totalMs=gauntletIntervalMs(mode);
-  const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-(g.challengeStartedAt||g.startedAt))/totalMs*100)):0;
+  const elapsedPct=totalMs>0?Math.min(100,Math.round((Date.now()-gauntletTimerAnchor(g))/totalMs*100)):0;
   const total=(g.challenges||[]).length||30;
   const scored = mode!=='freestyle';
   const ptsPerChallenge = GAUNTLET_POINTS_PER_MODE[mode]||0;
