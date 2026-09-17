@@ -189,6 +189,7 @@ body.light-mode .diary-date-box{border-right-color:rgba(0,0,0,.3)}
 .diary-like{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
 .diary-rewatch{background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:4px;flex-shrink:0;transition:transform .15s,color .15s}
 .diary-rewatch:hover{transform:scale(1.15);color:var(--blue)}
+.diary-rewatch.on{color:var(--blue)}
 .diary-entry{-webkit-user-select:none;user-select:none;transition:background .4s,border-color .2s}
 .diary-entry.longpress-active{background:rgba(232,53,75,.18)}
 /* ── WATCHLIST ROW LIST (Diary-style vertical list) ─────────────────────── */
@@ -5176,12 +5177,14 @@ function rewatchFromDiary(itemId){
   const me = myData();
   const list = ensureRewatchList(me);
   list.items = list.items||[];
-  if(list.items.includes(itemId)){
-    toast('Already on your Rewatch list.');
-    return;
+  const i = list.items.indexOf(itemId);
+  if(i>-1){
+    list.items.splice(i,1);
+    saveUsers().then(()=>{ updateCounts(); renderDiary(); toast('Removed from your Rewatch list.'); });
+  } else {
+    list.items.push(itemId);
+    saveUsers().then(()=>{ updateCounts(); renderDiary(); toast('Added to your Rewatch list!'); });
   }
-  list.items.push(itemId);
-  saveUsers().then(()=>{ updateCounts(); toast('Added to your Rewatch list!'); });
 }
 function createList(addId){
   const name=(prompt('Name your list:')||'').trim();if(!name)return;
@@ -6788,6 +6791,7 @@ function renderDiary(){
   const body = document.getElementById('diary-body');
   const empty = document.getElementById('diary-empty');
   if(!body) return;
+  const rewatchIds = new Set((ensureRewatchList(me).items)||[]);
 
   // Build a flat list of all watch events, across all years
   const entries = [];
@@ -6837,7 +6841,7 @@ function renderDiary(){
           </div>
         </div>
         ${e.rating ? `<div class="diary-rating">${e.rating}<span style="font-size:12px;color:var(--muted)">/10</span></div>` : ''}
-        <button class="diary-rewatch" onclick="event.stopPropagation();rewatchFromDiary('${e.itemId}')" title="Add to Rewatch list"><i class="ti ti-repeat"></i></button>
+        <button class="diary-rewatch ${rewatchIds.has(e.itemId)?'on':''}" onclick="event.stopPropagation();rewatchFromDiary('${e.itemId}')" title="${rewatchIds.has(e.itemId)?'Remove from Rewatch list':'Add to Rewatch list'}"><i class="ti ti-repeat"></i></button>
         <button class="diary-like ${me.favorites?.[e.itemId]?'on':''}" onclick="event.stopPropagation();toggleDiaryLike('${e.itemId}')" title="${me.favorites?.[e.itemId]?'Unlike':'Like this movie'}"><i class="ti ti-heart${me.favorites?.[e.itemId]?'-filled':''}"></i></button>
       </div>`;
     }).join('');
@@ -9583,13 +9587,15 @@ function renderRankLiked(){
   if(!grid) return;
   const q = (document.getElementById('rank-liked-search')?.value||'').toLowerCase();
   const sort = document.getElementById('rank-liked-sort')?.value||'title';
-  // Include diary-only items (logged directly, not added to the shared library) so
-  // anything liked from the Diary shows up here too, not just shared-library titles.
+  // Include watchlist items and diary-only items (logged directly, not added to
+  // the shared library) so anything liked from the Diary shows up here too,
+  // regardless of which store the movie actually lives in.
   const diaryItems = Object.values(me.diaryItems||{});
-  const allItems = [
-    ...sharedData.library.map(m => ({...m, _src:'library'})),
-    ...diaryItems.map(m => ({...m, _src:'diary'}))
-  ];
+  const seenIds = new Set();
+  const allItems = [];
+  sharedData.library.forEach(m=>{ if(!seenIds.has(m.id)){ seenIds.add(m.id); allItems.push({...m,_src:'library'}); } });
+  sharedData.wishlist.forEach(m=>{ if(!seenIds.has(m.id)){ seenIds.add(m.id); allItems.push({...m,_src:'wishlist'}); } });
+  diaryItems.forEach(m=>{ if(!seenIds.has(m.id)){ seenIds.add(m.id); allItems.push({...m,_src:'diary'}); } });
   let items = allItems.filter(m=>m.type!=='tv' && me.favorites?.[m.id]);
   if(q) items = items.filter(m=>(m.title||'').toLowerCase().includes(q));
   items = items.slice().sort((a,b)=>{
@@ -9605,12 +9611,15 @@ function renderRankLiked(){
   grid.innerHTML = items.map(m=>{
     const hp = m.poster && m.poster!=='N/A';
     const isDiary = m._src === 'diary';
-    return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','library')">
+    const isWishlist = m._src === 'wishlist';
+    const openSrc = isWishlist ? 'wishlist' : 'library';
+    return `<div class="card" style="position:relative" onclick="openDetail('${m.id}','${openSrc}')">
       ${hp?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
       <div class="pfb" style="display:${hp?'none':'flex'}"><i class="ti ti-movie"></i><span>${m.title}</span></div>
       <div class="ov"><div class="ov-row"><div class="ov-title">${m.title}</div><div class="ov-meta">${m.year||''}</div></div></div>
       <div class="fav-star">★</div>
       ${isDiary?`<div class="tb tb-m" style="background:rgba(52,152,219,0.8)">Personal</div>`:''}
+      ${isWishlist?`<div class="tb tb-m" style="background:rgba(138,90,240,0.8)">Watchlist</div>`:''}
       <button style="position:absolute;top:5px;right:5px;background:rgba(232,53,75,.85);border:none;border-radius:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0"
         onclick="event.stopPropagation();rankToggleLike('${m.id}')" title="Unlike">
         <i class="ti ti-heart-off" style="font-size:11px;color:#fff;pointer-events:none"></i>
