@@ -1686,7 +1686,7 @@ textarea.ffi{resize:vertical}
       </div>
 
       <div id="diary-breakdown-pane" style="display:none">
-        <div class="toolbar" style="margin-bottom:14px">
+        <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap">
           <div class="ff" style="margin-bottom:0">
             <label class="fl">Filter by</label>
             <select class="fb" id="breakdown-filter" onchange="renderDiaryBreakdown()">
@@ -1696,6 +1696,14 @@ textarea.ffi{resize:vertical}
               <option value="writer">Writer</option>
               <option value="composer">Composer</option>
               <option value="cinematographer">Cinematographer</option>
+            </select>
+          </div>
+          <div class="ff" style="margin-bottom:0">
+            <label class="fl">Period</label>
+            <select class="fb" id="breakdown-period" onchange="renderDiaryBreakdown()">
+              <option value="all">All Time</option>
+              <option value="monthly">This Month</option>
+              <option value="annual">This Year</option>
             </select>
           </div>
         </div>
@@ -6824,22 +6832,36 @@ const BREAKDOWN_LINKABLE = { genre:false, actors:true, director:true, writer:tru
 function renderDiaryBreakdown(){
   const me = myData();
   const field = document.getElementById('breakdown-filter')?.value || 'director';
+  const period = document.getElementById('breakdown-period')?.value || 'all';
   const body = document.getElementById('breakdown-body');
   const empty = document.getElementById('breakdown-empty');
   if(!body) return;
 
   // Same flat list of watch events as the Diary tab — shared-library items plus
   // personal diary-only items (logged directly, never added to the household library).
+  const now = new Date();
   const entries = [];
   Object.entries(me.history||{}).forEach(([itemId, dates]) => {
     const m = (me.diaryItems&&me.diaryItems[itemId]) || sharedData.library.find(x => x.id === itemId);
     if(!m) return;
-    dates.forEach(ts => { entries.push({ m, ts }); });
+    dates.forEach(ts => {
+      if(period==='monthly'){
+        const d = new Date(ts);
+        if(d.getFullYear()!==now.getFullYear() || d.getMonth()!==now.getMonth()) return;
+      } else if(period==='annual'){
+        if(new Date(ts).getFullYear()!==now.getFullYear()) return;
+      }
+      entries.push({ m, ts });
+    });
   });
 
   if(!entries.length){
     body.innerHTML='';
-    if(empty){ empty.style.display=''; empty.innerHTML='<i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p>'; }
+    if(empty){
+      empty.style.display='';
+      const periodLabel = period==='monthly' ? ' this month' : period==='annual' ? ' this year' : '';
+      empty.innerHTML='<i class="ti ti-calendar"></i><p style="font-size:14px">No viewing history'+periodLabel+' yet.<br><span style="font-size:12px">Use Log a Watch to add entries.</span></p>';
+    }
     return;
   }
 
